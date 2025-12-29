@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Analyze</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.css" rel="stylesheet">
+    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1a202c;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5vmin;
+            padding-top: 2vmin;
+        }
+
+        .header h1 {
+            font-size: 6vmin;
+            font-weight: 800;
+            margin-bottom: 0.5vmin;
+            letter-spacing: -1.5px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header .subtitle {
+            font-size: 2.2vmin;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 6fr) minmax(0, 1fr);
+            gap: 1.5vmin;
+            padding: 0 1.5vmin;
+            height: calc(100vh - 2vmin);
+        }
+
+        .left-container, .right-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vmin;
+        }
+
+        #map {
+            position: relative;
+            width: 100%;
+            height: 82%;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        /* Modern Card Style */
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        /* Legend Container */
+        .legend-container {
+            position: relative;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.3);
+            padding: 1.8vmin;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .legend-container.minimized {
+            height: auto;
+            max-height: 8%;
+            overflow: hidden;
+        }
+
+        .minimize-btn {
+            position: absolute;
+            top: 1vmin;
+            right: 1vmin;
+            width: 3.5vmin;
+            height: 3.5vmin;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2.2vmin;
+            line-height: 1;
+            border: none;
+            color: #f59e0b;
+            transition: all 0.2s ease;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .minimize-btn:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .legend-title {
+            font-size: 2.8vmin;
+            font-weight: 800;
+            margin-bottom: 1.2vmin;
+            color: white;
+            padding-bottom: 1vmin;
+            letter-spacing: -0.5px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .legend-content {
+            transition: opacity 0.3s ease;
+        }
+
+        .legend-container.minimized .legend-content {
+            opacity: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8vmin;
+            padding: 1vmin 1.2vmin;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 2.2vmin;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(5px);
+        }
+
+        .color-box {
+            width: 2.5vmin;
+            height: 2.5vmin;
+            border-radius: 50%;
+            margin-right: 1.2vmin;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Expertise Container */
+        .expertise-container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            padding: 1.8vmin;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .expertise-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .expertise-title {
+            font-size: 3.5vmin;
+            font-weight: 800;
+            margin-bottom: 1.2vmin;
+            color: #667eea;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .expertise-item.filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.6vmin;
+            padding: 0.8vmin 1.2vmin;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6edff 100%);
+            font-size: 2vmin;
+            font-weight: 600;
+            color: #4c51bf;
+            border: 2px solid transparent;
+        }
+
+        .legend-item.filter-item {
+            border: 2px solid transparent;
+        }
+
+        .filter-clicked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: scale(1.02);
+        }
+
+        .filter-item:hover {
+            background: linear-gradient(135deg, #dce5ff 0%, #d1ddff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Search Container */
+        .search-container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .search-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.5vmin 2vmin;
+            border: none;
+            outline: none;
+            font-size: 2.2vmin;
+            font-weight: 600;
+            background: transparent;
+            color: #1a202c;
+        }
+
+        .search-input::placeholder {
+            color: #a0aec0;
+            font-weight: 500;
+        }
+
+        .search-results {
+            list-style: none;
+            min-height: 40vmin;
+            max-height: 40vmin;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+
+        .search-results::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .search-results::-webkit-scrollbar-track {
+            background: #f7fafc;
+        }
+
+        .search-results::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        li {
+            padding: 1vmin 2vmin;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            font-size: 2vmin;
+            color: #2d3748;
+        }
+
+        li:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+            padding-left: 2.5vmin;
+        }
+
+        /* Visible Container */
+        #visible-container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            max-height: 50vmin;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #visible-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .who-seeing-heading {
+            font-size: 3vmin;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 1vmin;
+            padding: 1.5vmin 2vmin 0.5vmin;
+            letter-spacing: -0.5px;
+        }
+
+        #visible-list {
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            max-height: 40vmin;
+            transition: all 0.5s ease;
+        }
+
+        li {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        li:nth-child(1) { animation-delay: 0.04s; }
+        li:nth-child(2) { animation-delay: 0.08s; }
+        li:nth-child(3) { animation-delay: 0.12s; }
+        li:nth-child(4) { animation-delay: 0.16s; }
+        li:nth-child(5) { animation-delay: 0.20s; }
+        li:nth-child(6) { animation-delay: 0.24s; }
+        li:nth-child(7) { animation-delay: 0.28s; }
+        li:nth-child(8) { animation-delay: 0.32s; }
+        li:nth-child(9) { animation-delay: 0.36s; }
+        li:nth-child(10) { animation-delay: 0.40s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modern Button Styling */
+        .modern-button {
+            background: rgba(255, 255, 255, 0.98);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            z-index: 1001;
+            color: #667eea;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modern-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        #home-button {
+            top: 3vmin;
+            left: 50%;
+            transform: translateX(calc(-50% - 25vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3.5vmin;
+        }
+
+        #info-button {
+            top: 3vmin;
+            left: 50%;
+            transform: translateX(calc(-50% + 28vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3.5vmin;
+        }
+
+        #uniqueness-button {
+            bottom: 3vmin;
+            left: 3vmin;
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+        /* Year Slider - Enhanced */
+        #year-slider {
+            position: absolute;
+            z-index: 10000;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+            bottom: 8vh;
+            left: 35%;
+            width: 30%;
+        }
+
+        .noUi-target {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            height: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .noUi-connect {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+            border-radius: 20px;
+        }
+
+        .noUi-handle {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            right: -16px;
+            top: -8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(102, 126, 234, 0.2);
+            cursor: grab;
+            transition: all 0.25s ease-out;
+        }
+
+        .noUi-handle:before, 
+        .noUi-handle:after {
+            display: none;
+        }
+
+        .noUi-handle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .noUi-handle:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .noUi-value {
+            font-size: 2.2vmin;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 700;
+        }
+
+        .noUi-value:hover {
+            font-weight: 800;
+            color: white;
+            font-size: 2.4vmin;
+        }
+
+        .noUi-tooltip {
+            background: rgba(26, 32, 44, 0.95);
+            border: 2px solid #667eea;
+            color: white;
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            font-weight: 700;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .noUi-active .noUi-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+            padding: 3vmin;
+            z-index: 10000;
+            max-width: 80vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        #exit-button {
+            position: absolute;
+            top: 1.5vmin;
+            right: 1.5vmin;
+            width: 5vmin;
+            height: 5vmin;
+            border-radius: 50%;
+            font-size: 3vmin;
+            color: #667eea;
+            background: #f0f4ff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        #exit-button:hover {
+            background: #e6edff;
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        #message {
+            font-size: 2.5vmin;
+            line-height: 1.7;
+            color: #2d3748;
+            font-weight: 500;
+            margin-right: 3vmin;
+        }
+
+        /* Popup */
+        .popup {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+            padding: 1.2vmin 1.8vmin;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            z-index: 4000;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(1vmin) scale(0.95);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .popup.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .popup-message {
+            font-size: 2.4vmin;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .mapboxgl-marker {
+            width: 2vmin;
+            height: 2vmin;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
+            justify-content: center;
+            display: flex;
+            align-items: center;
+        }
+
+        .mapboxgl-marker:hover {
+            cursor: pointer;
+            transform: scale(1.4);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.8);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #year-slider {
+                width: calc(100vw - 4vmin);
+                left: 2vmin;
+                transform: none;
+                bottom: 2vmin;
+            }
+
+            .modern-button {
+                width: 6vmin;
+                height: 6vmin;
+                font-size: 2.5vmin;
+            }
+
+            #home-button, #info-button {
+                top: 2vmin;
+                transform: none;
+            }
+
+            #home-button {
+                left: 2vmin;
+            }
+
+            #info-button {
+                right: 2vmin;
+            }
+
+            #uniqueness-button {
+                bottom: 15vmin;
+                left: 2vmin;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-box" id="customAlert">
+        <p id="message"></p>
+        <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
+    </div>
+
+    <div class="container-grid">
+        <div class="left-container">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Search a sage...">
+                <ul class="search-results" id="search-results"></ul>
+            </div>   
+
+            <div class="legend-container" id="legend">
+                <button class="minimize-btn" onclick="toggleLegend()">−</button>
+                <div class="legend-title" id="background-heading">Background</div>
+                
+                <div class="legend-content">
+                    <div class="legend-item filter-item" id="gaon-legend">
+                        <div class="color-box" id="gaon-color"></div>
+                        <div class="item-label">Gaon</div>
+                    </div>
+                    <div class="legend-item filter-item" id="sefarad-legend">
+                        <div class="color-box" id="sefarad-color"></div>
+                        <div class="item-label">Sefarad</div>
+                    </div>
+                    <div class="legend-item filter-item" id="ashkenaz-legend">
+                        <div class="color-box" id="ashkenaz-color"></div>
+                        <div class="item-label">Ashkenaz</div>
+                    </div>
+                    <div class="legend-item filter-item" id="provence-legend">
+                        <div class="color-box" id="provence-color"></div>
+                        <div class="item-label">Provence</div>
+                    </div>
+                    <div class="legend-item filter-item" id="italian-legend">
+                        <div class="color-box" id="italian-color"></div>
+                        <div class="item-label">Italian</div>
+                    </div>
+                    <div class="legend-item filter-item" id="chassidic-legend">
+                        <div class="color-box" id="chassidic-color"></div>
+                        <div class="item-label">Chassidic</div>
+                    </div>
+                    <div class="legend-item filter-item" id="litvish-legend">
+                        <div class="color-box" id="litvish-color"></div>
+                        <div class="item-label">Litvish</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="central-container">
+            <div class="header">
+                <h1>🧠 Analyze</h1>
+                <p class="subtitle">Filter and analyze sages by era, background, focus and name.</p>
+            </div>
+            <div id="map"></div>  
+
+            <div id="year-slider"></div>
+
+            <button class="modern-button" id="home-button" onclick="window.location.href='home.html'">🏠</button>
+            <button class="modern-button" id="info-button" onclick="showCustomAlert(`This page provides geographic information about our sages through the years.<br><br>Search for a sage in the search bar to see where that sage lived.<br><br>As you type, the map will update to display only sages which match the typed text.<br><br>Alternatively, filter the sages by background, by clicking on one or more items in the background section. <br><br>You can also filter by the focus of a sage's work by clicking on one or more items in the focus section. <br><br>Lastly, you can filter by time using the slider at the bottom of the screen.<br><br>The background, focus and time filters all work together, while the search tab operates independently.<br><br>As the map updates, the Who You're Seeing list will update.<br><br> Hover over a marker to see which sage it is and when.<br><br>To learn more about a sage, click on him/her in the Who You're Seeing list, to see his/her biography page.`, fontSize = '2.0vmin', restart=false)">ℹ️</button>
+            <button class="modern-button" id="uniqueness-button">1</button>
+        </div>  
+
+        <div class="right-container">
+            <div class="expertise-container" id="expertise">
+                <h3 class="expertise-title" id="expertise-heading">Focus</h3>
+                <div class="expertise-item filter-item" id="talmud-expertise">Talmud</div>
+                <div class="expertise-item filter-item" id="tanach-expertise">Tanach</div>
+                <div class="expertise-item filter-item" id="halacha-expertise">Halacha</div>
+                <div class="expertise-item filter-item" id="responsa-expertise">Responsa</div>
+                <div class="expertise-item filter-item" id="kabbalah-expertise">Kabbalah</div>
+                <div class="expertise-item filter-item" id="chassidus-expertise">Chassidus</div>
+                <div class="expertise-item filter-item" id="mussar-expertise">Mussar</div>
+                <div class="expertise-item filter-item" id="philosophy-expertise">Philosophy</div>
+                <div class="expertise-item filter-item" id="linguistics-expertise">Linguistics</div>
+                <div class="expertise-item filter-item" id="poetry-expertise">Poetry</div>
+                <div class="expertise-item filter-item" id="history-expertise">History</div>
+            </div>
+
+            <div class="search-container" id="visible-container">
+                <h3 class="who-seeing-heading" style="text-align: center;">Who You're Seeing</h3>
+                <ul class="search-results" id="visible-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup" class="popup">
+        <span class="popup-message"></span>
+    </div>
+
+    <script>
+        function toggleLegend() {
+            const legend = document.querySelector('.legend-container');
+            legend.classList.toggle('minimized');
+            
+            const btn = document.querySelector('.minimize-btn');
+            if (legend.classList.contains('minimized')) {
+                btn.textContent = '+';
+            } else {
+                btn.textContent = '−';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof getColor === 'function' && typeof capitalizeWords === 'function') {
+                const colorBoxes = document.querySelectorAll('.color-box');
+                colorBoxes.forEach(item => {
+                    const colorType = item.id.split('-')[0];
+                    item.style.backgroundColor = getColor(capitalizeWords(colorType));
+                });
+
+                const legendItems = document.querySelectorAll('.legend-item');
+                legendItems.forEach(item => {
+                    const colorType = item.id.split('-')[0];
+                    const color = getColor(capitalizeWords(colorType));
+                    item.style.borderLeft = `4px solid ${color}`;
+                });
+            }
+        });
+    </script>
+</body>
+<script src="global.js"></script>
+<script type="module" src="analyze.js"></script>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏙️ Locate</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: 770;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+        
+        body {
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1vmin;
+        }
+
+        .header h1 {
+            font-size: 8vmin;
+            font-weight: 800;
+            margin-bottom: 1vmin;
+            letter-spacing: -1px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 8vmin;
+            font-weight: 800;
+        }
+
+        .header .subtitle {
+            font-size: 3vmin;
+            color: #666;
+            font-weight: 500;
+            color:green
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 5fr) minmax(0, 1fr);
+            margin: 0 auto;
+            height: 100vh;
+        }
+
+        .left-container {
+            margin-left: 1vmin;
+            margin-right: 1vmin;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .right-container {
+            margin-left: 1vmin;
+            margin-right: 1vmin;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        #map {
+            position: relative;
+            width: 100%;
+            height: 80%;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Search Container */
+        .search-container {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 2vmin;
+        }
+
+        .search-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.5vmin 2vmin;
+            border: none;
+            outline: none;
+            font-size: 2vmin;
+            font-weight: 770;
+            background: transparent;
+            color: #333;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .search-results {
+            list-style: none;
+            max-height: 33vmin;
+            overflow-y: auto;
+        }
+
+        .mapboxgl-marker.city {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #ffde59;
+            box-shadow: 0 0 15px rgba(255, 222, 89, 0.8);
+            border: 3px solid rgba(255, 94, 125, 0.7);
+        }
+
+        .mapboxgl-marker.city:hover {
+            transform: scale(1.3) rotate(15deg);
+            box-shadow: 0 0 20px rgba(255, 222, 89, 1);
+            border-color: rgba(138, 43, 226, 0.9);
+            background-color: #ffd700;
+        }
+
+        .search-results li {
+            padding: 0.5vmin 2vmin;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 770;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 2vmin;
+        }
+
+        .search-results li:hover {
+            background: rgba(74, 105, 189, 0.1);
+        }
+
+        /* Country List Container */
+        .country-container {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 2vmin;
+        }
+
+        .country-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .country-title {
+            font-size: 3vmin;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 1vmin;
+            padding: 1.5vmin 2vmin 0;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        #country-list {
+            list-style: none;
+            max-height: 33vmin;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+        }
+
+        #country-list li {
+            padding: 0.5vmin 2vmin;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 770;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 2vmin;
+        }
+
+        #country-list li:hover {
+            background: rgba(74, 105, 189, 0.1);
+        }
+        
+        .selected{
+            color: rgb(69, 69, 245);
+            border-color: #1d4ed8;
+            transform: scale(1.05);
+            background: rgba(74, 105, 189, 0.1);
+        }
+
+        /* Info Card - styled like analyze containers */
+        .info-card {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h3 {
+            font-size: 3vmin;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 1vmin;
+            padding: 1.5vmin 2vmin 0;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        #occupant-list-content {
+            list-style: none;
+            max-height: 65vmin;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+        }
+
+        #occupant-list-content li {
+            padding: 0.5vmin 2vmin;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 770;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 2vmin;
+        }
+
+        #occupant-list-content li:hover {
+            background: rgba(74, 105, 189, 0.1);
+        }
+
+        /* Modern Button Styling */
+        .modern-button {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 770;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            z-index: 1001;
+        }
+
+        .modern-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        #home-button {
+            top: 3vmin;
+            left: 48%;
+            transform: translateX(calc(-50% - 20vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+        #info-button {
+            top: 3vmin;
+            left: 55%;
+            transform: translateX(calc(-50% + 20vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 3vmin;
+            z-index: 10000;
+            max-width: 80vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #exit-button {
+            position: absolute;
+            top: 1.5vmin;
+            right: 1.5vmin;
+            width: 5vmin;
+            height: 5vmin;
+            border-radius: 50%;
+            font-size: 2.5vmin;
+            color: #666;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 770;
+        }
+
+        #exit-button:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        #message {
+            font-size: 2.5vmin;
+            line-height: 1.6;
+            color: #333;
+            font-weight: 500;
+            margin-right: 3vmin;
+        }
+
+        .popup {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255, 222, 89, 0.9), rgba(255, 94, 125, 0.8));
+            padding: 1vmin 1.5vmin;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
+            z-index: 4000;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(1vmin) scale(0.95) rotate(-2deg);
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .popup.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1) rotate(0deg);
+            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
+        }
+
+        .popup-message {
+            font-size: 2.4vmin;
+            color: #6a3093;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        .mapboxgl-marker {
+            width: 2vmin;
+            height: 2vmin;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(244, 229, 232, 0.8);
+            justify-content: center;
+            display: flex;
+            align-items: center;
+        }
+
+        .mapboxgl-marker:hover {
+            cursor: default;
+            transform: scale(1.3) rotate(15deg);
+            box-shadow: 0 4px 15px rgba(255, 94, 125, 0.6);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        li {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s forwards;
+            }
+            li:nth-child(1) { animation-delay: 0.04s; }
+            li:nth-child(2) { animation-delay: 0.08s; }
+            li:nth-child(3) { animation-delay: 0.12s; }
+            li:nth-child(4) { animation-delay: 0.16s; }
+            li:nth-child(5) { animation-delay: 0.20s; }
+            li:nth-child(6) { animation-delay: 0.24s; }
+            li:nth-child(7) { animation-delay: 0.28s; }
+            li:nth-child(8) { animation-delay: 0.32s; }
+            li:nth-child(9) { animation-delay: 0.36s; }
+            li:nth-child(10) { animation-delay: 0.40s; }
+            li:nth-child(11) { animation-delay: 0.44s; }
+            li:nth-child(12) { animation-delay: 0.48s; }
+            li:nth-child(13) { animation-delay: 0.52s; }
+            li:nth-child(14) { animation-delay: 0.56s; }
+            /* etc. */
+
+            @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            * {
+                overflow: auto;
+            }
+
+            .modern-button {
+                width: 6vmin;
+                height: 6vmin;
+                font-size: 2.5vmin;
+            }
+
+            #home-button, #info-button {
+                top: 2vmin;
+                transform: none;
+            }
+
+            #home-button {
+                left: 2vmin;
+            }
+
+            #info-button {
+                right: 10vmin;
+            }
+
+            .container-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+
+            .left-container, .right-container {
+                margin: 0.5vmin;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-box" id="customAlert">
+        <p id="message"></p>
+        <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
+    </div>
+    <div class="header">
+        <h1>
+            <span class="emoji">🏙️</span> 
+            <span class="gradient-text">Locate</span>
+        </h1>
+        <p class="subtitle">Explore which sages lived where and when by searching for cities or countries.</p>
+    </div>
+
+    <div class="container-grid">
+        <div class="left-container">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search by city">
+                <ul class="search-results" id="search-results"></ul>
+            </div>   
+
+
+            <div class="search-container country-container">
+                <input type="text" class="search-input" id="country-search" placeholder="Search by country">
+                <ul class="country-list" id="country-list"></ul>
+            </div>  
+        </div>
+
+        <div class="central-container">
+            <div id="map"></div>  
+
+            <button class="modern-button" id="home-button" onclick="window.location.href='home.html'">🏠</button>
+            <button class="modern-button" id="info-button">ℹ️</button>
+        </div>  
+
+        <div class="right-container">
+            <div class="info-card">
+                <h3 id="occupant-list-heading">Who Lived There And When</h3>
+                <ul id="occupant-list-content"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup" class="popup">
+        <span class="popup-message"></span>
+    </div>
+
+    <script>
+        // Placeholder functions for compatibility
+        function hideCustomAlert(restart = false) {
+            document.getElementById('customAlert').style.display = 'none';
+        }
+
+        function showCustomAlert(message, fontSize = '2.5vmin', restart = false) {
+            document.getElementById('message').innerHTML = message;
+            document.getElementById('message').style.fontSize = fontSize;
+            document.getElementById('customAlert').style.display = 'block';
+        }
+    </script>
+</body>
+<script src="global.js"></script>
+<script type="module" src="locate.js"></script>
+</html>

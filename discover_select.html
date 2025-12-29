@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Discover Select</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2vmin;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3vmin;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: 8vmin;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+            display: inline-block;
+        }
+
+        .header h1 .emoji-icon {
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+            background-clip: unset;
+        }
+
+        .header h1::first-letter {
+            font-size: 1.2em;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Apply gradient only to text content after emoji */
+        .header h1 {
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Override gradient for emoji span */
+        .header h1 .emoji-icon {
+            -webkit-text-fill-color: initial;
+        }
+
+        .header .subtitle {
+            font-size: 3vmin;
+            color: #666;
+            font-weight: 500;
+            color:green
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+            width: 100%;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .left-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top:5vh; 
+            gap: 10vh;
+        }
+        .central-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top:1vh; 
+        }
+
+        .right-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top:5vh; 
+            gap: 10vh;
+        }
+
+        .search-container {
+            position: relative;
+            width: 60%;
+            animation: bounceIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin-bottom: 35vh;
+            z-index: 2000;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5vmin 1vmin;
+            font-size: 4vmin;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            outline: none;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input:focus {
+            box-shadow: 0 15px 40px rgba(74, 105, 189, 0.2);
+            transform: translateY(-2px) scale(1.01);
+            border-color: #4a69bd;
+            background: white;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-height: 30vh;
+            overflow-y: auto;
+            z-index: 2500;
+            margin-top: 8px;
+            list-style: none;
+            border: 1px solid #e0e6e9;
+        }
+
+        .search-results li {
+            padding: 1vmin 1.25vmin;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1rem;
+            position: relative;
+            padding-left: 1.5vmin;
+        }
+
+        .search-results li:hover {
+            background: linear-gradient(90deg, rgba(74, 105, 189, 0.08) 0%, transparent 100%);
+            padding-left: 2vmin;
+            color: #4a69bd;
+        }
+
+        .search-results li:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50vw;
+            width: 100%;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2vmin;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            min-height: 10%;
+            font-size: 3vmin;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: rgba(74, 105, 189, 0.3);
+        }
+
+        h3 {
+            font-size: 4vmin;
+            margin-bottom: 1vmin;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .birthdays-list-icon, .yahrtzeits-list-icon {
+            font-size: 5vmin;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .info-card ul {
+            list-style: none;
+        }
+
+        .info-card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        .info-card li:hover {
+            color: #4a69bd;
+            padding-left: 20px;
+            background: linear-gradient(90deg, rgba(74, 105, 189, 0.1) 0%, transparent 100%);
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .date-selection-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2vmin;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 60%;
+            justify-content: center;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .date-selection-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .dropdown-container {
+            display: flex;
+
+        }
+
+        .select-group {
+            flex: 1;
+            
+        }
+
+        select {
+            width: 70%;
+            padding: 2vmin;
+            border: 2px solid #e0e6e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: white;
+            transition: all 0.3s ease;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #b0bec5;
+            transform: translateY(-1px);
+        }
+
+        select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .action-buttons{
+            display: flex;
+            position: fixed;
+            top: 2vmin;
+            left: 2vmin;
+            z-index: 2000;
+            flex-direction: column;
+            gap: 1vh
+        }
+
+        .action-button {
+            width: 7vmin;
+            height: 7vmin;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 4vmin;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        .action-button:active {
+            transform: translateY(-1px) scale(1.05);
+        }
+
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            z-index: 200000;
+            animation: popIn 0.3s ease-out;
+            display: none;
+        }
+
+        li {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s forwards;
+            }
+            li:nth-child(1) { animation-delay: 0.34s; }
+            li:nth-child(2) { animation-delay: 0.38s; }
+            li:nth-child(3) { animation-delay: 0.42s; }
+            li:nth-child(4) { animation-delay: 0.46s; }
+            li:nth-child(5) { animation-delay: 0.50s; }
+            li:nth-child(6) { animation-delay: 0.54s; }
+            li:nth-child(7) { animation-delay: 0.58s; }
+            li:nth-child(8) { animation-delay: 0.62s; }
+            li:nth-child(9) { animation-delay: 0.66s; }
+            li:nth-child(10) { animation-delay: 0.70s; }
+            li:nth-child(11) { animation-delay: 0.74s; }
+            li:nth-child(12) { animation-delay: 0.78s; }
+            li:nth-child(13) { animation-delay: 0.82s; }
+            li:nth-child(14) { animation-delay: 0.86s; }
+            /* etc. */
+
+            @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .alert-box p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .alert-box button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s ease;
+        }
+
+        .alert-box button:hover {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+
+            .search-container{
+                width: 80%;
+            }
+            .date-selection-card {
+                width: 80%;
+            }
+            select{
+                width: 100% !important
+            }
+            
+        }
+
+        @media (max-width: 480px) {
+
+            .body{
+                overflow-x: auto;
+
+            }
+            .dropdown-container{
+                flex-direction: column;
+                
+            }
+            .search-container{
+                width: 90%;
+            }
+            .date-selection-card {
+                width: 90%;
+                
+            }
+            select{
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-box" id="customAlert">
+        <p id="message"></p>
+        <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
+    </div>
+
+    <div class="action-buttons">
+        <button class="action-button home-button" onclick="window.location.href='home.html'">
+            🏠
+        </button>
+
+        <button class="action-button info-button" onclick="showCustomAlert(`Search for a sage you wish to learn more about. <br><br>You can see what the hebrew date is and which sages have a birthday or yahrzeit today.<br><br>You can change the date using the Date Selection buttons, to see birthdays and yahrtzeits on other days.<br><br>Click on a person to see their biography page.`, '2vmin')">
+            ℹ️
+        </button>
+    </div>
+
+    <div class="header">
+        <h1><span class="emoji-icon">🔍</span> Discover</h1>
+        <p class="subtitle">Search for sages by name, birthday or yahrtzeit</p>
+    </div>
+    <div class="container-grid">
+        <div class="left-container">
+            <div class="info-card">
+                <div class="birthdays-list-icon">🎂</div>
+                <h3 id="birthdays-list-heading" style="justify-self: center;"> Birthdays</h3>
+                <ul id="birthdays-list-content">
+                </ul>
+            </div>
+        </div>
+        <div class="central-container">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for a sage...">
+                <ul class="search-results" id="search-results"></ul>
+            </div>   
+
+            <div class="date-selection-card">
+                <h3 style="justify-self: center;">📅 Date Selection</h3>
+                <div class="dropdown-container">
+                    <div class="select-group">
+                        <select id="day" name="day"></select>
+                    </div>
+                    
+                    <div class="select-group">
+                        <select id="month" name="month">
+                            <option value="1">Nissan</option>
+                 
+                            <option value="2">Iyar</option>
+                            <option value="3">Sivan</option>
+                            <option value="4">Tammuz</option>
+                            <option value="5">Av</option>
+                            <option value="6">Elul</option>
+                            <option value="7">Tishrei</option>
+                            <option value="8">Cheshvan</option>
+                            <option value="9">Kislev</option>
+                            <option value="10">Teves</option>
+                            <option value="11">Shevat</option>
+                            <option value="12">Adar</option>
+                            <option value="13">Adar II</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="info-card">
+                <div class="yahrtzeits-list-icon">🕯️</div>
+                <h3 id="yahrtzeits-list-heading" style="justify-self: center;"> Yahrtzeits</h3>
+                <ul id="yahrtzeits-list-content">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="global.js"></script>
+    <script type="module" src="discover_select.js"></script>
+</body>
+</html>

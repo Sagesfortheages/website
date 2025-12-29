@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>🪢 Techeiles</title>
+
+<!-- Mapbox -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+
+<style>
+:root{
+  --blue1:#3b82f6;
+  --blue2:#60a5fa;
+  --bg:#f8fafc;
+  --glow: rgba(96,165,250,0.32);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  background: var(--bg);
+  color: #0f172a;
+}
+
+.hero {
+  text-align:center;
+  padding: 22px 12px;
+}
+.hero h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--blue1);
+  font-weight: 800;
+}
+.subtitle { color: #475569; margin-top:6px; }
+
+/* Controls above map */
+.controls-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-btn {
+  background: linear-gradient(135deg, #2c3e50, #4a69bd);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.play-btn:hover { transform: translateY(-3px); }
+
+.speed-control {
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  color:#334155;
+  font-weight:600;
+}
+
+.progress-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(59,130,246,0.08);
+  overflow: visible;
+  margin-left: 0.6rem;
+  transition: opacity 0.35s ease;
+  opacity: 0;
+}
+.progress-wrap.visible { opacity: 1; }
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue1), var(--blue2));
+  box-shadow: 0 8px 24px var(--glow);
+  transition: width 0.1s linear;
+}
+
+/* Map + timeline wrapper */
+.map-timeline-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.map-timeline-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* map */
+#mapContainer {
+  width: 100%;
+  height: 40vh;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+}
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* timeline */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+.timeline {
+  width: 100%;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.event {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: block;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  border-left: 6px solid #cbd5e1;
+  transition: all .3s ease;
+  cursor: pointer;
+  opacity: 0.35;
+  filter: blur(3px);
+  pointer-events: none;
+}
+.event.unlocked {
+  opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
+  border-left-color: var(--blue1);
+}
+.event.unlocked:hover { transform: translateX(6px); background:#f1f8ff; }
+.event.active { 
+  background:#e6f0ff; 
+  border-left-color: #1e40af; 
+  transform: scale(1.02); 
+  opacity: 1;
+  filter: blur(0);
+}
+
+.event-year { color: #1e40af; font-weight:800; font-size:1rem; }
+.event-text { color: #334155; margin-top:6px; font-size:0.95rem; }
+
+/* responsive: side by side on wide screens */
+@media(min-width:900px){
+  .map-timeline-inner {
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+  #mapContainer { width: 52%; height: 78vh; }
+  .right-panel { width: 48%; }
+  .timeline { max-height: 78vh; }
+}
+
+/* small niceties */
+.small-muted { color:#64748b; font-size:0.92rem; }
+.speed-select { padding:6px 8px; border-radius:8px; border:1px solid #dbeafe; font-weight:700; }
+
+.record-counter {
+  font-weight:700;
+  color:#1e40af;
+  margin-left:1rem;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>The Journey of Techeiles Through History</h1>
+  <div class="subtitle">Map + timeline — Play Story moves timeline and map.</div>
+</div>
+
+<div class="map-timeline-wrapper">
+
+  <!-- CONTROLS ABOVE -->
+  <div class="controls-wrapper">
+    <div class="controls">
+      <button id="playBtn" class="play-btn" title="Start autoplay">▶ Play Story</button>
+      <button id="pauseBtn" class="play-btn" style="display:none; background: linear-gradient(135deg,#4a69bd,#2c3e50);" title="Pause autoplay">⏸ Pause</button>
+      <span id="recordCounter" class="record-counter">0/0</span>
+      <div class="speed-control small-muted">
+        Delay:
+        <select id="delaySelect" class="speed-select" title="Slide delay (ms)">
+          <option value="3000">3s</option>
+          <option value="5000" selected>5s</option>
+          <option value="7000">7s</option>
+          <option value="10000">10s</option>
+        </select>
+      </div>
+      <div id="progressWrap" class="progress-wrap" aria-hidden="true" title="Playback progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP + TIMELINE -->
+  <div class="map-timeline-inner">
+    <div id="mapContainer"><div id="map"></div></div>
+    <div class="right-panel">
+      <div id="timeline" class="timeline"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="global.js"></script>
+<script>
+/* =========================== Data =========================== */
+const events = [
+  {
+    year: "Circa 1300 BCE",
+    title: "Shema mentions Techeiles",
+    text: "Shema says to put on the tzitzis a string of techeiles, which is a string dyed with the blood of a creature called chilazon.",
+    coords: [34.78, 31.23] // Jerusalem region
+  },
+  {
+    year: "Circa 800 BCE",
+    title: "Shir HaShirim & Gemara describe the Chilazon",
+    text: "Shir hashirim tells us that this creature has a shell and the gemara (Shabbos, 26a) says it is found in the Mediterranean Sea.",
+    coords: [34.0, 33.0] // Mediterranean coast near Israel/Lebanon
+  },
+  {
+    year: "Circa 400",
+    title: "Talmudic Description of the Shell",
+    text: "Gemara Menachos (44a) says its shell is the color of the sea.",
+    coords: [34.0, 33.0]
+  },
+  {
+    year: "Circa 510",
+    title: "Chilazon Brought to Bavel",
+    text: "Gemara Menachos (43a) explains that the chilazon was brought to Bavel in the times of R Achai, who passed away in approximately 510.",
+    coords: [44.4, 32.0] // Babylon/Iraq region
+  },
+  {
+    year: "Circa 750",
+    title: "Medrash Tanchuma Describes Techeiles Lost",
+    text: 'The Medrash Tanchuma, written in approximately 750, says that the tzitzis were fully white by that time as the identity of the chilazon had been "concealed".',
+    coords: [31.8, 34.8] // Eretz Yisrael (Rabbinic works often located here)
+  },
+  {
+    year: "750-1887",
+    title: "Chilazon Disappears from History",
+    text: "Nothing more would be heard of the chilazon for a thousand years.",
+    coords: [31.8, 34.8] // Generic Middle East placeholder
+  },
+  {
+    year: "Circa 1160",
+    title: "Rambam Mentions Black Ink",
+    text: "The Rambam mentions that the techeiles dye is made from a creature that produces black ink, but does not identify the creature.",
+    coords: [31.2488, 30.00351] // Rambam lived in Egypt, but this is close enough
+  },
+  {
+    year: 1887,
+    title: "Radzyn Discovery (Naples Aquarium)",
+    text: "In 1887, the Radzyner Rebbe spent months studying at an aquarium in Naples, Italy, looking for the chilazon and concluder that it was the cuttlefish which secreted blank ink.",
+    coords: [14.27, 40.85] // Naples, Italy
+  },
+  {
+    year: 1890,
+    title: "Radzyn Chassidim Adopt Techeiles",
+    text: "Radzyner chassidim continue to wear techeiles made from this ink to this day, though most halachic authorities of the time remained skeptical.",
+    coords: [23.7, 52.0] // Radzyn, Poland
+  },
+{
+    year: 1909,
+    title: "Rebbe Rashab Addresses Techeiles",
+    text: "R Sholom Dovber of Lubavitch, in a complex letter addressing the cuttlefish theory of the Radzyner Rebbe, writes in the name of the Arizal that techeiles will only be relevant in the times of Moshiach, while also mentioning that it is an eternal mitzva.",
+    coords: [30.95641, 54.83339] // Lubavitch
+  },
+  {
+    year: 1911,
+    title: "Maharsham Buried in Radzyn Techeiles",
+    text: "Maharsham, who wore Radzyner techeiles secretly under his clothing, passed away in 1911, leaving instructions to bury him in it.",
+    coords: [23.7, 52.0] // Galicia/Poland region
+  },
+  {
+    year: 1913,
+    title: "Rav Herzog Refutes Cuttlefish Theory",
+    text: "In 1913, R Yitzchak Isaac Hertzog, later to be come the first Ashkenazi Chief Rabbi of Israel analyzed the case for cuttlefish, rejecting it on the grounds that its ink only turns blue because of exposure to heat, which is true of many other substances as well.",
+    coords: [31.8, 34.8] // Jaffa/Jerusalem where he lived and researched
+  },
+  {
+    year: 1913,
+    title: "Rav Herzog Suggests Murex Snail",
+    text: "R Herzog proposes that the chilazon is the Murex snail, whose body fluid was commonly used as a due in the ancient world but concludes with doubts based on the facts that its ink is purple, not blue and that its shell has brown and white bands, and is not the color of the sea.",
+    coords: [35.0, 33.0] // Mediterranean snail coast region
+  },
+{
+    year: 1958,
+    title: "Lubavitcher Rebbe on Techeiles",
+    text: "The Lubavitcher Rebbe quotes R Sholom Dovber of Lubavitch to the effect that techeiles will only be relevant in the times of Moshiach.",
+    coords: [-73.94972, 40.6526] // Mediterranean snail coast region
+  },
+
+  {
+    year: 2025,
+    title: "Modern Murex Research Confirms Blue Dye",
+    text: 'Nowadays, researchers have concluded that its ink turns blue upon exposure to sunlight and that, when found in the sea, its shell is typically covered with "sea fouling" and indeed has the color of the sea.',
+    coords: [35.0, 32.0] // Israeli coastline (modern research sites)
+  }
+];
+
+/* =========================== Timeline DOM =========================== */
+const timelineEl = document.getElementById('timeline');
+events.forEach((ev, idx) => {
+  const node = document.createElement('div');
+  node.className = 'event';
+  node.dataset.index = idx;
+  node.innerHTML = `<div class="event-year">${ev.year}</div><div class="event-text">${ev.text}</div>`;
+  node.addEventListener('click', () => activateEvent(idx));
+  timelineEl.appendChild(node);
+});
+
+/* =========================== Map + Markers =========================== */
+let markers = [];
+
+let maxUnlockedIndex = -1;
+
+function setupMapAndMarkers(){
+  if(typeof map === 'undefined'){ console.error("Map not ready."); return; }
+
+  events.forEach((ev, idx)=>{
+    const el = document.createElement('div');
+    el.style.width='16px'; el.style.height='16px';
+    el.style.borderRadius='50%'; el.style.background='#3b82f6';
+    el.style.boxShadow='0 6px 16px rgba(0,0,0,0.2)';
+    el.style.cursor='pointer';
+    el.dataset.index=idx;
+    el.style.opacity='0.3';
+    
+
+    const marker = new mapboxgl.Marker(el).setLngLat(ev.coords).addTo(map);
+    el.addEventListener('click', ()=>{
+  if (idx <= maxUnlockedIndex) {
+    activateEvent(idx);
+  }
+});
+    markers.push({marker, el});
+  });
+
+  if(markers.length){
+    const bounds = new mapboxgl.LngLatBounds();
+    markers.forEach(m=>bounds.extend(m.marker.getLngLat()));
+    map.fitBounds(bounds, {padding:80, maxZoom:7.3, duration:1500});
+  }
+
+  if(map.isStyleLoaded()){
+    activateEvent(0);
+  } else {
+    map.on('load', ()=>activateEvent(0));
+  }
+}
+
+/* Wait for map object from global.js */
+const waitForMap = setInterval(()=>{
+  if(typeof map !== 'undefined'){
+    clearInterval(waitForMap);
+    setupMapAndMarkers();
+  }
+}, 50);
+
+/* =========================== Activate event =========================== */
+const recordCounter = document.getElementById('recordCounter');
+let currentIndex = null;
+
+function unlockUpTo(index) {
+  // Unlock all events up to and including the current index
+  for (let i = 0; i < events.length; i++) {
+    const eventEl = document.querySelector(`.event[data-index="${i}"]`);
+    if (i <= index) {
+      // Past and current events: visible and clickable
+      if (eventEl) {
+        eventEl.classList.add('unlocked');
+      }
+      if (markers[i]) {
+        markers[i].el.style.opacity = '1';
+      }
+    } else {
+      // Future events: blurred and locked
+      if (eventEl) {
+        eventEl.classList.remove('unlocked');
+      }
+      if (markers[i]) {
+        markers[i].el.style.opacity = '0.3';
+      }
+    }
+  }
+  maxUnlockedIndex = index;
+}
+
+function activateEvent(index){
+  unlockUpTo(index);
+  if(index<0 || index>=events.length) return;
+  currentIndex=index;
+
+  document.querySelectorAll('.event').forEach(e=>e.classList.remove('active'));
+  const sel=document.querySelector(`.event[data-index="${index}"]`);
+  if(sel){
+    sel.classList.add('active');
+    const container = timelineEl;
+    const selTop = sel.offsetTop;
+    const selHeight = sel.offsetHeight;
+    const containerHeight = container.clientHeight;
+    container.scrollTo({top: selTop - containerHeight/2 + selHeight/2, behavior:'smooth'});
+  }
+
+  markers.forEach((m,i)=>{
+    m.el.style.transform = i===index?'scale(1.35)':'scale(1)';
+    m.el.style.background = i===index?'#1e40af':'#3b82f6';
+  });
+
+  const coords = events[index].coords;
+    if(typeof map !== 'undefined'){
+    const duration = Number(delaySelect.value) * 0.7;
+map.flyTo({
+    center: coords,
+    zoom: 6.5,
+    duration: duration,
+    essential: true,
+    curve: 1.2,
+    speed: 0.8
+});
+};
+  recordCounter.textContent = `${index+1}/${events.length}`;
+}
+
+/* =========================== Autoplay + progress bar =========================== */
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const delaySelect = document.getElementById('delaySelect');
+const progressWrap = document.getElementById('progressWrap');
+const progressBar = document.getElementById('progressBar');
+
+let storyTimer=null, storyRunning=false, storyIndex=0, progressRaf=null, progressStart=null, progressDuration=3000;
+
+playBtn.addEventListener('click', ()=>startStory(storyIndex));
+pauseBtn.addEventListener('click', pauseStory);
+
+function startStory(startIdx=0){
+  if(storyRunning) return;
+  storyRunning=true;
+  playBtn.style.display='none';
+  pauseBtn.style.display='inline-block';
+  progressWrap.classList.add('visible');
+  storyIndex=startIdx;
+  runStep();
+}
+
+function pauseStory(){
+  storyRunning=false;
+  playBtn.style.display='inline-block';
+  pauseBtn.style.display='none';
+  if(storyTimer){clearTimeout(storyTimer); storyTimer=null;}
+  stopProgressAnimation();
+  progressWrap.classList.remove('visible');
+  // Don't reset storyIndex - keep it where we paused
+}
+
+function runStep(){
+  if(!storyRunning) return;
+  activateEvent(storyIndex);
+  progressDuration = Number(delaySelect.value)||3000;
+  startProgressAnimation(progressDuration);
+  storyTimer = setTimeout(()=>{
+    storyIndex++;
+    if(storyIndex>=events.length){stopStoryCompletely(); return;}
+    setTimeout(()=>{if(storyRunning) runStep();}, 10);
+  }, progressDuration);
+}
+
+function stopStoryCompletely(){
+  storyRunning=false;
+  storyIndex=0;
+  playBtn.style.display='inline-block';
+  pauseBtn.style.display='none';
+  if(storyTimer){clearTimeout(storyTimer); storyTimer=null;}
+  stopProgressAnimation(true);
+}
+
+function startProgressAnimation(duration){
+  stopProgressAnimation();
+  progressStart=performance.now();
+  progressDuration=duration;
+  progressBar.style.width='0%';
+  progressWrap.classList.add('visible');
+
+  function step(ts){
+    if(!progressStart) progressStart=ts;
+    const elapsed = ts - progressStart;
+    const pct = Math.min(1, elapsed/progressDuration);
+    progressBar.style.width=(pct*100)+'%';
+    progressBar.style.boxShadow = `0 8px 24px rgba(96,165,250,${0.32*pct})`;
+    if(pct<1 && storyRunning) progressRaf=requestAnimationFrame(step);
+    else progressRaf=null;
+  }
+  progressRaf=requestAnimationFrame(step);
+}
+
+function stopProgressAnimation(reset=false){
+  if(progressRaf){cancelAnimationFrame(progressRaf); progressRaf=null;}
+  progressStart=null;
+  if(reset){
+    progressBar.style.width='0%';
+    progressBar.style.boxShadow='';
+    progressWrap.classList.remove('visible');
+  }
+}
+
+/* =========================== Keyboard nav =========================== */
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight'){
+    if(currentIndex===null) activateEvent(0);
+    else activateEvent(Math.min(events.length-1,currentIndex+1));
+  }else if(e.key==='ArrowLeft'){
+    if(currentIndex===null) activateEvent(0);
+    else activateEvent(Math.max(0,currentIndex-1));
+  }
+});
+</script>
+</body>
+</html>

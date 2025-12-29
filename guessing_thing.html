@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rolling Scroll of Tradition</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: #fdf6e3; /* parchment tone */
+      overflow-x: hidden;
+    }
+
+    .scroll {
+      position: relative;
+      width: 80%;
+      margin: 0 auto;
+      background: #fff8dc;
+      background-image: url('https://i.imgur.com/qIz4FfE.png'); /* parchment texture */
+      background-size: cover;
+      padding: 80px 40px;
+      border-left: 20px solid #d2b48c;
+      border-right: 20px solid #d2b48c;
+      min-height: 600vh; /* long to allow rolling */
+      box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    }
+
+    /* Top and bottom rollers */
+    .scroll::before,
+    .scroll::after {
+      content: "";
+      position: fixed;
+      left: 10%;
+      width: 80%;
+      height: 60px;
+      background: #d2b48c;
+      border-radius: 50px;
+      box-shadow: inset 0 5px 10px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    .scroll::before {
+      top: 0;
+    }
+
+    .scroll::after {
+      bottom: 0;
+    }
+
+    .sage {
+      margin: 120px auto;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(255,255,240,0.85);
+      border: 2px solid #a0522d;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      max-width: 500px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 1s ease;
+    }
+
+    .sage.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sage img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #8b4513;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: #4b2e2e;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #3b2f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll">
+    <div class="sage">
+      <img src="https://via.placeholder.com/100?text=Rif">
+      <h2>Rif</h2>
+      <p>Lucena, Spain (1013–1103). Authored the Sefer HaHalachot, foundation of halachic codification.</p>
+    </div>
+    <div class="sage">
+      <img src="https://via.placeholder.com/100?text=Rambam">
+      <h2>Rambam</h2>
+      <p>Córdoba → Egypt (1138–1204). Mishneh Torah and Guide for the Perplexed shaped Jewish thought.</p>
+    </div>
+    <div class="sage">
+      <img src="https://via.placeholder.com/100?text=Ramban">
+      <h2>Ramban</h2>
+      <p>Girona, Spain (1194–1270). Defender in Barcelona Disputation, mystical and philosophical leader.</p>
+    </div>
+    <div class="sage">
+      <img src="https://via.placeholder.com/100?text=Rosh">
+      <h2>Rosh</h2>
+      <p>Germany → Spain (1250–1327). His rulings bridged Ashkenaz and Sepharad traditions.</p>
+    </div>
+    <div class="sage">
+      <img src="https://via.placeholder.com/100?text=Tur">
+      <h2>Tur</h2>
+      <p>Spain (1270–1340). Arba'ah Turim became a cornerstone of halachic organization.</p>
+    </div>
+  </div>
+
+  <script>
+    const sages = document.querySelectorAll('.sage');
+
+    function revealOnScroll() {
+      const trigger = window.innerHeight * 0.85;
+      sages.forEach(sage => {
+        const top = sage.getBoundingClientRect().top;
+        if (top < trigger) {
+          sage.classList.add('visible');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll();
+  </script>
+</body>
+</html>

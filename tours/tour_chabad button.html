@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Course</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #play-button {
+            padding: 2rem 4rem;
+            font-size: 2rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background: linear-gradient(120deg, #4a69bd, #2c3e50);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        #play-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body>
+    <button id="play-button">▶ Start Course</button>
+
+    <script>
+        const playButton = document.getElementById("play-button");
+
+        playButton.addEventListener("click", () => {
+            // Define the course order
+            const course = ["Alter Rebbe", "Mitteler Rebbe", "Rebbe Tzemach Tzedek", "Rebbe Maharash", "Rebbe Rashab", "Frierdiker Rebbe", "Lubavitcher Rebbe", "__TEST__"];
+
+            // Store course in sessionStorage
+            sessionStorage.setItem("course", JSON.stringify(course));
+            sessionStorage.setItem("courseIndex", "0"); // start at first sage
+            sessionStorage.setItem("selected", JSON.stringify({ person: course[0] }));
+
+            sessionStorage.setItem("courseModeActive", "true");
+
+            // Go to the dynamic profile page
+            window.location.href = "../discover.html";
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📝 Feedback</title>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI'; }
+    body {
+        background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4vmin;
+    }
+    .feedback-card {
+        background: white;
+        width: 60vmin;
+        max-width: 95vw;
+        padding: 4vmin;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        animation: fadeIn 0.6s ease;
+    }
+    h1 { 
+        font-size: 5vmin; 
+        text-align: center; 
+        margin-bottom: 3vmin;
+        background: linear-gradient(120deg, #2c3e50, #4a69bd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    label { font-size: 2.2vmin; font-weight: 700; margin-top: 1vmin; display: block; color: #333; }
+    select, textarea {
+        width: 100%; padding: 1.4vmin; margin-top: 1vmin; border-radius: 12px; border: 1px solid #ccc; font-size: 2vmin;
+    }
+    textarea { height: 18vmin; resize: none; }
+    .submit-btn {
+        margin-top: 3vmin;
+        width: 100%;
+        background: linear-gradient(135deg, #2c3e50, #4a69bd);
+        color: white;
+        padding: 1.6vmin;
+        border-radius: 14px;
+        font-size: 2.5vmin;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .status { margin-top: 2vmin; font-size: 2vmin; text-align: center; font-weight: 700; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+    /* LOGIN OVERLAY */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000000000;
+    }
+    .auth-modal {
+        background: #fff;
+        border-radius: 20px;
+        padding: 3vmin;
+        width: 40vmin;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    .auth-modal button {
+        padding: 1vmin 2vmin; border-radius: 12px; border: none; background: #4a69bd; color: white; cursor: pointer;
+    }
+</style>
+
+<script type="module">
+import { supabaseClient } from './supabase/supabaseClient.js';
+
+async function checkAuth() {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    if (!session || !session.user) {
+        document.getElementById("overlay").style.display = "flex";
+    } else {
+        document.getElementById("overlay").style.display = "none";
+    }
+}
+
+// Show overlay immediately if not logged in
+checkAuth();
+
+// Listen for auth changes
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (!session?.user) {
+        document.getElementById("overlay").style.display = "flex";
+    } else {
+        document.getElementById("overlay").style.display = "none";
+    }
+});
+
+// Feedback submission
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("submit-feedback").addEventListener("click", async () => {
+        const type = document.getElementById("feedback-type").value;
+        const page = document.getElementById("related-page").value;
+        const text = document.getElementById("feedback-text").value.trim();
+        const status = document.getElementById("status");
+
+        if (!text) {
+            status.textContent = "Please enter feedback.";
+            status.style.color = "red";
+            return;
+        }
+
+        // Get current user
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError || !session?.user) {
+            status.textContent = "You must log in first.";
+            status.style.color = "red";
+            document.getElementById("overlay").style.display = "flex";
+            return;
+        }
+
+        const userId = session.user.id;
+
+        // Insert feedback
+        const { error } = await supabaseClient.from("feedback").insert([
+            { user_id: userId, feedback_type: type, related_page: page, message: text }
+        ]);
+
+        if (error) {
+            status.textContent = "Error saving feedback.";
+            status.style.color = "red";
+            console.error(error);
+        } else {
+            status.textContent = "Feedback submitted. Thank you!";
+            status.style.color = "green";
+            document.getElementById("feedback-text").value = "";
+        }
+    });
+});
+</script>
+</head>
+
+<body>
+<div id="overlay" class="overlay">
+    <div class="auth-modal">
+        <p style="font-size:2.5vmin; margin-bottom:1vmin;">Please log in to submit feedback.</p>
+        <button onclick="window.location.href='index.html'">Go to Login</button>
+    </div>
+</div>
+
+<div class="feedback-card">
+    <h1>Send Feedback</h1>
+
+    <p>Please tell us what's on your mind. Your feedback is very helpful, whether it's a thought on data accuracy or website design, 
+        a bug that needs fixing or an idea for a new feature, we would love to hear your thoughts.</p>
+
+    <label>Feedback Type</label>
+    <select id="feedback-type">
+        <option value="Issue">Issue</option>
+        <option value="Enhancement">Enhancement</option>
+        <option value="Comment">Comment</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <label>Related to Page</label>
+    <select id="related-page">
+        <option>Home</option>
+        <option>Analyze</option>
+        <option>Watch</option>
+        <option>Discover</option>
+        <option>Time</option>
+        <option>Locate</option>
+        <option>Delve</option>
+        <option>Tour</option>
+        <option>Study</option>
+        <option>Journey</option>
+        <option>Play</option>
+        <option>Other</option>
+    </select>
+
+    <label>Your Feedback</label>
+    <textarea id="feedback-text" placeholder="Write your comments..."></textarea>
+
+    <button class="submit-btn" id="submit-feedback">Submit</button>
+    <div id="status" class="status"></div>
+</div>
+</body>
+</html>

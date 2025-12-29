@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <title>📜 Study</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            text-align: center;
+        }
+        .container {
+            position: relative;
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button{
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            position: absolute;
+            width: 2.1vmin;
+            height: 2.1vmin;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            justify-items: center;
+            display:flex;
+        }
+
+
+
+
+
+
+        #pri-megadim {
+            position: absolute;
+            left: 8%;  /* Y-position */
+            top: 4.75%; /* X-position */
+            width: 40.75%; /* right - left */
+            height: 76%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 120, 0, 0.3);
+        }
+
+        #taz-1 {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 4.75%; /* X-position */
+            width: 10.75%; /* right - left */
+            height: 36.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(155, 220, 0, 0.3);
+        }
+
+        #taz-2 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 4.75%; /* X-position */
+            width: 30%; /* right - left */
+            height: 7.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(155, 220, 0, 0.3);
+        }
+                
+        #taz-3 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 34%; /* X-position */
+            width: 30%; /* right - left */
+            height: 7.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(155, 220, 0, 0.3);
+        }
+
+        #shach {
+            position: absolute;
+            left: 80.25%;  /* Y-position */
+            top: 12.5%; /* X-position */
+            width: 11%; /* right - left */
+            height: 12.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(55, 20, 200, 0.3);
+        }
+
+        
+        #shulchan-aruch-1 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 12.5%; /* X-position */
+            width: 19%; /* right - left */
+            height: 9.25%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 20, 100, 0.3);
+        }
+
+        #shulchan-aruch-2 {
+            position: absolute;
+            left: 66.25%;  /* Y-position */
+            top: 21.75%; /* X-position */
+            width: 14%; /* right - left */
+            height: 1.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 20, 100, 0.3);
+        }
+
+        #shulchan-aruch-3 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 25%; /* X-position */
+            width: 18.75%; /* right - left */
+            height: 1.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 20, 100, 0.3);
+        }
+
+
+        #shulchan-aruch-4 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 26.75%; /* X-position */
+            width: 30%; /* right - left */
+            height: 7.25%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 20, 100, 0.3);
+        }
+
+        #rema-1 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 21.75%; /* X-position */
+            width: 5%; /* right - left */
+            height: 1.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(55, 120, 200, 0.3);
+        }
+
+        #rema-2 {
+            position: absolute;
+            left: 61.25%;  /* Y-position */
+            top: 23.5%; /* X-position */
+            width: 19%; /* right - left */
+            height: 1.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(55, 120, 200, 0.3);
+        }
+        
+        #rema-3 {
+            position: absolute;
+            left: 80%;  /* Y-position */
+            top: 25%; /* X-position */
+            width: 11.25%; /* right - left     end at 91.25. start at 80*/
+            height: 1.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(55, 120, 200, 0.3);
+        }
+
+        #r-akiva-eiger {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 41.5%; /* X-position */
+            width: 20.25%; /* right - left     end at 91.25. start at 80*/
+            height: 8.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 120, 200, 0.3);
+        }
+
+        #gra-1 {
+            position: absolute;
+            left: 70.75%;  /* Y-position */
+            top: 41.5%; /* X-position */
+            width: 20.5%; /* right - left     end at 91.25. start at 80*/
+            height: 8.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(245, 207, 30, 0.3);
+        }
+
+        #gra-2 {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 50%; /* X-position */
+            width: 40.75%; /* right - left     end at 91.25. start at 80*/
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(245, 207, 30, 0.3);
+        }
+
+        #pischei-teshuva-1 {
+            position: absolute;
+            left: 70.75%;  /* Y-position */
+            top: 56%; /* X-position */
+            width: 20.5%; /* right - left     end at 91.25. start at 80*/
+            height: 7.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(215, 207, 130, 0.3);
+        }
+        #pischei-teshuva-2 {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 63.5%; /* X-position */
+            width: 40.75%; /* right - left     end at 91.25. start at 80*/
+            height: 18%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(215, 207, 130, 0.3);
+        }
+
+        #be-er-hagolah {
+            position: absolute;
+            left: 91.25%;  /* Y-position */
+            top: 4.75%; /* X-position */
+            width: 7%; /* right - left */
+            height: 27.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(155, 200, 240, 0.3)
+        }
+
+        #r-shlomo-eiger {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 81.5%; /* X-position */
+            width: 40.75%; /* right - left     end at 91.25. start at 80*/
+            height: 8.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(115, 207, 130, 0.3);
+        }
+
+        #be-er-heitev {
+            position: absolute;
+            left: 50.5%;  /* Y-position */
+            top: 56%; /* X-position */
+            width: 20.25%; /* right - left     end at 91.25. start at 80*/
+            height: 7.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(15, 207, 230, 0.3);
+        }
+
+
+
+
+        #machatzis-hashekel{
+            position: absolute;
+            left: 8%;  /* Y-position */
+            top: 80.75%; /* X-position */
+            width: 40.75%; /* right - left */
+            height: 18.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(80, 10, 95, 0.3);
+        }
+
+
+
+
+        #yad-efraim {
+            position: absolute;
+            left: 1%;  /* Y-position */
+            top: 4.75%; /* X-position */
+            width: 7%; /* right - left */
+            height: 13%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(145, 120, 30, 0.3);
+        }
+
+
+
+
+        /* The tooltip itself (hidden by default) */
+        .hotspot::after {
+            content: attr(data-tooltip); /* Use the text from the data-tooltip attribute */
+            position: absolute;
+            bottom: 100%; /* Position it above the element */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal position */
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            padding: 5px 10px; /* Padding for the tooltip */
+            border-radius: 5px; /* Rounded corners */
+            opacity: 0; /* Initially hidden */
+            visibility: hidden; /* Initially hidden */
+            transition: opacity 0.2s ease, visibility 0.2s ease; /* Fade-in effect */
+            z-index: 10; /* Ensure the tooltip is above other content */
+        }
+
+        /* Make the tooltip visible when hovering */
+        .hotspot:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <div class="image-container">
+            <!-- Replace with actual path to the PDF image -->
+            <img alt="מקראות גדולות" usemap="#commentaries-map" id="shulchan-aruch">
+
+            <a class="hotspot" id="pri-megadim" data-tooltip="Pri Megadim"></a>
+            <a class="hotspot" id="taz-1" data-tooltip="Taz"></a>
+            <a class="hotspot" id="taz-2" data-tooltip="Taz"></a>
+            <a class="hotspot" id="taz-3" data-tooltip="Taz"></a>
+            <a class="hotspot" id="shach" data-tooltip="Shach"></a>
+            <a class="hotspot" id="shulchan-aruch-1" data-tooltip="Shulchan Aruch"></a>
+            <a class="hotspot" id="shulchan-aruch-2" data-tooltip="Shulchan Aruch"></a>
+            <a class="hotspot" id="shulchan-aruch-3" data-tooltip="Shulchan Aruch"></a>
+            <a class="hotspot" id="shulchan-aruch-4" data-tooltip="Shulchan Aruch"></a>
+            <a class="hotspot" id="rema-1" data-tooltip="Rema"></a>
+            <a class="hotspot" id="rema-2" data-tooltip="Rema"></a>   
+            <a class="hotspot" id="rema-3" data-tooltip="Rema"></a>   
+            <a class="hotspot" id="r-akiva-eiger" data-tooltip="R Akiva Eiger"></a>      
+            <a class="hotspot" id="gra-1" data-tooltip="Vilna Gaon"></a>     
+            <a class="hotspot" id="gra-2" data-tooltip="Vilna Gaon"></a>      
+            <a class="hotspot" id="pischei-teshuva-1" data-tooltip="Pischei Teshuva"></a>        
+            <a class="hotspot" id="pischei-teshuva-2" data-tooltip="Pischei Teshuva"></a>      
+            <a class="hotspot" id="be-er-hagolah" data-tooltip="Be-er Hagola"></a>  
+            <a class="hotspot" id="r-shlomo-eiger" data-tooltip="R Shlomo Eiger"></a>  
+            <a class="hotspot" id="be-er-heitev" data-tooltip="Be-er Heitev"></a>              
+            <a class="hotspot" id="machatzis-hashekel" data-tooltip="Machatzis Hashekel"></a> 
+            <a class="hotspot" id="yad-efraim" data-tooltip="Yad Efraim"></a> 
+        </div>
+    </div>
+
+    <script>
+
+        document.getElementById('pri-megadim').addEventListener('click', function() {
+            linkToProfile('Pri Megadim', "../discover.html");
+        });
+
+        document.getElementById('taz-1').addEventListener('click', function() {
+            linkToProfile('Taz', "../discover.html");
+        });
+        document.getElementById('taz-2').addEventListener('click', function() {
+            linkToProfile('Taz', "../discover.html");
+        });
+        document.getElementById('taz-3').addEventListener('click', function() {
+            linkToProfile('Taz', "../discover.html");
+        });
+        document.getElementById('shach').addEventListener('click', function() {
+            linkToProfile('Shach', "../discover.html");
+        });
+        document.getElementById('shulchan-aruch-1').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+        });
+        document.getElementById('shulchan-aruch-2').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+        });
+        document.getElementById('shulchan-aruch-3').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+        });
+        document.getElementById('shulchan-aruch-4').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+        });        
+
+        document.getElementById('rema-1').addEventListener('click', function() {
+            linkToProfile('Rema', "../discover.html");
+        });      
+        document.getElementById('rema-2').addEventListener('click', function() {
+            linkToProfile('Rema', "../discover.html");
+        });
+        document.getElementById('rema-3').addEventListener('click', function() {
+            linkToProfile('Rema', "../discover.html");
+        });  
+        document.getElementById('r-akiva-eiger').addEventListener('click', function() {
+            linkToProfile('R Akiva Eiger', "../discover.html");
+        });        
+        document.getElementById('gra-1').addEventListener('click', function() {
+            linkToProfile('Vilna Gaon', "../discover.html");
+        });       
+        document.getElementById('gra-2').addEventListener('click', function() {
+            linkToProfile('Vilna Gaon', "../discover.html");
+        });      
+        document.getElementById('pischei-teshuva-1').addEventListener('click', function() {
+            linkToProfile('Pischei Teshuva', "../discover.html");
+        });      
+        document.getElementById('pischei-teshuva-2').addEventListener('click', function() {
+            linkToProfile('Pischei Teshuva', "../discover.html");
+        });      
+    </script>
+
+<script src="../markers.js"></script>
+<script src="../global.js"></script>
+    <script type="module">
+
+        import { trackPageView } from '../supabase/supabaseFunctions.js';
+        import {loadTextImage} from './texts.js'
+        trackPageView('Shulchan Aruch');
+
+
+        loadTextImage("combined.jpg").then((data) => {
+            console.log(data)
+            document.getElementById("shulchan-aruch").src = data.signedUrl;
+        })
+</script>
+</body>
+</html>

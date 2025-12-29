@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⛏️ Delve</title>
+
+<style>
+    /* -------- BASE -------- */
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* -------- PAGE WRAPPER -------- */
+    .page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-top: 2vh;
+        padding-bottom: 4vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* -------- HEADER -------- */
+    .header {
+        text-align: center;
+        margin-bottom: 2vh;
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 8vmin;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .gradient-text {
+        background: linear-gradient(120deg, #1f2d3a, #3556b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .header .subtitle {
+        margin: 0.6vh 0 0;
+        font-size: 3vmin;
+        font-weight: 500;
+        color: green;
+    }
+
+    /* -------- GRID -------- */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 2.5vmin;
+        width: 85vw;
+        max-width: 650px;
+    }
+
+    /* -------- TILES -------- */
+    .tile {
+        background: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(10px);
+        border-radius: 22px;
+        padding: 1vmin;
+        height: 18vmin;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .tile:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .tile-icon {
+        font-size: 7vmin;
+        margin-bottom: 1.5vmin;
+    }
+
+    .tile-label {
+        font-size: 2.8vmin;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-align: center;
+        color: #2e3b4e;
+    }
+
+    /* -------- COMING SOON -------- */
+    .coming {
+        pointer-events: none;
+        opacity: 0.9;
+    }
+
+    .coming::after {
+        content: "UNDER CONSTRUCTION";
+        position: absolute;
+        bottom: -13%;
+        font-size: 1.8vmin;
+        padding: 0.5vmin 1.2vmin;
+        border-radius: 4px;
+        font-weight: 700;
+        background: repeating-linear-gradient(
+            -45deg,
+            #f9d423 0px,
+            #f9d423 14px,
+            #000 14px,
+            #000 16px
+        );
+        color: #000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        transform: rotate(-3deg);
+    }
+
+    /* -------- MOBILE -------- */
+    @media (max-width: 600px) {
+        .tile { height: 26vmin; }
+        .tile-icon { font-size: 8vmin; }
+        .tile-label { font-size: 3.4vmin; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="header">
+        <h1>
+            <span class="emoji">⛏️</span>
+            <span class="gradient-text">Delve</span>
+        </h1>
+        <p class="subtitle">Delve into a fascinating halachic and historical analysis.</p>
+    </div>
+
+    <div class="grid">
+
+        <div class="tile" onclick="window.location.href='techeiles.html'">
+            <div class="tile-icon">🪢</div>
+            <div class="tile-label">Techeiles</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🖥️</div>
+            <div class="tile-label">Websites on Shabbos</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🏆</div>
+            <div class="tile-label">What happened to the Keilim</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🫀</div>
+            <div class="tile-label">Organ Donation</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🫘</div>
+            <div class="tile-label">Kitniyos</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🦃</div>
+            <div class="tile-label">Turkey</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">🥩🥛</div>
+            <div class="tile-label">Meat and Milk Waiting Times</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">📕</div>
+            <div class="tile-label">History of the Zohar</div>
+        </div>
+
+        <div class="tile coming">
+            <div class="tile-icon">💰</div>
+            <div class="tile-label">Heter Iska</div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

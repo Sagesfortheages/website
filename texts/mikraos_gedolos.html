@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <title> Mikraos Gedolos - Interactive Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            text-align: center;
+        }
+        .container {
+            position: relative;
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button{
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            position: absolute;
+            width: 2.1vmin;
+            height: 2.1vmin;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            justify-items: center;
+            display:flex;
+        }
+
+        #baal-haturim {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 62%; /* X-position */
+            width: 23%; /* right - left */
+            height: 8.5%; /* bottom - top */
+            cursor: pointer;
+            
+            /* optional: for debugging */
+            background: rgba(225, 127, 127, 0.3);
+        }
+
+        #ramban {
+            position: absolute;
+            left: 25%;  /* Y-position */
+            top: 17%; /* X-position */
+            width: 23%; /* right - left */
+            height: 28%; /* bottom - top */
+            cursor: pointer;
+            
+            /* optional: for debugging */
+            background: rgba(0, 255, 0, 0.3);
+        }
+
+        #ibn-ezra {
+            position: absolute;
+            left: 75%;  /* Y-position */
+            top: 49%; /* X-position */
+            width: 23%; /* right - left */
+            height: 13%; /* bottom - top */
+            cursor: pointer;
+        
+            /* optional: for debugging */
+            background: rgba(255, 0, 255, 0.3);
+        }
+
+        #ibn-ezra-two {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 55%; /* X-position */
+            width: 23%; /* right - left */
+            height: 7%; /* bottom - top */
+            cursor: pointer;
+        
+            /* optional: for debugging */
+            background: rgba(255, 0, 255, 0.3);
+        }
+
+        #kli-yakar {
+            position: absolute;
+            left: 2%;  /* Y-position */
+            top: 69.5%; /* X-position */
+            width: 46%; /* right - left */
+            height: 23%; /* bottom - top */
+            cursor: pointer;
+        
+            /* optional: for debugging */
+            background: rgba(255, 255, 0, 0.3);
+        }
+
+        #ohr-hachaim {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 70.5%; /* X-position */
+            width: 46%; /* right - left */
+            height: 7%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 0, 60, 0.3);
+        }
+
+        #sforno {
+            position: absolute;
+            left: 2%;  /* Y-position */
+            top: 45%; /* X-position */
+            width: 23%; /* right - left */
+            height: 20%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 120, 0, 0.3);
+        }
+
+        #sifsei-chachamim {
+            position: absolute;
+            left: 75%;  /* Y-position */
+            top: 36%; /* X-position */
+            width: 23%; /* right - left */
+            height: 10.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 120, 200, 0.3);
+        }
+
+        #rashi {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 36%; /* X-position */
+            width: 23%; /* right - left */
+            height: 13%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 120, 200, 0.3);
+        }
+
+        #rashi-two {
+            position: absolute;
+            left: 75%;  /* Y-position */
+            top: 46.5%; /* X-position */
+            width: 23%; /* right - left */
+            height: 2.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 120, 200, 0.3);
+        }
+
+        #rashbam {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 49%; /* X-position */
+            width: 23%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 220, 200, 0.3);
+        }
+
+        #chizkuni {
+            position: absolute;
+            left: 25%;  /* Y-position */
+            top: 45%; /* X-position */
+            width: 23%; /* right - left */
+            height: 24.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(200, 220, 200, 0.3);
+        }
+
+        #chizkuni-two {
+            position: absolute;
+            left: 2%;  /* Y-position */
+            top: 65%; /* X-position */
+            width: 23%; /* right - left */
+            height: 4.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(200, 220, 200, 0.3);
+        }
+
+        #rabbeinu-bachya {
+            position: absolute;
+            left: 2%;  /* Y-position */
+            top: 17%; /* X-position */
+            width: 23%; /* right - left */
+            height: 28%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(240, 20, 200, 0.3);
+        }
+
+        #metzudos {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 77.5%; /* X-position */
+            width: 23%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(130, 191, 203, 0.3);
+        }
+
+
+
+
+        #daas-zekeinim {
+            position: absolute;
+            left: 75%;  /* Y-position */
+            top: 62%; /* X-position */
+            width: 23%; /* right - left */
+            height: 8.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(140, 160, 240, 0.3);
+        }
+
+        #chumash {
+            position: absolute;
+            left: 67%;  /* Y-position */
+            top: 7%; /* X-position */
+            width: 31%; /* right - left */
+            height: 29%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(190, 160, 40, 0.3);
+        }
+
+        #chumash-two {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 32%; /* X-position */
+            width: 15%; /* right - left */
+            height: 4%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(190, 160, 40, 0.3);
+        }
+
+        #onkelos {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 7%; /* X-position */
+            width: 15%; /* right - left */
+            height: 25%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(20, 160, 200, 0.3);
+        }
+
+        #selections-from-gemara {
+            position: absolute;
+            left: 75%;  /* Y-position */
+            top: 77.5%; /* X-position */
+            width: 23%; /* right - left */
+            height: 15%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(120, 60, 200, 0.3);
+        }
+        
+        #selections-from-gemara-two {
+            position: absolute;
+            left: 52%;  /* Y-position */
+            top: 83.5%; /* X-position */
+            width: 23%; /* right - left */
+            height: 9%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(120, 60, 200, 0.3);
+        }
+
+        #yonasan {
+            position: absolute;
+            left: 2%;  /* Y-position */
+            top: 7%; /* X-position */
+            width: 46%; /* right - left */
+            height: 10%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(20, 230, 160, 0.3);
+        }
+
+
+
+
+
+
+
+
+
+        /* The tooltip itself (hidden by default) */
+        .hotspot::after {
+            content: attr(data-tooltip); /* Use the text from the data-tooltip attribute */
+            position: absolute;
+            bottom: 100%; /* Position it above the element */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal position */
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            padding: 5px 10px; /* Padding for the tooltip */
+            border-radius: 5px; /* Rounded corners */
+            opacity: 0; /* Initially hidden */
+            visibility: hidden; /* Initially hidden */
+            transition: opacity 0.2s ease, visibility 0.2s ease; /* Fade-in effect */
+            z-index: 10; /* Ensure the tooltip is above other content */
+        }
+
+        /* Make the tooltip visible when hovering */
+        .hotspot:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="image-container">
+            <!-- Replace with actual path to the PDF image -->
+            <img alt="מקראות גדולות" usemap="#commentaries-map" id="chumash-image">
+
+            <a class="hotspot" id="baal-haturim" data-tooltip="Baal Haturim"></a>
+            <a class="hotspot" id="ramban" data-tooltip="Ramban"></a>
+            <a class="hotspot" id="ibn-ezra" data-tooltip="Ibn Ezra"></a>
+            <a class="hotspot" id="ibn-ezra-two" data-tooltip="Ibn Ezra"></a>
+            <a class="hotspot" id="kli-yakar" data-tooltip="Kli Yakar"></a>
+            <a class="hotspot" id="ohr-hachaim" data-tooltip="Ohr Hachaim"></a>
+            <a class="hotspot" id="sforno" data-tooltip="Sforno"></a>
+            <a class="hotspot" id="sifsei-chachamim" data-tooltip="Sifsei Chachamim"></a>
+            <a class="hotspot" id="rashi" data-tooltip="Rashi"></a>
+            <a class="hotspot" id="rashi-two" data-tooltip="Rashi"></a>
+            <a class="hotspot" id="rashbam" data-tooltip="Rashbam"></a>
+            <a class="hotspot" id="rabbeinu-bachya" data-tooltip="Rabbeinu Bachya"></a>
+            <a class="hotspot" id="metzudos" data-tooltip="Metzudos"></a>
+
+            <a class="hotspot" id="chizkuni" data-tooltip="Chizkuni"></a>
+            <a class="hotspot" id="chizkuni-two" data-tooltip="Chizkuni"></a>
+            <a class="hotspot" id="daas-zekeinim" data-tooltip="Daas Zekeinim"></a>
+            <a class="hotspot" id="chumash" data-tooltip="Chumash"></a>
+            <a class="hotspot" id="chumash-two" data-tooltip="Chumash"></a>
+            <a class="hotspot" id="onkelos" data-tooltip="Targum Onkelos"></a>
+            <a class="hotspot" id="selections-from-gemara" data-tooltip="Selections From Gemara"></a>
+            <a class="hotspot" id="selections-from-gemara-two" data-tooltip="Selections From Gemara"></a>
+            <a class="hotspot" id="yonasan" data-tooltip="Targum Yonasan"></a>
+
+            <button id="1-button" style="left:96%; top:7.5%">1</button>
+            <button id="2-button" style="left:52.25%; top:7.5%">2</button>
+            <button id="3-button" style="left:52.25%; top:36.25%">3</button>
+            <button id="4-button" style="left:52.25%; top:49.25%">4</button>
+            <button id="5-button" style="left:52.25%; top:62.25%">5</button>
+            <button id="6-button" style="left:52.25%; top:77.75%">6</button>
+            <button id="7-button" style="left:96%; top:36.25%">7</button>
+            <button id="8-button" style="left:96%; top:49.25%">8</button>
+            <button id="9-button" style="left:96%; top:62.25%">9</button>
+            <button id="10-button" style="left:96%; top:70.75%">10</button>
+            <button id="11-button" style="left:96%; top:77.75%">11</button>
+            
+            <button id="12-button" style="left:46%; top:7.5%">12</button>
+            <button id="13-button" style="left:46%; top:17.75%">13</button>
+            <button id="14-button" style="left:46%; top:45.25%">14</button>
+            <button id="15-button" style="left:46%; top:69.75%">15</button>
+            <button id="16-button" style="left:2.25%; top:17.75%">16</button>
+            <button id="17-button" style="left:2.25%; top:45.25%">17</button>
+
+            
+        </div>
+    </div>
+
+    <script type="module">
+
+        import { trackPageView } from '../supabase/supabaseFunctions.js';
+        import {loadTextImage} from './texts.js'
+        trackPageView('Chumash');
+
+
+        loadTextImage("artscroll_merged.jpg").then((data) => {
+            console.log(data)
+            document.getElementById("chumash-image").src = data.signedUrl;
+        })
+
+        document.getElementById('baal-haturim').addEventListener('click', function() {
+            linkToProfile('Tur', "../discover.html");
+        });
+
+        document.getElementById('ramban').addEventListener('click', function() {
+            linkToProfile('Ramban', "../discover.html");
+        });
+
+        document.getElementById('ibn-ezra').addEventListener('click', function() {
+            linkToProfile('Ibn Ezra', "../discover.html");
+        });
+
+        document.getElementById('ibn-ezra-two').addEventListener('click', function() {;
+            linkToProfile('Ibn Ezra', "../discover.html");
+        });
+
+        document.getElementById('ohr-hachaim').addEventListener('click', function() {
+            linkToProfile('Ohr Hachaim', "../discover.html");
+        });
+
+        document.getElementById('kli-yakar').addEventListener('click', function() {
+            linkToProfile('Kli Yakar', "../discover.html");
+        });
+
+        document.getElementById('sforno').addEventListener('click', function() {
+            linkToProfile('Sforno', "../discover.html");
+        });
+
+        document.getElementById('rashbam').addEventListener('click', function() {
+            linkToProfile('Rashbam', "../discover.html");
+        });
+
+        document.getElementById('rashi').addEventListener('click', function() {
+            linkToProfile('Rashi', "../discover.html");
+        });
+
+        document.getElementById('rashi-two').addEventListener('click', function() {
+            linkToProfile('Rashi', "../discover.html");
+        });
+
+        document.getElementById('sifsei-chachamim').addEventListener('click', function() {
+            linkToProfile('Sifsei Chachamim', "../discover.html");
+        });
+
+        document.getElementById('rabbeinu-bachya').addEventListener('click', function() {
+            linkToProfile('R Bachya Ben Asher', "../discover.html");
+        });
+
+        document.getElementById('metzudos').addEventListener('click', function() {
+            linkToProfile('Baal Metzudos', "../discover.html");
+        });
+
+
+
+    </script>
+
+<script src="../markers.js"></script>
+<script src="../global.js"></script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chabad History Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .game-board {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .level-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .level-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 12px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 20px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 3px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e0e7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .next-btn {
+            display: none;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .next-btn.show {
+            display: block;
+        }
+
+        .explanation {
+            display: none;
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .explanation-text {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .score-card h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 72px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 30px 0;
+        }
+
+        .score-message {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .game-board {
+                padding: 25px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕎 Chabad History Game</h1>
+            <p>Test your knowledge of the Rebbes and Chabad-Lubavitch history</p>
+        </div>
+
+        <div class="game-board">
+            <!-- Level Selection -->
+            <div class="level-selector" id="levelSelector">
+                <div class="level-card" onclick="startQuiz('rebbes')">
+                    <h3>👑 The Seven Rebbes</h3>
+                    <p>Learn about each Rebbe and their contributions</p>
+                </div>
+                <div class="level-card" onclick="startQuiz('timeline')">
+                    <h3>📅 Historical Timeline</h3>
+                    <p>Key events in Chabad history</p>
+                </div>
+                <div class="level-card" onclick="startQuiz('teachings')">
+                    <h3>📚 Teachings & Works</h3>
+                    <p>Major sefarim and philosophical concepts</p>
+                </div>
+                <div class="level-card" onclick="startQuiz('mixed')">
+                    <h3>🎯 Master Challenge</h3>
+                    <p>Mixed questions from all categories</p>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div class="quiz-container" id="quizContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-number" id="questionNumber"></div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options" id="optionsContainer"></div>
+                    <div class="explanation" id="explanation">
+                        <div class="explanation-title">📖 Did you know?</div>
+                        <div class="explanation-text" id="explanationText"></div>
+                    </div>
+                </div>
+
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="quiz-container" id="resultsContainer">
+                <div class="score-card">
+                    <h2>Quiz Complete! 🎉</h2>
+                    <div class="score-display" id="scoreDisplay"></div>
+                    <div class="score-message" id="scoreMessage"></div>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="correctCount">0</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="incorrectCount">0</div>
+                            <div class="stat-label">Incorrect</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="percentageScore">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button onclick="restartQuiz()">🔄 Try Again</button>
+                        <button onclick="backToMenu()">🏠 Main Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            rebbes: [
+                {
+                    q: "Who was the founder of Chabad-Lubavitch?",
+                    options: ["Rabbi Shneur Zalman of Liadi", "Rabbi DovBer Schneuri", "Rabbi Menachem Mendel Schneersohn", "Rabbi Shmuel Schneersohn"],
+                    correct: 0,
+                    explanation: "Rabbi Shneur Zalman of Liadi (1745-1812), also known as the Alter Rebbe, founded Chabad in 1775 and authored the Tanya."
+                },
+                {
+                    q: "What does 'Chabad' stand for?",
+                    options: ["Chesed, Binah, Daas", "Chochmah, Binah, Daas", "Chayim, Baruch, David", "Chassidus, Breslov, Daas"],
+                    correct: 1,
+                    explanation: "Chabad is an acronym for Chochmah (wisdom), Binah (understanding), and Daas (knowledge), the intellectual approach to Chassidus."
+                },
+                {
+                    q: "Which Rebbe was known as the 'Tzemach Tzedek'?",
+                    options: ["The 2nd Rebbe", "The 3rd Rebbe", "The 4th Rebbe", "The 5th Rebbe"],
+                    correct: 1,
+                    explanation: "Rabbi Menachem Mendel Schneersohn (1789-1866), the third Rebbe, was known as the Tzemach Tzedek after his major halachic work."
+                },
+                {
+                    q: "Who was the last Lubavitcher Rebbe?",
+                    options: ["Rabbi Yosef Yitzchak Schneersohn", "Rabbi Menachem Mendel Schneerson", "Rabbi Sholom DovBer Schneersohn", "Rabbi Shneur Zalman"],
+                    correct: 1,
+                    explanation: "Rabbi Menachem Mendel Schneerson (1902-1994), the seventh Rebbe, led Chabad for over 40 years and transformed it into a global movement."
+                },
+                {
+                    q: "Which Rebbe established the Tomchei Temimim yeshiva?",
+                    options: ["The 3rd Rebbe", "The 4th Rebbe", "The 5th Rebbe", "The 6th Rebbe"],
+                    correct: 2,
+                    explanation: "Rabbi Sholom DovBer Schneersohn, the Rashab (1860-1920), established Tomchei Temimim in 1897 in Lubavitch."
+                },
+                {
+                    q: "What was the Alter Rebbe's major work on Jewish law?",
+                    options: ["Tanya", "Shulchan Aruch HaRav", "Likutei Torah", "Torah Or"],
+                    correct: 1,
+                    explanation: "Shulchan Aruch HaRav is the Alter Rebbe's comprehensive code of Jewish law, presenting halacha with Kabbalistic insights."
+                },
+                {
+                    q: "Which Rebbe survived imprisonment by the Bolsheviks?",
+                    options: ["The 5th Rebbe", "The 6th Rebbe", "The 7th Rebbe", "The 4th Rebbe"],
+                    correct: 1,
+                    explanation: "Rabbi Yosef Yitzchak Schneersohn (1880-1950) was arrested in 1927 and later released. His release date, 12 Tammuz, is celebrated as a Chabad holiday."
+                },
+                {
+                    q: "In what year did the Alter Rebbe pass away?",
+                    options: ["1812", "1813", "1827", "1866"],
+                    correct: 0,
+                    explanation: "The Alter Rebbe passed away on 24 Tevet 5573 (1812) while fleeing Napoleon's army during their retreat from Moscow."
+                }
+            ],
+            timeline: [
+                {
+                    q: "In what year was the town of Lubavitch established as the Chabad center?",
+                    options: ["1775", "1813", "1897", "1940"],
+                    correct: 1,
+                    explanation: "Lubavitch became the seat of Chabad leadership in 1813 when the Mitteler Rebbe (2nd Rebbe) moved there."
+                },
+                {
+                    q: "When was 770 Eastern Parkway established as Chabad headquarters?",
+                    options: ["1940", "1950", "1960", "1970"],
+                    correct: 0,
+                    explanation: "770 Eastern Parkway in Crown Heights, Brooklyn became Chabad headquarters in 1940 when the Previous Rebbe arrived in America."
+                },
+                {
+                    q: "What significant event happened on 19 Kislev 5559 (1798)?",
+                    options: ["Founding of Chabad", "The Alter Rebbe's release from prison", "Printing of the Tanya", "Opening of Tomchei Temimim"],
+                    correct: 1,
+                    explanation: "The Alter Rebbe was released from Czarist imprisonment on 19 Kislev, known as the 'Rosh Hashanah of Chassidus.'"
+                },
+                {
+                    q: "When was the Tanya first published?",
+                    options: ["1796", "1797", "1798", "1799"],
+                    correct: 1,
+                    explanation: "The Tanya was first published in 1797 (5557) in Slavuta, becoming the foundational text of Chabad philosophy."
+                },
+                {
+                    q: "In what year did the 7th Rebbe assume leadership?",
+                    options: ["1950", "1951", "1952", "1953"],
+                    correct: 1,
+                    explanation: "Rabbi Menachem Mendel Schneerson formally accepted the leadership of Chabad on 10 Shevat 5711 (1951)."
+                },
+                {
+                    q: "When did Chabad establish its first outreach center (Chabad House)?",
+                    options: ["1950s", "1960s", "1970s", "1980s"],
+                    correct: 1,
+                    explanation: "The first Chabad House was established at UCLA in 1969, beginning the global Chabad House movement."
+                }
+            ],
+            teachings: [
+                {
+                    q: "What is the main subject of the Tanya?",
+                    options: ["Halacha", "Chassidic philosophy and the soul", "Kabbalah secrets", "Prayer laws"],
+                    correct: 1,
+                    explanation: "The Tanya explores the nature of the soul, the struggle between good and evil, and the path to serving G-d with joy."
+                },
+                {
+                    q: "How many chapters are in Likutei Amarim (Part 1 of Tanya)?",
+                    options: ["32", "42", "52", "53"],
+                    correct: 3,
+                    explanation: "Likutei Amarim contains 53 chapters, each exploring different aspects of the divine soul and service of G-d."
+                },
+                {
+                    q: "What does the term 'Beinoni' refer to in Tanya?",
+                    options: ["A righteous person", "An intermediate person", "A wicked person", "A scholar"],
+                    correct: 1,
+                    explanation: "The Beinoni is the 'intermediate person' who never sins in action but struggles with negative thoughts, representing an attainable spiritual level."
+                },
+                {
+                    q: "Which work contains discourses on Chumash and festivals?",
+                    options: ["Tanya", "Likutei Torah", "Shulchan Aruch HaRav", "Hilchos Talmud Torah"],
+                    correct: 1,
+                    explanation: "Likutei Torah and Torah Or contain the Alter Rebbe's Chassidic discourses on the weekly Torah portions and Jewish holidays."
+                },
+                {
+                    q: "What is 'Ahavas Yisrael' in Chabad philosophy?",
+                    options: ["Love of Torah", "Love of G-d", "Love of fellow Jews", "Love of Israel"],
+                    correct: 2,
+                    explanation: "Ahavas Yisrael (love of fellow Jews) is a fundamental principle in Chabad, emphasizing unconditional love for every Jew."
+                },
+                {
+                    q: "What does 'Ufaratzta' mean in the Rebbe's mission?",
+                    options: ["You shall spread out", "You shall gather", "You shall learn", "You shall pray"],
+                    correct: 0,
+                    explanation: "'Ufaratzta' (you shall spread out) from Genesis became the watchword for Chabad's global outreach mission."
+                }
+            ]
+        };
+
+        // Create mixed questions
+        questions.mixed = [
+            ...questions.rebbes.slice(0, 3),
+            ...questions.timeline.slice(0, 2),
+            ...questions.teachings.slice(0, 3)
+        ].sort(() => Math.random() - 0.5);
+
+        let currentQuiz = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function startQuiz(category) {
+            currentQuiz = [...questions[category]];
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+
+            document.getElementById('levelSelector').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= currentQuiz.length) {
+                showResults();
+                return;
+            }
+
+            answered = false;
+            const q = currentQuiz[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${currentQuiz.length}`;
+            document.getElementById('questionText').textContent = q.q;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(div);
+            });
+
+            document.getElementById('explanation').classList.remove('show');
+            document.getElementById('nextBtn').classList.remove('show');
+            
+            updateProgress();
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            answered = true;
+
+            const q = currentQuiz[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.style.pointerEvents = 'none';
+                if (index === q.correct) {
+                    option.classList.add('correct');
+                }
+                if (index === selectedIndex && selectedIndex !== q.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === q.correct) {
+                score++;
+            }
+
+            document.getElementById('explanationText').textContent = q.explanation;
+            document.getElementById('explanation').classList.add('show');
+            document.getElementById('nextBtn').classList.add('show');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / currentQuiz.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('resultsContainer').classList.add('active');
+
+            const percentage = Math.round((score / currentQuiz.length) * 100);
+            
+            document.getElementById('scoreDisplay').textContent = `${score}/${currentQuiz.length}`;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('incorrectCount').textContent = currentQuiz.length - score;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+
+            let message = '';
+            if (percentage === 100) {
+                message = "Perfect! You're a true Chabad scholar! 🌟";
+            } else if (percentage >= 80) {
+                message = "Excellent work! Keep learning! 📚";
+            } else if (percentage >= 60) {
+                message = "Good job! Review and try again! 💪";
+            } else {
+                message = "Keep studying! You'll do better next time! 📖";
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('resultsContainer').classList.remove('active');
+            document.getElementById('quizContainer').classList.add('active');
+            loadQuestion();
+        }
+
+        function backToMenu() {
+            document.getElementById('resultsContainer').classList.remove('active');
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('levelSelector').style.display = 'grid';
+        }
+    </script>
+</body>
+</html>

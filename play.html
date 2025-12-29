@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Play</title>
+    <!-- <link rel="stylesheet" href="jewel.css"> -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+</head>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-weight: 770;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+    color: #333;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Header styling */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.header h1 {
+    font-size: 6vmin;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
+
+}
+
+.gradient-text{
+    background: linear-gradient(120deg, #2c3e50, #4a69bd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+
+.header .subtitle {
+    font-size: 3vmin;
+    color: #666;
+    font-weight: 500;
+    color:green;
+}
+
+.container {
+    display: grid;
+    grid-template-rows: calc((100vh - 12vmin) / 3) calc((100vh - 12vmin) * 2 / 3); /* Top 1/3, Bottom 2/3 */
+    grid-template-columns: calc(100vw / 3) calc(100vw * 2 / 3); /* Left 1/3, Right 2/3 */
+    width: 100vw;
+    height: calc(100vh - 12vmin); /* Account for header height */
+    animation: bounceIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    gap: 0;
+    position: fixed;
+    top: 12vmin; /* Push below header */
+    left: 0;
+} 
+
+@keyframes bounceIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.top-left-container{
+    margin:1vmin;
+    border-radius: 16px;
+    height:100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    grid-row: 1;
+    grid-column: 1;
+    display:flex;
+}
+
+.top-right-container {
+    margin:1vmin;
+    border-radius: 16px;
+    height:100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    grid-row: 1;
+    grid-column: 2;
+    position: relative;
+}
+
+.bottom-left-container{
+    margin:1vmin;
+    border-radius: 16px;
+    height:100%;
+    width:100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    grid-row: 2;
+    grid-column: 1;
+    position: relative;
+}
+
+.bottom-right-container {
+    margin:1vmin;
+    border-radius: 16px;
+    height:100%;
+    min-width:100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    grid-row: 2;
+    grid-column: 2;
+}
+
+#map {
+    width: 98%;
+    height: 100%;
+    border-radius: 16px;
+    position: relative;
+    top: 0;
+    left: 0;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.mapboxgl-marker {
+    width: 2vmin;
+    height: 2vmin;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(244, 229, 232, 0.8);
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.mapboxgl-marker:hover {
+    cursor: default;
+    transform: scale(1.3) rotate(15deg);
+    box-shadow: 0 4px 15px rgba(255, 94, 125, 0.6);
+}
+
+/* For timeline rectangles */
+.timeline-rectangle.animate {
+    box-shadow: 0 0 14px rgba(96, 220, 190, 0.55),
+                0 0 26px rgba(96, 220, 190, 0.35),
+                0 0 42px rgba(96, 220, 190, 0.18) !important;
+    transform-origin: center;
+    /* position: relative; */
+    z-index: 1500 !important;
+    filter: brightness(1.1) saturate(1.15); 
+    border: 2px solid   rgba(96, 220, 190, 0.55) !important;
+    opacity: 0.98;
+    animation: newMarkerPulse 1.6s ease-out 2;
+}
+
+/* For map markers */
+.mapboxgl-marker.animate {
+    box-shadow: 
+        0 0 20px rgba(96, 220, 190, 0.9),
+        0 0 40px rgba(96, 220, 190, 0.6),
+        0 0 60px rgba(96, 220, 190, 0.3);
+    
+    /* Make it pop visually */
+    border: 3px solid rgba(96, 220, 190, 0.9) !important;
+    filter: brightness(1.35) contrast(1.2);
+    transform-origin: center;
+    position: relative;
+    z-index: 1500 !important;
+}
+   
+/* Target Wheel */
+.target {
+    position: absolute;
+    width: 50vmin;
+    height: 50vmin;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.outer-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: 3px solid #dee2e6;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    background: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.center {
+    position: absolute;
+    width: 10vmin;
+    height: 10vmin;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2c3e50, #4a69bd);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.label {
+    position: absolute;
+    font-size: 1.8vmin;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    transform-origin: center;
+    white-space: nowrap;
+    z-index: 200;
+    transition: all 0.3s ease;
+}
+
+.label button {
+    background: linear-gradient(135deg, #4a69bd, #2c3e50);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 4vmin;
+    height: 4vmin;
+    font-size: 2vmin;
+    font-weight: 770;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.label button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+}
+
+.dashed-line {
+    position: absolute;
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(to right, #dee2e6 50%, transparent 50%);
+    background-size: 8px 2px;
+    top: 50%;
+    left: 50%;
+    transform-origin: left center;
+    z-index: 100;
+}
+
+/*Timeline Container*/
+.timeline-container {
+    position: relative;
+    width:100%;
+    height: 100%;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.timeline-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-line {
+    position: absolute;
+    bottom: 12%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3a86ff, #8338ec);
+    transform: translateY(-50%);
+    box-shadow: 0 2px 10px rgba(58, 134, 255, 0.3);
+}
+
+.timeline-grid {
+    position: absolute;
+    top: 5%;
+    bottom: 15%;
+    width: 2px;
+    background: #a7aaad;
+}
+
+.timeline-grid.grid-minor {
+    background: #a7aaad;
+    width: 1px;
+}
+
+.timeline-label {
+    position: absolute;
+    bottom: 3%;
+    transform: translateX(-50%);
+    font-size: 1.8vmin;
+    font-weight: 600;
+    color: #333;
+}
+
+.timeline-label.label-minor {
+    font-size: 1.5vmin;
+    color: #666;
+}
+
+/* Example gridlines and labels */
+.grid900 { left: 5%; }
+.grid1000 { left: 13.181%; }
+.grid1100 { left: 21.363%; }
+.grid1200 { left: 29.545%; }
+.grid1300 { left: 37.727%; }
+.grid1400 { left: 45.909%; }
+.grid1500 { left: 54.090%; }
+.grid1600 { left: 62.272%; }
+.grid1700 { left: 70.454%; }
+.grid1800 { left: 78.636%; }
+.grid1900 { left: 86.818%; }
+.grid2000 { left: 95%; }
+
+.timeline-rectangle {
+    position: absolute;
+    height: 50%;
+    bottom: 15%;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    box-shadow: 0px 3px 10px rgba(138, 43, 226, 0.3);
+    z-index: 1000;
+    border: 2px solid black
+}
+
+.timeline-rectangle:hover {
+    box-shadow: 0px 6px 15px rgba(138, 43, 226, 0.5);
+    transform: translateY(-5px) scale(1.03);
+}
+
+.alert-box {
+    position: fixed;
+    /* top: 15%;
+    left: 30%; */
+    align-self:last baseline;
+    justify-self:center;
+    /* transform: translateX(-50%); */
+    background: linear-gradient(145deg, #ffffff, #f0f4f8);
+    color: #333;
+    padding: 2.5vmin 4.5vmin;
+    border-radius: 16px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 65vmin;
+    display: none;
+    z-index: 3000;
+    border: 2px solid rgba(74, 105, 189, 0.3);
+    backdrop-filter: blur(8px);
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1;
+    font-size: 2.5vmin;
+    font-weight: 1;
+    animation: bounceIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Search Container */
+.search-container {
+    z-index: 10;
+    min-height: 100%;
+    height: 100%;
+    text-align: left;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+}
+
+.search-results {
+    position:relative;
+    max-height: 100%;
+    list-style: none;
+    overflow-y: auto;
+}
+
+li {
+    padding: 0.25vmin 2vmin;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 770;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 2vmin;
+}
+
+.li:hover {
+    background: rgba(74, 105, 189, 0.1);
+}
+
+/* Textbox and Circle Wrapper */
+.textbox-circle-wrapper {
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    padding: 2vmin;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+} 
+
+.circle-container {
+    position:relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 3 circles per row */
+    gap: 1vmin; /* space between circles */
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    z-index: 10;
+    margin-top: 2vmin;
+}
+
+.circle {
+    width: 4vmin;
+    height: 4vmin;
+    background-color: rgba(80, 80, 80, 0.5);
+    border-radius: 50%;
+    border: 0.5vmin solid #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    color: white;
+    font-size: 2vmin;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.circle:hover {
+    transform: scale(1.2);
+    font-size: 2.5vmin;
+    background-color: #2c3e50;
+}
+
+#suggestion {
+    z-index: 300;
+    text-align: center;
+    font-weight: 600;
+    position: relative;
+    margin-bottom: 1vmin;
+    height: 4vmin;
+    font-size: 2vmin;
+    color: #666;
+    border-radius: 20px;
+    padding: 1.5vmin 2.5vmin;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);;
+}
+
+#suggestion:hover {
+    text-decoration: underline;
+    cursor: pointer;;
+}
+
+#suggestion.visible {
+    visibility: visible;
+    opacity: 1;
+    animation: colorPulse 2s infinite;
+}
+
+input[type="text"] {
+    width: 100%;
+    min-width: 95px;
+    padding: 0.5vmin 1.25vmin;
+    font-size: 3vmin;
+    border: 3px solid #2c3e50;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #6a3093;
+    box-shadow: 0 4px 15px rgba(255, 94, 125, 0.3);
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    backdrop-filter: blur(4px);
+}
+
+input[type="text"]:focus {
+    background-color: #fff;
+    transform: translateY(-2px) scale(1.02);
+}
+
+input[type="text"]:hover {
+    border-color: #8a2be2;
+    box-shadow: 0 6px 15px rgba(138, 43, 226, 0.4);
+}
+
+input[type="text"]::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+button {
+    background: linear-gradient(135deg, #4a69bd, #2c3e50);
+    color: white;
+    border: none;
+    padding: 0.4vmin 1vmin;
+    font-size: 4vmin;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+}
+
+button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(255, 94, 125, 0.4);
+}
+
+button.active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+    color: #6a3093;
+}
+
+#home-button, #info-button, #restart-button-main, #hint-button, #uniqueness-button {
+    border-radius: 20%; 
+    width: 7vmin; 
+    height: 7vmin; 
+    position: fixed; /* Changed to fixed to position relative to viewport */
+    z-index: 3000;
+    top: 3.5vmin; /* Positioned below the header */
+    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    align-items: center;
+    justify-items: center;
+    padding:0
+}
+
+#home-button {
+    left: 1vmin;
+    background: linear-gradient(135deg, #ff9a9e, #ff5e7d);
+}
+
+#info-button {
+    right: 1vmin;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+}
+
+#restart-button-main {
+    left: 12vmin;
+    background: linear-gradient(135deg, #ffde59, #ffd700);
+}
+
+#hint-button {
+    left: 23vmin;
+    background: linear-gradient(135deg, #a6c1ee, #8a2be2);
+}
+
+#exit-button {
+    right: 0.25vmin;
+    top: 0.25vmin;
+    position: fixed;
+    width: 5vmin;
+    height: 5vmin;
+    
+    /* Add these: */
+    line-height: 1;
+    padding-top: 0;
+    text-align: center;
+    
+}
+
+#restart-button {
+    margin-top: 2vh;
+
+    
+}
+
+.popup {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(255, 222, 89, 0.9), rgba(255, 94, 125, 0.8));
+    padding: 1vmin 1.5vmin;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
+    z-index: 4000;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(1vmin) scale(0.95) rotate(-2deg);
+    border: 3px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.popup.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1) rotate(0deg);
+    box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
+}
+
+.popup-message {
+    font-size: 2.4vmin;
+    color: #6a3093;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 8vmin;
+    }
+    
+    .header .subtitle {
+        font-size: 3vmin;
+    }
+    
+    .container {
+        height: calc(100vh - 16vmin);
+        top: 16vmin;
+    }
+    
+    #home-button, #info-button, #restart-button-main, #hint-button {
+        top: 6vmin;
+    }
+}
+
+#mini-gradient {
+    width: 15vw;
+    height: 7vh;
+    border: 1px solid #000;
+    z-index: 9999;
+    font-size: 0.7em;
+}
+
+#mini-gradient .gradient-container {
+    display: flex;
+    height: 100%;
+}
+
+#mini-gradient .swatch {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: black;
+    position: relative;
+}
+
+#mini-gradient .swatch:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 1px;  /* thinner line for small version */
+    height: 100%;
+    background: black;
+}
+
+.gradient-wrapper {
+    position: fixed;
+    top: 2vh;
+    right: 7vw;
+
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gradient-label {
+    font-weight: bold;
+    font-size: 1.1rem;
+    user-select: none;
+}
+
+.gradient-label.colder {
+    color: #2222CC; /* blue */
+}
+
+.gradient-label.hotter {
+    color: #FF0000; /* red */
+}
+
+
+</style>
+<body class="play-page">
+    <!-- Header section -->
+    <div class="header">
+        <button id="home-button" onclick="window.location.href='home.html'">
+            🏠
+        </button>
+
+        <button id="restart-button-main">&#x1F504</button>
+
+        <button id="hint-button">💡</button>
+
+        <button id="info-button">
+            ℹ
+        </button>
+        <h1>
+            <span class="emoji">🎮</span> 
+            <span class="gradient-text">Play</span>
+        </h1>
+        <p class="subtitle">Discover the mystery sage through clues and deduction</p>
+
+        
+
+
+
+
+        
+    </div>
+    <div class="gradient-wrapper">
+        <span class="gradient-label colder">Colder</span>
+    
+        <div id="mini-gradient">
+            
+            <div class="gradient-container">
+                <!-- 7 Blues -->
+                <div class="swatch" style="background: #2222CC;">1</div>
+                <div class="swatch" style="background: #4444FF;">2</div>
+                <div class="swatch" style="background: #8888FF;">3</div>
+                <div class="swatch" style="background: #AAAAFF;">4</div>
+                <div class="swatch" style="background: #CCCCFF;">5</div>
+
+                <!-- White -->
+                <div class="swatch" style="background: #FFFFFF;">6</div>
+
+                <!-- 7 Reds -->
+                <div class="swatch" style="background: #FFCCCC;">7</div>
+                <div class="swatch" style="background: #FF8888;">8</div>
+                <div class="swatch" style="background: #FF6666;">9</div>
+                <div class="swatch" style="background: #FF4444;">10</div>
+                <div class="swatch" style="background: #FF0000;">11</div>
+            </div>
+        </div>
+        <span class="gradient-label hotter">Hotter</span>
+    </div>
+
+    <div class="container">
+        <!-- TOP LEFT: Guessing box -->
+        <div class="top-left-container">
+            <div class="textbox-circle-wrapper">
+                <div id="suggestion"></div>
+                <div class="textboxes">
+                    <input type="text" class="textbox" id="textbox" placeholder="Guess a sage..." />  
+                    <!-- Container for circles -->
+                </div>
+                <div class="circle-container"></div>
+            </div>
+            <div class="search-container" id="search-container">
+                <ul class="search-results" id="search-results"></ul>
+            </div>   
+        </div>
+            
+        <!-- TOP RIGHT: Timeline -->
+        <div class="top-right-container">
+            <div class="timeline-container">
+                <!-- Timeline Line -->
+                <div class="timeline-line"></div>
+            
+                <!-- Gridlines -->
+                <div class="timeline-grid grid900"></div>
+                <div class="timeline-grid grid1000 grid-minor"></div>
+                <div class="timeline-grid grid1100"></div>
+                <div class="timeline-grid grid1200 grid-minor"></div>
+                <div class="timeline-grid grid1300"></div>
+                <div class="timeline-grid grid1400 grid-minor"></div>
+                <div class="timeline-grid grid1500"></div>
+                <div class="timeline-grid grid1600 grid-minor"></div>
+                <div class="timeline-grid grid1700"></div>
+                <div class="timeline-grid grid1800 grid-minor"></div>
+                <div class="timeline-grid grid1900"></div>
+                <div class="timeline-grid grid2000 grid-minor"></div>
+        
+                <!-- Labels -->
+                <div class="timeline-label grid900">900</div>
+                <div class="timeline-label label-minor grid1000">1000</div>
+                <div class="timeline-label grid1100">1100</div>
+                <div class="timeline-label label-minor grid1200">1200</div>
+                <div class="timeline-label grid1300">1300</div>
+                <div class="timeline-label label-minor grid1400">1400</div>
+                <div class="timeline-label grid1500">1500</div>
+                <div class="timeline-label label-minor grid1600">1600</div>
+                <div class="timeline-label grid1700">1700</div>
+                <div class="timeline-label label-minor grid1800">1800</div>
+                <div class="timeline-label grid1900">1900</div>
+                <div class="timeline-label label-minor grid2000">2000</div>
+            </div>
+        </div>
+
+        <!-- BOTTOM LEFT: Target wheel -->
+        <div class="bottom-left-container">
+            <div class="target">
+                <!-- Add labels to the outer ring with counter-rotation to keep them upright -->
+                <div class="label" style="transform: rotate(0deg) translateX(23vmin) rotate(90deg);">Halacha</div>
+                <div class="label" style="transform: rotate(30deg) translateX(23vmin) rotate(-90deg);">Responsa</div>
+                <div class="label" style="transform: rotate(60deg) translateX(23vmin) rotate(-90deg);">Kabbalah</div>
+                <div class="label" style="transform: rotate(90deg) translateX(23vmin) rotate(-90deg);">Chassidus</div>
+                <div class="label" style="transform: rotate(120deg) translateX(23vmin) rotate(-90deg);">Mussar</div>
+                <div class="label" style="transform: rotate(150deg) translateX(23vmin) rotate(-90deg);">Philosophy</div>
+                <div class="label" style="transform: rotate(180deg) translateX(23vmin) rotate(-270deg);">Linguistics</div>
+                <div class="label" style="transform: rotate(210deg) translateX(23vmin) rotate(-270deg);">Poetry</div>
+                <div class="label" style="transform: rotate(240deg) translateX(23vmin) rotate(-270deg);">History</div>
+                <div class="label" style="transform: rotate(270deg) translateX(23vmin) rotate(-270deg);"></div>
+                <div class="label" style="transform: rotate(300deg) translateX(23vmin) rotate(-270deg);">Tanach</div>
+                <div class="label" style="transform: rotate(330deg) translateX(23vmin) rotate(-270deg);">Talmud</div>
+            
+                <div class="label" id='guessLabel' style="transform: rotate(270deg) translateX(19.5vmin) rotate(-270deg);"></div>
+                <div class="label" id='correctLabel' style="transform: rotate(270deg) translateX(15vmin) rotate(-270deg);">
+                    <button>?</button>
+                </div>
+            
+                <!-- Outermost ivory ring with black border -->
+                <div class="outer-ring"></div>
+            
+                <!-- Dynamic outer ring with black border -->
+                <div class="ring" id="ring1" style="width: 85%; height: 85%;"></div>
+            
+                <!-- Middle ring with black border -->
+                <div class="ring" id="ring2" style="width: 70%; height: 70%;"></div>
+            
+                <!-- Dashed lines between each section of the ring -->
+                <div class="dashed-line" style="transform: rotate(15deg);"></div>
+                <div class="dashed-line" style="transform: rotate(45deg);"></div>
+                <div class="dashed-line" style="transform: rotate(75deg);"></div>
+                <div class="dashed-line" style="transform: rotate(105deg);"></div>
+                <div class="dashed-line" style="transform: rotate(135deg);"></div>
+                <div class="dashed-line" style="transform: rotate(165deg);"></div>
+                <div class="dashed-line" style="transform: rotate(195deg);"></div>
+                <div class="dashed-line" style="transform: rotate(225deg);"></div>
+                <div class="dashed-line" style="transform: rotate(255deg);"></div>
+                <div class="dashed-line" style="transform: rotate(285deg);"></div>
+                <div class="dashed-line" style="transform: rotate(315deg);"></div>
+                <div class="dashed-line" style="transform: rotate(345deg);"></div>
+            
+                <!-- Center (black circle) -->
+                <div class="center"></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM RIGHT: Map -->
+        <div class="bottom-right-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Alert box and audio -->
+        <div class="alert-box" id="customAlert">
+            <p id="message"></p>
+            <button id="restart-button" onclick="hideCustomAlert(restart=true)" style="display:none">Play Again</button>
+            <button id='exit-button' onclick="hideCustomAlert(restart=false)">x</button>
+        </div>
+        <audio id="cheer-sound" src="cheering.wav" preload="auto"></audio>
+    </div>
+    <audio id="song" loop></audio>
+
+    <div id="popup" class="popup">
+        <span class="popup-message"></span>
+    </div>
+
+    <script src="global.js"></script>
+    <script type="module" src="play.js"></script>
+</body>

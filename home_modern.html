@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <title>🏠 Home</title>
+    <script src="global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1a202c;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1vmin;
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+            gap: 2vmin;
+            margin: 0 auto;
+            width: 100vw;
+            animation: bounceIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .left-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 5vh;
+            gap: 8vh;
+        }
+
+        .right-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 5vh;
+            gap: 8vh;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .hero {
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 8vmin;
+            font-weight: 800;
+            margin-bottom: 1.5vmin;
+            letter-spacing: -1.5px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 2.8vmin;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            line-height: 1.5;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5vmin;
+            max-width: 85%;
+            margin: 0 auto;
+            margin-top: 3vh;
+        }
+        
+        .button {
+            background: rgba(255, 255, 255, 0.98);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            padding: 2vmin 1.5vmin;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .button:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            background: white;
+        }
+        
+        .button-icon {
+            font-size: 8vmin;
+            margin-bottom: 1vmin;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        .button-label {
+            font-weight: 700;
+            font-size: 4vmin;
+            color: #2d3748;
+            letter-spacing: -0.3px;
+        }
+
+        .legend-container {
+            position: relative;
+            width: fit-content;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.3);
+            padding: 1.8vmin;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+        
+        .legend-container.minimized {
+            height: auto;
+            max-height: 8%;
+            overflow: hidden;
+        }
+        
+        .minimize-btn {
+            position: absolute;
+            top: 1vmin;
+            right: 1vmin;
+            width: 3.5vmin;
+            height: 3.5vmin;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2.2vmin;
+            line-height: 1;
+            border: none;
+            color: #f59e0b;
+            transition: all 0.2s ease;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .minimize-btn:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .legend-title {
+            font-size: 3vmin;
+            font-weight: 800;
+            margin-bottom: 1.2vmin;
+            color: white;
+            padding-bottom: 1vmin;
+            padding-right: 3vmin;
+            letter-spacing: -0.5px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .legend-content {
+            transition: opacity 0.3s ease;
+        }
+        
+        .legend-container.minimized .legend-content {
+            opacity: 0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8vmin;
+            font-weight: 700;
+            padding: 0.8vmin 1vmin;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(5px);
+        }
+        
+        .color-box {
+            width: 2.8vmin;
+            height: 2.8vmin;
+            border-radius: 50%;
+            margin-right: 1.2vmin;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .item-label {
+            font-size: 2.2vmin;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* LOGIN OVERLAY - MODERNIZED */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000000000000;
+        }
+
+        .auth-modal {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+            width: 45vmin;
+            padding: 3.5vmin;
+            text-align: center;
+            animation: fadeInScale 0.5s ease;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2.5vmin;
+            gap: 1vmin;
+            background: #f0f4ff;
+            padding: 0.5vmin;
+            border-radius: 14px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            padding: 1.2vmin;
+            font-size: 2.5vmin;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #4c51bf;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 1.5vmin;
+            margin: 1vmin 0;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            font-size: 2vmin;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .auth-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1.2vmin 3vmin;
+            margin-top: 1vmin;
+            cursor: pointer;
+            font-size: 2.3vmin;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-status {
+            position: absolute;
+            top: 2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.5vmin 3vmin;
+            border-radius: 14px;
+            font-size: 2vmin;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeDown 0.4s ease;
+            z-index: 10000000000;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-status.success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .auth-status.error {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .hidden { 
+            display: none; 
+        }
+
+        @keyframes fadeInScale {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #password-checklist ul {
+            list-style: none;
+            padding: 0;
+            margin: 1vmin 0 1.5vmin 0;
+            text-align: left;
+        }
+
+        #password-checklist li {
+            margin-bottom: 0.6vmin;
+            font-size: 1.8vmin;
+            padding: 0.5vmin;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        #password-checklist li.valid {
+            color: #10b981;
+            background: #f0fdf4;
+        }
+
+        #password-checklist li.invalid {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        #show-forgot {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.8vmin 1.5vmin;
+            font-size: 1.8vmin;
+            cursor: pointer;
+            color: #4c51bf;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        #show-forgot:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        #feedback-fab {
+            position: fixed;
+            bottom: 3vmin;
+            right: 3vmin;
+            padding: 2vmin 3vmin;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 2.6vmin;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #feedback-fab:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Profile Images */
+        .profile-image {
+            width: 23vmin;
+            height: 23vmin;
+            border-radius: 50%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            * {
+                overflow: auto;
+            }
+
+            .buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</head>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module">
+  import {supabaseClient} from './supabase/supabaseClient.js';
+  import {trackPageView } from './supabase/supabaseFunctions.js';
+  
+  window.supabaseClient = supabaseClient;
+  
+  supabaseClient.auth.getSession().then(({ data }) => {
+    if (data.session) {
+      document.getElementById('overlay').style.display = 'none';
+    } else {
+      document.getElementById('overlay').style.display = 'flex';
+    }
+  });
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      document.getElementById('overlay').style.display = 'none';
+    } else {
+      document.getElementById('overlay').style.display = 'flex';
+    }
+  });
+</script>
+
+<body>
+  <div id="overlay" class="overlay">
+    <div class="auth-modal">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="showForm('login')">Login</button>
+        <button class="auth-tab" onclick="showForm('signup')">Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="auth-form" id="login-form" aria-live="polite">
+        <label for="login-email" class="hidden">Email</label>
+        <input type="email" placeholder="Email" class="auth-input" id="login-email" autocomplete="email" required>
+        <label for="login-password" class="hidden">Password</label>
+        <input type="password" placeholder="Password" class="auth-input" id="login-password" autocomplete="current-password" required>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1vmin; gap:1vmin;">
+          <button class="auth-button" id="login-button" style="flex:1;">Login</button>
+          <button id="show-forgot" type="button">Forgot password?</button>
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div class="auth-form hidden" id="forgot-form" aria-hidden="true">
+        <p style="font-size:2vmin; margin-bottom:1.5vmin; color:#4a5568; line-height:1.5;">Enter your email and we'll send you a link to reset your password.</p>
+        <label for="forgot-email" class="hidden">Email</label>
+        <input type="email" placeholder="Email" class="auth-input" id="forgot-email" autocomplete="email">
+        <div style="display:flex; justify-content:space-between; gap:1vmin; margin-top:1.5vmin;">
+          <button class="auth-button" id="send-reset-button" style="flex:1;">Send reset email</button>
+          <button id="forgot-back" class="auth-button" style="background:#e2e8f0; color:#2d3748;">Back</button>
+        </div>
+        <p id="forgot-hint" style="font-size:1.6vmin; color:#718096; margin-top:1.5vmin; line-height:1.4;">Check your inbox and spam folder. The link will expire according to our security policy.</p>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div class="auth-form hidden" id="signup-form">
+        <input type="text" placeholder="Full Name" class="auth-input" id="signup-name">
+        <input type="email" placeholder="Email" class="auth-input" id="signup-email">
+        <input type="password" placeholder="Password" class="auth-input" id="signup-password">
+
+        <div id="password-checklist" style="display:none">
+          <ul>
+            <li id="length" class="pending">⚪ At least 8 characters</li>
+            <li id="uppercase" class="pending">⚪ At least one uppercase letter</li>
+            <li id="lowercase" class="pending">⚪ At least one lowercase letter</li>
+            <li id="number" class="pending">⚪ At least one number</li>
+            <li id="symbol" class="pending">⚪ At least one symbol (!@#$%^&*)</li>
+          </ul>
+        </div>
+
+        <p style="font-size: 2vmin; color: #4a5568; margin-top: 1.5vmin; margin-bottom: 1.5vmin; font-weight: 500;">
+          Access the full experience for just 
+          <span style="font-weight: 700; color: #667eea;">$8.99/month</span>
+        </p>
+
+        <button class="auth-button" id="signup-button">Sign Up & Subscribe</button>
+
+        <p style="font-size: 1.6vmin; color: #718096; margin-top: 1.5vmin;">
+          Cancel anytime. Secure checkout via Stripe.
+        </p>
+
+        <div id="signup-status-message" style="margin-top: 1vmin; color: #ef4444; font-size: 1.6vmin;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-grid">
+    <div class="left-container">
+      <img src="rabbi_pic.jpg" alt="Rabbi" class="profile-image">
+      <div class="legend-container">
+        <button class="minimize-btn" onclick="toggleLegend()">−</button>
+        <div class="legend-title">Background</div>
+        <div class="legend-content">
+          <div class="legend-item" id="sefarad-legend">
+            <div class="color-box sefarad" id="sefarad-color"></div>
+            <div class="item-label">Sefarad</div>
+          </div>
+          <div class="legend-item" id="ashkenaz-legend">
+            <div class="color-box ashkenaz" id="ashkenaz-color"></div>
+            <div class="item-label">Ashkenaz</div>
+          </div>
+          <div class="legend-item" id="provence-legend">
+            <div class="color-box provence" id="provence-color"></div>
+            <div class="item-label">Provence</div>
+          </div>
+          <div class="legend-item" id="chassidic-legend">
+            <div class="color-box chassidic" id="chassidic-color"></div>
+            <div class="item-label">Chassidic</div>
+          </div>
+          <div class="legend-item" id="litvish-legend">
+            <div class="color-box litvish" id="litvish-color"></div>
+            <div class="item-label">Litvish</div>
+          </div>
+          <div class="legend-item" id="gaon-legend">
+            <div class="color-box gaon" id="gaon-color"></div>
+            <div class="item-label">Gaon</div>
+          </div>
+          <div class="legend-item" id="italian-legend">
+            <div class="color-box italian" id="italian-color"></div>
+            <div class="item-label">Italian</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="central-container">
+      <section class="hero">
+        <h1>Sages For The Ages</h1>
+        <p class="subtitle">
+          Discover the stories, struggles, and genius of Jewish sages from the last 1000 years — 
+          like a time-traveling deep dive into the minds that shaped our world.
+        </p>
+      </section>
+
+      <div class="buttons-grid">
+        <button class="button" onclick="window.location.href='analyze.html'">
+          <div class="button-icon">🧠</div>
+          <div class="button-label">Analyze</div>
+        </button>
+        <button class="button" onclick="window.location.href='watch.html'">
+          <div class="button-icon">🎥</div>
+          <div class="button-label">Watch</div>
+        </button>
+        <button class="button" onclick="window.location.href='discover_select.html'">
+          <div class="button-icon">🔍</div>
+          <div class="button-label">Discover</div>
+        </button>
+        <button class="button" onclick="window.location.href='time.html'">
+          <div class="button-icon">🕰️</div>
+          <div class="button-label">Time</div>
+        </button>
+        <button class="button" onclick="window.location.href='locate.html'">
+          <div class="button-icon">🏙️</div>
+          <div class="button-label">Locate</div>
+        </button>
+        <button class="button" onclick="window.location.href='delve.html'">
+          <div class="button-icon">⛏️</div>
+          <div class="button-label">Delve</div>
+        </button>
+        <button class="button" onclick="window.location.href='tour_select.html'">
+          <div class="button-icon">✈️</div>
+          <div class="button-label">Tour</div>
+        </button>
+        <button class="button" onclick="window.location.href='study_select.html'">
+          <div class="button-icon">📜</div>
+          <div class="button-label">Study</div>
+        </button>
+        <button class="button" onclick="window.location.href='play_select.html'">
+          <div class="button-icon">🎮</div>
+          <div class="button-label">Play</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="right-container">
+      <img src="world_pic.jpg" alt="World" class="profile-image">
+      <p style="font-size: 35vmin; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">⏳</p>
+    </div>
+  </div>
+
+  <a href="feedback.html" id="feedback-fab">💬 Feedback</a>
+
+  <div id="auth-status" class="auth-status hidden"></div>

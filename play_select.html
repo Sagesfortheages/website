@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Play</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-weight: 770;
+    }
+
+    body {
+        background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+        color: #333;
+        min-height: 100vh;
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Segoe UI';
+        padding: 2vmin;
+        overflow-x: hidden;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 600px;
+        min-height: 60vh;
+        margin-top:4vmin;
+    }
+
+    .navigate-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5vh;
+        width: 100%;
+    }
+
+    .navigate-buttons button {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 2.8vh 4vw;
+        font-size: 4vmin;
+        font-weight: 770;
+        color: white;
+        font-family: 'Segoe UI';
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+
+    /* Sophisticated gradient colors */
+    #very-easy-button {
+        background: linear-gradient(135deg, #a8e6cf, #56ab91);
+    }
+    #easy-button {
+        background: linear-gradient(135deg, #6ed37a, #34a853);
+    }
+    #medium-button {
+        background: linear-gradient(135deg, #f9d976, #f39c12);
+    }
+    #hard-button {
+        background: linear-gradient(135deg, #f79d65, #e67e22);
+    }
+    #very-hard-button {
+        background: linear-gradient(135deg, #ff6b6b, #c0392b);
+    }
+
+    .navigate-buttons button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.08);
+    }
+
+    .navigate-buttons button:active {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    #home-button, #info-button {
+        position: fixed;
+        width: 8vmin;
+        height: 8vmin;
+        border-radius: 50%;
+        border: none;
+        font-size: 4vmin;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        background: white;
+        color: #4a69bd;
+        font-weight: 770;
+        z-index: 1000;
+    }
+
+    #home-button {
+        bottom: 3vh;
+        left: 3vw;
+    }
+
+    #info-button {
+        bottom: 3vh;
+        right: 3vw;
+    }
+
+    #home-button:hover, #info-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #4a69bd, #2c3e50);
+        color: white;
+    }
+
+    .alert-box {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        padding: 4vh 4vw;
+        max-width: 80vw;
+        max-height: 80vh;
+        z-index: 2000;
+        text-align: center;
+        font-family: 'Segoe UI';
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translate(-50%, -60%) scale(0.9); opacity: 0; }
+        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    #exit-button {
+        position: absolute;
+        top: 1vh;
+        right: 1vw;
+        width: 4vmin;
+        height: 4vmin;
+        border-radius: 50%;
+        border: none;
+        background: #f0f0f0;
+        font-size: 2vmin;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #666;
+    }
+
+    #exit-button:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    @media (max-width: 600px) {
+        .navigate-buttons button {
+            width: 90%;
+            font-size: 3.8vmin;
+        }
+    }
+        .header h1 {
+            font-size: 8vmin;
+            font-weight: 800;
+            margin-bottom: 1vmin;
+            letter-spacing: -1px;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            background-clip: text;
+            width:100%;
+            text-align: center;
+        }
+
+        .header .subtitle {
+            font-size: 3vmin;
+            color: #666;
+            font-weight: 500;
+            color:green;
+            margin-bottom: 2vh;
+        }
+
+        .emoji {
+            font-size: 8vmin; /* same as header */
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 8vmin;
+            font-weight: 800;
+        }
+
+.gradient-text {
+    background: linear-gradient(120deg, #2c3e50, #4a69bd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 3vmin;
+    font-weight: 500;
+    color: #666;
+}
+
+</style>
+<body>
+
+        <div class="alert-box" id="customAlert">
+        <p id="message"></p>
+        <button id='exit-button' onclick="hideCustomAlert(restart=false)">x</button>
+    </div>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>
+                <span class="emoji">🎚️</span>
+                <span class="gradient-text">Select Difficulty</span>
+            </h1>
+            <p class="subtitle">Choose your challenge level and begin the journey.</p>
+        </div>
+
+        <div class="navigate-buttons">
+            <button class="difficulty-button" id="very-easy-button">Very Easy</button>
+            <button class="difficulty-button" id="easy-button">Easy</button>
+            <button class="difficulty-button" id="medium-button">Medium</button>
+            <button class="difficulty-button" id="hard-button">Hard</button>
+            <button class="difficulty-button" id="very-hard-button">Very Hard</button>
+        </div>
+
+    </div>
+
+    <button id="home-button" onclick="window.location.href='home.html'">🏠</button>
+    <button id="info-button" onclick="showCustomAlert(`Select a difficulty level for your game.`, restart=false)">ℹ</button>
+    <script>
+        const buttons = document.querySelectorAll('.difficulty-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const difficulty = this.textContent.trim();
+                console.log(`Selected difficulty: ${difficulty}`);
+                sessionStorage.setItem('difficulty', JSON.stringify(difficulty));
+                window.open('play.html');
+            });
+        });
+    </script>
+
+    <script src="global.js"></script>
+</body>
+</html>

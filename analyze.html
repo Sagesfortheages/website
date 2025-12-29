@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Analyze</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.css" rel="stylesheet">
+    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: 770;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow:hidden
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1vmin;
+        }
+
+
+        .header h1 {
+            font-size: 8vmin;
+            font-weight: 800;
+            margin-bottom: 1vmin;
+            letter-spacing: -1px;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 3vmin;
+            color: #666;
+            font-weight: 500;
+            color:green;
+        }
+
+        .emoji {
+            font-size: 8vmin; /* same as header */
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 8vmin;
+            font-weight: 800;
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 6fr) minmax(0, 1fr);
+            margin: 0 auto;
+            height: 100vh;
+        }
+
+        .left-container{
+            margin:1vmin;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .right-container {
+            margin:1vmin;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        #map {
+            position:relative;
+            width: 100%;
+            height: 80%;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Legend Container - styled like homepage legend */
+        .legend-container {
+            position:relative;
+            width:100%;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: rgb(241, 196, 130);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 1.5vmin;
+            border: 2px solid #eaeaea;
+            transition: all 0.3s ease;
+        }
+
+        .legend-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-container.minimized {
+            height: 8%;
+            overflow: hidden;
+        }
+
+        .minimize-btn {
+            position: absolute;
+            top:0.5vmin;
+            right:0.5vmin;
+            width: 3vmin;
+            height: 3vmin;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2vmin;
+            line-height: 1;
+            border: none;
+            color: #555;
+            transition: background-color 0.2s ease;
+            font-weight: 770;
+        }
+
+        .minimize-btn:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        .legend-title {
+            font-size: 3vmin;
+            font-weight: 800;
+            margin-bottom: 0.25vh;
+            color: #333;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 0.25vh;
+            padding-right: 0.5vw;
+            letter-spacing: -0.5px;
+        }
+
+        .legend-content {
+            transition: opacity 0.3s ease;
+        }
+
+        .legend-container.minimized .legend-content {
+            opacity: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25vh;
+            font-weight: 770;
+            padding: 0.5vmin;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 3vmin;
+        }
+
+        .legend-item:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .color-box {
+            width: 3vmin;
+            height: 3vmin;
+            border-radius: 50%;
+            margin-right: 1vmin;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-label {
+            font-size: 2.5vmin;
+            font-weight: 770;
+        }
+
+        /* Expertise Container */
+        .expertise-container {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .expertise-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .expertise-title {
+            font-size: 4vmin;
+            font-weight: 800;
+            margin-bottom: 1vh;
+            color: #333;
+            text-align: center;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .legend-item.filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1vh;
+            font-weight: 770;
+            padding: 0.5vmin 1.5vmin;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(74, 105, 189, 0.05);
+            font-size: 2.2vmin;
+        }
+
+        .filter-clicked{
+            background-color: #1d4ed8; /* Blue-700 */
+            color: rgb(69, 69, 245);
+            border-color: #1d4ed8;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); /* blue ring */
+            transform: scale(1.05);
+        }
+
+        
+        .expertise-item.filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.25vh;
+            font-weight: 770;
+            padding: 0.25vmin 0.5vmin;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(74, 105, 189, 0.05);
+            font-size: 2.2vmin;
+        }
+
+        .filter-item:hover {
+            background: rgba(74, 105, 189, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Search Container */
+        .search-container {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .search-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .search-input {
+            width: 100%;
+            padding: 1.5vmin 2vmin;
+            border: none;
+            outline: none;
+            font-size: 2.5vmin;
+            font-weight: 770;
+            background: transparent;
+            color: #333;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .search-results {
+            list-style: none;
+            min-height: 40vmin;
+            max-height: 40vmin;
+            overflow-y: auto;
+
+        }
+
+        li {
+            padding: 0.25vmin 2vmin;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 770;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 2vmin;
+            
+        }
+
+        .li:hover {
+            background: rgba(74, 105, 189, 0.1);
+        }
+
+        /* Visible Container */
+        #visible-container {
+            position: relative;
+            width: 100%;
+            max-height: 50vmin;
+        }
+
+        #visible-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .who-seeing-heading {
+            font-size: 3vmin;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 1vmin;
+            padding: 1.5vmin 2vmin 0;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        #visible-list {
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            max-height: 40vmin;
+            transition: all 0.5s ease;
+
+        }
+
+        li {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.6s forwards;
+            }
+            li:nth-child(1) { animation-delay: 0.04s; }
+            li:nth-child(2) { animation-delay: 0.08s; }
+            li:nth-child(3) { animation-delay: 0.12s; }
+            li:nth-child(4) { animation-delay: 0.16s; }
+            li:nth-child(5) { animation-delay: 0.20s; }
+            li:nth-child(6) { animation-delay: 0.24s; }
+            li:nth-child(7) { animation-delay: 0.28s; }
+            li:nth-child(8) { animation-delay: 0.32s; }
+            li:nth-child(9) { animation-delay: 0.36s; }
+            li:nth-child(10) { animation-delay: 0.40s; }
+            li:nth-child(11) { animation-delay: 0.44s; }
+            li:nth-child(12) { animation-delay: 0.48s; }
+            li:nth-child(13) { animation-delay: 0.52s; }
+            li:nth-child(14) { animation-delay: 0.56s; }
+            /* etc. */
+
+            @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* Modern Button Styling */
+        .modern-button {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 770;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            z-index: 1001;
+        }
+
+        .modern-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        #home-button {
+            top: 3vmin;
+            left: 50%;
+            transform: translateX(calc(-50% - 25vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+        #info-button {
+            top: 3vmin;
+            left: 50%;
+            transform: translateX(calc(-50% + 28vmin));
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+        #uniqueness-button {
+            bottom: 3vmin;
+            left: 3vmin;
+            width: 8vmin;
+            height: 8vmin;
+            font-size: 3vmin;
+        }
+
+
+
+
+        #year-slider {
+            position: absolute;
+            z-index: 10000;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+            bottom: 8vh;
+            left: 35%;
+            width: 30%;
+        }
+
+        .noUi-pips-horizontal {
+            bottom: 1vh ;
+            padding-top: 1vmin ;
+        }
+
+        .noUi-value {
+            font-size: 2.2vmin ;
+            color: rgba(255, 255, 255, 0.9) ;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) ;
+            transition: all 0.3s ease ;
+            font-weight: 600 ;
+            opacity: 1 ;
+            visibility: visible ;
+            display: block ;
+        }
+
+        .noUi-target {
+            background: rgba(255, 255, 255, 0.12) ;
+            border-radius: 20px ;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15) ;
+            border: none ;
+            height: 14px ;
+            backdrop-filter: blur(5px);
+        }
+
+        .noUi-connect {
+            background: linear-gradient(90deg, #3a86ff, #8338ec) ;
+            box-shadow: 0 0 10px rgba(58, 134, 255, 0.4) ;
+            border-radius: 20px ;
+            transition: background 0.4s ease;
+        }
+
+        .noUi-handle {
+            background: linear-gradient(135deg, #ffffff, #f0f0f0) ;
+            border: 3px solid #3a86ff ;
+            border-radius: 50% ;
+            width: 28px ;
+            height: 28px ;
+            right: -14px ;
+            top: -7px ;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(58, 134, 255, 0.2) ;
+            cursor: grab ;
+            transition: all 0.25s ease-out ;
+            opacity: 1 ;
+            visibility: visible ;
+            outline: none ;
+        }
+
+        .noUi-handle:before, 
+        .noUi-handle:after {
+            display: none ;
+            content: none ;
+        }
+
+        .noUi-handle:hover {
+            transform: scale(1.1) ;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(58, 134, 255, 0.3) ;
+            background: linear-gradient(135deg, #ffffff, #e8e8e8) ;
+        }
+
+        .noUi-handle:active {
+            cursor: grabbing ;
+            transform: scale(1.05) ;
+            background: linear-gradient(135deg, #f8f8f8, #e0e0e0) ;
+        }
+
+        .noUi-marker-horizontal.noUi-marker {
+            height: 8px ;
+            width: 2px ;
+            background: rgba(255, 255, 255, 0.7) ;
+            margin-top: -1px ;
+            opacity: 1 ;
+            visibility: visible ;
+            display: block ;
+        }
+
+        .noUi-marker-horizontal.noUi-marker-large {
+            height: 12px ;
+            width: 3px ;
+            background: rgba(255, 255, 255, 0.9) ;
+            opacity: 1 ;
+            visibility: visible ;
+            display: block ;
+        }
+
+        .noUi-value-horizontal {
+            transform: translate(-50%, 100%) ;
+        }
+
+        .noUi-value:hover {
+            font-weight: bold ;
+            color: #a2d2ff ;
+            font-size: 2.6vmin ;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) ;
+        }
+
+        .noUi-tooltip {
+            background: rgba(30, 30, 45, 0.95) ;
+            border: 2px solid rgba(58, 134, 255, 0.5) ;
+            color: #ffffff ;
+            font-size: 14px ;
+            padding: 8px 12px ;
+            border-radius: 8px ;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) ;
+            backdrop-filter: blur(4px) ;
+            font-weight: 600 ;
+            letter-spacing: 0.5px ;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3) ;
+            display: block ;
+            position: absolute ;
+            bottom: 120% ;
+            left: 50% ;
+            transform: translateX(-50%) ;
+            z-index: 10001 ;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .noUi-tooltip:after {
+            content: '' ;
+            position: absolute ;
+            top: 100% ;
+            left: 50% ;
+            margin-left: -6px ;
+            width: 12px ;
+            height: 12px ;
+            background: rgba(30, 30, 45, 0.95) ;
+            border-right: 2px solid rgba(58, 134, 255, 0.5) ;
+            border-bottom: 2px solid rgba(58, 134, 255, 0.5) ;
+            transform: rotate(45deg) ;
+        }
+
+        /* Show tooltip only when dragging (slider is active) */
+        .noUi-active .noUi-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .noUi-active .noUi-tooltip {
+            transform: translateX(-50%) scale(1.05) ;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) ;
+            background: rgba(30, 30, 45, 1) ;
+        }
+
+        /* Force show pips container */
+        .noUi-pips {
+            opacity: 1 ;
+            visibility: visible ;
+            display: block ;
+        }
+
+        @keyframes track-glow {
+            0% { box-shadow: 0 0 3px rgba(58, 134, 255, 0.2); }
+            50% { box-shadow: 0 0 8px rgba(58, 134, 255, 0.4); }
+            100% { box-shadow: 0 0 3px rgba(58, 134, 255, 0.2); }
+        }
+
+        .noUi-target:hover .noUi-connect {
+            animation: track-glow 3s infinite ease-in-out;
+        }
+
+
+        
+
+
+        
+
+        /* Alert Box */
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 3vmin;
+            z-index: 10000;
+            max-width: 80vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #exit-button {
+            position: absolute;
+            top: 1.5vmin;
+            right: 1.5vmin;
+            width: 5vmin;
+            height: 5vmin;
+            border-radius: 50%;
+            font-size: 2.5vmin;
+            color: #666;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 770;
+        }
+
+        #exit-button:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        #message {
+            font-size: 2.5vmin;
+            line-height: 1.6;
+            color: #333;
+            font-weight: 500;
+            margin-right: 3vmin;
+        }
+
+
+        .popup {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255, 222, 89, 0.9), rgba(255, 94, 125, 0.8));
+            padding: 1vmin 1.5vmin;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
+            z-index: 4000;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(1vmin) scale(0.95) rotate(-2deg);
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            }
+
+        .popup.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1) rotate(0deg);
+            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
+            }
+
+        .popup-message {
+            font-size: 2.4vmin;
+            color: #6a3093;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+            }
+
+        .mapboxgl-marker {
+            width: 2vmin;
+            height: 2vmin;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(244, 229, 232, 0.8);
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            }
+
+        .mapboxgl-marker:hover {
+            cursor: default;
+            transform: scale(1.3) rotate(15deg);
+            box-shadow: 0 4px 15px rgba(255, 94, 125, 0.6);
+            }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            * {
+                overflow: auto;
+            }
+
+
+            #year-slider {
+                width: calc(100vw - 4vmin);
+                left: 2vmin;
+                transform: none;
+                bottom: 2vmin;
+            }
+
+            .modern-button {
+                width: 6vmin;
+                height: 6vmin;
+                font-size: 2.5vmin;
+            }
+
+            #home-button, #info-button {
+                top: 2vmin;
+                transform: none;
+            }
+
+            #home-button {
+                left: 2vmin;
+            }
+
+            #info-button {
+                right: 2vmin;
+            }
+
+            #uniqueness-button {
+                bottom: 15vmin;
+                left: 2vmin;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="alert-box" id="customAlert">
+        <p id="message"></p>
+        <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
+    </div>
+
+
+
+    <div class="container-grid">
+        <div class="left-container">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search a sage...">
+                <ul class="search-results" id="search-results"></ul>
+            </div>   
+
+        <!-- Background Legend - styled like homepage -->
+            <div class="legend-container" id="legend">
+                <button class="minimize-btn" onclick="toggleLegend()">−</button>
+                <div class="legend-title" id="background-heading">Background</div>
+
+                
+                <div class="legend-content">
+                    <div class="legend-item filter-item" id="gaon-legend">
+                        <div class="color-box" id="gaon-color"></div>
+                        <div class="item-label">Gaon</div>
+                    </div>
+                    <div class="legend-item filter-item" id="sefarad-legend">
+                        <div class="color-box" id="sefarad-color"></div>
+                        <div class="item-label">Sefarad</div>
+                    </div>
+                    <div class="legend-item filter-item" id="ashkenaz-legend">
+                        <div class="color-box" id="ashkenaz-color"></div>
+                        <div class="item-label">Ashkenaz</div>
+                    </div>
+                    <div class="legend-item filter-item" id="provence-legend">
+                        <div class="color-box" id="provence-color"></div>
+                        <div class="item-label">Provence</div>
+                    </div>
+                    <div class="legend-item filter-item" id="italian-legend">
+                        <div class="color-box" id="italian-color"></div>
+                        <div class="item-label">Italian</div>
+                    </div>
+                    <div class="legend-item filter-item" id="chassidic-legend">
+                        <div class="color-box" id="chassidic-color"></div>
+                        <div class="item-label">Chassidic</div>
+                    </div>
+                    <div class="legend-item filter-item" id="litvish-legend">
+                        <div class="color-box" id="litvish-color"></div>
+                        <div class="item-label">Litvish</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="central-container">
+            <div class="header">
+                <h1>
+                    <span class="emoji">🧠</span> 
+                    <span class="gradient-text">Analyze</span>
+                </h1>
+                <p class="subtitle"> Filter and analyze sages by era, background, focus and name.</p>
+            </div>
+            
+            <div id="map"></div>  
+
+            <div id="year-slider"></div>
+
+    
+
+            <audio id="song" preload="auto"></audio>
+
+            <button class="modern-button" id="home-button" onclick="window.location.href='home.html'">🏠</button>
+            <button class="modern-button" id="info-button">ℹ️</button>
+            <button class="modern-button" id="uniqueness-button">1</button>
+        </div>  
+        <!-- Search container -->
+        <div class="right-container">
+
+            
+        
+            <!-- Expertise Container -->
+            <div class="expertise-container" id="expertise">
+                <h3 class="expertise-title" id="expertise-heading">Focus</h3>
+                <div class="expertise-item filter-item" id="talmud-expertise">Talmud</div>
+                <div class="expertise-item filter-item" id="tanach-expertise">Tanach</div>
+                <div class="expertise-item filter-item" id="halacha-expertise">Halacha</div>
+                <div class="expertise-item filter-item" id="responsa-expertise">Responsa</div>
+                <div class="expertise-item filter-item" id="kabbalah-expertise">Kabbalah</div>
+                <div class="expertise-item filter-item" id="chassidus-expertise">Chassidus</div>
+                <div class="expertise-item filter-item" id="mussar-expertise">Mussar</div>
+                <div class="expertise-item filter-item" id="philosophy-expertise">Philosophy</div>
+                <div class="expertise-item filter-item" id="linguistics-expertise">Linguistics</div>
+                <div class="expertise-item filter-item" id="poetry-expertise">Poetry</div>
+                <div class="expertise-item filter-item" id="history-expertise">History</div>
+            </div>
+
+            <div class="search-container" id="visible-container">
+                <h3 class="who-seeing-heading" style="text-align: center;">Who You're Seeing</h3>
+                <ul class="search-results" id="visible-list"></ul>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <div id="popup" class="popup">
+        <span class="popup-message"></span>
+    </div>
+    <script>
+        function toggleLegend() {
+            const legend = document.querySelector('.legend-container');
+            legend.classList.toggle('minimized');
+            
+            const btn = document.querySelector('.minimize-btn');
+            if (legend.classList.contains('minimized')) {
+                btn.textContent = '+';
+            } else {
+                btn.textContent = '−';
+            }
+        }
+
+        // Adapt colors automatically (keeping original script compatibility)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof getColor === 'function' && typeof capitalizeWords === 'function') {
+                const colorBoxes = document.querySelectorAll('.color-box');
+                colorBoxes.forEach(item => {
+                    const colorType = item.id.split('-')[0];
+                    item.style.backgroundColor = getColor(capitalizeWords(colorType));
+                });
+
+                const legendItems = document.querySelectorAll('.legend-item');
+                legendItems.forEach(item => {
+                    const colorType = item.id.split('-')[0];
+                    const color = getColor(capitalizeWords(colorType));
+                    item.style.borderLeft = `4px solid ${color}`;
+                });
+            }
+        });
+    </script>
+</body>
+<script src="global.js"></script>
+<script type="module" src="analyze.js"></script>
+</html>

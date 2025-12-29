@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <title>Modern Homepage</title>
+    <script src="markers.js"></script>
+    <script src="global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-weight: 770;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI';
+            padding: 1vmin;
+        }
+
+        .container-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+            margin: 0 auto;
+            width:100vw;
+            animation: bounceIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .left-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top:5vh; 
+            gap: 10vh;
+        }
+        .right-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top:5vh; 
+            gap: 10vh;
+        }
+        
+
+
+        @keyframes bounceIn {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.95); }
+        100% { transform: scale(1); opacity: 1; }
+        }
+        
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: -0.5px;
+        }
+        
+        
+        .hero {
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1vh;
+            letter-spacing: -1px;
+            background: linear-gradient(120deg, #2c3e50, #4a69bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 3vmin;
+            color:green
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1vmin;
+            max-width: 80%;
+            margin: 0 auto;
+            
+            margin-top:1vh;
+
+        }
+        
+        .button {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width:90%;
+            padding-bottom:1.5vmin;
+            padding-top: 1vmin;
+            font-size: 8vmin;
+            z-index:1000000000;
+        }
+        
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button-icon {
+            font-size: 10vmin;
+            margin-bottom: 1rem;
+            color: #4a69bd;
+        }
+        
+        .button-label {
+            font-weight: 770;
+            font-size: 5vmin;
+            color: #333;
+            font-family: 'Segoe UI';
+        }
+        
+        footer {
+            margin-top: 4rem;
+            color: #888;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            *{
+                overflow: auto;
+            }
+
+            .buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+        }
+        
+        /* @media (max-width: 480px) {
+            .buttons-grid {
+                grid-template-columns: 1fr;
+            }
+
+        } */
+
+
+    .legend-container {
+    
+      position: relative;
+      font-family: 'Comic Neue', cursive;
+      width:fit-content;
+      background-color: rgb(241, 196, 130);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      padding: 1.2vmin;
+      border: 2px solid #eaeaea;
+      transition: height 0.3s ease, opacity 0.3s ease;
+      height:fit-content;
+      margin-top: 7vh;
+      
+    }
+    
+    .legend-container.minimized {
+      height: 8%;
+      overflow: hidden;
+    }
+    
+    .minimize-btn {
+      position: absolute;
+      top: 1vh;
+      right: 1vw;
+      width: 2vmin;
+      height: 2vmin;
+      background-color: #f0f0f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      border: none;
+      color: #555;
+      transition: background-color 0.2s ease;
+    }
+    
+    .minimize-btn:hover {
+      background-color: #e0e0e0;
+    }
+    
+    .legend-title {
+      font-size: 4vmin;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #333;
+      border-bottom: 1px dashed #eee;
+      padding-bottom: 1vh;
+      padding-right: 2vw;
+      font-family: 'Comic Neue', cursive;
+      
+    }
+    
+    .legend-content {
+      transition: opacity 0.3s ease;
+    }
+    
+    .legend-container.minimized .legend-content {
+      opacity: 0;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1vh;
+      font-weight: 700;
+    }
+    
+    .color-box {
+      width: 3vmin;
+      height: 3vmin;
+      border-radius: 50%;
+      margin-right: 1vmin;
+    }
+    
+    .item-label {
+      font-size: 2vmin;
+    }
+
+    
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</head>
+<body>
+
+    <div class=container-grid>
+        <div class="left-container">
+            <img src="rabbi_pic.jpg" alt="Hero Image" style="width:23vmin; height:23vmin; border-radius: 50%;"></img>
+
+            <div class="legend-container">
+                <div class="legend-title">Background</div>
+                <button class="minimize-btn" onclick="toggleLegend()">−</button>
+
+                
+                <div class="legend-content">
+                <div class="legend-item" id="sefarad-legend">
+                    <div class="color-box sefarad" id="sefarad-color"></div>
+                    <div class="item-label">Sefarad</div>
+                </div>
+                
+                <div class="legend-item" id="ashkenaz-legend">
+                    <div class="color-box ashkenaz" id="ashkenaz-color"></div>
+                    <div class="item-label">Ashkenaz</div>
+                </div>
+                
+                <div class="legend-item" id="provence-legend">
+                    <div class="color-box provence" id="provence-color"></div>
+                    <div class="item-label">Provence</div>
+                </div>
+                
+                <div class="legend-item" id="chassidic-legend">
+                    <div class="color-box chassidic" id="chassidic-color"></div>
+                    <div class="item-label">Chassidic</div>
+                </div>
+                
+                <div class="legend-item" id="litvish-legend">
+                    <div class="color-box litvish" id="litvish-color"></div>
+                    <div class="item-label">Litvish</div>
+                </div>
+                
+                <div class="legend-item" id="gaon-legend">
+                    <div class="color-box gaon" id="gaon-color"></div>
+                    <div class="item-label">Gaon</div>
+                </div>
+                
+                <div class="legend-item" id="italian-legend">
+                    <div class="color-box italian" id="italian-color"></div>
+                    <div class="item-label">Italian</div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="central-container">
+            
+            <section class="hero" >
+                <h1 style="font-size: 8vmin">Sages Through The Ages</h1>
+                <p class="subtitle">Discover the stories, struggles, and genius of Jewish sages from the last 1000 years - like a time-traveling deep dive into the minds that shaped our world.</p>
+            </section>
+
+                        
+            <div class="buttons-grid" style="font-size: 10vmin;">
+                <button class="button" onclick="window.location.href='analyze.html'">
+                    <div class="button-icon">🧠</div>
+                    <div class="button-label">Analyze</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='watch.html'">
+                    <div class="button-icon">🎥</div>
+                    <div class="button-label">Watch</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='discover_select.html'">
+                    <div class="button-icon">🔍</div>
+                    <div class="button-label">Discover</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='time.html'">
+                    <div class="button-icon">🕰️</div>
+                    <div class="button-label">Time</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='locate.html'">
+                    <div class="button-icon">🏙️</div>
+                    <div class="button-label">City</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='connections.html'">
+                    <div class="button-icon">🕸️</i></div>
+                    <div class="button-label">Link</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='tour_select.html'">
+                    <div class="button-icon">✈️</div>
+                    <div class="button-label">Tour</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='study_select.html'">
+                    <div class="button-icon">📜</div>
+                    <div class="button-label">Text</div>
+                </button>
+                
+                <button class="button" onclick="window.location.href='play_select.html'">
+                    <div class="button-icon">🎮</div>
+                    <div class="button-label">Play</div>
+                </button>
+            </div>
+
+            
+            
+        </div>
+        <div class="right-container">
+            <img src="world_pic.jpg" alt="Hero Image" style="width:24vmin; height:24vmin; border-radius: 50%;"></img>
+            <p style="font-size: 37vmin;">⏳</p>
+        </div>
+
+
+    </div>
+    <script>
+    function toggleLegend() {
+      const legend = document.querySelector('.legend-container');
+      legend.classList.toggle('minimized');
+      
+      const btn = document.querySelector('.minimize-btn');
+      if (legend.classList.contains('minimized')) {
+        btn.textContent = '+';
+      } else {
+        btn.textContent = '−';
+      }
+    }
+
+
+    //adapt colors automatically
+    const colorBoxes = document.querySelectorAll('.color-box');
+    console.log(colorBoxes)
+    colorBoxes.forEach(item => {
+        console.log(item.id.split('-')[0])
+        item.style.backgroundColor = getColor(capitalizeWords(item.id.split('-')[0]));
+        
+    })
+
+        //adapt colors automatically
+    const legendItems = document.querySelectorAll('.legend-item');
+    console.log(legendItems)
+    legendItems.forEach(item => {
+        console.log(item.id.split('-')[0])
+        item.style.color = getColor(capitalizeWords(item.id.split('-')[0]));
+        
+    })
+
+  </script>
+</body>
+
+</html>

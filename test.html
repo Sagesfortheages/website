@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Test</title>
+<style>
+/* ===================== ORIGINAL STYLE KEPT ===================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+h1, h2 {
+    color: white;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+p.instructions {
+    color: #eee;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    max-width: 500px;
+    width: 100%;
+}
+
+.list-item {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    user-select: none;
+}
+
+.list-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.list-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: rotate(3deg) scale(1.05);
+}
+
+.list-item.drag-over {
+    border-color: #764ba2;
+    border-style: dashed;
+    background: linear-gradient(135deg, #e0e7ff 0%, #cfd9df 100%);
+}
+
+.drag-handle {
+    color: #999;
+    font-size: 24px;
+    user-select: none;
+    cursor: grab;
+}
+
+.list-item:active .drag-handle {
+    cursor: grabbing;
+}
+
+.item-number {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.item-text {
+    flex: 1;
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 500px;
+    padding: 14px;
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.hidden {
+    display: none;
+}
+
+.overlay {
+    position: fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99;
+}
+
+.overlay-content {
+    background: white;
+    padding: 40px;
+    border-radius: 14px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.overlay-content button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.overlay-content.success {
+    border-top: 6px solid #10b981;
+}
+
+.overlay-content.success h3 {
+    color: #10b981;
+}
+
+.overlay-content.error {
+    border-top: 6px solid #ef4444;
+}
+
+.overlay-content.error h3 {
+    color: #ef4444;
+}
+
+/* Matching layout container */
+.matching-container {
+    display: flex;
+    gap: 80px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.matching-column {
+    flex: 1;
+    max-width: 450px;
+    position: relative;
+}
+
+/* SVG canvas for drawing links */
+.link-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.matching-column .list {
+    position: relative;
+    z-index: 2;
+}
+</style>
+</head>
+<body>
+
+<!-- ================= TEST 1: ORDER ================= -->
+<section id="test1-section">
+    <h1>Test 1: Order the Figures</h1>
+    <p class="instructions">Drag and drop the names into the correct chronological order.</p>
+    <ul class="list" id="list1"></ul>
+    <button id="submit-test1">Submit</button>
+</section>
+
+<!-- ================= TEST 2: MATCH WORKS ================= -->
+<section id="test2-section" class="hidden">
+    <h1>Test 2: Match Figures to Their Works</h1>
+    <p class="instructions">Drag the work onto the correct figure to form a link.</p>
+    <div class="matching-container" id="matching-container-works">
+        <svg class="link-canvas" id="canvas-works"></svg>
+        <div class="matching-column">
+            <ul class="list" id="people-list"></ul>
+        </div>
+        <div class="matching-column">
+            <ul class="list" id="works-list"></ul>
+        </div>
+    </div>
+    <button id="submit-test2">Submit</button>
+</section>
+
+<!-- ================= TEST 3: MATCH BIRTHDAYS ================= -->
+<section id="test3-section" class="hidden">
+    <h1>Test 3: Match Figures to Birthdays</h1>
+    <p class="instructions">Drag the birthday onto the correct figure to form a link.</p>
+    <div class="matching-container" id="matching-container-bday">
+        <svg class="link-canvas" id="canvas-bday"></svg>
+        <div class="matching-column">
+            <ul class="list" id="people-list-bday"></ul>
+        </div>
+        <div class="matching-column">
+            <ul class="list" id="birthdays-list"></ul>
+        </div>
+    </div>
+    <button id="submit-test3">Submit</button>
+</section>
+
+<!-- ================= FINAL ================= -->
+<section id="final-section" class="hidden">
+    <h1>Perfect! Course Completed</h1>
+    <p style="text-align:center;color:#eee;">You successfully passed all tests.</p>
+</section>
+
+<!-- ================= OVERLAY ================= -->
+<div class="overlay" id="result-overlay">
+    <div class="overlay-content">
+        <h3 id="overlay-title"></h3>
+        <p id="overlay-message"></p>
+        <button id="overlay-btn"></button>
+    </div>
+</div>
+
+<script>
+// ================= DATA =================
+const PEOPLE = ["Alter Rebbe","Mitteler Rebbe","Tzemach Tzedek","Rebbe Maharash","Rebbe Rashab","Frierdiker Rebbe","Lubavitcher Rebbe"];
+const CORRECT_ORDER = [...PEOPLE];
+const WORKS = {
+    "Alter Rebbe":"Tanya",
+    "Mitteler Rebbe":"Kuntres Hahispaalus",
+    "Tzemach Tzedek":"Derech Mitzvosecha",
+    "Rebbe Maharash":"Likkutei Torah Toras Shmuel",
+    "Rebbe Rashab":"Kuntres Haavodah",
+    "Frierdiker Rebbe":"Likutei Diburim",
+    "Lubavitcher Rebbe":"Hayom Yom"
+}
+const BIRTHDAYS = {
+    "Alter Rebbe":"18 Elul",
+    "Mitteler Rebbe":"9 Kislev",
+    "Tzemach Tzedek":"29 Elul",
+    "Rebbe Maharash":"2 Iyar",
+    "Rebbe Rashab":"20 Cheshvan",
+    "Frierdiker Rebbe":"12 Tammuz",
+    "Lubavitcher Rebbe":"11 Nissan"
+}
+
+// ================= UTILS =================
+function shuffle(arr){return arr.map(a=>({sort:Math.random(),value:a})).sort((a,b)=>a.sort-b.sort).map(a=>a.value);}
+function showOverlay(title,msg,btnLabel,onClick){
+    const overlayContent = document.querySelector(".overlay-content");
+    overlayContent.classList.remove("success", "error");
+    
+    // Add success or error class based on title
+    if(title.includes("Perfect") || title.includes("Excellent") || title.includes("Fantastic")) {
+        overlayContent.classList.add("success");
+    } else {
+        overlayContent.classList.add("error");
+    }
+    
+    document.getElementById("overlay-title").textContent=title;
+    document.getElementById("overlay-message").textContent=msg;
+    const btn=document.getElementById("overlay-btn");
+    btn.textContent=btnLabel;
+    btn.onclick=()=>{document.getElementById("result-overlay").style.display="none";if(onClick) onClick();};
+    document.getElementById("result-overlay").style.display="flex";
+}
+function enableDragging(list,callback){
+    let draggedEl=null;
+    list.querySelectorAll(".list-item").forEach(item=>{
+        item.addEventListener("dragstart",()=>{draggedEl=item;item.classList.add("dragging");});
+        item.addEventListener("dragend",()=>{draggedEl=null;item.classList.remove("dragging");});
+        item.addEventListener("dragover",e=>{e.preventDefault();});
+        item.addEventListener("drop",()=>{if(draggedEl!==item && callback) callback(draggedEl,item);});
+    });
+}
+
+// Function to draw links between matched items
+function drawLinks(canvasId, peopleListId, itemsListId, dataAttr) {
+    const canvas = document.getElementById(canvasId);
+    const peopleList = document.getElementById(peopleListId);
+    const itemsList = document.getElementById(itemsListId);
+    
+    if (!canvas || !peopleList || !itemsList) return;
+    
+    canvas.innerHTML = '';
+    
+    const container = canvas.parentElement;
+    const containerRect = container.getBoundingClientRect();
+    canvas.setAttribute('width', containerRect.width);
+    canvas.setAttribute('height', containerRect.height);
+    
+    [...peopleList.children].forEach(personLi => {
+        const linkedValue = personLi.dataset[dataAttr];
+        if (!linkedValue) return;
+        
+        const itemLi = [...itemsList.children].find(li => 
+            li.querySelector('.item-text').textContent === linkedValue
+        );
+        if (!itemLi) return;
+        
+        const personRect = personLi.getBoundingClientRect();
+        const itemRect = itemLi.getBoundingClientRect();
+        
+        const x1 = personRect.right - containerRect.left;
+        const y1 = personRect.top + personRect.height / 2 - containerRect.top;
+        const x2 = itemRect.left - containerRect.left;
+        const y2 = itemRect.top + itemRect.height / 2 - containerRect.top;
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('stroke', '#667eea');
+        line.setAttribute('stroke-width', '3');
+        line.setAttribute('stroke-linecap', 'round');
+        canvas.appendChild(line);
+    });
+}
+
+// ================= TEST 1 =================
+const list1=document.getElementById("list1");
+function fillTest1(){
+    list1.innerHTML="";
+    shuffle(PEOPLE).forEach((name,i)=>{
+        const li=document.createElement("li");
+        li.className="list-item";
+        li.draggable=true;
+        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-number">${i+1}</span><span class="item-text">${name}</span>`;
+        list1.appendChild(li);
+    });
+    enableDragging(list1,(dragged,target)=>{
+        const children=[...list1.children];
+        const dragIdx=children.indexOf(dragged);
+        const tgtIdx=children.indexOf(target);
+        if(dragIdx<tgtIdx) target.after(dragged); else target.before(dragged);
+        children.forEach((c,i)=>c.querySelector(".item-number").textContent=i+1);
+    });
+}
+fillTest1();
+document.getElementById("submit-test1").onclick=()=>{
+    const answers=[...document.querySelectorAll("#list1 .item-text")].map(span=>span.textContent.trim());
+    const correct=JSON.stringify(answers)===JSON.stringify(CORRECT_ORDER);
+    showOverlay(correct?"Perfect!":"Try Again",
+                correct?`All correct (${answers.length}/${CORRECT_ORDER.length})`:`Some incorrect (${answers.filter((v,i)=>v===CORRECT_ORDER[i]).length}/${CORRECT_ORDER.length})`,
+                correct?"Continue":"Try Again",
+                ()=>{if(correct){document.getElementById("test2-section").classList.remove("hidden");document.getElementById("test2-section").scrollIntoView({behavior:"smooth"});buildMatchingTest();} else fillTest1();});
+};
+
+// ================= TEST 2 =================
+function buildMatchingTest(){
+    const peopleList=document.getElementById("people-list");
+    const worksList=document.getElementById("works-list");
+    peopleList.innerHTML=""; worksList.innerHTML="";
+    
+    // People on the left (not draggable)
+    PEOPLE.forEach(person=>{
+        const li=document.createElement("li"); 
+        li.className="list-item"; 
+        li.draggable=false;
+        li.innerHTML=`<span class="item-text">${person}</span>`;
+        li.dataset.linkedWork="";
+        peopleList.appendChild(li);
+    });
+    
+    // Works on the right (draggable)
+    shuffle(Object.values(WORKS)).forEach(work=>{
+        const li=document.createElement("li"); 
+        li.className="list-item"; 
+        li.draggable=true;
+        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-text">${work}</span>`;
+        worksList.appendChild(li);
+    });
+    
+    // Enable dragging from works to people
+    let draggedWork = null;
+    
+    worksList.querySelectorAll(".list-item").forEach(item => {
+        item.addEventListener("dragstart", () => {
+            draggedWork = item;
+            item.classList.add("dragging");
+        });
+        item.addEventListener("dragend", () => {
+            draggedWork = null;
+            item.classList.remove("dragging");
+        });
+    });
+    
+    peopleList.querySelectorAll(".list-item").forEach(personItem => {
+        personItem.addEventListener("dragover", e => {
+            e.preventDefault();
+            personItem.classList.add("drag-over");
+        });
+        personItem.addEventListener("dragleave", () => {
+            personItem.classList.remove("drag-over");
+        });
+        personItem.addEventListener("drop", () => {
+            personItem.classList.remove("drag-over");
+            if (draggedWork) {
+                const workText = draggedWork.querySelector(".item-text").textContent;
+                personItem.dataset.linkedWork = workText;
+                drawLinks('canvas-works', 'people-list', 'works-list', 'linkedWork');
+            }
+        });
+    });
+}
+
+document.getElementById("submit-test2").onclick=()=>{
+    const peopleList=document.getElementById("people-list");
+    const results=[...peopleList.children].map(li=>li.dataset.linkedWork===WORKS[li.querySelector(".item-text").textContent]);
+    const correctCount=results.filter(r=>r).length;
+    const total=PEOPLE.length;
+    const passed=correctCount===total;
+    showOverlay(passed?"Excellent!":"Incorrect",`${correctCount}/${total} correct (${Math.round(correctCount/total*100)}%)`,passed?"Continue":"Try Again",
+                ()=>{if(passed){document.getElementById("test3-section").classList.remove("hidden");setTimeout(()=>{document.getElementById("test3-section").scrollIntoView({behavior:"smooth"});},50);buildBirthdayTest();} else buildMatchingTest();});
+};
+
+// ================= TEST 3 =================
+function buildBirthdayTest(){
+    const peopleList=document.getElementById("people-list-bday");
+    const bdayList=document.getElementById("birthdays-list");
+    peopleList.innerHTML=""; bdayList.innerHTML="";
+    
+    // People on the left (not draggable)
+    PEOPLE.forEach(person=>{
+        const li=document.createElement("li"); 
+        li.className="list-item"; 
+        li.draggable=false;
+        li.innerHTML=`<span class="item-text">${person}</span>`;
+        li.dataset.linkedBday="";
+        peopleList.appendChild(li);
+    });
+    
+    // Birthdays on the right (draggable)
+    shuffle(Object.values(BIRTHDAYS)).forEach(bday=>{
+        const li=document.createElement("li"); 
+        li.className="list-item"; 
+        li.draggable=true;
+        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-text">${bday}</span>`;
+        bdayList.appendChild(li);
+    });
+    
+    // Enable dragging from birthdays to people
+    let draggedBday = null;
+    
+    bdayList.querySelectorAll(".list-item").forEach(item => {
+        item.addEventListener("dragstart", () => {
+            draggedBday = item;
+            item.classList.add("dragging");
+        });
+        item.addEventListener("dragend", () => {
+            draggedBday = null;
+            item.classList.remove("dragging");
+        });
+    });
+    
+    peopleList.querySelectorAll(".list-item").forEach(personItem => {
+        personItem.addEventListener("dragover", e => {
+            e.preventDefault();
+            personItem.classList.add("drag-over");
+        });
+        personItem.addEventListener("dragleave", () => {
+            personItem.classList.remove("drag-over");
+        });
+        personItem.addEventListener("drop", () => {
+            personItem.classList.remove("drag-over");
+            if (draggedBday) {
+                const bdayText = draggedBday.querySelector(".item-text").textContent;
+                personItem.dataset.linkedBday = bdayText;
+                drawLinks('canvas-bday', 'people-list-bday', 'birthdays-list', 'linkedBday');
+            }
+        });
+    });
+}
+
+document.getElementById("submit-test3").onclick=()=>{
+    const peopleList=document.getElementById("people-list-bday");
+    const results=[...peopleList.children].map(li=>li.dataset.linkedBday===BIRTHDAYS[li.querySelector(".item-text").textContent]);
+    const correctCount=results.filter(r=>r).length;
+    const total=PEOPLE.length;
+    const passed=correctCount===total;
+    showOverlay(passed?"Fantastic!":"Incorrect",`${correctCount}/${total} correct (${Math.round(correctCount/total*100)}%)`,passed?"Continue":"Try Again",
+                ()=>{if(passed){document.getElementById("final-section").classList.remove("hidden");document.getElementById("final-section").scrollIntoView({behavior:"smooth"});} else buildBirthdayTest();});
+};
+</script>
+</body>
+</html>

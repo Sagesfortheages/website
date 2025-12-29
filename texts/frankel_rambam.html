@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <title>📜 Study</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
+            text-align: center;
+        }
+        .container {
+            position: relative;
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button{
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            position: absolute;
+            width: 2.1vmin;
+            height: 2.1vmin;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            justify-items: center;
+            display:flex;
+        }
+
+
+
+
+
+
+        #r-akiva-eiger {
+            position: absolute;
+            left: 3%;  /* Y-position */
+            top: 44.5%; /* X-position */
+            width: 14.6%; /* right - left */
+            height: 20.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(255, 120, 0, 0.3);
+        }
+
+        #hagaos-maimoniyos {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 72.25%; /* X-position */
+            width: 77.5%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(243, 174, 15, 0.3);
+        }
+
+        #rambam-one {
+            position: absolute;
+            left: 38.75%;  /* Y-position */
+            top: 11%; /* X-position */
+            width: 35%; /* right - left */
+            height: 12%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 107, 235, 0.3);
+        }
+
+        #rambam-two {
+            position: absolute;
+            left: 52.25%;  /* Y-position */
+            top: 23%; /* X-position */
+            width: 21.5%; /* right - left */
+            height: 8%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 107, 235, 0.3);
+        }
+
+        #rambam-three {
+            position: absolute;
+            left: 38.75%;  /* Y-position */
+            top: 31%; /* X-position */
+            width: 35%; /* right - left */
+            height: 15%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 107, 235, 0.3);
+        }
+
+        #rambam-four {
+            position: absolute;
+            left: 52.25%;  /* Y-position */
+            top: 46%; /* X-position */
+            width: 21.5%; /* right - left */
+            height: 9.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(2, 107, 235, 0.3);
+        }
+        #raavad-one {
+            position: absolute;
+            left: 38.75%;  /* Y-position */
+            top: 23%; /* X-position */
+            width: 13.5%; /* right - left */
+            height: 8%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(243, 4, 231, 0.3);
+        }
+        #raavad-two {
+            position: absolute;
+            left: 38.75%;  /* Y-position */
+            top: 46%; /* X-position */
+            width: 13.5%; /* right - left */
+            height: 9.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(243, 4, 231, 0.3);
+        }
+
+        #kesef-mishna-one {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 5%; /* X-position */
+            width: 39%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(35, 35, 250, 0.3);
+        }
+
+        #kesef-mishna-two {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 11%; /* X-position */
+            width: 21.25%; /* right - left */
+            height: 44.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(35, 35, 250, 0.3);
+        }
+
+        #lechem-mishna {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 66.25%; /* X-position */
+            width: 77.5%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(9, 235, 47, 0.3);
+        }
+        
+        #migdal-oz {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 78.25%; /* X-position */
+            width: 77.5%; /* right - left */
+            height: 19.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(223, 253, 28, 0.3);
+        }
+
+        #maggid-mishna-one {
+            position: absolute;
+            left: 56.5%;  /* Y-position */
+            top: 5%; /* X-position */
+            width: 38.5%; /* right - left */
+            height: 6%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(237, 46, 25, 0.3);
+        }
+
+        #maggid-mishna-two {
+            position: absolute;
+            left: 73.75%;  /* Y-position */
+            top: 11%; /* X-position */
+            width: 21.25%; /* right - left */
+            height: 44.75%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(237, 46, 25, 0.3);
+        }
+
+        #maggid-mishna-three {
+            position: absolute;
+            left: 17.5%;  /* Y-position */
+            top: 55.75%; /* X-position */
+            width: 77.5%; /* right - left */
+            height: 10.5%; /* bottom - top */
+            cursor: pointer;
+    
+            /* optional: for debugging */
+            background: rgba(237, 46, 25, 0.3);
+        }
+
+
+
+
+
+
+
+
+        /* The tooltip itself (hidden by default) */
+        .hotspot::after {
+            content: attr(data-tooltip); /* Use the text from the data-tooltip attribute */
+            position: absolute;
+            bottom: 100%; /* Position it above the element */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal position */
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            padding: 5px 10px; /* Padding for the tooltip */
+            border-radius: 5px; /* Rounded corners */
+            opacity: 0; /* Initially hidden */
+            visibility: hidden; /* Initially hidden */
+            transition: opacity 0.2s ease, visibility 0.2s ease; /* Fade-in effect */
+            z-index: 10; /* Ensure the tooltip is above other content */
+        }
+
+        /* Make the tooltip visible when hovering */
+        .hotspot:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="image-container">
+            <!-- Replace with actual path to the PDF image -->
+            <img alt="מקראות גדולות" usemap="#commentaries-map" id="frankel_rambam">
+
+            <a class="hotspot" id="r-akiva-eiger" data-tooltip="R Akiva Eiger"></a>
+            <a class="hotspot" id="hagaos-maimoniyos" data-tooltip="Haga'os Maimoniyos"></a>
+            <a class="hotspot" id="rambam-one" data-tooltip="Rambam"></a>
+            <a class="hotspot" id="rambam-two" data-tooltip="Rambam"></a>
+            <a class="hotspot" id="rambam-three" data-tooltip="Rambam"></a>
+            <a class="hotspot" id="rambam-four" data-tooltip="Rambam"></a>
+            <a class="hotspot" id="raavad-one" data-tooltip="Raavad"></a>
+            <a class="hotspot" id="raavad-two" data-tooltip="Raavad"></a>
+            <a class="hotspot" id="kesef-mishna-one" data-tooltip="Kesef Mishna"></a>
+            <a class="hotspot" id="kesef-mishna-two" data-tooltip="Kesef Mishna"></a>
+            <a class="hotspot" id="lechem-mishna" data-tooltip="Lechem Mishna"></a>
+            <a class="hotspot" id="migdal-oz" data-tooltip="Migdal Oz"></a>
+            <a class="hotspot" id="maggid-mishna-one" data-tooltip="Maggid Mishna"></a>
+            <a class="hotspot" id="maggid-mishna-two" data-tooltip="Maggid Mishna"></a>
+            <a class="hotspot" id="maggid-mishna-three" data-tooltip="Maggid Mishna"></a>
+            
+            <button id="1-button" style="left:96%; top:7.5%">1</button>
+
+            
+        </div>
+    </div>
+
+
+    <script type = "module">
+
+        import { trackPageView } from '../supabase/supabaseFunctions.js';
+        import {loadTextImage} from './texts.js'
+        trackPageView('Rambam');
+
+
+        loadTextImage("Frankel_Rambam.jpg").then((data) => {
+            console.log(data)
+            document.getElementById("frankel_rambam").src = data.signedUrl;
+        })
+
+        document.getElementById('r-akiva-eiger').addEventListener('click', function() {
+            linkToProfile('R Akiva Eiger', "../discover.html");
+        });
+
+        document.getElementById('hagaos-maimoniyos').addEventListener('click', function() {
+            linkToProfile('Haga\'os Maimoniyos', "../discover.html");
+        });
+        document.getElementById('rambam-one').addEventListener('click', function() {
+            linkToProfile('Rambam', "../discover.html");
+        });
+        document.getElementById('rambam-two').addEventListener('click', function() {
+            linkToProfile('Rambam', "../discover.html");
+        });
+        document.getElementById('rambam-three').addEventListener('click', function() {
+            linkToProfile('Rambam', "../discover.html");
+        });
+        document.getElementById('rambam-four').addEventListener('click', function() {
+            linkToProfile('Rambam', "../discover.html");
+        });
+        document.getElementById('raavad-one').addEventListener('click', function() {
+            linkToProfile('Raavad', "../discover.html");
+        });
+        document.getElementById('raavad-two').addEventListener('click', function() {
+            linkToProfile('Raavad', "../discover.html");
+        });
+        document.getElementById('kesef-mishna-one').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+        });
+        document.getElementById('kesef-mishna-two').addEventListener('click', function() {
+            linkToProfile('Beis yosef', "../discover.html");
+            
+        });
+
+
+
+    </script>
+
+
+<script src="../global.js"></script>
+</body>
+</html>
