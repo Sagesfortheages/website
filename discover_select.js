@@ -101,7 +101,11 @@ async function loadMarkers() {
       ...new Map(markers.map((item) => [item["person"], item])).values(),
     ];
     allPeople.sort((a, b) => a.person.localeCompare(b.person));
-    uniqueNames = allPeople.map((p) => p.person.toLowerCase());
+    uniqueNames = allPeople.flatMap((p) => [
+      p.person.toLowerCase(),
+      (p.name || "").toLowerCase(),
+      ...(p.sage_aka || []).map(akaObj => akaObj.aka.toLowerCase())
+    ])
 
     populateSuggestions();
 
@@ -156,7 +160,9 @@ function handleInput(event, markers, searchValue = null) {
   const searchResults = markers.filter(
     (marker) =>
       (marker.person || "").toLowerCase().includes(searchValue) ||
-      (marker.aka || "").toLowerCase().includes(searchValue) ||
+      (marker.sage_aka || []).some(akaObj => 
+  akaObj.aka.toLowerCase().includes(searchValue)
+) ||
       (marker.name || "").toLowerCase().includes(searchValue)
   );
 
@@ -192,7 +198,9 @@ function handleInput(event, markers, searchValue = null) {
     const closestResults = markers.filter(
       (marker) =>
         (marker.person || "").toLowerCase().includes(closestMatch) ||
-        (marker.aka || "").toLowerCase().includes(closestMatch) ||
+        (marker.sage_aka || []).some(akaObj => 
+  akaObj.aka.toLowerCase().includes(closestMatch)
+) ||
         (marker.name || "").toLowerCase().includes(closestMatch)
     );
     const uniqueClosestResults = [

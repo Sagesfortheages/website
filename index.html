@@ -434,9 +434,9 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5vmin;">
           <button class="auth-button" id="login-button" style="flex:1; margin-right:0.5vmin;">Login</button>
           <!-- Standard place for "Forgot password?" -->
-          <button id="show-forgot" type="button">
+          <!-- <button id="show-forgot" type="button">
             Forgot password?
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -580,6 +580,19 @@
     legendItems.forEach(item => {
       item.style.color = getColor(capitalizeWords(item.id.split('-')[0]));
     });
+
+    // --- ENTER KEY SUPPORT FOR LOGIN & SIGNUP ---
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && document.getElementById("overlay").style.display !== "none") {
+        console.log('s')
+        const activeTab = document.querySelector(".auth-tab.active").textContent.trim();
+        if (activeTab === "Login") {
+          loginButton.click();
+        } else if (activeTab === "Sign Up") {
+          signupButton.click();
+        }
+      }
+    });
   </script>
 
   <script type="module">
@@ -611,7 +624,7 @@
       
 
       // --- LOGIN ---
-      loginButton.addEventListener('click', async () => {
+      const handleLogin = async () => {
         const email = loginForm.querySelector('input[type="email"]').value;
         const password = loginForm.querySelector('input[type="password"]').value;
 
@@ -626,93 +639,98 @@
           showStatus("Login successful!");
           document.getElementById('overlay').style.display = 'none';
         }
+      };
+
+      loginButton.addEventListener('click', handleLogin);
+
+      document.addEventListener("keydown", async (e) => {
+        if (e.key === 'Enter') {
+          await handleLogin();
+        }
       });
 
-      
-
-
     
-    // --- FORGOT PASSWORD HANDLERS (add inside initializeAuth or at the end of it) ---
-const showForgotBtn = document.getElementById('show-forgot');
-const forgotForm = document.getElementById('forgot-form');
-const forgotEmailInput = document.getElementById('forgot-email');
-const sendResetButton = document.getElementById('send-reset-button');
-const forgotBackButton = document.getElementById('forgot-back');
+//     // --- FORGOT PASSWORD HANDLERS (add inside initializeAuth or at the end of it) ---
+// const showForgotBtn = document.getElementById('show-forgot');
+// const forgotForm = document.getElementById('forgot-form');
+// const forgotEmailInput = document.getElementById('forgot-email');
+// const sendResetButton = document.getElementById('send-reset-button');
+// const forgotBackButton = document.getElementById('forgot-back');
 
-function openForgotForm() {
-  // hide login, show forgot
-  document.getElementById('login-form').classList.add('hidden');
-  forgotForm.classList.remove('hidden');
-  forgotForm.setAttribute('aria-hidden', 'false');
-  // Move focus to input for accessibility
-  setTimeout(() => { forgotEmailInput.focus(); }, 50);
-}
+// function openForgotForm() {
+//   // hide login, show forgot
+//   document.getElementById('login-form').classList.add('hidden');
+//   forgotForm.classList.remove('hidden');
+//   forgotForm.setAttribute('aria-hidden', 'false');
+//   // Move focus to input for accessibility
+//   setTimeout(() => { forgotEmailInput.focus(); }, 50);
+// }
 
-function closeForgotForm() {
-  forgotForm.classList.add('hidden');
-  forgotForm.setAttribute('aria-hidden', 'true');
-  document.getElementById('login-form').classList.remove('hidden');
-  setTimeout(() => { document.getElementById('login-email').focus(); }, 50);
-}
+// function closeForgotForm() {
+//   forgotForm.classList.add('hidden');
+//   forgotForm.setAttribute('aria-hidden', 'true');
+//   document.getElementById('login-form').classList.remove('hidden');
+//   setTimeout(() => { document.getElementById('login-email').focus(); }, 50);
+// }
 
-if (showForgotBtn) {
-  showForgotBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    openForgotForm();
-  });
-}
+// if (showForgotBtn) {
+//   showForgotBtn.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     openForgotForm();
+//   });
+// }
 
-if (forgotBackButton) {
-  forgotBackButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    closeForgotForm();
-  });
-}
+// if (forgotBackButton) {
+//   forgotBackButton.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     closeForgotForm();
+//   });
+// }
 
-// Send reset email using Supabase
-if (sendResetButton) {
-  sendResetButton.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = forgotEmailInput.value?.trim();
-    if (!email) {
-      showStatus('Please enter your email.', 'error');
-      forgotEmailInput.focus();
-      return;
-    }
+// // Send reset email using Supabase
+// if (sendResetButton) {
+//   sendResetButton.addEventListener('click', async (e) => {
+//     e.preventDefault();
+//     const email = forgotEmailInput.value?.trim();
+//     if (!email) {
+//       showStatus('Please enter your email.', 'error');
+//       forgotEmailInput.focus();
+//       return;
+//     }
 
-    // Give immediate feedback
-    sendResetButton.disabled = true;
-    sendResetButton.textContent = 'Sending...';
+//     // Give immediate feedback
+//     sendResetButton.disabled = true;
+//     sendResetButton.textContent = 'Sending...';
 
-    try {
-      // Best practice: include a redirect URL so user returns to a controlled page after resetting
-      const redirectTo = window.location.origin + '/reset-password'; // change if you have a custom reset page
-      const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+//     try {
+//       // Best practice: include a redirect URL so user returns to a controlled page after resetting
+//       const redirectTo = window.location.origin + '/reset-password'; // change if you have a custom reset page
+//       const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
 
-      if (error) {
-        // Supabase returns useful messages (e.g., user not found)
-        showStatus(error.message || 'Unable to send reset email.', 'error');
-      } else {
-        showStatus('Reset email sent — check your inbox (and spam).', 'success');
-        // keep the forgot form visible but disable button / show hint
-        forgotEmailInput.value = '';
-      }
-    } catch (err) {
-      showStatus('An unexpected error occurred.', 'error');
-      console.error(err);
-    } finally {
-      sendResetButton.disabled = false;
-      sendResetButton.textContent = 'Send reset email';
-    }
-  });
-}
+//       if (error) {
+//         // Supabase returns useful messages (e.g., user not found)
+//         showStatus(error.message || 'Unable to send reset email.', 'error');
+//       } else {
+//         showStatus('Reset email sent — check your inbox (and spam).', 'success');
+//         // keep the forgot form visible but disable button / show hint
+//         forgotEmailInput.value = '';
+//       }
+//     } catch (err) {
+//       showStatus('An unexpected error occurred.', 'error');
+//       console.error(err);
+//     } finally {
+//       sendResetButton.disabled = false;
+//       sendResetButton.textContent = 'Send reset email';
+//     }
+//   });
+// }
 
-// Allow Enter key in forgot form to submit
-forgotEmailInput && forgotEmailInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    sendResetButton.click();
-  }
-});
+// // Allow Enter key in forgot form to submit
+// forgotEmailInput && forgotEmailInput.addEventListener('keydown', (e) => {
+//   if (e.key === 'Enter') {
+//     sendResetButton.click();
+//   }
+// });
 
     
     }

@@ -1,6 +1,6 @@
 (window.location.pathname)
 mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ'; //pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ
-if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("home") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback")) {
+if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback")) {
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mrosen770/cmay4iodx003e01sd7zqeeytu', // Map style
