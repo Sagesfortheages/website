@@ -170,12 +170,12 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     const bioEl = document.getElementById("biography-content");
     if (bioEl) bioEl.innerHTML = selected.biography || "";
 
-    const furtherLink = document.getElementById("further-reading-link-text");
-    if (furtherLink) {
-        furtherLink.href = selected.further_link || "#";
-        furtherLink.style.color = getColor(selected.background || "");
-        furtherLink.innerText = `Explore ${selected.person || ''} Further`;
-    }
+    // const furtherLink = document.getElementById("further-reading-link-text");
+    // if (furtherLink) {
+    //     furtherLink.href = selected.further_link || "#";
+    //     furtherLink.style.color = getColor(selected.background || "");
+    //     furtherLink.innerText = `Explore ${selected.person || ''} Further`;
+    // }
 
     // Picture
     const picEl = document.getElementById("profile-pic");
