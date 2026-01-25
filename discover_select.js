@@ -128,15 +128,82 @@ async function loadMarkers() {
   }
 
   const page = await trackPageView();
-  if (page.isFirstVisit) {
-    showCustomAlert(
-      `Search for a sage you wish to learn more about. <br><br>You can see what the hebrew date is and which sages have a birthday or yahrzeit today.<br><br>You can change the date using the Date Selection buttons, to see birthdays and yahrtzeits on other days.<br><br>Click on a person to see their biography page.`,
-      "2vmin"
-    );
+  if(page.isFirstVisit) {
+        startTour()
   }
 }
 
 // ---------------- Populate people suggestions ----------------
+
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,
+        steps: [
+            {
+                element: 'body',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page lets you select a sage by name, birthday or yahrtzeit.
+                Let’s take a quick tour.
+                `
+            },
+            {
+                element: '#search-results',
+                intro: `
+                <h3>👤 Sages</h3>
+                Select a person to see their profile page.
+                `
+            },
+            {
+                element: '#search-input',
+                intro: `
+                <h3>🕵️ Search</h3>
+                Search for a sage.
+                `
+            },
+            {
+                element: '#date-selection-card',
+                intro: `
+                <h3>📅 Date</h3>
+                select a date to see sages with that birthday or yahrtzeit.
+                `
+            },
+
+
+            {
+                element: '.left-container',
+                intro: `
+                <h3>🎂 Birthdays</h3>
+                These sages were born on this date. Click on any of them to see their profile.
+                `
+            },
+            {
+                element: '.right-container',
+                intro: `
+                <h3>🕯️ Yahrtzeits</h3>
+                These sages passed away on this date. Click on any of them to see their profile.
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Restart Tour</h3>
+                Click here to see this tour again.
+                `
+            }
+        ]
+    });
+
+    intro.start();
+}
+
 function populateSuggestions() {
   const suggestionsList = document.getElementById("search-results");
   suggestionsList.innerHTML = "";
@@ -265,6 +332,7 @@ function updateDays() {
 
 document.getElementById("month").addEventListener("change", updateDays);
 document.getElementById("day").addEventListener("change", updateSelectedDate);
+document.getElementById("info-button").addEventListener("click", startTour)
 
 function getMonthValueByName(monthName) {
   const monthSelect = document.getElementById("month");

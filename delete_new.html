@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Intro.js Tour – Working Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Intro.js -->
+<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+<script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: linear-gradient(135deg, #82c6ee, #e0e6e9);
+  height: 100vh;
+}
+
+.header {
+  text-align: center;
+  padding: 3vmin;
+}
+
+.header h1 {
+  font-size: 6vmin;
+  font-weight: 800;
+  background: linear-gradient(120deg, #2c3e50, #4a69bd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  gap: 2vmin;
+  padding: 2vmin;
+}
+
+.panel {
+  background: white;
+  border-radius: 20px;
+  padding: 2vmin;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+#map {
+  height: 40vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3vmin;
+  font-weight: 800;
+  background: linear-gradient(135deg, #c3dafe, #e0e7ff);
+  border-radius: 20px;
+}
+
+button {
+  margin-top: 2vmin;
+  padding: 1.5vmin;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  font-size: 2.2vmin;
+  cursor: pointer;
+  background: linear-gradient(120deg, #4a69bd, #6a89cc);
+  color: white;
+}
+
+/* Intro.js modern styling */
+.introjs-overlay {
+  background: rgba(20,30,45,0.75);
+}
+
+.introjs-tooltip {
+  border-radius: 18px;
+  padding: 1.5vmin 2vmin;
+  background: linear-gradient(135deg, #fff, #f5f7fa);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+  font-size: 2.3vmin;
+  font-weight: 700;
+}
+
+.introjs-helperLayer {
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 4px rgba(74,105,189,0.6),
+    0 15px 35px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>🧠 Analyze</h1>
+  <button id="startTour">Start Tour</button>
+</div>
+
+<div class="layout">
+  <div class="panel" id="legend">
+    <h3>Legend</h3>
+    Categories and filters
+  </div>
+
+  <div class="panel" id="map">
+    Map Area
+  </div>
+
+  <div class="panel" id="controls">
+    <h3>Controls</h3>
+    <button id="applyFilter">Apply Filter</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const intro = introJs();
+
+  intro.setOptions({
+    showProgress: true,
+    showBullets: false,
+    exitOnOverlayClick: false,
+    disableInteraction: true,
+    steps: [
+      {
+        element: '.header',
+        intro: 'Welcome! This is a guided tour.'
+      },
+      {
+        element: '#map',
+        intro: 'This is the map area.'
+      },
+      {
+        element: '#legend',
+        intro: 'Legend and filters live here.'
+      },
+      {
+        element: '#applyFilter',
+        intro: 'Click this real button to continue.'
+      },
+      {
+        element: '#controls',
+        intro: 'Tour complete.'
+      }
+    ]
+  });
+
+  document.getElementById('startTour').addEventListener('click', () => {
+    intro.start();
+  });
+
+  const btn = document.getElementById('applyFilter');
+  btn.addEventListener('click', () => {
+    if (intro.isActive()) {
+      intro.nextStep();
+    }
+  });
+
+});
+</script>
+
+</body>
+</html>

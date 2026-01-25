@@ -8,6 +8,7 @@ let visibleMarkers = [];
 let visibleMarkersPeople = [];
 let backgrounds = [];
 let expertises = [];
+let uniqueNames = [];
 let uniqueness = false;
 let birthPlace = false;
 let start = Date.now();
@@ -20,7 +21,7 @@ window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
 
 document.getElementById('info-button').addEventListener('click', function () {
-    showCustomAlert(infoText, '2.0vmin');
+    startTour()
 })
 
 // ========== ORIGINAL FUNCTIONS (UNCHANGED) ==========
@@ -55,6 +56,8 @@ function handleInput(event, markers, searchValue = null) {
 
     if (uniqueSearchResults.length === 0) {
         var closestMatch = findClosestMatch(searchValue, uniqueNames);
+        console.log(closestMatch)
+        console.log(uniqueNames)
         const closestResults = markers.filter(marker =>
             (marker.person || '').toLowerCase().includes(closestMatch) || 
             (marker.aka || '').toLowerCase().includes(closestMatch) || 
@@ -203,10 +206,95 @@ async function loadMarkers() {
     }
 
     const page = await trackPageView();
+    console.log(page)
     if(page.isFirstVisit) {
-        showCustomAlert(infoText, '2.0vmin')
+        startTour()
     }
 }
+
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,
+        steps: [
+            {
+                element: 'body',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page lets you explore sages across time and space.
+                Let’s take a quick tour.
+                `
+            },
+            {
+                element: '#map',
+                intro: `
+                <h3>📍 The Map</h3>
+                This map shows where figures lived and moved throughout their lives.
+                You can pan and zoom freely. Hover a marker to see more information.
+                `
+            },
+            {
+                element: '.legend-container',
+                intro: `
+                <h3>🏷️ Background</h3>
+                The color of the marker indicates the background of that sage. Click a background to filter for sages with that background.
+                `
+            },
+            {
+                element: '.expertise-container',
+                intro: `
+                <h3>📖 Focus</h3>
+                Click an area of focus to filter for sages with that area of focus.
+                `
+            },
+            {
+                element: '.search-container',
+                intro: `
+                <h3>🕵️ Search</h3>
+                Type a name to filter for a person/people with that name. As you type, the map will update. Alternatively, click on a person to filter for them.
+                `
+            },
+            {
+                element: '#year-slider',
+                intro: `
+                <h3>📅 Timeline</h3>
+                Drag this slider to filter by historical period.
+                `
+            },
+            {
+                element: '#visible-container',
+                intro: `
+                <h3>👁️ Currently Visible</h3>
+                These are the sages matching your filters.
+                Click on one to be taken to their profile page.
+                `
+            },
+            {
+                element: '#uniqueness-button',
+                intro: `
+                <h3>🥇 Uniqueness</h3>
+                Click here to see a single marker per person (the last known place of that person).
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Tour</h3>
+                Click here to see this tour again.
+                `
+            }
+        ]
+    });
+
+    intro.start();
+}
+
 
 function initializeUI() {
     document.getElementById('search-input').addEventListener('input', function (event) {
@@ -245,6 +333,16 @@ function initializeUI() {
     const suggestionsList = document.getElementById('search-results');
     const allPeople = [...new Map(markers.map(item => [item['person'], item])).values()];
     allPeople.sort((a, b) => a.person.localeCompare(b.person));
+    uniqueNames = allPeople.flatMap((p) => [
+        p.person.toLowerCase(),
+        (p.name || "").toLowerCase(),
+        ...((p.aka || "")
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean)
+            .map(s => s.toLowerCase()))
+        ])
+    
     allPeople.forEach(result => {
         const li = document.createElement('li');
         li.textContent = result.person;
@@ -289,7 +387,10 @@ function initializeUI() {
     });
 }
 
+
+
 // ========== RUN FETCH ON LOAD ==========
 document.addEventListener('DOMContentLoaded', loadMarkers);
 let end = Date.now();
 console.log("Elapsed time: " + (end - start) + " ms");
+

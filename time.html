@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕰️ Time</title>
+    <title>Time</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+    <link rel="icon" href="icon3.png" type="image/x-icon">
+    <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+    <link rel="stylesheet" href="intro_styles.css">
+    <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -353,13 +356,13 @@
         </div>
 
         <!-- Sort buttons for chronological and alphabetical order -->
-        <div class="chart-button-container">
+        <div class="chart-button-container" id="sorting-container">
             <div class="chart-button-item" id="sort-chronological">📅 Chronological Order</div>
             <div class="chart-button-item" id="sort-alphabetical">🔤 Alphabetical Order</div>
         </div>
 
         <!-- Legend to filter by background -->
-        <div class="chart-button-container">
+        <div class="chart-button-container" id="background-container">
             <div class="chart-button-item filter-item" data-background="Gaon">
                 Gaon
             </div>

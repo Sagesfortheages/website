@@ -1,0 +1,156 @@
+.introjs-overlay {
+  background: rgba(20, 30, 45, 0.85) !important;
+  position: absolute !important;
+}
+
+/* Tooltip - Two-tone design */
+.introjs-tooltip {
+  border-radius: 18px !important;
+  padding: 0 !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
+              0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%) !important;
+  color: #2c3e50 !important;
+  font-size: 2.4vmin !important;
+  font-weight: 400 !important;
+  overflow: hidden !important;
+}
+
+/* Tooltip title - Blue header section */
+.introjs-tooltip h3 {
+  margin: 0 0 1.5vmin 0 !important;
+  padding: 2vmin 2.5vmin !important;
+  margin-left: -2.5vmin !important;
+  margin-right: -2.5vmin !important;
+  margin-top: -1.5vmin !important;
+  font-size: 3vmin !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  letter-spacing: 0.3px !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+  text-align: center !important;
+}
+
+/* Body text styling */
+.introjs-tooltiptext {
+  padding: 1.5vmin 2.5vmin !important;
+  color: #2c3e50 !important;
+  font-size: 2.4vmin !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+
+/* Button container */
+.introjs-tooltipbuttons {
+  padding: 1.5vmin 2.5vmin 2vmin 2.5vmin !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: transparent !important;
+}
+
+/* Buttons */
+.introjs-button {
+  border-radius: 10px !important;
+  border: none !important;
+  background: #6e7581 !important;
+  color: white !important;
+  padding: 0.8vmin 1.8vmin !important;
+  font-size: 2.2vmin !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.introjs-button:hover {
+  background: #5a6169 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.introjs-prevbutton {
+  float: left !important;
+}
+
+.introjs-nextbutton {
+  border-radius: 10px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #4a69bd 0%, #5a7acc 100%) !important;
+  color: white !important;
+  padding: 0.8vmin 1.8vmin !important;
+  font-size: 2.2vmin !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 8px rgba(74, 105, 189, 0.3) !important;
+}
+
+.introjs-nextbutton:hover {
+  background: linear-gradient(135deg, #3d5aa8 0%, #4d6bb8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(74, 105, 189, 0.4) !important;
+}
+
+.introjs-skipbutton {
+  color: #6e7581 !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.introjs-skipbutton:hover {
+  color: #4a69bd !important;
+}
+
+/* Highlight glow - This creates the bright area around highlighted element */
+.introjs-helperLayer {
+  background: transparent !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 0 9999px rgba(20, 30, 45, 0.85),
+              0 0 0 4px rgba(74, 105, 189, 0.6),
+              0 20px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Ensure highlighted element shows through */
+.introjs-showElement {
+  z-index: 9999999 !important;
+}
+
+.introjs-relativePosition {
+  position: relative !important;
+}
+
+.introjs-fixedPosition {
+  position: fixed !important;
+}
+
+/* Progress bar - Fixed to be solid */
+.introjs-progress {
+  background: rgba(0, 0, 0, 0.1) !important;
+  height: 6px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  margin: 1.5vmin 2.5vmin 0 2.5vmin !important;
+}
+
+.introjs-progressbar {
+  background: linear-gradient(90deg, #4a69bd 0%, #6a89cc 100%) !important;
+  border-radius: 10px !important;
+  height: 100% !important;
+}
+
+/* Arrow with matching color */
+.introjs-arrow.top {
+  border-bottom-color: #4a69bd !important;
+}
+
+.introjs-arrow.bottom {
+  border-top-color: #f8f9fc !important;
+}
+
+.introjs-arrow.left {
+  border-right-color: #f8f9fc !important;
+}
+
+.introjs-arrow.right {
+  border-left-color: #f8f9fc !important;
+}

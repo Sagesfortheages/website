@@ -28,7 +28,6 @@ let visibleMarkers = []
 
 let selected = JSON.parse(sessionStorage.getItem('selected'));
 console.log("Selected from sessionStorage:", selected);
-trackPageView(selected?.person || null);
 
 
 // Ensure we have a person
@@ -115,6 +114,11 @@ function fitMapToMarkers(filteredMarkers){
 async function renderSageProfile(selected, relatedSages = { teachers: [], students: [], all: [] }) {
     if (!selected) return;
 
+    const page = await trackPageView(selected?.person || null);
+    if(page.isFirstVisit) {
+        startTour()
+    }
+
     console.log("Rendering profile for:", selected);
 
     const imageToUse = selected.picture? `sages/${selected.picture}` : 'sages/blank_image.png';
@@ -141,7 +145,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     const yearsEl = document.getElementById("years-content");
 
-    if (selected.birth & selected.birth !== 'NaN' && selected.passing && selected.passing != 'NaN') {
+    if (selected.birth && selected.birth !== 'NaN' && selected.passing && selected.passing != 'NaN') {
         yearsEl.innerHTML = `🕛 ${selected.birth} - ${selected.passing}`
     } else {
         yearsEl.style.display = "none";
@@ -230,12 +234,6 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
             });
         }
     }
-
-
-
-
-
-
 
 
 
@@ -379,6 +377,143 @@ if (courseIndex < totalPages - 1) {
 
 }
 
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,
+        steps: [
+            {
+                element: 'body',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page lets you explore the life of a sage.
+                `
+            },
+            {
+                element: '#hero-content',
+                intro: `
+                <h3>💾 Data</h3>
+                Here you can find a brief digest of information about the sage.
+                `
+            },
+            {
+                element: '#profile-pic',
+                intro: `
+                <h3>🖼️ Picture</h3>
+                A picture of the sage will appear here, if it is available.
+                `
+            },
+            {
+                element: '#title-content',
+                intro: `
+                <h3>👤 Title</h3>
+                The title of the sage appears here.
+                `
+            },
+            {
+                element: '#name-content',
+                intro: `
+                <h3>🪪 Name</h3>
+                The name of the sage will appear here, if it is different from the title of the sage.
+                `
+            },
+            {
+                element: '#background-content',
+                intro: `
+                <h3>🏷️ Background</h3>
+                This is the background of the sage.
+                `
+            },
+            {
+                element: '#years-content',
+                intro: `
+                <h3>🕛 Lifetime</h3>
+                Here you can find the life span of the sage, if known.
+                `
+            },
+            {
+                element: '#birthday-content',
+                intro: `
+                <h3>🎂 Birthday</h3>
+                The birthday of the sage will appear here, if known.
+                `
+            },
+                        {
+                element: '#yahrtzeit-content',
+                intro: `
+                <h3>🕯️ Yahrtzeit</h3>
+                The yahrtzeit appears here, if known.
+                `
+            },            
+            {
+                element: '#teachers-content',
+                intro: `
+                <h3>⮝ Teachers</h3>
+                Here you can find the teachers of the sage, if known. Click on one to be taken to their sage profile.
+                `
+            },
+            {
+                element: '#students-content',
+                intro: `
+                <h3>⮟ Students</h3>
+                The students of the sage appear here, if known. Click on one to be taken to their sage profile.
+                `
+            },
+            {
+                element: '#major-works',
+                intro: `
+                <h3>📚 Major Works</h3>
+                Here you can find the major books of the sage, if known.
+                `
+            },
+            {
+                element: '#areas-of-focus',
+                intro: `
+                <h3>💡 Areas of Focus</h3>
+                The particular areas of torah in which the sage was influential appear here, if known.
+                `
+            },
+            {
+                element: '#biography',
+                intro: `
+                <h3>📜 Biography</h3>
+                Here you can find a brief biography of the sage.
+                `
+            },
+            {
+                element: '#map',
+                intro: `
+                <h3>📍 Map</h3>
+                Here is a map of the life of the sage, if known. The cities are numbered in order of when the sage lived there, and the size 
+                corresponds to the length of time the sage spent there. Hover over a city for more detail.
+                `
+            },
+            {
+                element: '#journey-button',
+                intro: `
+                <h3>🧳 Journey</h3>
+                Click here for an animated journey through the life of the sage, if available.
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Restart Tour</h3>
+                Click here to see this tour again.
+                `
+            }
+
+        ]
+    });
+
+    intro.start();
+}
 
 // --- Main fetch + render ---
 fetchSelectedSage(selectedPerson).then(async sage => {
@@ -406,6 +541,8 @@ fetchSelectedSage(selectedPerson).then(async sage => {
 // --- Hover popup logic ---
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
+
+document.getElementById("info-button").addEventListener("click", startTour)
 
 document.addEventListener('mouseover', handleHoverPopup)
 document.addEventListener('mousemove', (event) => {

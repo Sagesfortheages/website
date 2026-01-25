@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Play</title>
+    <title>Play</title>
     <!-- <link rel="stylesheet" href="jewel.css"> -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
-    <link rel="icon" href="/path/to/your-favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="android-chrome-192x192.png" type="image/x-icon">
+    <link rel="icon" href="icon3.png" type="image/x-icon">
+    <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+    <link rel="stylesheet" href="intro_styles.css">
+    <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
 </head>
 <style>
 * {
@@ -163,7 +166,6 @@ body {
     transform-origin: center;
     /* position: relative; */
     z-index: 1500 !important;
-    filter: brightness(1.1) saturate(1.15); 
     border: 2px solid   rgba(96, 220, 190, 0.55) !important;
     opacity: 0.98;
     animation: newMarkerPulse 1.6s ease-out 2;
@@ -178,7 +180,6 @@ body {
     
     /* Make it pop visually */
     border: 3px solid rgba(96, 220, 190, 0.9) !important;
-    filter: brightness(1.35) contrast(1.2);
     transform-origin: center;
     position: relative;
     z-index: 1500 !important;
@@ -628,6 +629,11 @@ button.active {
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
+    .header {
+    position: sticky;
+    top: 0;
+  }
+
     .header h1 {
         font-size: 8vmin;
     }
@@ -869,7 +875,7 @@ button.active {
         <!-- Alert box and audio -->
         <div class="alert-box" id="customAlert">
             <p id="message"></p>
-            <button id="restart-button" onclick="hideCustomAlert(restart=true)" style="display:none">Play Again</button>
+            <button id="restart-button" onclick="hideCustomAlert(restart=true)">Play Again</button>
             <button id='exit-button' onclick="hideCustomAlert(restart=false)">x</button>
         </div>
         <audio id="cheer-sound" src="cheering.wav" preload="auto"></audio>

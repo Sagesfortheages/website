@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shepherd.js - Element Size Handling</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        /* Various button sizes */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-tiny {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-medium {
+            padding: 14px 28px;
+            font-size: 16px;
+        }
+
+        .btn-large {
+            padding: 18px 40px;
+            font-size: 18px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            padding: 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .toolbar {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .toolbar-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #ddd;
+        }
+
+        .toolbar-icon:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .large-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 40px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .large-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .large-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .control-panel button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .control-panel button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Custom Shepherd styling */
+        .shepherd-element {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .shepherd-text {
+            color: #333;
+            font-size: 15px;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .shepherd-header {
+            padding: 20px 20px 0;
+        }
+
+        .shepherd-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .shepherd-footer {
+            padding: 0 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shepherd-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shepherd-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .shepherd-button-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .shepherd-button-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .shepherd-cancel-icon {
+            color: #999;
+            font-size: 24px;
+        }
+
+        .shepherd-cancel-icon:hover {
+            color: #333;
+        }
+
+        /* Compact tooltip for tiny elements */
+        .compact-tooltip .shepherd-text {
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .compact-tooltip .shepherd-title {
+            font-size: 16px;
+        }
+
+        .compact-tooltip .shepherd-header {
+            padding: 15px 15px 0;
+        }
+
+        .compact-tooltip .shepherd-footer {
+            padding: 0 15px 15px;
+        }
+
+        @media (max-width: 768px) {
+            .button-row {
+                justify-content: center;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header" id="header">
+            <h1>📏 Element Size Handling Demo</h1>
+            <p>See how Shepherd.js adapts to different element sizes</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>Button Sizes</h2>
+            <div class="button-row">
+                <button class="btn btn-tiny" id="btn-tiny">Tiny</button>
+                <button class="btn btn-small" id="btn-small">Small</button>
+                <button class="btn btn-medium" id="btn-medium">Medium</button>
+                <button class="btn btn-large" id="btn-large">Large Button</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Icon Buttons & Toolbar</h2>
+            <div class="toolbar" id="toolbar">
+                <div class="toolbar-icon" id="icon-home">🏠</div>
+                <div class="toolbar-icon" id="icon-search">🔍</div>
+                <div class="toolbar-icon" id="icon-settings">⚙️</div>
+                <div class="toolbar-icon" id="icon-user">👤</div>
+                <div class="toolbar-icon" id="icon-notification">🔔</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Medium Cards</h2>
+            <div class="card-grid">
+                <div class="card" id="card-1">
+                    <h3>Analytics</h3>
+                    <p>Track your performance metrics and gain insights from your data.</p>
+                </div>
+                <div class="card" id="card-2">
+                    <h3>Reports</h3>
+                    <p>Generate comprehensive reports with just a few clicks.</p>
+                </div>
+                <div class="card" id="card-3">
+                    <h3>Settings</h3>
+                    <p>Customize your experience with powerful configuration options.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-section" id="large-section">
+            <h2>Large Hero Section</h2>
+            <p>This is a big, prominent section that takes up lots of space</p>
+        </div>
+
+        <div class="control-panel">
+            <h2 style="margin-bottom: 20px; color: #333;">Tour Controls</h2>
+            <button id="start-tour">🎯 Start Full Tour</button>
+            <button id="reset-tour" style="background: linear-gradient(135deg, #999 0%, #666 100%);">🔄 Reset</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js"></script>
+    <script>
+        function createTour() {
+            const tour = new Shepherd.Tour({
+                useModalOverlay: true,
+                defaultStepOptions: {
+                    cancelIcon: {
+                        enabled: true
+                    },
+                    scrollTo: { behavior: 'smooth', block: 'center' }
+                }
+            });
+
+            // Step 1: Large header
+            tour.addStep({
+                id: 'intro',
+                title: '👋 Welcome!',
+                text: 'Let me show you how Shepherd.js handles different element sizes. Notice how tooltips adapt!',
+                attachTo: {
+                    element: '#header',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Skip',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.cancel
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 2: Tiny button - uses compact class
+            tour.addStep({
+                id: 'tiny',
+                title: '🔬 Tiny Button',
+                text: 'For tiny elements, we use a compact tooltip style to avoid overwhelming the element.',
+                attachTo: {
+                    element: '#btn-tiny',
+                    on: 'bottom'
+                },
+                classes: 'compact-tooltip',
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 3: Medium button - normal tooltip
+            tour.addStep({
+                id: 'medium',
+                title: '📦 Medium Button',
+                text: 'Medium elements work great with standard tooltips. The pointer attaches nicely to the side.',
+                attachTo: {
+                    element: '#btn-medium',
+                    on: 'top'
+                },
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 4: Large button
+            tour.addStep({
+                id: 'large',
+                title: '📏 Large Button',
+                text: 'Larger elements give us plenty of room. The tooltip can be positioned anywhere around it.',
+                attachTo: {
+                    element: '#btn-large',
+                    on: 'left'
+                },
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 5: Icon in toolbar - attach to parent
+            tour.addStep({
+                id: 'toolbar',
+                title: '🛠️ Toolbar Icons',
+                text: 'For tiny icons in a toolbar, we can attach to the entire toolbar instead of individual icons.',
+                attachTo: {
+                    element: '#toolbar',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 6: Single icon - centered approach
+            tour.addStep({
+                id: 'icon',
+                title: '⚙️ Individual Icon',
+                text: 'For a single small icon, we can use centered positioning which highlights it while keeping the tooltip readable.',
+                attachTo: {
+                    element: '#icon-settings',
+                    on: 'center'
+                },
+                classes: 'compact-tooltip',
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 7: Card - good medium size
+            tour.addStep({
+                id: 'card',
+                title: '🎴 Card Component',
+                text: 'Cards are perfect for tooltips. They\'re large enough to attach to any side without looking cramped.',
+                attachTo: {
+                    element: '#card-2',
+                    on: 'right'
+                },
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Next →',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            // Step 8: Large section
+            tour.addStep({
+                id: 'large-section',
+                title: '🎯 Large Section',
+                text: 'Big sections like hero areas work beautifully. The tooltip can attach to any edge with plenty of clearance.',
+                attachTo: {
+                    element: '#large-section',
+                    on: 'top'
+                },
+                buttons: [
+                    {
+                        text: '← Back',
+                        classes: 'shepherd-button-secondary',
+                        action: tour.back
+                    },
+                    {
+                        text: 'Finish ✨',
+                        action: tour.complete
+                    }
+                ]
+            });
+
+            tour.on('complete', () => {
+                localStorage.setItem('tourCompleted', 'true');
+            });
+
+            tour.on('cancel', () => {
+                localStorage.setItem('tourCompleted', 'true');
+            });
+
+            return tour;
+        }
+
+        // Auto-start on first visit
+        if (!localStorage.getItem('tourCompleted')) {
+            setTimeout(() => {
+                const tour = createTour();
+                tour.start();
+            }, 500);
+        }
+
+        // Manual controls
+        document.getElementById('start-tour').addEventListener('click', () => {
+            const tour = createTour();
+            tour.start();
+        });
+
+        document.getElementById('reset-tour').addEventListener('click', () => {
+            localStorage.removeItem('tourCompleted');
+            alert('Tour reset! Refresh to see it auto-start.');
+        });
+    </script>
+</body>
+</html>

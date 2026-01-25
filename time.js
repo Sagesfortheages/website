@@ -9,7 +9,7 @@ let selectedBackgrounds = [];
 let currentSort = 'chronological'; // Default sort method
 const infoText = `This page contains a timeline of each sage. They are color coded by background. <br><br> Hover over a rectangle to find out more about a person. <br><br>You can filter the timeline by clicking on one or more of the background buttons. <br><br>You can also toggle between chronological and alphabetical order using the buttons at the top. <br><br> Click on the name of a sage to see his biography page.`
 document.getElementById('info-button').addEventListener('click', function () {
-    showCustomAlert(infoText, '2.0vmin');
+    startTour()
 })
 let popup, popupMessage;
 
@@ -18,7 +18,7 @@ async function initializeSages() {
 
     const page = await trackPageView();
     if(page.isFirstVisit) {
-        showCustomAlert(infoText, '2vmin')
+        startTour()
     }
     sages = await loadAllSages();
 
@@ -229,6 +229,60 @@ function wrap(text, width) {
         }
     });
 }
+
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,
+        steps: [
+            {
+                element: 'body',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page shows a timeline of sages.
+                Let’s take a quick tour.
+                `
+            },
+            {
+                element: '#timeline-container',
+                intro: `
+                <h3>🕰️ Timeline</h3>
+                This timeline shows the relative lifetimes of sages. Hover over a rectangle for more detail or click on a sage's name to be taken to their profile page.
+                `
+            },
+            {
+                element: '#background-container',
+                intro: `
+                <h3>🏷️ Background</h3>
+                The color of the rectangle indicates the background of that sage. Click a background to filter for sages with that background.
+                `
+            },
+            {
+                element: '#sorting-container',
+                intro: `
+                <h3>⇅ Sort</h3>
+                You can sort in time order or in alphabetical order by clicking one of these buttons.
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Tour</h3>
+                Click here to see this tour again.
+                `
+            }
+        ]
+    });
+
+    intro.start();
+}
+
 
 // ===================== DOMContentLoaded =====================
 document.addEventListener('DOMContentLoaded', () => {

@@ -63,10 +63,10 @@ let occupantsList = document.getElementById("occupant-list-content");
 let occupantsListHeading = document.getElementById("occupant-list-heading");
 let countriesList = document.getElementById('country-list');
 
-const infoText = `This page contains information about all the cities that sages have lived in through the years.<br><br>Search for a city in the search bar to find out more about which sages lived there and when. <br><br>As you type, the map will update to display only cities which match the typed text.<br><br>Click on a city name to filter out all the other cities.<br><br>Click on a country to isolate the cities in that country. <br><br> Hover over a marker to see the city and country.<br><br>Pick a city to see which sage lived there and when. You can pick a city by clicking on a city name, or clicking on a city marker, or using the search bar.<br><br>Click on a sage to see his biography page.`
-document.getElementById('info-button').addEventListener('click', function () {
-    showCustomAlert(infoText, '2.0vmin');
-});
+// const infoText = `This page contains information about all the cities that sages have lived in through the years.<br><br>Search for a city in the search bar to find out more about which sages lived there and when. <br><br>As you type, the map will update to display only cities which match the typed text.<br><br>Click on a city name to filter out all the other cities.<br><br>Click on a country to isolate the cities in that country. <br><br> Hover over a marker to see the city and country.<br><br>Pick a city to see which sage lived there and when. You can pick a city by clicking on a city name, or clicking on a city marker, or using the search bar.<br><br>Click on a sage to see his biography page.`
+// document.getElementById('info-button').addEventListener('click', function () {
+//     showCustomAlert(infoText, '2.0vmin');
+// });
 // =====================
 // Fetch cities and markers from DB
 // =====================
@@ -92,7 +92,7 @@ async function loadData() {
     }
     const page = await trackPageView();
     if(page.isFirstVisit) {
-        showCustomAlert(infoText, '2.0vmin')
+        startTour();
     }
 }
 
@@ -143,6 +143,8 @@ function initUI() {
     });
 }
 
+
+
 // =====================
 // Original functions
 // =====================
@@ -179,6 +181,81 @@ function fillPeopleDetails(citiesData) {
             linkToProfile(marker);
         });
     });
+}
+
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,  // Add this line to prevent auto-scrolling
+        steps: [
+            {
+                element: '.header',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page lets you explore cities and who lived there and when.
+                `
+            },
+            {
+                element: '#map',
+                intro: `
+                <h3>The Map</h3>
+                Here you can find the locations of all the cities. You can zoom, pan or click.
+                `
+            },
+            {
+                element: '#search-results',
+                intro: `
+                <h3>The Cities</h3>
+                Select a city to find out where it is and who lived there and when.
+                `
+            },
+            {
+                element: '#search-input',
+                intro: `
+                <h3>City Search</h3>
+                Search for a city.
+                `
+            },
+            {
+                element: '#country-list',
+                intro: `
+                <h3>The Countries</h3>
+                Select a country to see all the cities in it where our sages have lived.
+                `
+            },
+            {
+                element: '#country-search',
+                intro: `
+                <h3>Country Search</h3>
+                Search for a country.
+                `
+            },
+            {
+                element: '.right-container',
+                intro: `
+                <h3>The People</h3>
+                Find out which sages lived in the city and when.
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>Restart Tour</h3>
+                Click this button to see this tour again.
+                `
+            }
+
+
+        ]
+    });
+
+    intro.start();
 }
 
 function extractCityNames(data) {
@@ -357,6 +434,7 @@ function handleCountryClick(selectedCountry, cities) {
     }
     playAnthem(selectedCountry);
 }
+document.getElementById("info-button").addEventListener("click", startTour)
 
 // =====================
 // Popup hover events

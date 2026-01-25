@@ -1,5 +1,5 @@
 import { loadAllSages } from './supabase/sagesWithNames.js';
-import { trackPageView } from './supabase/supabaseFunctions.js';
+import { trackGameStart, trackPageView, updateGameResult, trackGuess} from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
 
@@ -17,10 +17,12 @@ const difficultyLevel = JSON.parse(sessionStorage.getItem('difficulty')) || 'med
 const scale = { 'Very Easy': 1, 'Easy': 2, 'Medium': 3, 'Hard': 4, 'Very Hard': 5 };
 const maxDifficulty = scale[difficultyLevel] ?? 5;
 console.log(difficultyLevel)
+let gameId = null
 
-document.getElementById('info-button').addEventListener('click', function () {
-    showCustomAlert(infoText, '2.25vmin');
-})
+// document.getElementById('info-button').addEventListener('click', function () {
+//     showCustomAlert(infoText, '2.25vmin');
+// })
+document.getElementById("info-button").addEventListener("click", startTour)
 
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
@@ -41,6 +43,8 @@ async function fetchMarkersFromDatabase() {
         markers = allMarkers.filter(sage => sage.difficulty <= maxDifficulty).filter(sage => sage.expertise.length > 0);
 
         console.log(`Fetched ${markers.length} markers from Supabase (difficulty <= ${maxDifficulty})`);
+
+
 
         return markers;
 
@@ -114,7 +118,8 @@ async function initializeGame() {
         setupGameUI();
         
         // Start the game
-        startNewGame();
+       startNewGame();
+
         
         console.log('Game initialized successfully');
         
@@ -134,9 +139,143 @@ async function initializeGame() {
     }
     const page = await trackPageView();
     if(page.isFirstVisit) {
-        showCustomAlert(infoText, '2.0vmin')
+        startTour();
     }
 }
+
+
+function startTour() {
+    const intro = introJs();
+
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: false,
+        scrollToElement: false,  // Add this line to prevent auto-scrolling
+        steps: [
+            {
+                element: '.play-page',
+                intro: `
+                <h3>👋 Welcome</h3>
+                Your job is to guess the mystery sage. As you guess, you will receive more clues to hone your next guess.
+                `
+            },
+            {
+                element: '#textbox',
+                intro: `
+                <h3>🔎 Guess</h3>
+                Guess a sage by inputting their name here.
+                `
+            },
+            {
+                element: '#search-results',
+                intro: `
+                <h3>👤 Sages</h3>
+                You can also guess by clicking a sage here.
+                `
+            },
+            {
+                element: '.circle-container',
+                intro: `
+                <h3>👥 Guesses</h3>
+                You have 12 guesses. As you play, hover over a circle to see what you guessed.
+                `
+            },
+            {
+                element: '.target',
+                intro: `
+                <h3>🎯 Wheel of Focus</h3>
+                This is called the Wheel of Focus. With each guess, you learn more about the areas of focus of the mystery sage.
+                `
+            },
+
+
+            
+            {
+                element: '#ring1',
+                intro: `
+                <h3>◎ Guess's Focus</h3>
+                If your guess focused on Talmud, the outer ring will glow green in the Talmud section.This will then reveal whether the mystery sage focused on Talmud.
+                `
+            },
+
+            {
+                element: '#ring2',
+                intro: `
+                <h3>◉ Mystery Focus</h3>
+                If he also focused on Talmud, the inner ring will glow green by Talmud. If not, it will glow pink. If it remains grey, find a guess with that area of focus to reveal another clue.
+                `
+            },
+            {
+                element: '#guessLabel',
+                intro: `
+                <h3>🗨 Guess Label</h3>
+                Here you can find the name of your most recent guess.
+                `
+            },
+            {
+                element: '.gradient-wrapper',
+                intro: `
+                <h3>🌡️ Hot and Cold</h3>
+                Here is a heatmap to help you with the other clues that are revealed as you progress through the game. Blue means your current guess is far from the mystery guess. Red means it is close.
+                `
+            },
+            {
+                element: '.timeline-container',
+                intro: `
+                <h3>⏳ Timeline</h3>
+                Your guess's life span will appear. The closer your guess's life span is to the mystery sage's, the more red it will appear. As you play, hover over a sage's lifespan to see more details.
+                `
+            },
+
+
+            {
+                element: '#map',
+                intro: `
+                <h3>🌍 Map</h3>
+                Your guess's last place of activity will appear here. The closer your guess's last place is to the mystery sage's last place, the more red it will appear. As you play, hover to see more details.
+                `
+            },
+            {
+                element: '#correctLabel',
+                intro: `
+                <h3>👁️ Reveal the Sage</h3>
+                Click here to reveal the mystery sage.
+                `
+            },
+            {
+                element: '#hint-button',
+                intro: `
+                <h3>💡 Hint</h3>
+                Click here to receive a hint.
+                `
+            },
+            {
+                element: '#restart-button-main',
+                intro: `
+                <h3>🔄 Restart</h3>
+                Click here to restart the game with a new mystery sage.
+                `
+            },
+
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Restart Tour</h3>
+                Click this button to see this tour again.
+                `
+            }
+
+
+        ]
+    });
+
+    intro.start();
+}
+
 
 function setupGameUI() {
     // Initialize focus wheels
@@ -228,11 +367,13 @@ function setupEventListeners() {
     document.addEventListener('mouseout', handleMouseOut);
 }
 
-function startNewGame() {
+async function startNewGame() {
     if (markers.length === 0) {
         console.error('No markers available to start game');
         return;
     }
+
+
 
     // Pick a random marker based on difficulty
     correctAnswer = pickRandomMarker(markers, difficultyLevel);
@@ -242,6 +383,8 @@ function startNewGame() {
         console.error('Failed to pick random marker');
         return;
     }
+
+    gameId = await trackGameStart(correctAnswer.person, maxDifficulty)
 
     // Reset game state
     wrongGuessesNum = 0;
@@ -586,7 +729,7 @@ function getColorByPercentage(percentage) {
     return colors[index];
 }
 
-function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
+async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
     console.log(currentAnswer)
     if (!correctAnswer || !currentAnswer) {
         console.error('Missing answer data');
@@ -657,6 +800,12 @@ function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
             .setLngLat([currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude])
             .addTo(window.map);
     }
+        window.map.flyTo({
+            center: [currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude],
+            duration: 3000,
+            essential: true,
+            zoom: 4
+        });
 
     // Check if the guess is correct
     if (currentAnswer.person.trim().toLowerCase() === correctAnswer.person.trim().toLowerCase()) {
@@ -667,18 +816,23 @@ function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
                 rightCircle.classList.add('popup-button');
                 rightCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
             }
-            
+        
+        trackGuess(currentAnswer.person, true, wrongGuessesNum + 1, gameId)
+
+        updateGameResult(gameId, true, wrongGuessesNum + 1).catch(err => {
+            console.error('Failed to update game result:', err);
+        });
+
             const cheerSound = document.getElementById('cheer-sound');
             if (cheerSound) {
                 cheerSound.play();
             }
             
             showCustomAlert(`Well done! 🎉<br> The correct answer is ${correctAnswer.person}. <br> 
-            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`);
+            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`, "2.5vmin", true, true);
         } else {
             showCustomAlert(`The correct answer is ${correctAnswer.person}. <br> 
-            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`);
-        }
+            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`, "2.5vmin", true, true);        }
 
         finishGame(correctAnswer);
         return;
@@ -693,6 +847,8 @@ function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
     // Wrong guess
     wrongGuessesNum += 1;
     wrongGuesses.push(currentAnswer);
+
+    trackGuess(currentAnswer.person, false, wrongGuessesNum, gameId)
     
     const wrongCircle = document.getElementById('circle' + wrongGuessesNum);
     if (wrongCircle) {
@@ -705,6 +861,12 @@ function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
 
     // Check if max guesses reached
     if (wrongGuessesNum === maxGuesses) {
+
+
+        updateGameResult(gameId, false, wrongGuessesNum).catch(err => {
+            console.error('Failed to update game result:', err);
+        });
+
         setTimeout(() => {
             evaluateAnswer(correctAnswer, correctAnswer, guess=false);
         }, 500);
@@ -739,9 +901,9 @@ function finishGame(correctAnswer) {
 }
 
 // Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, initializing game...');
-    initializeGame();
+    await initializeGame();
 });
 
 

@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔍 Discover Select</title>
+    <title>Discover Select</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="icon" href="icon3.png" type="image/x-icon">
+    <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+    <link rel="stylesheet" href="intro_styles.css">
+    <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -471,7 +476,7 @@
             🏠
         </button>
 
-        <button class="action-button info-button" onclick="showCustomAlert(`Search for a sage you wish to learn more about. <br><br>You can see what the hebrew date is and which sages have a birthday or yahrzeit today.<br><br>You can change the date using the Date Selection buttons, to see birthdays and yahrtzeits on other days.<br><br>Click on a person to see their biography page.`, '2vmin')">
+        <button class="action-button info-button" id="info-button">
             ℹ️
         </button>
     </div>
@@ -495,7 +500,7 @@
                 <ul class="search-results" id="search-results"></ul>
             </div>   
 
-            <div class="date-selection-card">
+            <div class="date-selection-card" id="date-selection-card">
                 <h3 style="justify-self: center;">📅 Date Selection</h3>
                 <div class="dropdown-container">
                     <div class="select-group">

@@ -42,3 +42,99 @@ export async function trackPageView(pageDetail = null) {
     return { isFirstVisit: false };
   }
 }
+
+
+
+//insert games into database
+
+export async function trackGameStart(correct_answer, difficulty) {
+  try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.error("Supabase getUser error:", error);
+    }
+
+    // Track the current game
+    const { data, error: insertError } = await supabaseClient
+      .from('game')
+      .insert({
+        user_id: user.id,
+        correct_answer: correct_answer,
+        solved: null,
+        guesses_used: null,
+        difficulty: difficulty
+      })
+      .select() // This returns the inserted row(s)
+      .single(); // This gets just the single row instead of an array
+
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return null;
+    }
+    
+    console.log("game start tracked successfully");
+    console.log(user.id, correct_answer, difficulty);
+
+    return data.id; // Return the game ID so you can use it later
+
+  } catch (err) {
+    console.error("trackGameStart failed:", err);
+  }
+}
+
+
+
+export async function updateGameResult(gameId, solved, guessesUsed) {
+  const { error } = await supabaseClient
+    .from('game')
+    .update({
+      solved: solved,
+      guesses_used: guessesUsed,
+      ended_at: new Date().toISOString()
+    })
+    .eq('id', gameId);
+
+  if (error) {
+    console.error("Update error:", error);
+    return false;
+  }
+  
+  return true;
+}
+
+
+
+export async function trackGuess(guess_person, correct, guess_number, game_id) {
+  try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.error("Supabase getUser error:", error);
+    }
+
+    // Track the current game
+    const { data, error: insertError } = await supabaseClient
+      .from('guess')
+      .insert({
+        game_id: game_id,
+        user_id: user.id,
+        guess_person: guess_person,
+        guess_number: guess_number,
+        correct: correct
+      })
+
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return null;
+    }
+    
+    console.log("guess tracked successfully");
+    console.log(guess_person, correct, guess_number);
+
+    return data.id; // Return the game ID so you can use it later
+
+  } catch (err) {
+    console.error("trackGuess failed:", err);
+  }
+}

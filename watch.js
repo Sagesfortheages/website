@@ -12,9 +12,10 @@ let frameSpeed = 200;
 
 const infoText = `Click the play button to see a live visualization of which sages were alive and where they lived at each point in time.<br><br>You can pause the visualization or adjust the speed of the visualization using the buttons.<br><br>Hover over a map marker to see more about the person.<br><br>You can also jump to another year by dragging the timeline handle.<br><br>The markers are colored according to the legend on the left side of the map. <br><br> As the visualization progresses, you will see a running list of which sages are currently visible on the map. Click on any sage name to see their biography page.`
 
-document.getElementById('info-button').addEventListener('click', function () {
-    showCustomAlert(infoText, '2.0vmin');
-})
+// document.getElementById('info-button').addEventListener('click', function () {
+//     showCustomAlert(infoText, '2.0vmin');
+// })
+document.getElementById("info-button").addEventListener("click", startTour)
 // Fetch markers from DB instead of hardcoding
 async function loadMarkersFromDB() {
     try {
@@ -29,7 +30,7 @@ async function loadMarkersFromDB() {
     }
     const page = await trackPageView();
     if(page.isFirstVisit) {
-        showCustomAlert(infoText, '2.0vmin')
+        startTour();
     }
 }
 
@@ -60,6 +61,8 @@ function setSpeed(speed) {
     }
 }
 
+
+
 function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkersPeople) {
     const timeValue = document.getElementById('year-slider').noUiSlider.get();
     const currentMarkersData = markersData.filter(marker => marker.from <= timeValue && marker.to >= timeValue);
@@ -72,6 +75,74 @@ function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkers
     });
 
     displayMarkers(currentMarkersData, visibleMarkers, visibleMarkersPeople);
+}
+
+function startTour() {
+    const intro = introJs();
+
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        disableInteraction: true,
+        scrollToElement: false,
+        steps: [
+            {
+                element: 'body',
+                intro: `
+                <h3>👋 Welcome</h3>
+                This page shows a animated visualization of sages across time and space.
+                Let’s take a quick tour.
+                `
+            },
+            {
+                element: '#map',
+                intro: `
+                <h3>📍 The Map</h3>
+                This map shows where figures lived and moved throughout their lives.
+                You can pan and zoom freely. Hover a marker to see more information.
+                `
+            },
+            {
+                element: '.legend-container',
+                intro: `
+                <h3>🏷️ Background</h3>
+                The color of the marker indicates the background of that sage.
+                `
+            },
+            {
+                element: '#year-slider',
+                intro: `
+                <h3>📅 Timeline</h3>
+                Drag this slider to filter by historical period.
+                `
+            },
+            {
+                element: '#visible-container',
+                intro: `
+                <h3>👁️ Currently Visible</h3>
+                These are the sages currently visible on the map. Click on one to be taken to their profile page.
+                `
+            },
+            {
+                element: '.control-panel-container',
+                intro: `
+                <h3>🛠️ Control Panel</h3>
+                Pause and resume the visualization or adjust the speed.
+                `
+            },
+            {
+                element: '#info-button',
+                intro: `
+                <h3>🚶 Tour</h3>
+                Click here to see this tour again.
+                `
+            }
+        ]
+    });
+
+    intro.start();
 }
 
 // Adapt colors automatically
