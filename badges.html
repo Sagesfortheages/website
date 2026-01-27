@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your Badges</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root{
+      --bgA:#82c6ee;
+      --bgB:#e0e6e9;
+      --ink:#333;
+      --stroke:rgba(0,0,0,.08);
+      --shadow:0 14px 40px rgba(0,0,0,.10);
+
+      --brand1:#2c3e50;
+      --brand2:#4a69bd;
+
+      --gold1:#f7d37b;
+      --gold2:#f1c482;
+
+      --ok1:#28a745;
+      --ok2:#6fdc8c;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family:"Segoe UI", ui-sans-serif, system-ui, -apple-system, Roboto, Arial;
+      color:var(--ink);
+      background: linear-gradient(135deg, var(--bgA) 0%, var(--bgB) 100%);
+      /* BIGGER overall scale */
+      font-size: clamp(18px, 1.25vw, 28px);
+      padding: clamp(20px, 2.2vw, 42px);
+    }
+
+    .wrap{
+      max-width: 1600px;   /* wider so it fills the page more */
+      margin: 0 auto;
+      min-height: calc(100vh - 2 * clamp(20px, 2.2vw, 42px));
+      display:flex;
+      flex-direction:column;
+      gap: 18px;
+    }
+
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap: 22px;
+    }
+
+    .titleblock h1{
+      margin:0;
+      font-size: clamp(64px, 5.6vw, 110px);
+      letter-spacing:-0.03em;
+      line-height:1.02;
+      background: linear-gradient(120deg, var(--brand1), var(--brand2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .titleblock p{
+      margin: 12px 0 0;
+      color: green;
+      font-weight: 700;
+      font-size: clamp(22px, 1.8vw, 34px);
+      max-width: 70ch;
+    }
+
+    .progress{
+      min-width: 420px;
+      width: min(640px, 44vw);
+      padding: 20px 22px;
+      border: 2px solid var(--stroke);
+      border-radius: 22px;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
+
+    .progress-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .progress-top .label{
+      font-weight: 950;
+      font-size: 16px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      color: rgba(44,62,80,.85);
+    }
+
+    .progress-top .count{
+      font-weight: 950;
+      font-size: 22px;
+      color: rgba(44,62,80,.95);
+    }
+
+    .bar{
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.06);
+      overflow:hidden;
+      border: 2px solid rgba(0,0,0,.08);
+    }
+
+    .bar > div{
+      height:100%;
+      width: 10%;
+      border-radius: 999px;
+      background: linear-gradient(120deg, var(--brand1), var(--brand2));
+      box-shadow: 0 0 18px rgba(74,105,189,.25);
+    }
+
+    /* GRID FILLS REMAINING SPACE */
+    .grid{
+      flex: 1 1 auto;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); /* bigger cards */
+      gap: 24px;
+      align-content: start;
+    }
+
+    .badge{
+      position:relative;
+      border-radius: 26px;
+      padding: 28px;
+      border: 2px solid rgba(255,255,255,.55);
+      background: rgba(255,255,255,.90);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .badge:hover{
+      transform: translateY(-8px);
+      box-shadow: 0 22px 60px rgba(0,0,0,.14);
+    }
+
+    .badge-inner{
+      display:flex;
+      gap: 20px;
+      align-items:center;
+    }
+
+    .medal{
+      width: 120px;
+      height: 120px;
+      border-radius: 22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+      font-size: 54px;
+      border: 2px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 14px 28px rgba(0,0,0,.12);
+      position: relative;
+    }
+
+    .meta{ flex:1 1 auto; min-width:0; }
+
+    .name{
+      margin:0;
+      font-weight: 1000;
+      font-size: clamp(30px, 1.8vw, 40px);
+      letter-spacing:-0.02em;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      color:#22313f;
+    }
+
+    .tag{
+      font-weight: 950;
+      font-size: 14px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 2px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.65);
+      color: rgba(44,62,80,.85);
+    }
+
+    .desc{
+      margin: 14px 0 0;
+      color: rgba(44,62,80,.80);
+      font-size: clamp(20px, 1.15vw, 26px);
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .foot{
+      margin-top: 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight: 950;
+      font-size: 20px;
+      color: rgba(44,62,80,.85);
+    }
+
+    .pill{
+      font-size: 14px;
+      font-weight: 1000;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 2px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.65);
+      color: rgba(44,62,80,.85);
+      white-space: nowrap;
+    }
+
+    /* ACHIEVED */
+    .badge.achieved{
+      border-color: rgba(74,105,189,.35);
+      background: linear-gradient(135deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+    }
+
+    .badge.achieved::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 320px at 12% 10%, rgba(74,105,189,.20), transparent 60%),
+        radial-gradient(520px 320px at 85% 30%, rgba(130,198,238,.32), transparent 62%);
+      pointer-events:none;
+      opacity:1;
+    }
+
+    .badge.achieved .medal{
+      background: linear-gradient(135deg, rgba(74,105,189,.18), rgba(130,198,238,.26));
+      border-color: rgba(74,105,189,.28);
+      box-shadow: 0 0 0 3px rgba(74,105,189,.10) inset, 0 20px 48px rgba(74,105,189,.16);
+    }
+
+    .badge.achieved .status i{ color: var(--ok1); }
+
+    .badge.achieved .pill{
+      border-color: rgba(40,167,69,.35);
+      background: rgba(40,167,69,.12);
+      color: rgba(20,120,55,.95);
+    }
+
+    .ribbon{
+      position:absolute;
+      top: 16px;
+      right: 16px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 1000;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--ok1), var(--ok2));
+      color:#fff;
+      box-shadow: 0 12px 26px rgba(0,0,0,.16);
+    }
+
+    /* LOCKED — strong contrast */
+    .badge.locked{
+      background: rgba(255,255,255,.60);
+      border-color: rgba(0,0,0,.06);
+      filter: grayscale(.25) saturate(.75);
+    }
+
+    .badge.locked::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          rgba(0,0,0,.04) 0px,
+          rgba(0,0,0,.04) 12px,
+          rgba(255,255,255,0) 12px,
+          rgba(255,255,255,0) 24px
+        );
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    .badge.locked .medal{
+      background: rgba(255,255,255,.55);
+      color: rgba(44,62,80,.55);
+      box-shadow: none;
+    }
+
+    .badge.locked .medal::after{
+      content:"\f023";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position:absolute;
+      bottom: -10px;
+      right: -10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(44,62,80,.14);
+      color: rgba(44,62,80,.80);
+      border: 2px solid rgba(0,0,0,.08);
+      backdrop-filter: blur(6px);
+      font-size: 18px;
+    }
+
+    .badge.locked .name{ color: rgba(44,62,80,.72); }
+    .badge.locked .desc{ color: rgba(44,62,80,.62); }
+    .badge.locked .status{ color: rgba(44,62,80,.62); }
+
+    .badge.locked .pill{
+      background: linear-gradient(135deg, rgba(241,196,130,.28), rgba(241,196,130,.12));
+      border-color: rgba(241,196,130,.55);
+      color: rgba(44,62,80,.85);
+    }
+
+    .unlock-hint{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 1000;
+      font-size: 16px;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: rgba(241,196,130,.40);
+      border: 2px solid rgba(241,196,130,.70);
+      color: rgba(44,62,80,.92);
+      margin-top: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .header{ flex-direction: column; align-items: stretch; }
+      .progress{ width: 100%; min-width: 0; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px){
+      body{ padding: 16px; }
+      .badge{ padding: 22px; }
+      .medal{ width: 98px; height: 98px; font-size: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="titleblock">
+        <h1>🏅 Your Badges</h1>
+        <p>Track milestones as you explore sages across places, eras, and themes. Unlock more by using the site.</p>
+      </div>
+
+      <div class="progress">
+        <div class="progress-top">
+          <div class="label">Badge Progress</div>
+          <div class="count">1 / 10 unlocked</div>
+        </div>
+        <div class="bar"><div></div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="badge achieved">
+        <div class="ribbon"><i class="fa-solid fa-check"></i> Unlocked</div>
+        <div class="badge-inner">
+          <div class="medal" title="First Step">
+            <i class="fa-solid fa-shoe-prints"></i>
+          </div>
+          <div class="meta">
+            <h3 class="name">First Step <span class="tag">Milestone</span></h3>
+            <p class="desc">You opened the door. First exploration complete — more achievements await.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-circle-check"></i> Achieved</div>
+              <div class="pill">Earned</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-compass"></i></div>
+          <div class="meta">
+            <h3 class="name">Explorer <span class="tag">10</span></h3>
+            <p class="desc">Explore 10 sages to unlock this badge.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">10th milestone</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> One more push</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div class="meta">
+            <h3 class="name">Seeker <span class="tag">Search</span></h3>
+            <p class="desc">Use search to find 20 different sages.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">20 names</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Try searching</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-map-location-dot"></i></div>
+          <div class="meta">
+            <h3 class="name">World Traveler <span class="tag">Places</span></h3>
+            <p class="desc">Visit sages from 15 different cities.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">15 cities</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Click cities</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div class="meta">
+            <h3 class="name">Time Traveler <span class="tag">Timeline</span></h3>
+            <p class="desc">Use the timeline slider 25 times.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">25 moves</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Drag the slider</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-book-open"></i></div>
+          <div class="meta">
+            <h3 class="name">Reader <span class="tag">Profiles</span></h3>
+            <p class="desc">Open 30 profile pages.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">30 profiles</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Open profiles</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-scroll"></i></div>
+          <div class="meta">
+            <h3 class="name">Historian <span class="tag">50</span></h3>
+            <p class="desc">Explore 50 sages to unlock this badge.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">50th milestone</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Keep exploring</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div class="meta">
+            <h3 class="name">Scholar <span class="tag">Depth</span></h3>
+            <p class="desc">Read 20 “major works” sections end-to-end.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">20 reads</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Read deeper</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-crown"></i></div>
+          <div class="meta">
+            <h3 class="name">Master <span class="tag">100</span></h3>
+            <p class="desc">Explore 100 sages to unlock this badge.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">100th milestone</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Stay consistent</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge locked">
+        <div class="badge-inner">
+          <div class="medal"><i class="fa-solid fa-trophy"></i></div>
+          <div class="meta">
+            <h3 class="name">Legend <span class="tag">Completion</span></h3>
+            <p class="desc">Unlock all other badges.</p>
+            <div class="foot">
+              <div class="status"><i class="fa-solid fa-lock"></i> Locked</div>
+              <div class="pill">All badges</div>
+            </div>
+            <span class="unlock-hint"><i class="fa-solid fa-bolt"></i> Finish the set</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

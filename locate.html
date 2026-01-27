@@ -433,39 +433,108 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            * {
-                overflow: auto;
-            }
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
-            .modern-button {
-                width: 6vmin;
-                height: 6vmin;
-                font-size: 2.5vmin;
-            }
+  /* Header gets the top 20% */
+  .header {
+    height: 10vh;
+    margin: 0;
+    padding: 1vh 2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-            #home-button, #info-button {
-                top: 2vmin;
-                transform: none;
-            }
+  /* Grid becomes:
+     Row 1 (40vh): 3 equal columns (city / country / people)
+     Row 2 (40vh): map spanning full width
+  */
+  .container-grid {
+    height: 90vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 30vh 60vh;
+    gap: 1vmin;
+    padding: 1vmin;
+  }
 
-            #home-button {
-                left: 2vmin;
-            }
+  /* Remove desktop margins/shadows that steal width */
+  .left-container, .right-container {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 
-            #info-button {
-                right: 10vmin;
-            }
+  /* Let children of left/right become grid items */
+  .left-container { display: contents; }
+  .right-container { display: contents; }
 
-            .container-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-            }
+  /* City list = column 1 */
+  #search-container {
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    overflow: hidden;
+  }
 
-            .left-container, .right-container {
-                margin: 0.5vmin;
-            }
-        }
+  /* Country list = column 2 */
+  .country-container {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* People list = column 3 */
+  .info-card {
+    grid-column: 3;
+    grid-row: 1;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Make the list areas scroll internally */
+  .search-results,
+  #country-list,
+  #occupant-list-content {
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Map spans ALL columns (full width) */
+  .central-container {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 100%;
+    padding: 0;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+  }
+
+  /* Buttons: keep them accessible */
+  #home-button {
+    top: 1vh; /* just under header */
+    left: 2vmin;
+    transform: none;
+  }
+
+  #info-button {
+    top: 1vh;
+    right: 2vmin;
+    left: auto;
+    transform: none;
+  }
+}
+
     </style>
 </head>
 <body>

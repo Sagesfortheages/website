@@ -296,40 +296,88 @@
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
         }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
+@media (max-width: 768px) {
 
-            .page-title {
-                font-size: 2.5rem;
-            }
+  /* Use the full viewport height, and remove extra spacing */
+  body { overflow: hidden; }
+  .container{
+    height: 100vh;
+    padding: 1vmin;
+    display: flex;
+    flex-direction: column;
+  }
 
-            .chart-button-container {
-                padding: 1rem;
-            }
+  /* Keep header + fixed home/info as-is; just tighten spacing */
+  .header{ margin-bottom: 1vmin; }
 
-            .chart-button-item {
-                padding: 0.6rem 1rem;
-                font-size: 0.8rem;
-            }
+  /* 10% top controls area split 50/50 */
+  #sorting-container,
+  #background-container{
+    width: 100%;
+    margin: 0;
+    padding: 1vmin;
+  }
 
-            #timeline-container {
-                height: 50vh;
-            }
 
-            #home-button, #info-button {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
+  /* Put them in a horizontal split */
+  /* (We do this by wrapping via a grid on the parent container) */
+  .container{
+    display: grid;
+    grid-template-rows: auto 20vh 60vh 15vh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "sort filters"
+      "timeline timeline"
+      "xaxis xaxis";
+    gap: 1vmin;
+  }
+
+  .header{ grid-area: header; }
+
+  #sorting-container{
+    grid-area: sort;
+    height: 20vh;            /* 10%–40% zone (top 40% total after header) */
+  }
+
+  #background-container{
+    grid-area: filters;
+    height: 20vh;            /* same as sort side */
+  }
+
+  /* Bottom 60% timeline */
+  #timeline-container{
+    grid-area: timeline;
+    height: 60vh;
+    margin: 0;
+  }
+
+  /* X-axis stays at the bottom */
+  #x-axis-container{
+    grid-area: xaxis;
+    margin: 0;
+    height:50%;
+  }
+
+  /* Buttons a bit more compact so they fit well in the 40% zone */
+  .chart-button-item{
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 14px;
+    white-space: nowrap;
+  }
+
+  /* Prevent nested scrollbars; timeline handles the scrolling */
+  .chart-button-container{ overflow: hidden; }
+  #timeline-container{ overflow-y: auto; overflow-x: hidden; }
+}
+
 
         @media (max-width: 480px) {
             .chart-button-container {
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
             }
 
             .chart-button-item {

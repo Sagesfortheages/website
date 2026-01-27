@@ -629,27 +629,165 @@ button.active {
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
-    .header {
+  .header {
     position: sticky;
     top: 0;
   }
 
-    .header h1 {
-        font-size: 8vmin;
-    }
-    
-    .header .subtitle {
-        font-size: 3vmin;
-    }
-    
-    .container {
-        height: calc(100vh - 16vmin);
-        top: 16vmin;
-    }
+  .header h1 { font-size: 8vmin; }
+  .header .subtitle { display: none; }
+
+  .container{
+    top: 12vmin;
+    height: calc(100vh - 12vmin);
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;      /* LEFT HALF | RIGHT HALF */
+    grid-template-rows: 32% 20% 48%;     /* top | timeline | map */
+    grid-template-areas:
+      "left wheel"
+      "timeline timeline"
+      "map map";
+    gap: 1vmin;
+    padding: 1vmin;
+  }
+
+  /* LEFT TOP: NOW split into 2 equal columns:
+     left = textbox/circles, right = names list */
+  .top-left-container{
+    grid-area: left;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* textbox/circles | names */
+    gap: 1vmin;
+    overflow: hidden;
+    align-items: stretch;
+  }
+
+  /* textbox + circles fill left half */
+  .textbox-circle-wrapper{
+    padding: 1vmin;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* names list fills right half */
+  #search-container{
+    position: static;          /* undo any absolute */
+    height: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    margin-top: 0;             /* was stacked before */
+    min-height: 0;             /* allow flex/grid children to shrink */
+  }
+  #search-results{
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
+  /* RIGHT TOP: wheel (unchanged) */
+  .bottom-left-container{
+    grid-area: wheel;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* timeline full width */
+  .top-right-container{
+    grid-area: timeline;
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* map full width bottom */
+  .bottom-right-container{
+    grid-area: map;
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  #map{
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --- make guess circles smaller so 12 fit --- */
+/* --- Guess circles: 3 rows × 4 columns --- */
+.circle-container{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 4 across */
+  grid-template-rows: repeat(4, auto);   /* 3 rows */
+  gap: 1vmin;
+  margin-top: 1vmin;
+  justify-items: center;
+  align-items: center;
+}
+
+.circle{
+  width: 4.2vmin;
+  height: 4.2vmin;
+  border-width: 0.4vmin;
+  font-size: 2vmin;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.circle:hover{
+  transform: scale(1.12);
+  font-size: 2.2vmin;
+}
+
+  input[type="text"]{
+    font-size: 2.6vmin;
+    padding: 0.6vmin 1vmin;
+    border-width: 2px;
+  }
+
+  #suggestion{
+    height: 3vmin;
+    font-size: 1.8vmin;
+    padding: 0.6vmin 1vmin;
+    margin-bottom: 0.6vmin;
+  }
+
+  li{
+    font-size: 1.8vmin;
+    padding: 0.3vmin 1.2vmin;
+  }
     
     #home-button, #info-button, #restart-button-main, #hint-button {
         top: 6vmin;
     }
+
+    .gradient-label.colder {
+        display: none;
+    }
+
+    .gradient-label.hotter {
+        display: none;
+    }
+
+    .swatch-label {
+        display: none;
+    } 
+
+    .gradient-wrapper {
+        top: 1vh !important;
+        right: 15vw !important;
+    }
+
+    #mini-gradient {
+    width: 15vw;
+    height: 4vh !important;
+    }
+    
 }
 
 #mini-gradient {
@@ -710,6 +848,31 @@ button.active {
 }
 
 
+
+
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #222;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 100000;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.toast.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+
+
 </style>
 <body class="play-page">
     <!-- Header section -->
@@ -732,7 +895,9 @@ button.active {
         <p class="subtitle">Discover the mystery sage through clues and deduction</p>
 
         
-
+        <div id="toast-overlay" class="toast hidden">
+            <span id="toast-text"></span>
+        </div>
 
 
 
@@ -745,21 +910,43 @@ button.active {
             
             <div class="gradient-container">
                 <!-- 7 Blues -->
-                <div class="swatch" style="background: #2222CC;">1</div>
-                <div class="swatch" style="background: #4444FF;">2</div>
-                <div class="swatch" style="background: #8888FF;">3</div>
-                <div class="swatch" style="background: #AAAAFF;">4</div>
-                <div class="swatch" style="background: #CCCCFF;">5</div>
+                <div class="swatch" style="background: #2222CC;">
+                     <span class="swatch-label">1</span>
+                </div>
+                <div class="swatch" style="background: #4444FF;">
+                     <span class="swatch-label">2</span>
+                </div>
+                <div class="swatch" style="background: #8888FF;">
+                     <span class="swatch-label">3</span>
+                </div>
+                <div class="swatch" style="background: #AAAAFF;">
+                     <span class="swatch-label">4</span>
+                </div>
+                <div class="swatch" style="background: #CCCCFF;">
+                     <span class="swatch-label">5</span>
+                </div>
 
                 <!-- White -->
-                <div class="swatch" style="background: #FFFFFF;">6</div>
+                <div class="swatch" style="background: #FFFFFF;">
+                     <span class="swatch-label">6</span>
+                </div>
 
                 <!-- 7 Reds -->
-                <div class="swatch" style="background: #FFCCCC;">7</div>
-                <div class="swatch" style="background: #FF8888;">8</div>
-                <div class="swatch" style="background: #FF6666;">9</div>
-                <div class="swatch" style="background: #FF4444;">10</div>
-                <div class="swatch" style="background: #FF0000;">11</div>
+                <div class="swatch" style="background: #FFCCCC;">
+                     <span class="swatch-label">7</span>
+                </div>
+                <div class="swatch" style="background: #FF8888;">
+                     <span class="swatch-label">8</span>
+                </div>
+                <div class="swatch" style="background: #FF6666;">
+                     <span class="swatch-label">9</span>
+                </div>
+                <div class="swatch" style="background: #FF4444;">
+                     <span class="swatch-label">10</span>
+                </div>
+                <div class="swatch" style="background: #FF0000;">
+                     <span class="swatch-label">11</span>
+                </div>
             </div>
         </div>
         <span class="gradient-label hotter">Hotter</span>

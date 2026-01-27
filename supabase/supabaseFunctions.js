@@ -107,13 +107,14 @@ export async function updateGameResult(gameId, solved, guessesUsed) {
 
 export async function trackGuess(guess_person, correct, guess_number, game_id) {
   try {
-    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    const { data: { user }, error } = await supabaseClient.auth.getUser();  // ← FIX: Capture the result
 
     if (error) {
       console.error("Supabase getUser error:", error);
+      return null;  // ← FIX: Return early if error
     }
 
-    // Track the current game
+    // Track the current guess
     const { data, error: insertError } = await supabaseClient
       .from('guess')
       .insert({
@@ -122,19 +123,51 @@ export async function trackGuess(guess_person, correct, guess_number, game_id) {
         guess_person: guess_person,
         guess_number: guess_number,
         correct: correct
-      })
+      });
 
     if (insertError) {
       console.error("Insert error:", insertError);
       return null;
     }
     
-    console.log("guess tracked successfully");
+    console.log(data);
     console.log(guess_person, correct, guess_number);
 
-    return data.id; // Return the game ID so you can use it later
+    return true;  // ← Good practice: return success indicator
 
   } catch (err) {
     console.error("trackGuess failed:", err);
+    return null;
+  }
+}
+
+
+
+export async function countSolvedGames() {
+  try {
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Error getting user:", userError);
+      return 0;
+    }
+
+    const { count, error } = await supabaseClient
+      .from('game')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('solved', true);
+
+    if (error) {
+      console.error("Error counting solved games:", error);
+      return 0;
+    }
+
+    console.log(`User has solved ${count} games`);
+    return count;
+
+  } catch (err) {
+    console.error("countSolvedGames failed:", err);
+    return 0;
   }
 }

@@ -1,5 +1,5 @@
 import { loadAllSages } from './supabase/sagesWithNames.js';
-import { trackGameStart, trackPageView, updateGameResult, trackGuess} from './supabase/supabaseFunctions.js';
+import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames} from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
 
@@ -18,6 +18,7 @@ const scale = { 'Very Easy': 1, 'Easy': 2, 'Medium': 3, 'Hard': 4, 'Very Hard': 
 const maxDifficulty = scale[difficultyLevel] ?? 5;
 console.log(difficultyLevel)
 let gameId = null
+let gameReady = false
 
 // document.getElementById('info-button').addEventListener('click', function () {
 //     showCustomAlert(infoText, '2.25vmin');
@@ -114,13 +115,14 @@ async function initializeGame() {
         // Process the data
         markers = processMarkersData(markersData);
         
-        // Initialize game UI
-        setupGameUI();
-        
-        // Start the game
-       startNewGame();
 
         
+        // Start the game
+       await startNewGame();
+
+        // Initialize game UI
+        setupGameUI();
+
         console.log('Game initialized successfully');
         
     } catch (error) {
@@ -294,6 +296,8 @@ function setupGameUI() {
 }
 
 function handleSearchResultClick(e) {
+    if (!gameReady) return;
+
     const li = e.currentTarget;
     evaluateAnswer(correctAnswer, li._result);
 }
@@ -368,6 +372,8 @@ function setupEventListeners() {
 }
 
 async function startNewGame() {
+
+    gameReady = false;
     if (markers.length === 0) {
         console.error('No markers available to start game');
         return;
@@ -385,6 +391,7 @@ async function startNewGame() {
     }
 
     gameId = await trackGameStart(correctAnswer.person, maxDifficulty)
+    console.log('Game ID set to:', gameId); // ADD THIS LINE
 
     // Reset game state
     wrongGuessesNum = 0;
@@ -405,6 +412,8 @@ async function startNewGame() {
     }
 
     console.log('New game started with:', correctAnswer.person);
+
+    gameReady = true;
 }
 
 // Event handlers
@@ -452,6 +461,8 @@ function handleSuggestionClick() {
 
 function handleEnter(event) {
     if (event.key === 'Enter') {
+        if (!gameReady) return;
+
         const guess = pickMarkerByName(markers, this.value);
     
         if (guess !== null) {
@@ -484,11 +495,14 @@ function handleMouseOut(event) {
     }
 }
 
-window.restartGame = function() {
+window.restartGame = async function() {
     if (markers.length === 0) {
         console.error('No markers available for restart');
         return;
     }
+
+    // SHOW LOADING OVERLAY
+    showCustomAlert('Loading new game...', "5vmin", false, false);
 
     const circleContainer = document.querySelector(".circle-container");
     
@@ -518,7 +532,10 @@ window.restartGame = function() {
     document.querySelectorAll(".mapboxgl-marker").forEach(div => div.remove());
 
     // Start new game
-    startNewGame();
+    await startNewGame();
+
+    // HIDE LOADING OVERLAY
+    hideCustomAlert();
     
     // Re-enable textbox event listener
     const textbox = document.getElementById('textbox');
@@ -730,6 +747,7 @@ function getColorByPercentage(percentage) {
 }
 
 async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
+    
     console.log(currentAnswer)
     if (!correctAnswer || !currentAnswer) {
         console.error('Missing answer data');
@@ -804,7 +822,7 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
             center: [currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude],
             duration: 3000,
             essential: true,
-            zoom: 4
+            zoom: 2
         });
 
     // Check if the guess is correct
@@ -817,9 +835,9 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
                 rightCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
             }
         
-        trackGuess(currentAnswer.person, true, wrongGuessesNum + 1, gameId)
+        await trackGuess(currentAnswer.person, true, wrongGuessesNum + 1, gameId)
 
-        updateGameResult(gameId, true, wrongGuessesNum + 1).catch(err => {
+        await updateGameResult(gameId, true, wrongGuessesNum + 1).catch(err => {
             console.error('Failed to update game result:', err);
         });
 
@@ -827,6 +845,11 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
             if (cheerSound) {
                 cheerSound.play();
             }
+
+        const solvedNumber = await countSolvedGames()
+        console.log(solvedNumber)
+
+        maybeShowCongrats(solvedNumber)
             
             showCustomAlert(`Well done! 🎉<br> The correct answer is ${correctAnswer.person}. <br> 
             (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`, "2.5vmin", true, true);
@@ -848,7 +871,7 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
     wrongGuessesNum += 1;
     wrongGuesses.push(currentAnswer);
 
-    trackGuess(currentAnswer.person, false, wrongGuessesNum, gameId)
+    await trackGuess(currentAnswer.person, false, wrongGuessesNum, gameId)
     
     const wrongCircle = document.getElementById('circle' + wrongGuessesNum);
     if (wrongCircle) {
@@ -899,6 +922,36 @@ function finishGame(correctAnswer) {
         li.removeEventListener('click', handleSearchResultClick);
     });
 }
+
+const congratsMessages = {
+  1: 'Congratulations on your first win',
+  10: 'This is your 10th win. Well done.'
+};
+
+
+function maybeShowCongrats(answer) {
+  const message = congratsMessages[answer];
+
+  // No message for this value → do nothing
+  if (!message) return;
+
+  const toast = document.getElementById('toast-overlay');
+  const text = document.getElementById('toast-text');
+
+  text.textContent = message;
+  toast.classList.remove('hidden');
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 5000);
+}
+
+
+
+
+
+
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', async function() {

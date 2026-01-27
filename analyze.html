@@ -709,42 +709,145 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            * {
-                overflow: auto;
-            }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
+  /* 3 rows: header (10%), panels (30%), map (60%)
+     Panels row has 4 equal columns */
+  .container-grid {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 10vh 30vh 60vh;
+    gap: 1vmin;
+    padding: 1vmin;
+  }
 
-            #year-slider {
-                width: calc(100vw - 4vmin);
-                left: 2vmin;
-                transform: none;
-                bottom: 2vmin;
-            }
+  /* Remove desktop margins that steal space */
+  .left-container, .right-container {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 
-            .modern-button {
-                width: 6vmin;
-                height: 6vmin;
-                font-size: 2.5vmin;
-            }
+  /* CRITICAL: flatten the 3 desktop columns so their children can be grid items */
+  .left-container { display: contents; }
+  .right-container { display: contents; }
+  .central-container { display: contents; }
 
-            #home-button, #info-button {
-                top: 2vmin;
-                transform: none;
-            }
+  /* HEADER: spans full width in row 1 */
+  .header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin: 0;
+    padding: 0.5vh 2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-            #home-button {
-                left: 2vmin;
-            }
+  /* PANELS ROW (row 2): 4 equal columns */
+  #search-container {
+    grid-column: 1;
+    grid-row: 2;
+    height: 100%;
+    overflow: hidden;
+  }
 
-            #info-button {
-                right: 2vmin;
-            }
+  #legend {
+    grid-column: 2;
+    grid-row: 2;
+    height: 100%;
+    overflow: hidden;
+  }
 
-            #uniqueness-button {
-                bottom: 15vmin;
-                left: 2vmin;
-            }
-        }
+  /* expertise container is .expertise-container with id="expertise" */
+  #expertise {
+    grid-column: 3;
+    grid-row: 2;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #visible-container {
+    grid-column: 4;
+    grid-row: 2;
+    height: 100%;
+    max-height: none;
+    overflow: hidden;
+  }
+
+  /* Internal scrolling for lists */
+  #search-results,
+  #visible-list {
+    max-height: none;
+    height: calc(100% - 52px); /* input/header space */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #legend .legend-content {
+    max-height: calc(100% - 44px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Expertise panel scroll */
+  #expertise {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* MAP: full width bottom 60% */
+  #map {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+  }
+
+  /* Slider: keep it above the bottom edge */
+  #year-slider {
+    width: calc(50vw);
+    left: 25vw;
+    transform: none;
+    bottom: 6vmin;
+  }
+
+    .noUi-pips-horizontal {
+        bottom: 3vh ;
+        padding-top: 0.1vmin ;
+    }
+
+  /* Buttons: keep visible */
+  .modern-button {
+    width: 6vmin;
+    height: 6vmin;
+    font-size: 2.5vmin;
+  }
+
+  #home-button {
+    top: 1vmin;
+    left: 2vmin;
+    transform: none;
+  }
+
+  #info-button {
+    top: 1vmin;
+    right: 2vmin;
+    left: auto;
+    transform: none;
+  }
+
+  #uniqueness-button {
+    bottom: 62vh; /* sits above map; tweak if desired */
+    left: 2vmin;
+  }
+}
+
 
     </style>
 </head>

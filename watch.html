@@ -564,50 +564,197 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            * {
-                overflow: auto;
-            }
+@media (max-width: 768px) {
 
-            .container-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-            }
+  /* Don't do this on mobile; it breaks layouts */
+  * { overflow: visible; }
 
-            .left-container, .right-container {
-                margin: 0.5vmin;
-            }
+  body {
+    overflow: hidden;           /* no page scrolling */
+    height: 100vh;
+  }
 
-            #year-slider {
-                width: calc(100vw - 4vmin);
-                left: 2vmin;
-                transform: none;
-                bottom: 2vmin;
-            }
+  /* Header stays as-is; we just make the grid fill the remaining height */
+  .container-grid {
+    height: calc(100vh - 0px);  /* overall */
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;   /* header takes auto, grid takes rest */
+    gap: 1vmin;
+  }
 
-            .modern-button {
-                width: 6vmin;
-                height: 6vmin;
-                font-size: 2.5vmin;
-            }
+  .header {
+    margin-bottom: 0;
+  }
 
-            #home-button, #info-button {
-                top: 2vmin;
-                transform: none;
-            }
+  /* Make the 3-column desktop grid turn into:
+     TOP HALF (controls+legend | visible) and BOTTOM HALF (map)
+  */
+  .container-grid {
+    grid-template-areas:
+      "header"
+      "main";
+  }
 
-            #home-button {
-                left: 2vmin;
-            }
+  /* Turn your existing 3-column layout into a single mobile layout */
+  .container-grid > .left-container,
+  .container-grid > .central-container,
+  .container-grid > .right-container {
+    margin: 0;
+  }
 
-            #info-button {
-                right: 2vmin;
-            }
+  /* We’ll re-layout by making container-grid itself the main grid below header.
+     Easiest: treat the 3 containers as grid items in a 2x2 layout. */
+  .container-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
 
-            #map {
-                height: 50vh;
-            }
-        }
+  /* Put header first */
+  .header { grid-row: 1; }
+
+  /* Create a "main" mobile grid using the three existing containers */
+  .left-container,
+  .right-container,
+  .central-container {
+    box-shadow: none; /* optional; keep if you want */
+  }
+
+  /* Make the area under header a 2-row grid: top half + bottom half */
+  .container-grid {
+    align-items: stretch;
+  }
+
+  /* Lay out the 3 containers manually using fixed heights */
+  .left-container,
+  .right-container {
+    height: 50vh; /* top half */
+  }
+
+  .central-container {
+    height: 50vh; /* bottom half */
+  }
+
+  /* Now the top half is actually TWO columns:
+     left-container = left column
+     right-container = right column
+     We'll place them side-by-side by making a wrapper grid effect:
+     Use container-grid to become 2 columns for the top row only by
+     switching to a nested grid approach:
+  */
+
+  /* Convert container-grid (below header) to:
+     row 1: 2 columns (left/right)
+     row 2: map full width
+  */
+  .container-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 0.8fr 1.2fr; /* header | top | bottom */
+    column-gap: 1vmin;
+    row-gap: 1vmin;
+    padding: 1vmin;
+  }
+
+  .header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .left-container {
+    grid-column: 1;
+    grid-row: 2;
+    height: auto;      /* let the grid control height */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1vmin;
+    border-radius: 16px;
+  }
+
+  .right-container {
+    grid-column: 2;
+    grid-row: 2;
+    height: auto;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .central-container {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    height: auto;
+    overflow: hidden;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  /* LEFT column split: 1/3 controls + 2/3 legend */
+  .control-panel-container {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .legend-container {
+    flex: 2 1 0;
+    min-height: 0;
+    overflow: auto; /* legend can scroll if needed */
+  }
+
+  /* RIGHT column: visible list full height */
+  #visible-container {
+    height: 100%;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #visible-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  /* MAP full width in bottom half */
+  #map {
+    height: 100%;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* Slider: keep it usable on mobile */
+  #year-slider {
+    width: calc(100% - 20vmin);
+    left: 10vmin;
+    bottom: 25vmin;
+    transform: none;
+    z-index: 1500;
+  }
+
+  /* Buttons: keep them visible and not pushed off-screen */
+  .modern-button {
+    width: 7vmin;
+    height: 7vmin;
+    font-size: 3vmin;
+  }
+
+  #home-button {
+    top: 2vmin;
+    left: 2vmin;
+    transform: none;
+  }
+
+  #info-button {
+    top: 2vmin;
+    right: 2vmin;
+    left: auto;
+    transform: none;
+  }
+
+
+}
+
     </style>
 </head>
 <body>
