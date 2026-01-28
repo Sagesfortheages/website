@@ -526,11 +526,28 @@ fetchSelectedSage(selectedPerson).then(async sage => {
 
     console.log("Fetched sage:", sage);
     console.log("Selected array:", selectedArray);
+    
     console.log("Main selected:", mainSelected);
+    console.log(selectedArray[0])
     console.log("Related sages:", relatedSages);
 
     // pass data into renderer and map functions
     await renderSageProfile(mainSelected, relatedSages);
+    
+    const overlay = document.getElementById("map-overlay");
+
+    if (selectedArray[0].latitude == null) {
+        // 🚫 Show overlay and STOP map logic
+        overlay.classList.remove("hidden");
+        console.log("Map disabled — missing location data");
+        var journeyBtn = document.getElementById('journey-button')
+        journeyBtn.disabled = true;
+        journeyBtn.textContent = "Journey not available";
+        return;
+    }
+
+    // ✅ Locations are good — hide overlay and render map
+    overlay.classList.add("hidden");
 
     // markers expect an array
     displayMarkers(selectedArray, visibleMarkers, false, true);

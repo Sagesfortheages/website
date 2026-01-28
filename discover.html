@@ -274,6 +274,8 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
+        
+
         .popup {
             position: absolute;
             padding: 1vmin 1.5vmin;
@@ -416,6 +418,39 @@
 
         #journey-button:hover {
             background: linear-gradient(120deg, #2c3e50, #4a69bd);
+        }
+
+        #journey-button:disabled {
+            background: linear-gradient(135deg, #b8c0cc, #3d7ed3);
+            color: #f3f4f6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.85;
+            filter: grayscale(25%);
+        }
+
+        #map-container {
+            position: relative;
+        }
+
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            z-index: 5;
+            pointer-events: none; /* allows map to be visually covered but not interactive */
+        }
+
+        .hidden {
+            display: none;
         }
 
         .mapboxgl-marker {
@@ -582,7 +617,11 @@
                         <h3 style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">📍</h3>
                         <h3 id="places-heading" style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">Places He Lived</h3>
                     </div>
-                    <div id="map"></div>
+                    <div id="map">
+                        <div id="map-overlay" class="map-overlay hidden">
+                            Location history is not available for this sage.
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
