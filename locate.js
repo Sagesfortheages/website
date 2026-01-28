@@ -195,7 +195,7 @@ function startTour() {
         scrollToElement: false,  // Add this line to prevent auto-scrolling
         steps: [
             {
-                element: '.header',
+                element: 'body',
                 intro: `
                 <h3>👋 Welcome</h3>
                 This page lets you explore cities and who lived there and when.
@@ -205,11 +205,11 @@ function startTour() {
                 element: '#map',
                 intro: `
                 <h3>The Map</h3>
-                Here you can find the locations of all the cities. You can zoom, pan or click.
+                Here you can find the locations of all the cities. You can zoom, pan, or hover. You can also click a city to find out who lived there and when.
                 `
             },
             {
-                element: '#search-results',
+                element: '#search-container',
                 intro: `
                 <h3>The Cities</h3>
                 Select a city to find out where it is and who lived there and when.
@@ -223,7 +223,7 @@ function startTour() {
                 `
             },
             {
-                element: '#country-list',
+                element: '#country-container',
                 intro: `
                 <h3>The Countries</h3>
                 Select a country to see all the cities in it where our sages have lived.
@@ -237,7 +237,7 @@ function startTour() {
                 `
             },
             {
-                element: '.right-container',
+                element: '#who-lived-there-list',
                 intro: `
                 <h3>The People</h3>
                 Find out which sages lived in the city and when.

@@ -244,6 +244,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            flex:1;
         }
 
         .map-container {
@@ -473,10 +474,13 @@
                 width: 20vmin;
                 height: 20vmin;
             }
-
+              .map-container {
+                height: auto;       /* key change */
+            }
             #map {
                 height: 40vh !important;
                 width: 100%;
+                flex:none;
             }
         }
 
@@ -578,7 +582,7 @@
                         <h3 style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">📍</h3>
                         <h3 id="places-heading" style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">Places He Lived</h3>
                     </div>
-                    <div id="map" style="flex: 1; min-height: 0;"></div>
+                    <div id="map"></div>
                 </div>
             </section>
         </div>

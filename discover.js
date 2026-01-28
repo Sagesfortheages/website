@@ -104,7 +104,7 @@ function fitMapToMarkers(filteredMarkers){
             [Math.min(...longitudes), Math.min(...latitudes)], 
             [Math.max(...longitudes), Math.max(...latitudes)]
         ],
-        {padding: 100, maxZoom: 5}
+        {padding: 100, maxZoom: 4}
     );
 }
 

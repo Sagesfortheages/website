@@ -33,15 +33,15 @@
             margin-bottom: 1vmin;
         }
 
-        html {
-            overflow: hidden; /* Prevents scrollbars on html */
-        }
-
         .header h1 {
             font-size: 8vmin;
             font-weight: 800;
             margin-bottom: 1vmin;
             letter-spacing: -1px;
+        }
+
+        html {
+            overflow: hidden; /* Prevents scrollbars on html */
         }
 
         .gradient-text {
@@ -436,7 +436,6 @@
 @media (max-width: 768px) {
   html, body {
     height: 100%;
-    overflow: hidden;
   }
 
   /* Header gets the top 20% */
@@ -501,7 +500,7 @@
   .search-results,
   #country-list,
   #occupant-list-content {
-    max-height: none;
+    max-height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -558,7 +557,7 @@
             </div>   
 
 
-            <div class="search-container country-container">
+            <div class="search-container country-container" id="country-container">
                 <input type="text" class="search-input" id="country-search" placeholder="Search by country">
                 <ul class="country-list" id="country-list"></ul>
             </div>  
@@ -572,7 +571,7 @@
         </div>  
 
         <div class="right-container">
-            <div class="info-card">
+            <div class="info-card" id="who-lived-there-list">
                 <h3 id="occupant-list-heading">Who Lived There And When</h3>
                 <ul id="occupant-list-content"></ul>
             </div>
