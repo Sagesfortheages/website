@@ -323,7 +323,7 @@
   /* (We do this by wrapping via a grid on the parent container) */
   .container{
     display: grid;
-    grid-template-rows: auto 20vh 60vh 15vh;
+    grid-template-rows: auto 25vh 50vh 15vh;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "header header"
@@ -337,18 +337,18 @@
 
   #sorting-container{
     grid-area: sort;
-    height: 20vh;            /* 10%–40% zone (top 40% total after header) */
+    height: 25vh;            /* 10%–40% zone (top 40% total after header) */
   }
 
   #background-container{
     grid-area: filters;
-    height: 20vh;            /* same as sort side */
+    height: 25vh;            /* same as sort side */
   }
 
   /* Bottom 60% timeline */
   #timeline-container{
     grid-area: timeline;
-    height: 60vh;
+    height: 50vh;
     margin: 0;
   }
 
