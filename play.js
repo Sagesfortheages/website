@@ -367,7 +367,7 @@ function setupEventListeners() {
 
     // Popup events
     document.addEventListener('mouseover', handleHoverPopup);
-    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousemove', handleHoverPopup);
     document.addEventListener('mouseout', handleMouseOut);
 }
 
@@ -478,13 +478,6 @@ function handleEnter(event) {
     }
 }
 
-function handleMouseMove(event) {
-    const popup = document.getElementById('popup');
-    if (popup) {
-        popup.style.left = event.pageX + 10 + "px";
-        popup.style.top = event.pageY - 28 + "px";
-    }
-}
 
 function handleMouseOut(event) {
     if (event.target.classList.contains('popup-button')) {

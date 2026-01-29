@@ -1,6 +1,6 @@
 .introjs-overlay {
   background: rgba(20, 30, 45, 0.85) !important;
-  position: absolute !important;
+  position: fixed !important;
 }
 
 /* Tooltip - Two-tone design */

@@ -66,27 +66,63 @@ function sortAlphabetical(data) {
 
 // ===================== POPUPS =====================
 function showPopup(d, event) {
-    if (!popup || !popupMessage) return; // defensive
-    console.log(d.background)
+  if (!popup || !popupMessage) return;
 
-    let content = `
-        <div class="popup-header" style="font-weight: bold; border-bottom: 1px solid #eee; margin-bottom: 1px; padding-bottom: 5px;">${d.person}</div>
-        <div class="popup-dates">${d.birth} - ${d.passing}</div>
-    `;
-    
-    if (d.description) {
-        content += `<div class="popup-description" style="margin-top: 8px;">${d.description}</div>`;
-    }
+  let content = `
+    <div class="popup-header" style="font-weight: bold; border-bottom: 1px solid #eee; margin-bottom: 1px; padding-bottom: 5px;">${d.person}</div>
+    <div class="popup-dates">${d.birth} - ${d.passing}</div>
+  `;
 
-    popupMessage.innerHTML = content;
-    popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${getColor(d.background)} 100%)`;
+  if (d.description) {
+    content += `<div class="popup-description" style="margin-top: 8px;">${d.description}</div>`;
+  }
 
-    // position and show via class (CSS controls opacity/pointer-events)
-    popup.style.left = (event.pageX + 10) + 'px';
-    popup.style.top = (event.pageY - 28) + 'px';
+  popupMessage.innerHTML = content;
+  popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${getColor(d.background)} 100%)`;
 
-    popup.classList.add('visible');
+  // show for measuring, but keep invisible
+  popup.classList.add("visible");
+  popup.style.visibility = "hidden";
+
+  const rect = popup.getBoundingClientRect();
+
+  const gap = 10;      // distance from cursor
+  const pad = 12;      // distance from screen edge
+
+  const vx0 = pad;
+  const vy0 = pad;
+  const vx1 = window.innerWidth - rect.width - pad;
+  const vy1 = window.innerHeight - rect.height - pad;
+
+  // cursor position in viewport coordinates
+  const cx = event.clientX;
+  const cy = event.clientY;
+
+  // default: right + above
+  let left = cx + gap;
+  let top  = cy - rect.height - gap;
+
+  // flip horizontally if it would go off the right edge
+  if (left > window.innerWidth - rect.width - pad) {
+    left = cx - rect.width - gap; // left side of cursor
+  }
+
+  // flip vertically if it would go off the top edge
+  if (top < pad) {
+    top = cy + gap; // below cursor
+  }
+
+  // final clamp (just in case)
+  left = Math.min(Math.max(left, vx0), vx1);
+  top  = Math.min(Math.max(top,  vy0), vy1);
+
+  // convert viewport coords to page coords
+  popup.style.left = (left + window.scrollX) + "px";
+  popup.style.top  = (top + window.scrollY) + "px";
+
+  popup.style.visibility = "visible";
 }
+
 
 
 function hidePopup() {
@@ -188,10 +224,7 @@ function renderChart() {
         .style("fill", d => getColor(d.background))
         .style("cursor", "pointer")
         .on("mouseover", function(event, d) { showPopup(d, event); })
-        .on("mousemove", (event) => {
-            popup.style.left = event.pageX + 10 + "px";
-            popup.style.top = event.pageY - 28 + "px";
-        })
+        .on("mousemove", function(event, d) { showPopup(d, event); })
         .on("mouseout", hidePopup);
 
     // X-axis

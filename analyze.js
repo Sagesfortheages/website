@@ -376,10 +376,7 @@ function initializeUI() {
     });
 
     document.addEventListener('mouseover', handleHoverPopup);
-    document.addEventListener('mousemove', (event) => {
-        popup.style.left = event.pageX + 10 + "px";
-        popup.style.top = event.pageY - 28 + "px";
-    });
+    document.addEventListener('mousemove', handleHoverPopup);
     document.addEventListener('mouseout', (event) => {
         if (event.target.classList.contains('popup-button')) {
             popup.classList.remove('visible');

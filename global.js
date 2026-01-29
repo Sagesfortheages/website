@@ -190,30 +190,55 @@ window.loadMusic = async function(supabaseClient, filename) {
 }
 
 window.handleHoverPopup = function(event) {
-    if (!event.target.classList.contains('popup-button')) return;
-    
-    // Get the button's position
-    const marker = event.target;
-    const message = marker.dataset.message;
-    const buttonRect = marker.getBoundingClientRect();
-    console.log(message)
+  if (!event.target.classList.contains('popup-button')) return;
 
-    // Update popup content and position
-    window.popupMessage.innerHTML = message;
-    window.popup.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
-    window.popup.style.left = `${buttonRect.left + window.scrollX}px`;
-    
-    //update hover gradient. styling is different for d3
-    if(marker.style.backgroundColor){
-        window.popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${marker.style.backgroundColor} 100%)`;
-    }
-    if(marker.style.fill){
-        window.popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${marker.style.fill} 100%)`;
-    }
+  const marker = event.target;
+  const message = marker.dataset.message;
+  const buttonRect = marker.getBoundingClientRect();
 
-    // Show the popup
-    window.popup.classList.add('visible');
-}
+  window.popupMessage.innerHTML = message;
+
+  // gradient
+  if (marker.style.backgroundColor) {
+    window.popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${marker.style.backgroundColor} 100%)`;
+  } else if (marker.style.fill) {
+    window.popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${marker.style.fill} 100%)`;
+  }
+
+  // show for measuring, but keep invisible
+  window.popup.classList.add("visible");
+  window.popup.style.visibility = "hidden";
+
+  const rect = window.popup.getBoundingClientRect();
+
+  const gap = 8;   // distance from the element
+  const pad = 12;  // distance from screen edge
+
+  // Default: left aligned under the element
+  let left = buttonRect.left;
+  let top  = buttonRect.bottom + gap;
+
+  // Flip horizontally if it would overflow right
+  if (left + rect.width > window.innerWidth - pad) {
+    left = buttonRect.right - rect.width; // align right edge with element
+  }
+
+  // Flip vertically if it would overflow bottom
+  if (top + rect.height > window.innerHeight - pad) {
+    top = buttonRect.top - rect.height - gap; // above the element
+  }
+
+  // Final clamp (just in case)
+  left = Math.min(Math.max(left, pad), window.innerWidth - rect.width - pad);
+  top  = Math.min(Math.max(top,  pad), window.innerHeight - rect.height - pad);
+
+  // Apply (convert viewport coords -> page coords)
+  window.popup.style.left = (left + window.scrollX) + "px";
+  window.popup.style.top  = (top + window.scrollY) + "px";
+
+  window.popup.style.visibility = "visible";
+};
+
 
 //LEVENSHTEIN FUNCTIONS
 
