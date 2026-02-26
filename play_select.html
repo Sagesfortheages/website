@@ -1,268 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play Select</title>
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
-    <link rel="icon" href="icon3.png" type="image/x-icon">
-    <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Play Select</title>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+
+  <link rel="icon" href="icon3.png" type="image/x-icon" />
+  <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    /* ===== PARCHMENT x EXCITING (kids/teens) ===== */
+
+    .container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      margin-top:4vmin;
+    }
+
+    .navigate-buttons{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2.4vh;
+      width:100%;
+    }
+
+    /* ===== BUTTON BASE ===== */
+    .navigate-buttons button{
+      border:none;
+      border-radius:20px;
+      padding:2.7vh 4vw;
+      width:82%;
+      max-width:440px;
+      text-align:center;
+      cursor:pointer;
+
+      color: var(--white-ink);
+
+      box-shadow:
+        0 14px 34px rgba(0,0,0,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+
+      transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Shimmer highlight (subtle but exciting) */
+    .navigate-buttons button::before{
+      content:"";
+      position:absolute;
+      top:-30%;
+      left:-60%;
+      width:60%;
+      height:180%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: rotate(18deg);
+      transition: left .6s ease;
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+
+    .navigate-buttons button:hover::before{
+      left:120%;
+    }
+
+    .navigate-buttons button:hover{
+      transform: translateY(-5px) scale(1.01);
+      box-shadow:
+        0 20px 46px rgba(0,0,0,0.26),
+        0 0 0 3px rgba(255, 248, 230, 0.08),
+        0 0 30px var(--glow),
+        inset 0 1px 0 rgba(255,255,255,0.42);
+      filter: brightness(1.06) saturate(1.08);
+    }
+
+    .navigate-buttons button:active{
+      transform: translateY(-2px) scale(0.995);
+      box-shadow:
+        0 14px 34px rgba(0,0,0,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.28);
+    }
+
+    /* ===== LEVEL TEXT ===== */
+    .level-title{
+      font-size:4.3vmin;
+      font-weight:800;
+      letter-spacing:.7px;
+      line-height:1.05;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+
+    .level-sub{
+      margin-top:.5vh;
+      font-size:2.15vmin;
+      opacity:.9;
+      font-style:italic;
+      letter-spacing:.2px;
+      color: rgba(255, 248, 230, 0.88);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.22);
+    }
+
+    /* ===== BOLD, FUN, STILL "HISTORICAL" COLOR PROGRESSION =====
+       Think: stained glass / illuminated manuscript pigments, not neon UI.
+    */
+
+    #very-easy-button{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #2f8f83, #1f5f57);
+      border: 1px solid rgba(255, 248, 230, 0.22);
+    }
+
+    #easy-button{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #4f9a3b, #2f6c26);
+      border: 1px solid rgba(255, 248, 230, 0.22);
+    }
+
+    #medium-button{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #d2a129, #8b6514);
+      border: 1px solid rgba(255, 248, 230, 0.22);
+    }
+
+    #hard-button{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #d06b2d, #8a3c16);
+      border: 1px solid rgba(255, 248, 230, 0.22);
+    }
+
+    #very-hard-button{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #b5343c, #651826);
+      border: 1px solid rgba(255, 248, 230, 0.22);
+    }
+
+    /* Optional: tiny “badge” feel by adding a darker base edge */
+    .navigate-buttons button::after{
+      content:"";
+      position:absolute;
+      inset:auto 0 0 0;
+      height:10px;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.22));
+      pointer-events:none;
+    }
+
+    /* ===== ALERT BOX ===== */
+    .alert-box{
+      display:none;
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      background:var(--paper);
+      border-radius:16px;
+      border:1px solid var(--rule);
+      box-shadow:0 20px 60px rgba(0,0,0,0.25);
+      padding:4vh 4vw;
+      max-width:80vw;
+      z-index:2000;
+      text-align:center;
+      color:var(--ink);
+      font-family:"Crimson Text","Segoe UI",serif;
+      animation:slideIn .25s ease;
+    }
+
+    @keyframes slideIn{
+      from{ transform:translate(-50%,-58%) scale(0.96); opacity:0; }
+      to{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    }
+
+    #exit-button{
+      position:absolute;
+      top:1vh;
+      right:1vw;
+      width:4vmin;
+      height:4vmin;
+      border-radius:50%;
+      border:none;
+      background:var(--paper-strong);
+      font-size:2vmin;
+      cursor:pointer;
+      color:var(--ink-soft);
+      transition:all .2s ease;
+    }
+
+    #exit-button:hover{
+      background:#e6d7b6;
+      color:var(--ink);
+    }
+
+    @media (max-width:600px){
+      .navigate-buttons button{ width:92%; }
+      .level-title{ font-size:4.9vmin; }
+      .level-sub{ font-size:2.9vmin; }
+    }
+  </style>
 </head>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-weight: 770;
-    }
 
-    body {
-        background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
-        color: #333;
-        min-height: 100vh;
-        display: flex;
-        justify-content: flex-start;
-        flex-direction: column;
-        align-items: center;
-        font-family: 'Segoe UI';
-        padding: 2vmin;
-        overflow-x: hidden;
-    }
-
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 600px;
-        min-height: 60vh;
-        margin-top:4vmin;
-    }
-
-    .navigate-buttons {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2.5vh;
-        width: 100%;
-    }
-
-    .navigate-buttons button {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        padding: 2.8vh 4vw;
-        font-size: 4vmin;
-        font-weight: 770;
-        color: white;
-        font-family: 'Segoe UI';
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 80%;
-        max-width: 400px;
-        text-align: center;
-        letter-spacing: 0.5px;
-    }
-
-    /* Sophisticated gradient colors */
-    #very-easy-button {
-        background: linear-gradient(135deg, #a8e6cf, #56ab91);
-    }
-    #easy-button {
-        background: linear-gradient(135deg, #6ed37a, #34a853);
-    }
-    #medium-button {
-        background: linear-gradient(135deg, #f9d976, #f39c12);
-    }
-    #hard-button {
-        background: linear-gradient(135deg, #f79d65, #e67e22);
-    }
-    #very-hard-button {
-        background: linear-gradient(135deg, #ff6b6b, #c0392b);
-    }
-
-    .navigate-buttons button:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        filter: brightness(1.08);
-    }
-
-    .navigate-buttons button:active {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    #home-button, #info-button {
-        position: fixed;
-        width: 8vmin;
-        height: 8vmin;
-        border-radius: 50%;
-        border: none;
-        font-size: 4vmin;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        background: white;
-        color: #4a69bd;
-        font-weight: 770;
-        z-index: 1000;
-    }
-
-    #home-button {
-        bottom: 3vh;
-        left: 3vw;
-    }
-
-    #info-button {
-        bottom: 3vh;
-        right: 3vw;
-    }
-
-    #home-button:hover, #info-button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        background: linear-gradient(135deg, #4a69bd, #2c3e50);
-        color: white;
-    }
-
-    .alert-box {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        padding: 4vh 4vw;
-        max-width: 80vw;
-        max-height: 80vh;
-        z-index: 2000;
-        text-align: center;
-        font-family: 'Segoe UI';
-        animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-        from { transform: translate(-50%, -60%) scale(0.9); opacity: 0; }
-        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-
-    #exit-button {
-        position: absolute;
-        top: 1vh;
-        right: 1vw;
-        width: 4vmin;
-        height: 4vmin;
-        border-radius: 50%;
-        border: none;
-        background: #f0f0f0;
-        font-size: 2vmin;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: #666;
-    }
-
-    #exit-button:hover {
-        background: #e0e0e0;
-        color: #333;
-    }
-
-    @media (max-width: 600px) {
-        .navigate-buttons button {
-            width: 90%;
-            font-size: 3.8vmin;
-        }
-    }
-        .header h1 {
-            font-size: 8vmin;
-            font-weight: 800;
-            margin-bottom: 1vmin;
-            letter-spacing: -1px;
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-            background-clip: text;
-            width:100%;
-            text-align: center;
-        }
-
-        .header .subtitle {
-            font-size: 3vmin;
-            color: #666;
-            font-weight: 500;
-            color:green;
-            margin-bottom: 2vh;
-        }
-
-        .emoji {
-            font-size: 8vmin; /* same as header */
-        }
-
-        .gradient-text {
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 8vmin;
-            font-weight: 800;
-        }
-
-.gradient-text {
-    background: linear-gradient(120deg, #2c3e50, #4a69bd);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.subtitle {
-    font-size: 3vmin;
-    font-weight: 500;
-    color: #666;
-}
-
-</style>
 <body>
+  <div class="alert-box" id="customAlert">
+    <p id="message"></p>
+    <button id="exit-button" onclick="hideCustomAlert(restart=false)">x</button>
+  </div>
 
-        <div class="alert-box" id="customAlert">
-        <p id="message"></p>
-        <button id='exit-button' onclick="hideCustomAlert(restart=false)">x</button>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">🎚️</span>
+        <span class="gradient-text">Select Difficulty</span>
+      </h1>
+
+      <p class="subtitle">Choose your challenge level and begin the journey.</p>
+
+      <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+      <button class="modern-button" id="info-button"
+        onclick="showCustomAlert(`Select a difficulty level for your game.`, restart=false)">ℹ️</button>
     </div>
+  </div>
 
-    <div class="container">
+  <div class="container">
+    <div class="navigate-buttons">
 
-        <div class="header">
-            <h1>
-                <span class="emoji">🎚️</span>
-                <span class="gradient-text">Select Difficulty</span>
-            </h1>
-            <p class="subtitle">Choose your challenge level and begin the journey.</p>
-        </div>
+      <button class="difficulty-button" id="very-easy-button">
+        <div class="level-title">Level 1</div>
+        <div class="level-sub">Very Easy</div>
+      </button>
 
-        <div class="navigate-buttons">
-            <button class="difficulty-button" id="very-easy-button">Very Easy</button>
-            <button class="difficulty-button" id="easy-button">Easy</button>
-            <button class="difficulty-button" id="medium-button">Medium</button>
-            <button class="difficulty-button" id="hard-button">Hard</button>
-            <button class="difficulty-button" id="very-hard-button">Very Hard</button>
-        </div>
+      <button class="difficulty-button" id="easy-button">
+        <div class="level-title">Level 2</div>
+        <div class="level-sub">Easy</div>
+      </button>
+
+      <button class="difficulty-button" id="medium-button">
+        <div class="level-title">Level 3</div>
+        <div class="level-sub">Medium</div>
+      </button>
+
+      <button class="difficulty-button" id="hard-button">
+        <div class="level-title">Level 4</div>
+        <div class="level-sub">Hard</div>
+      </button>
+
+      <button class="difficulty-button" id="very-hard-button">
+        <div class="level-title">Level 5</div>
+        <div class="level-sub">Very Hard</div>
+      </button>
 
     </div>
+  </div>
 
-    <button id="home-button" onclick="window.location.href='index.html'">🏠</button>
-    <button id="info-button" onclick="showCustomAlert(`Select a difficulty level for your game.`, restart=false)">ℹ</button>
-    <script>
-        const buttons = document.querySelectorAll('.difficulty-button');
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const difficulty = this.textContent.trim();
-                console.log(`Selected difficulty: ${difficulty}`);
-                sessionStorage.setItem('difficulty', JSON.stringify(difficulty));
-                window.open('play.html');
-            });
-        });
-    </script>
+  <script type="module">
+    import {trackPageView} from './supabase/supabaseFunctions.js';
+    trackPageView();
+    const buttons = document.querySelectorAll('.difficulty-button');
 
-    <script src="global.js"></script>
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Store the difficulty word, not "Level X"
+        const difficulty = this.querySelector('.level-sub').textContent.trim();
+        console.log(`Selected difficulty: ${difficulty}`);
+        sessionStorage.setItem('difficulty', JSON.stringify(difficulty));
+        window.open('play.html');
+      });
+    });
+  </script>
+
+  <script src="global.js"></script>
 </body>
 </html>

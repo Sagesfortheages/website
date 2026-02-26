@@ -9,31 +9,16 @@
     <link rel="icon" href="icon3.png" type="image/x-icon">
     <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
-    <link rel="stylesheet" href="intro_styles.css">
+    <link rel="stylesheet" href="all_styles.css">
     <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-weight: 770;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
-            color: #333;
-            height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 2vmin;
-            overflow: hidden;
-        }
 
         .alert-box {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--paper);
             border-radius: 16px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
             padding: 2rem;
@@ -87,7 +72,7 @@
         }
 
         .hero {
-            background: white;
+            background: var(--paper);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
             text-align: center;
@@ -102,9 +87,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            height: 100%;
+            margin:1vmin;
+            gap: 1vmin;
         }
 
         #profile-pic {
@@ -139,54 +123,55 @@
         .info-container {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 1vw;
-            height: 100%;
+            gap: 1vmin;
+            height: calc(100% - 14.5vh);;
         }
 
         .left-column {
             display: grid;
-            grid-template-rows: 8fr 3fr;
-            gap: 1vw;
+            grid-template-rows: 4fr 2fr;
+            gap: 1vmin;
         }
 
         .left-bottom {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1vw;
-            min-height: 0;
+            gap: 1vmin;
+            height:100%;
         }
 
         .right-column {
             display: grid;
-            grid-template-rows: auto 1fr;
-            gap: 1vw;
+            grid-template-rows: 1fr 4fr;
+            gap: 1vmin;
             overflow: hidden;
             min-height: 0;
         }
+
+        .left-column,
+        .left-bottom,
+        .hero,
+        .info-card { min-height: 0; }
 
         .info-grid {
             display: contents;
         }
 
         .info-card {
-            background: white;
+            background: var(--paper);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            padding: 1.5vmin;
+            padding: 0.5vmin;
             transition: all 0.3s ease;
             overflow-y: auto;
             min-height: 0;
         }
 
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
 
         .info-card h3 {
             font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5vmin;
             color: #2c3e50;
             display: inline;
         }
@@ -196,7 +181,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25vmin
         }
 
         .info-card .header-with-icon h3:first-child {
@@ -218,7 +203,7 @@
             color: #555;
             margin-bottom: 0.5vmin;
             position: relative;
-            padding-left: 1.2em;
+            padding-left: 0.5vmin
         }
 
         .info-card li::before {
@@ -248,10 +233,10 @@
         }
 
         .map-container {
-            background: white;
+            background: var(--paper);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            padding: 1.5vmin;
+            padding: 0.5vmin;
             transition: all 0.3s ease;
             overflow: hidden;
             display: flex;
@@ -260,79 +245,21 @@
             min-height: 0;
         }
 
-        .map-header {
-            display: flex;
+        .map-header-controls {
             align-items: center;
-            justify-content: center;
+            justify-items: center;
             gap: 0.5rem;
             margin-bottom: 0.5rem;
             flex-shrink: 0;
+                        display: grid;
         }
 
-        .map-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        .map-header{
+            display:flex
         }
+    
 
-        
 
-        .popup {
-            position: absolute;
-            padding: 1vmin 1.5vmin;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
-            z-index: 4000;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(1vmin) scale(0.95) rotate(-2deg);
-            border: 3px solid rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-        }
-
-        .popup.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0) scale(1) rotate(0deg);
-            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
-        }
-
-        .popup-message {
-            font-size: 2.4vmin;
-            color: #6a3093;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.5;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
-        }
-
-        /* Fixed Buttons */
-        #home-button, #info-button, #journey-button {
-            position: fixed;
-            background: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #home-button:hover, #info-button:hover, #journey-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        #home-button {
-            top: 20px;
-            left: 20px;
-        }
 
         #course-nav {
             display: none;
@@ -387,7 +314,7 @@
             border-radius: 10px;
             border: none;
             background: #4a69bd;
-            color: white;
+            color: var(--paper);
             cursor: pointer;
             box-shadow: 0 3px 10px rgba(0,0,0,0.15);
             transition: all 0.2s ease;
@@ -398,37 +325,7 @@
             box-shadow: 0 5px 12px rgba(0,0,0,0.2);
         }
 
-        #info-button {
-            top: 20px;
-            right: 20px;
-        }
 
-        #journey-button {
-            bottom: 20px;
-            right: 20px;
-            width: auto;
-            padding: 15px 25px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            background: linear-gradient(120deg, #4a69bd, #2c3e50);
-            color: white;
-            border: none;
-        }
-
-        #journey-button:hover {
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-        }
-
-        #journey-button:disabled {
-            background: linear-gradient(135deg, #b8c0cc, #3d7ed3);
-            color: #f3f4f6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.85;
-            filter: grayscale(25%);
-        }
 
         #map-container {
             position: relative;
@@ -438,7 +335,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,0.65);
-            color: white;
+            color: var(--paper);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -453,21 +350,40 @@
             display: none;
         }
 
-        .mapboxgl-marker {
-            width: 2vmin;
-            height: 2vmin;
-            border-radius: 50%;
-            box-shadow: 0 0 5px rgba(244, 229, 232, 0.8);
-            justify-content: center;
-            display: flex;
-            align-items: center;
-        }
 
-        .mapboxgl-marker:hover {
-            cursor: default;
-            transform: scale(1.3) rotate(15deg);
-            box-shadow: 0 4px 15px rgba(255, 94, 125, 0.6);
-        }
+
+        .map-control-slot{
+  height: 8vh;              /* choose a consistent height */
+  width: min(700px, 90%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* the text box that temporarily replaces it */
+.play-status{
+  width: 100%;
+  height: 8vh;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  overflow: hidden;
+white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#play-status.hidden{
+  display: none !important;
+}
+
+#play-button.hidden{
+  display: none !important;
+}
+
+
 
         @media (max-width: 768px) {
             body {
@@ -534,11 +450,6 @@
                 font-size: 1.2rem;
             }
 
-            #journey-button {
-                padding: 12px 20px;
-                font-size: 0.9rem;
-            }
-
             #course-nav {
                 width: 200px;
                 padding: 0.4rem 0.8rem;
@@ -561,6 +472,18 @@
         <p id="message"></p>
         <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
     </div>
+
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="gradient-text" id="title-content"></span>
+            </h1>
+            <p class="subtitle" id="years-content"></p>
+        </div>
+        <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+        <button class="modern-button" id="info-button">ℹ️</button>
+    </div>
+
     
     <div class="container">
         <div class="info-container">
@@ -569,10 +492,8 @@
                     <div class="hero-content" id="hero-content">
                         <img id="profile-pic" alt="Picture Unavailable">
                         <div>
-                            <h1 id="title-content"></h1>
                             <p id="name-content"></p>
                             <p id="background-content"></p>
-                            <p id="years-content">🕛</p>
                             <p id="birthday-content">🎂</p>
                             <p id="yahrtzeit-content">🕯</p>
                             <p id="teachers-content">⮝</p>
@@ -613,10 +534,18 @@
                 </div>
                 
                 <div class="map-container">
-                    <div class="map-header">
-                        <h3 style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">📍</h3>
-                        <h3 id="places-heading" style="color: #2c3e50; font-size: 1.1rem; font-weight: 700;">Places He Lived</h3>
+                    <div class="map-header-controls">
+                        <div class="map-header">
+                            <h3 >📍</h3>
+                            <h3 id="places-heading">Places He Lived</h3>
+                        </div>
+
+                        <div class="map-control-slot">
+                            <button class="round-sweep" id="play-button" type="button" aria-label="Play journey"></button>
+                            <div id="play-status" class="play-status hidden" aria-live="polite"></div>
+                        </div>
                     </div>
+
                     <div id="map">
                         <div id="map-overlay" class="map-overlay hidden">
                             Location history is not available for this sage.
@@ -631,17 +560,8 @@
         </div>
     </div>
 
-    <button id="home-button" onclick="window.location.href='index.html'">
-        🏠
-    </button>
+    <audio id="keyboard-sound" src="keyboard_sound.wav" preload="auto"></audio>
 
-    <button id="info-button">
-        ℹ
-    </button>
-
-    <button id="journey-button" onclick="window.location.href='journey.html'">
-        Follow The Journey
-    </button>
 
     <!-- Course navigation -->
     <div id="course-nav">

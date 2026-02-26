@@ -188,6 +188,74 @@ function handleUniquenessClick(markers, visibleMarkers, visibleMarkersPeople = f
     filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
 }
 
+function resetAllFilters() {
+  // ----- 1) Reset state vars -----
+  backgrounds = [];
+  expertises = [];
+  uniqueness = false;
+  birthPlace = false; // set to whatever your "default" is; you currently start false
+  // NOTE: visibleMarkers / visibleMarkersPeople are managed by displayMarkers(), so we don't manually clear them here.
+
+  // ----- 2) Reset UI: background legends -----
+  legendItems.forEach((item) => {
+    const el = document.getElementById(item + "-legend");
+    if (el) el.classList.remove("filter-clicked");
+  });
+
+  // ----- 3) Reset UI: expertise buttons -----
+  const expertiseItems = [
+    "tanach", "talmud", "halacha", "responsa", "kabbalah",
+    "chassidus", "mussar", "philosophy", "linguistics",
+    "poetry", "history"
+  ];
+  expertiseItems.forEach((item) => {
+    const el = document.getElementById(item + "-expertise");
+    if (el) el.classList.remove("filter-clicked");
+  });
+
+  // ----- 4) Reset UI: uniqueness button -----
+  const uniqBtn = document.getElementById("uniqueness-button");
+  if (uniqBtn) uniqBtn.classList.remove("filter-clicked");
+
+  // ----- 5) Reset UI: search input + suggestions highlight -----
+  const searchInput = document.getElementById("search-input");
+  if (searchInput) searchInput.value = "";
+
+  const suggestionsList = document.getElementById("search-results");
+  if (suggestionsList) {
+    // remove any "selected" highlight you add in handleCityClick
+    suggestionsList.querySelectorAll("li.selected").forEach(li => li.classList.remove("selected"));
+
+    // optional: if you want the list to look like initial load (full list),
+    // you can also clear and rebuild it. If you DON'T need that, delete this block.
+    // (Rebuild uses markers already loaded.)
+    suggestionsList.innerHTML = "";
+    const allPeople = [...new Map(markers.map(item => [item["person"], item])).values()];
+    allPeople.sort((a, b) => a.person.localeCompare(b.person));
+    allPeople.forEach(result => {
+      const li = document.createElement("li");
+      li.textContent = result.person;
+      li.addEventListener("click", () => handleCityClick(result.person, markers));
+      suggestionsList.appendChild(li);
+    });
+  }
+
+  // ----- 6) Reset UI: year slider -----
+  const yearSlider = document.getElementById("year-slider");
+  if (yearSlider && yearSlider.noUiSlider) {
+    // match your initial 'start: [900, 2000]'
+    yearSlider.noUiSlider.set([900, 2000]);
+  }
+
+  // ----- 7) Hide popup if visible -----
+  if (window.popup) window.popup.classList.remove("visible");
+
+  // ----- 8) Show ALL markers again -----
+  // This is the key: ensure everything is visible, regardless of filter state.
+  displayMarkers(markers, visibleMarkers, visibleMarkersPeople);
+}
+
+
 // ========== NEW: FETCH + INITIALIZE ==========
 
 async function loadMarkers() {
@@ -313,6 +381,7 @@ function initializeUI() {
     const filterName = item.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
     document.getElementById(legendId).addEventListener('click', function () {
         handleLegendClick(markers, visibleMarkers, visibleMarkersPeople, legendId, filterName);
+        
     });
     });
 
@@ -328,6 +397,11 @@ function initializeUI() {
 
     document.getElementById('uniqueness-button').addEventListener('click', function () {
         handleUniquenessClick(markers, visibleMarkers, visibleMarkersPeople);
+    });
+
+    
+    document.getElementById('reset-filters-button').addEventListener('click', function () {
+        resetAllFilters()
     });
 
     const suggestionsList = document.getElementById('search-results');

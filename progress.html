@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="all_styles.css" />
+  <link rel="icon" href="icon3.png" type="image/x-icon" />
+  <title>My Stats</title>
+
+  <style>
+    /* No scrolling on this page */
+    body{ overflow: hidden; }
+
+    /* Keep content inside the viewport under the header */
+    .progress-wrap{
+      height: calc(100vh - var(--header-height) - 2vh);
+      display:flex;
+      justify-content:center;
+      padding: 1.6vmin;
+    }
+
+    .progress-panel{
+      width: min(1180px, 96vw);
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 1.4vmin;
+    }
+
+    /* ===== Top stamps (counts only) ===== */
+    .stamp-row{
+      display:grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr)); /* was 5 */
+      gap: 1.2vmin;
+      align-items: stretch;
+    }
+
+    .stamp{
+      position:relative;
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      background: var(--paper-strong);
+      box-shadow: var(--shadow-soft);
+      padding: 1.4vmin 1.6vmin;
+      overflow:hidden;
+      min-height: 10.5vmin;
+    }
+
+    .stamp::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35), transparent 55%);
+      pointer-events:none;
+      opacity:0.7;
+    }
+
+    .stamp-head{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 1.0vmin;
+      margin-bottom: 0.7vmin;
+    }
+
+    .stamp-title{
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.9vmin, 15px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-ink);
+      line-height: 1.1;
+    }
+
+    .stamp-icon{
+      font-size: clamp(18px, 3.6vmin, 28px);
+      filter: sepia(0.4);
+      opacity:0.95;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.18);
+      line-height: 1;
+    }
+
+    .stamp-value{
+      position:relative;
+      z-index:1;
+      font-family: var(--font-display);
+      font-size: clamp(20px, 4.2vmin, 38px);
+      color: var(--title-ink);
+      line-height:1.05;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.12);
+      margin-bottom: 0.25vmin;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stamp-sub{
+      position:relative;
+      z-index:1;
+      font-family: var(--font-body);
+      font-size: clamp(12px, 1.8vmin, 15px);
+      color: var(--ink-soft);
+      opacity:0.9;
+      line-height:1.2;
+    }
+
+    /* ===== Main layout ===== */
+    .progress-grid{
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.4vmin;
+      height: 100%;
+      min-height: 0;
+    }
+
+    @media (max-width: 980px){
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Let the wrapper grow with content instead of forcing a viewport lock */
+  .progress-wrap{
+    height: auto !important;
+    min-height: calc(100vh - var(--header-height) - 2vh);
+    align-items: stretch;
+  }
+
+  /* Stop forcing an inner “100% height” layout that can clip content */
+  .progress-panel{
+    height: auto !important;
+  }
+      .progress-grid{
+        grid-template-columns: 1fr;
+      }
+      .stamp-row{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      .section{
+        height:auto;
+      }
+    }
+
+    .section{
+      padding: 1.5vmin;
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      background: var(--paper-strong);
+      box-shadow: var(--shadow-soft);
+      position:relative;
+      overflow:hidden;
+      min-height: 0;
+    }
+
+    .section::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: rgba(47,79,79,0.04);
+      pointer-events:none;
+      opacity:0.6;
+    }
+
+    .section-head{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items:center;
+      gap: 1.2vmin;
+      margin-bottom: 1.0vmin;
+    }
+
+    .section-head h2{
+      font-family: var(--font-ui);
+      font-size: clamp(14px, 2.2vmin, 18px);
+      letter-spacing: 0.06em;
+      color: var(--heading-ink);
+      font-weight: 800;
+      text-transform: uppercase;
+      text-align:center;
+      line-height: 1.1;
+    }
+
+    .section-head .rule{
+      height:1px;
+      background: rgba(110,85,55,0.30);
+    }
+
+    .section-body{
+      position:relative;
+      z-index:1;
+      display:grid;
+      gap: 1.0vmin;
+      min-height: 0;
+    }
+
+    /* ===== Badge wall (compact) ===== */
+    .badge-grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.0vmin;
+    }
+
+    .badge{
+      position:relative;
+      border-radius: 16px;
+      border: 1px solid var(--rule-faint);
+      background: rgba(255,255,255,0.56);
+      box-shadow: var(--shadow-tight);
+      padding: 1.0vmin 1.0vmin 0.85vmin 1.0vmin;
+      overflow:hidden;
+      display:grid;
+      gap: 0.45vmin;
+      align-content:start;
+      min-height: 9.5vmin;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    .badge::before{
+      content:"";
+      position:absolute;
+      inset: 8px;
+      border-radius: 14px;
+      border: 1px dashed rgba(110,85,55,0.26);
+      pointer-events:none;
+      opacity:0.85;
+    }
+
+    /* Hover polish */
+    .badge:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.16);
+    }
+    .badge:hover::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 18px;
+      pointer-events:none;
+      background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.45) 45%, transparent 70%);
+      opacity: 0.55;
+      filter: blur(0.2px);
+    }
+
+    .badge-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 0.8vmin;
+    }
+
+    .badge-icon{
+      font-size: clamp(16px, 3.2vmin, 24px);
+      line-height:1;
+      filter: sepia(0.45) contrast(1.05) brightness(0.95);
+      text-shadow: 0 4px 6px rgba(0,0,0,0.20);
+    }
+
+    /* Rank pill */
+    .badge-rank{
+      font-family: var(--font-ui);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: clamp(10px, 1.55vmin, 12px);
+      border-radius: 999px;
+      padding: 0.2em 0.6em;
+      white-space:nowrap;
+      border: 1px solid rgba(0,0,0,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+
+    /* Tier colors */
+    .rank-bronze .badge-rank{
+      color: rgba(74,40,24,0.95);
+      background: rgba(184,115,51,0.22);
+      border-color: rgba(184,115,51,0.40);
+    }
+    .rank-silver .badge-rank{
+      color: rgba(40,48,60,0.92);
+      background: rgba(168,176,184,0.22);
+      border-color: rgba(168,176,184,0.45);
+    }
+    .rank-gold .badge-rank{
+      color: rgba(76,56,10,0.95);
+      background: rgba(212,175,55,0.22);
+      border-color: rgba(212,175,55,0.48);
+    }
+    .rank-emerald .badge-rank{
+      color: rgba(10,66,44,0.95);
+      background: rgba(80,200,120,0.20);
+      border-color: rgba(80,200,120,0.45);
+    }
+    .rank-platinum .badge-rank{
+      color: rgba(32,40,52,0.92);
+      background: rgba(229,228,226,0.40);
+      border-color: rgba(229,228,226,0.70);
+    }
+    .rank-diamond .badge-rank{
+      color: rgba(10,46,80,0.95);
+      background: rgba(185,242,255,0.22);
+      border-color: rgba(185,242,255,0.55);
+    }
+
+    .badge-title{
+      font-family: var(--font-display);
+      font-size: clamp(13px, 2.0vmin, 16px);
+      color: var(--ink);
+      line-height:1.1;
+    }
+
+    .badge-desc{
+      font-family: var(--font-body);
+      font-size: clamp(11px, 1.7vmin, 14px);
+      color: var(--ink-soft);
+      opacity:0.92;
+      line-height:1.15;
+    }
+
+    /* Earned vs locked */
+    .badge.earned{
+      background: var(--paper);
+      opacity: 1;
+      filter: none;
+    }
+
+    /* Outline follows tier */
+    .badge.earned.rank-bronze{ outline: 3px solid rgba(184,115,51,0.85); }
+    .badge.earned.rank-silver{ outline: 3px solid rgba(168,176,184,0.95); }
+    .badge.earned.rank-gold{ outline: 3px solid rgba(212,175,55,0.92); }
+    .badge.earned.rank-emerald{ outline: 3px solid rgba(80,200,120,0.85); }
+    .badge.earned.rank-platinum{ outline: 3px solid rgba(229,228,226,0.95); }
+    .badge.earned.rank-diamond{ outline: 3px solid rgba(185,242,255,0.95); }
+
+    .badge.locked{
+      opacity:0.55;
+      filter: grayscale(0.25);
+    }
+
+    .badge.locked .badge-rank{
+      color: rgba(90,74,58,0.9);
+      background: rgba(110,85,55,0.08);
+      border-color: rgba(110,85,55,0.18);
+    }
+
+    /* ===== Fancier top-earned ===== */
+    .badge.top-earned{
+      transform: translateY(-3px) scale(1.01);
+      box-shadow:
+        0 18px 40px rgba(0,0,0,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .badge.top-earned::after{
+      content:"";
+      position:absolute;
+      inset:-3px;
+      border-radius: 18px;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,0.55), transparent 55%),
+        linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.35) 45%, transparent 70%);
+      opacity: 0.85;
+    }
+    .badge.top-earned .badge-title{
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    /* ===== Header extras: ring + rank ===== */
+    .header-meta{
+      margin-top: 0.7vmin;
+      display:flex;
+      gap: 1.2vmin;
+      justify-content:center;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+
+    .rank-pill{
+      border-radius: 999px;
+      border: 1px solid rgba(110,85,55,0.30);
+      background: rgba(255,255,255,0.45);
+      padding: 0.45em 0.9em;
+      box-shadow: var(--shadow-tight);
+      font-family: var(--font-ui);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-ink);
+      font-size: clamp(11px, 1.7vmin, 14px);
+      display:flex;
+      gap: 0.6em;
+      align-items: center;
+    }
+
+    .badge-ring{
+      --p: 0; /* JS sets 0-100 */
+      width: clamp(38px, 6vmin, 54px);
+      height: clamp(38px, 6vmin, 54px);
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background:
+        conic-gradient(rgba(212,175,55,0.85) calc(var(--p) * 1%), rgba(110,85,55,0.18) 0);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+      border: 1px solid rgba(110,85,55,0.30);
+    }
+    .badge-ring > span{
+      width: 78%;
+      height: 78%;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,248,230,0.92);
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: clamp(10px, 1.6vmin, 12px);
+      color: rgba(47,36,27,0.90);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    /* ===== Right column: 2 sections (milestones + continue) ===== */
+    .side-stack{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap: 1.4vmin;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .milestones{
+      display:grid;
+      gap: 0.9vmin;
+    }
+    .milestone{
+      border-radius: 14px;
+      border: 1px solid rgba(110,85,55,0.22);
+      background: rgba(255,255,255,0.42);
+      box-shadow: var(--shadow-tight);
+      padding: 1.0vmin 1.1vmin;
+      display:grid;
+      gap: 0.45vmin;
+    }
+    .milestone-title{
+      font-family: var(--font-ui);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-ink);
+      font-size: clamp(11px, 1.7vmin, 14px);
+      display:flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.8vmin;
+    }
+    .milestone-sub{
+      font-family: var(--font-body);
+      color: var(--ink-soft);
+      opacity: 0.92;
+      line-height: 1.2;
+      font-size: clamp(12px, 1.75vmin, 15px);
+    }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(110,85,55,0.16);
+      overflow:hidden;
+      border: 1px solid rgba(110,85,55,0.20);
+    }
+    .bar > i{
+      display:block;
+      height: 100%;
+      width: var(--w, 0%);
+      background: rgba(212,175,55,0.65);
+    }
+
+    .actions{
+      display:grid;
+      gap: 1.0vmin;
+      justify-items: center;
+      align-content: center;
+    }
+
+    .cta-button.small{
+      min-width: 0;
+      width: 100%;
+      max-width: 360px;
+      justify-content:center;
+      padding: 1.2vmin 2.2vmin;
+      min-height: 6.6vmin;
+      font-size: clamp(14px, 2.3vmin, 18px);
+    }
+
+    /* Make header a bit tighter on this page only */
+    .header-section{ min-height: 12vh; }
+    .subtitle{ opacity: 0.78; }
+  </style>
+</head>
+
+<body>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">🏅</span>
+        <span class="gradient-text">My Stats</span>
+      </h1>
+      <p class="subtitle">Earn badges through sages viewed and games.</p>
+
+      <!-- NEW: ring + rank (JS fills these) -->
+      <div class="header-meta" aria-live="polite">
+        <div class="badge-ring" id="badge-ring" title="Percent of badges earned">
+          <span id="badge-ring-text">0%</span>
+        </div>
+        <div class="rank-pill" title="Your current title">
+          <span>📜</span>
+          <span id="stat-rank">—</span>
+        </div>
+      </div>
+
+      <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+      <button class="modern-button" id="info-button">ℹ️</button>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-panel">
+
+      <!-- Top stamps -->
+      <div class="stamp-row">
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Sages Viewed</div>
+            <div class="stamp-icon">📚</div>
+          </div>
+          <div class="stamp-value" id="stat-sages">0</div>
+          <div class="stamp-sub">Unique sages opened.</div>
+        </div>
+
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Most Viewed Sage</div>
+            <div class="stamp-icon">👁️</div>
+          </div>
+          <div class="stamp-value" id="stat-most-viewed">—</div>
+          <div class="stamp-sub">Most profile opens.</div>
+        </div>
+
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Games Solved</div>
+            <div class="stamp-icon">🎮</div>
+          </div>
+          <div class="stamp-value" id="stat-games">0</div>
+          <div class="stamp-sub">Solved games.</div>
+        </div>
+
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Success Rate</div>
+            <div class="stamp-icon">🎯</div>
+          </div>
+          <div class="stamp-value" id="stat-success-rate">0%</div>
+          <div class="stamp-sub">Solved / Completed</div>
+        </div>
+
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Most Guessed Sage</div>
+            <div class="stamp-icon">🧠</div>
+          </div>
+          <div class="stamp-value" id="stat-most-guessed">—</div>
+          <div class="stamp-sub">Most guesses across games.</div>
+        </div>
+
+        <!-- NEW: you already set this in JS -->
+        <div class="stamp">
+          <div class="stamp-head">
+            <div class="stamp-title">Badges Earned</div>
+            <div class="stamp-icon">🏅</div>
+          </div>
+          <div class="stamp-value" id="stat-badges">0</div>
+          <div class="stamp-sub">Across sages + games.</div>
+        </div>
+      </div>
+
+      <div class="progress-grid">
+        <!-- LEFT: badge walls -->
+        <div class="section">
+          <div class="section-head">
+            <div class="rule"></div>
+            <h2>Badge Book</h2>
+            <div class="rule"></div>
+          </div>
+
+          <div class="section-body">
+
+            <!-- SAGES VIEWED BADGES -->
+            <div class="section-head" style="margin-top:0.2vmin;">
+              <div class="rule"></div>
+              <h2>Sages Viewed</h2>
+              <div class="rule"></div>
+            </div>
+
+            <div class="badge-grid" data-category="sages">
+              <div class="badge locked rank-bronze" data-tier="1">
+                <div class="badge-top">
+                  <div class="badge-icon">📖</div>
+                  <div class="badge-rank">Bronze</div>
+                </div>
+                <div class="badge-title">First Profile</div>
+                <div class="badge-desc">View 1 sage.</div>
+              </div>
+
+              <div class="badge locked rank-silver" data-tier="10">
+                <div class="badge-top">
+                  <div class="badge-icon">📚</div>
+                  <div class="badge-rank">Silver</div>
+                </div>
+                <div class="badge-title">Reader</div>
+                <div class="badge-desc">View 10 sages.</div>
+              </div>
+
+              <div class="badge locked rank-gold" data-tier="25">
+                <div class="badge-top">
+                  <div class="badge-icon">🕯️</div>
+                  <div class="badge-rank">Gold</div>
+                </div>
+                <div class="badge-title">Dedicated</div>
+                <div class="badge-desc">View 25 sages.</div>
+              </div>
+
+              <div class="badge locked rank-emerald" data-tier="50">
+                <div class="badge-top">
+                  <div class="badge-icon">💎</div>
+                  <div class="badge-rank">Emerald</div>
+                </div>
+                <div class="badge-title">Scholar</div>
+                <div class="badge-desc">View 50 sages.</div>
+              </div>
+
+              <div class="badge locked rank-platinum" data-tier="100">
+                <div class="badge-top">
+                  <div class="badge-icon">🏛️</div>
+                  <div class="badge-rank">Platinum</div>
+                </div>
+                <div class="badge-title">Historian</div>
+                <div class="badge-desc">View 100 sages.</div>
+              </div>
+
+              <div class="badge locked rank-diamond" data-tier="200">
+                <div class="badge-top">
+                  <div class="badge-icon">👑</div>
+                  <div class="badge-rank">Diamond</div>
+                </div>
+                <div class="badge-title">Master</div>
+                <div class="badge-desc">View 200 sages.</div>
+              </div>
+            </div>
+
+            <!-- GAME BADGES -->
+            <div class="section-head" style="margin-top:0.8vmin;">
+              <div class="rule"></div>
+              <h2>Games</h2>
+              <div class="rule"></div>
+            </div>
+
+            <div class="badge-grid" data-category="games">
+              <div class="badge locked rank-bronze" data-tier="1">
+                <div class="badge-top">
+                  <div class="badge-icon">🎮</div>
+                  <div class="badge-rank">Bronze</div>
+                </div>
+                <div class="badge-title">First Win</div>
+                <div class="badge-desc">Solve 1 game.</div>
+              </div>
+
+              <div class="badge locked rank-silver" data-tier="10">
+                <div class="badge-top">
+                  <div class="badge-icon">⚡</div>
+                  <div class="badge-rank">Silver</div>
+                </div>
+                <div class="badge-title">Regular Player</div>
+                <div class="badge-desc">Solve 10 games.</div>
+              </div>
+
+              <div class="badge locked rank-gold" data-tier="25">
+                <div class="badge-top">
+                  <div class="badge-icon">🏆</div>
+                  <div class="badge-rank">Gold</div>
+                </div>
+                <div class="badge-title">Champion</div>
+                <div class="badge-desc">Solve 25 games.</div>
+              </div>
+
+              <div class="badge locked rank-emerald" data-tier="50">
+                <div class="badge-top">
+                  <div class="badge-icon">🧠</div>
+                  <div class="badge-rank">Emerald</div>
+                </div>
+                <div class="badge-title">Strategist</div>
+                <div class="badge-desc">Solve 50 games.</div>
+              </div>
+
+              <div class="badge locked rank-platinum" data-tier="100">
+                <div class="badge-top">
+                  <div class="badge-icon">🗺️</div>
+                  <div class="badge-rank">Platinum</div>
+                </div>
+                <div class="badge-title">Grandmaster</div>
+                <div class="badge-desc">Solve 100 games.</div>
+              </div>
+
+              <div class="badge locked rank-diamond" data-tier="200">
+                <div class="badge-top">
+                  <div class="badge-icon">👑</div>
+                  <div class="badge-rank">Diamond</div>
+                </div>
+                <div class="badge-title">Legend</div>
+                <div class="badge-desc">Solve 200 games.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT: milestones + actions -->
+        <div class="side-stack">
+
+          <!-- NEW: Next milestones -->
+          <div class="section">
+            <div class="section-head">
+              <div class="rule"></div>
+              <h2>Next Milestones</h2>
+              <div class="rule"></div>
+            </div>
+
+            <div class="section-body">
+              <div class="milestones">
+
+                <div class="milestone" id="ms-sages">
+                  <div class="milestone-title">
+                    <span>📚 Sages</span>
+                    <span id="ms-sages-right">—</span>
+                  </div>
+                  <div class="bar" aria-hidden="true"><i id="ms-sages-bar"></i></div>
+                  <div class="milestone-sub" id="ms-sages-text">—</div>
+                </div>
+
+                <div class="milestone" id="ms-games">
+                  <div class="milestone-title">
+                    <span>🎮 Games</span>
+                    <span id="ms-games-right">—</span>
+                  </div>
+                  <div class="bar" aria-hidden="true"><i id="ms-games-bar"></i></div>
+                  <div class="milestone-sub" id="ms-games-text">—</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Existing: Continue -->
+          <div class="section">
+            <div class="section-head">
+              <div class="rule"></div>
+              <h2>Continue</h2>
+              <div class="rule"></div>
+            </div>
+
+            <div class="section-body">
+              <div class="actions">
+                <button class="cta-button small sweep" onclick="window.location.href='play_select.html'">
+                  <span style="font-size: var(--fs-cta-icon);">🎮</span>
+                  <span>Play a Game</span>
+                </button>
+
+                <button class="cta-button small sweep" onclick="window.location.href='discover_select.html'">
+                  <span style="font-size: var(--fs-cta-icon);">🔎</span>
+                  <span>Discover a Sage</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /grid -->
+    </div><!-- /panel -->
+  </div><!-- /wrap -->
+</body>
+<script type="module" src="progress.js"></script>
+</html>

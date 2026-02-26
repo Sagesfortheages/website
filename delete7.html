@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hero Animation Demo (Visible)</title>
+
+<style>
+  body{
+    margin:0;
+    background:#f4ead6;
+    font-family: Georgia, serif;
+  }
+
+  /* HERO */
+  .hero{
+    height: 45vh;
+    min-height: 280px;
+    overflow:hidden;
+    position:relative;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  /* Put the image on a wrapper so the animation is reliable */
+  .hero-media{
+    position:absolute;
+    inset:0;
+    transform: scale(1.08);       /* START noticeably zoomed */
+    filter: saturate(1.02) contrast(1.02);
+    animation: settle 1.4s ease-out forwards;
+    will-change: transform;
+  }
+
+  .hero-media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  @keyframes settle{
+    to { transform: scale(1); }
+  }
+
+  /* Debug badge so you can confirm motion settings */
+  .badge{
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.75);
+    color: #2f241b;
+    border: 1px solid rgba(47,36,27,0.25);
+    backdrop-filter: blur(4px);
+  }
+
+  /* Overlay text (just for the demo) */
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#2f241b;
+    padding: 18px;
+    background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+  }
+
+  .overlay h1{
+    margin:0 0 8px 0;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+  }
+
+  .overlay p{
+    margin:0;
+    max-width: 760px;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+
+  /* If reduce-motion is enabled, we turn it off */
+  @media (prefers-reduced-motion: reduce){
+    .hero-media{
+      animation: none;
+      transform: none;
+    }
+    .badge::after{
+      content: " (reduced motion is ON)";
+      opacity: 0.8;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <div class="hero">
+    <div class="hero-media" id="heroMedia">
+      <!-- Use any image you like; replace with your banner path to test locally -->
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1800" alt="Hero" />
+    </div>
+
+    <div class="overlay">
+      <h1>Experience Our History</h1>
+      <p>This demo starts zoomed-in and settles to normal so you can clearly see the effect.</p>
+    </div>
+
+    <div class="badge">Hero animation demo</div>
+  </div>
+
+</body>
+</html>

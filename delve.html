@@ -3,17 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="all_styles.css">
 <title>Delve</title>
 
 <style>
     /* -------- BASE -------- */
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
-        min-height: 100vh;
-        overflow-x: hidden;
-    }
 
     /* -------- PAGE WRAPPER -------- */
     .page {
@@ -27,31 +21,6 @@
     }
 
     /* -------- HEADER -------- */
-    .header {
-        text-align: center;
-        margin-bottom: 2vh;
-    }
-
-    .header h1 {
-        margin: 0;
-        font-size: 8vmin;
-        font-weight: 800;
-        letter-spacing: -1px;
-    }
-
-    .gradient-text {
-        background: linear-gradient(120deg, #1f2d3a, #3556b3);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .header .subtitle {
-        margin: 0.6vh 0 0;
-        font-size: 3vmin;
-        font-weight: 500;
-        color: green;
-    }
-
     /* -------- GRID -------- */
     .grid {
         display: grid;
@@ -141,6 +110,13 @@
             <span class="gradient-text">Delve</span>
         </h1>
         <p class="subtitle">Delve into a fascinating halachic and historical analysis.</p>
+        <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">
+            🏠
+        </button>
+
+        <button class="modern-button" id="info-button" onclick="showCustomAlert(`Select a foundational text, to get a guide to the commentaries available on a typical page.`, restart=false)">
+            ℹ️
+        </button>
     </div>
 
     <div class="grid">

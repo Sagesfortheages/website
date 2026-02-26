@@ -123,11 +123,9 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     const imageToUse = selected.picture? `sages/${selected.picture}` : 'sages/blank_image.png';
 
-
-    console.log(`sages/${selected.picture}`)
     const { data, error } = await supabaseClient.storage
-    .from('images')
-    .createSignedUrl(imageToUse, 60)
+    .from('public_images')
+    .getPublicUrl(imageToUse + '.webp')
 
     console.log(data, error)
 
@@ -146,7 +144,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     const yearsEl = document.getElementById("years-content");
 
     if (selected.birth && selected.birth !== 'NaN' && selected.passing && selected.passing != 'NaN') {
-        yearsEl.innerHTML = `🕛 ${selected.birth} - ${selected.passing}`
+        yearsEl.innerHTML = `${selected.birth} - ${selected.passing}`
     } else {
         yearsEl.style.display = "none";
     }
@@ -183,7 +181,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     // Picture
     const picEl = document.getElementById("profile-pic");
-    if (picEl) picEl.src = data.signedUrl
+    if (picEl) picEl.src = data.publicUrl
     if (picEl) picEl.style.boxShadow = `0 0.8vmin 2.5vmin ${getColor(selected.background || "")}`;
 
     // Books — support array of objects, array of strings, or comma-string
@@ -283,7 +281,9 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     if (uniqueStudents.length > 0) {
         uniqueStudents.forEach((student, idx) => {
-        if (!student?.name) return;
+        console.log(student)    
+        if (!student?.person) return;
+        console.log('adding', student)
         const span = document.createElement("span");
         span.className = "clickable";
         span.textContent = `⮟ ${student.person}`;
@@ -376,144 +376,88 @@ if (courseIndex < totalPages - 1) {
 
 
 }
+function startTour(){
+  const intro = introJs();
 
-function startTour() {
-    const intro = introJs();
+  // Create (or reuse) the shield
+  function ensureShield(){
+    let shield = document.getElementById("tour-click-shield");
+    if (!shield){
+      shield = document.createElement("div");
+      shield.id = "tour-click-shield";
+      document.body.appendChild(shield);
+    }
+    return shield;
+  }
 
-    intro.setOptions({
-        showProgress: true,
-        showBullets: false,
-        exitOnOverlayClick: false,
-        exitOnEsc: true,
-        disableInteraction: true,
-        scrollToElement: false,
-        steps: [
-            {
-                element: 'body',
-                intro: `
-                <h3>👋 Welcome</h3>
-                This page lets you explore the life of a sage.
-                `
-            },
-            {
-                element: '#hero-content',
-                intro: `
-                <h3>💾 Data</h3>
-                Here you can find a brief digest of information about the sage.
-                `
-            },
-            {
-                element: '#profile-pic',
-                intro: `
-                <h3>🖼️ Picture</h3>
-                A picture of the sage will appear here, if it is available.
-                `
-            },
-            {
-                element: '#title-content',
-                intro: `
-                <h3>👤 Title</h3>
-                The title of the sage appears here.
-                `
-            },
-            {
-                element: '#name-content',
-                intro: `
-                <h3>🪪 Name</h3>
-                The name of the sage will appear here, if it is different from the title of the sage.
-                `
-            },
-            {
-                element: '#background-content',
-                intro: `
-                <h3>🏷️ Background</h3>
-                This is the background of the sage.
-                `
-            },
-            {
-                element: '#years-content',
-                intro: `
-                <h3>🕛 Lifetime</h3>
-                Here you can find the life span of the sage, if known.
-                `
-            },
-            {
-                element: '#birthday-content',
-                intro: `
-                <h3>🎂 Birthday</h3>
-                The birthday of the sage will appear here, if known.
-                `
-            },
-                        {
-                element: '#yahrtzeit-content',
-                intro: `
-                <h3>🕯️ Yahrtzeit</h3>
-                The yahrtzeit appears here, if known.
-                `
-            },            
-            {
-                element: '#teachers-content',
-                intro: `
-                <h3>⮝ Teachers</h3>
-                Here you can find the teachers of the sage, if known. Click on one to be taken to their sage profile.
-                `
-            },
-            {
-                element: '#students-content',
-                intro: `
-                <h3>⮟ Students</h3>
-                The students of the sage appear here, if known. Click on one to be taken to their sage profile.
-                `
-            },
-            {
-                element: '#major-works',
-                intro: `
-                <h3>📚 Major Works</h3>
-                Here you can find the major books of the sage, if known.
-                `
-            },
-            {
-                element: '#areas-of-focus',
-                intro: `
-                <h3>💡 Areas of Focus</h3>
-                The particular areas of torah in which the sage was influential appear here, if known.
-                `
-            },
-            {
-                element: '#biography',
-                intro: `
-                <h3>📜 Biography</h3>
-                Here you can find a brief biography of the sage.
-                `
-            },
-            {
-                element: '#map',
-                intro: `
-                <h3>📍 Map</h3>
-                Here is a map of the life of the sage, if known. The cities are numbered in order of when the sage lived there, and the size 
-                corresponds to the length of time the sage spent there. Hover over a city for more detail.
-                `
-            },
-            {
-                element: '#journey-button',
-                intro: `
-                <h3>🧳 Journey</h3>
-                Click here for an animated journey through the life of the sage, if available.
-                `
-            },
-            {
-                element: '#info-button',
-                intro: `
-                <h3>🚶 Restart Tour</h3>
-                Click here to see this tour again.
-                `
-            }
+  const shield = ensureShield();
 
-        ]
-    });
+  intro.setOptions({
+    showProgress: true,
+    showBullets: false,
+    exitOnOverlayClick: false,
+    exitOnEsc: true,
+    scrollToElement: false,
 
-    intro.start();
+    // IMPORTANT: do NOT let Intro.js globally disable interaction
+    disableInteraction: false,
+
+    steps: [
+      { element: "body", intro: `<h3>👋 Welcome</h3>This is a guided profile. In one minute, you’ll see the highlights — then you can explore freely.` },
+      { element: "#hero-content", intro: `<h3>🧾 Quick Identity</h3>The essentials at a glance: name, background, dates, and links to teachers/students.` },
+      { element: "#major-works", intro: `<h3>📚 What he wrote</h3>Major works — the fastest way to see why he matters.` },
+      { element: "#areas-of-focus", intro: `<h3>💡 What he shaped</h3>The fields where he made his mark.` },
+
+      // Map step (interactive)
+      { element: "#map", intro: `<h3>📍 Trace the journey</h3><b>Hover the numbered cities</b> to see what happened where.` },
+
+      { element: "#journey-button", intro: `<h3>🧳 Make it move</h3>Start the animated journey through the life path (if available).` },
+      { element: "#info-button", intro: `<h3>🚶 Tour anytime</h3>Click ℹ️ whenever you want to replay the tour.` },
+    ],
+  });
+
+  // Lock everything EXCEPT the map step
+  intro.onbeforechange(function(targetEl){
+    const isMapStep = targetEl && targetEl.id === "map";
+
+    // Shield blocks interaction everywhere
+    // Turn it OFF on the map step so hover works
+    shield.style.display = isMapStep ? "none" : "block";
+
+    // If we’re on map step, make sure map can receive pointer events
+    if (isMapStep){
+      const mapEl = document.getElementById("map");
+      if (mapEl) mapEl.style.pointerEvents = "auto";
+    }
+  });
+
+  intro.onexit(function(){
+    shield.style.display = "none";
+  });
+  intro.oncomplete(function(){
+    shield.style.display = "none";
+  });
+
+  intro.start();
 }
+
+function setPlayUIPlaying(isPlaying, text=""){
+  const btn = document.getElementById("play-button");
+  const status = document.getElementById("play-status");
+
+  if (!btn || !status) return;
+
+  if (isPlaying){
+    btn.classList.add("hidden");
+    status.classList.remove("hidden");
+    status.innerHTML = text;
+  } else {
+    status.classList.add("hidden");
+    status.innerHTML = "";
+    btn.classList.remove("hidden");
+  }
+}
+
 
 // --- Main fetch + render ---
 fetchSelectedSage(selectedPerson).then(async sage => {
@@ -548,11 +492,130 @@ fetchSelectedSage(selectedPerson).then(async sage => {
 
     // ✅ Locations are good — hide overlay and render map
     overlay.classList.add("hidden");
-
+console.log(selectedArray)
     // markers expect an array
     displayMarkers(selectedArray, visibleMarkers, false, true);
+    
     fitMapToMarkers(selectedArray);
+
+    document.getElementById("play-button").addEventListener("click", function () {
+  setPlayUIPlaying(true, "Starting journey…");
+  initMapSequence(selectedArray);
 });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to format location description text
+function formatLocationText(location, born = false, passing = false) {
+    const textStyle = `color: ${getColor(location.background)}; 
+                      font-weight: bold; 
+                      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                      font-style: italic;`;
+
+    let text = "";
+
+    if (born) {
+        text += `In <span style="${textStyle}">${location.from}</span>, <span style="${textStyle}">${location.person}</span> was born in <span style="${textStyle}">${location.city}</span>, <span style="${textStyle}">${location.country}</span>.`;
+    } else {
+        text += `In <span style="${textStyle}">${location.from}</span>, <span style="${textStyle}">${location.person}</span> moved to <span style="${textStyle}">${location.city}</span>, <span style="${textStyle}">${location.country}</span>.`;
+    }            
+    if (passing) {
+        text += `<br>He lived there for <span style="${textStyle}">${location.to - location.from}</span> years.`;
+        text += `<br>He passed away there in <span style="${textStyle}">${location.passing}</span>.`;
+    } else {
+        text += `<br>He lived there for <span style="${textStyle}">${location.to - location.from + 1}</span> years.`; 
+    }
+    return text;
+}
+
+function initMapSequence(filteredMarkers) {
+    console.log("initMapSequence called");
+
+    // If the map is already loaded, start immediately
+    if (map.loaded()) {
+        console.log("Map already loaded — starting sequence immediately");
+        startSequence(filteredMarkers);
+    } else {
+        // Otherwise, wait for it to finish loading
+        map.on('load', () => {
+            console.log("Map load event triggered");
+            startSequence(filteredMarkers);
+        });
+    }
+}
+
+function startSequence(filteredMarkers) {
+  displayMarkers(filteredMarkers, [], false, true);
+
+  let currentLocationIndex = -1;
+
+  function flyToNextLocation() {
+    if (currentLocationIndex < filteredMarkers.length - 1) {
+      currentLocationIndex++;
+
+      const nextLocation = filteredMarkers[currentLocationIndex];
+
+      // Update the inline status text (replaces button)
+      setPlayUIPlaying(
+        true,
+        `${nextLocation.city}, ${nextLocation.country} • ${nextLocation.from}–${nextLocation.to}`
+      );
+
+      map.flyTo({
+        center: [nextLocation.longitude, nextLocation.latitude],
+        duration: 6000,
+        essential: true,
+        zoom: 7
+      });
+
+let formattedText;
+            if (currentLocationIndex === 0 && currentLocationIndex === filteredMarkers.length - 1) {
+                formattedText = formatLocationText(nextLocation, true, true);
+            } else if (currentLocationIndex !== 0 && currentLocationIndex === filteredMarkers.length - 1) {
+                formattedText = formatLocationText(nextLocation, false, true);
+            } else if (currentLocationIndex === 0 && currentLocationIndex !== filteredMarkers.length - 1) {
+                formattedText = formatLocationText(nextLocation, true, false);
+            } else {
+                formattedText = formatLocationText(nextLocation, false, false);
+            }
+            
+
+            typewriterEffect("play-status", formattedText, 50);
+            document.getElementById('keyboard-sound').play();
+
+
+      setTimeout(flyToNextLocation, 8000);
+    } else {
+      // DONE: restore play button
+      setPlayUIPlaying(false);
+    }
+  }
+
+  flyToNextLocation();
+}
+
+
+
+
+
+
+
+
+
+
 
 
 // --- Hover popup logic ---

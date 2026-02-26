@@ -3,38 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🪢 Techeiles</title>
+<title>Techeiles</title>
 
 <!-- Mapbox -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet"/>
+<link rel="stylesheet" href="all_styles.css">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
 
 <style>
-:root{
-  --blue1:#3b82f6;
-  --blue2:#60a5fa;
-  --bg:#f8fafc;
-  --glow: rgba(96,165,250,0.32);
-}
 
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;
-  margin: 0;
-  background: var(--bg);
-  color: #0f172a;
-}
 
-.hero {
-  text-align:center;
-  padding: 22px 12px;
-}
-.hero h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  color: var(--blue1);
-  font-weight: 800;
-}
-.subtitle { color: #475569; margin-top:6px; }
 
 /* Controls above map */
 .controls-wrapper {
@@ -51,18 +29,25 @@ body {
   justify-content: center;
 }
 
-.play-btn {
-  background: linear-gradient(135deg, #2c3e50, #4a69bd);
-  color: white;
-  padding: 0.6rem 1rem;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.play-btn:hover { transform: translateY(-3px); }
+.play-button {
+            width: 8vmin;
+            height: 8vmin;
+            border-radius: 50%;
+            border: none;
+            background: var(--classy-blue-ink);
+            color: var(--paper);
+            font-size: 4vmin;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
 
 .speed-control {
   display:flex;
@@ -118,7 +103,7 @@ body {
 }
 #map {
   width: 100%;
-  height: 100%;
+  height: 88%;
 }
 
 /* timeline */
@@ -127,6 +112,7 @@ body {
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
+  height: 88%;
 }
 .timeline {
   width: 100%;
@@ -185,26 +171,34 @@ body {
 
 .record-counter {
   font-weight:700;
-  color:#1e40af;
+  color:var(--ink);
   margin-left:1rem;
 }
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <h1>The Journey of Techeiles Through History</h1>
-  <div class="subtitle">Map + timeline — Play Story moves timeline and map.</div>
-</div>
+    <div class="header-section">
+      <div class="header">
+          <h1>
+              <span class="emoji">🪢</span> 
+              <span class="gradient-text">Techeiles</span>
+          </h1>
+          <p class="subtitle">Explore the History of Techeiles</p>
+          <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+          <button class="modern-button" id="info-button">ℹ️</button>
+      </div>
+    </div>
+
 
 <div class="map-timeline-wrapper">
 
   <!-- CONTROLS ABOVE -->
   <div class="controls-wrapper">
     <div class="controls">
-      <button id="playBtn" class="play-btn" title="Start autoplay">▶ Play Story</button>
-      <button id="pauseBtn" class="play-btn" style="display:none; background: linear-gradient(135deg,#4a69bd,#2c3e50);" title="Pause autoplay">⏸ Pause</button>
-      <span id="recordCounter" class="record-counter">0/0</span>
+      <button id="play-button" class="play-btn round-sweep" title="Start autoplay"></button>
+      <button id="pauseBtn" class="play-button" style="display:none;" title="Pause autoplay">⏸</button>
+      <span id="recordCounter" class="record-counter">1/10</span>
       <div class="speed-control small-muted">
         Delay:
         <select id="delaySelect" class="speed-select" title="Slide delay (ms)">
@@ -452,7 +446,7 @@ map.flyTo({
 }
 
 /* =========================== Autoplay + progress bar =========================== */
-const playBtn = document.getElementById('playBtn');
+const playBtn = document.getElementById('play-button');
 const pauseBtn = document.getElementById('pauseBtn');
 const delaySelect = document.getElementById('delaySelect');
 const progressWrap = document.getElementById('progressWrap');

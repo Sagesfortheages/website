@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="stylesheet" href="all_styles.css">
+
+
+<title>Quest</title>
+
+<style>
+
+    
+    #container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* centers horizontally */
+    justify-content: center; /* optional vertical centering */
+    gap: 20px;
+    margin-top: 40px;      /* space below header */
+    }
+
+    #quest-container{
+    width:100%;
+    max-width:600px;
+    min-height:180px;
+    display:flex;
+    align-items:center;
+    justify-content:center;  /* ADD THIS */
+    }
+
+  .quest-card{
+    background: rgba(255,255,255,0.85);
+    border:1px solid var(--rule);
+    border-radius:16px;
+    padding:28px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+    text-align:center;
+    width:100%;
+  }
+
+  .timer{
+    margin-top:14px;
+    font-size:1.2rem;
+    font-weight:bold;
+    color: var(--accent);
+  }
+
+  #next-btn{
+    margin-top:30px;
+    padding:14px 28px;
+    font-size:1rem;
+    border-radius:10px;
+    border:1px solid var(--rule);
+    background: var(--paper);
+    cursor:pointer;
+  }
+
+  #search-container{
+    position:relative;
+    width:100%;
+    max-width:400px;
+  }
+
+  #next-btn:hover{
+    background:#f4ecd6;
+  }
+
+  #next-btn:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+  }
+</style>
+</head>
+
+<body>
+
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="emoji">🏹</span> 
+                <span class="gradient-text">Quest</span>
+            </h1>
+            <p class="subtitle">Explore which sages lived where and when by searching for cities or countries.</p>
+            <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+            <button class="modern-button" id="info-button">ℹ️</button>
+        </div>
+    </div>
+
+<div id="container">
+    <div id="quest-container"></div>
+
+    <div class="panel search-container" id="search-container">
+        <input type="text" class="search-input" id="search-input" placeholder="Input your answer here..."/>
+        <ul class="search-results" id="search-results"></ul>
+    </div>   
+
+    <button id="next-btn">Next Quest</button>
+</div>
+
+</body>
+<script type="module" src="quest.js"></script>
+</html>

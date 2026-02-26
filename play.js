@@ -132,14 +132,14 @@ async function initializeGame() {
         const circleContainer = document.querySelector(".circle-container");
         if (circleContainer) {
             circleContainer.innerHTML = `
-                <div style="color: red; text-align: center;">
+                <div style="color: #a9443b; text-align: center;">
                     <p>Failed to load game. Please refresh the page to try again.</p>
                     <button onclick="initializeGame()" style="margin-top: 10px;">Retry</button>
                 </div>
             `;
         }
     }
-    const page = await trackPageView();
+    const page = await trackPageView(difficultyLevel);
     if(page.isFirstVisit) {
         startTour();
     }
@@ -226,7 +226,7 @@ function startTour() {
                 `
             },
             {
-                element: '.timeline-container',
+                element: '#timeline-container',
                 intro: `
                 <h3>⏳ Timeline</h3>
                 Your guess's life span will appear. The closer your guess's life span is to the mystery sage's, the more red it will appear. As you play, hover over a sage's lifespan to see more details.
@@ -281,7 +281,7 @@ function startTour() {
 
 function setupGameUI() {
     // Initialize focus wheels
-    setRingColor('ring1', [], [], 'white');
+    setRingColor('ring1', [], [], 'var(--paper)');
     setRingColor('ring2', [], [], 'lightgray');
 
     // Get the container for circles and create them
@@ -327,8 +327,10 @@ function setupSuggestionsList() {
 
 function setupEventListeners() {
     // Restart button
+    console.log(1)
     const restartButton = document.getElementById('restart-button-main');
     if (restartButton) {
+        console.log(2)
         restartButton.addEventListener('click', function() {
             hideCustomAlert();
             restartGame();
@@ -338,6 +340,7 @@ function setupEventListeners() {
     // Hint button
     const hintButton = document.getElementById('hint-button');
     if (hintButton) {
+        console.log(3)
         hintButton.addEventListener('click', handleHintClick);
     }
 
@@ -517,7 +520,7 @@ window.restartGame = async function() {
     });
 
     // Clear focus wheels
-    setRingColor('ring1', [], [], 'white');
+    setRingColor('ring1', [], [], 'var(--paper)');
     setRingColor('ring2', [], [], 'lightgray');
     
     // Remove rectangles and markers
@@ -644,7 +647,7 @@ function createRectangle(birthYear, passingYear, color, height, name) {
         }
     });
 
-    const timelineContainer = document.querySelector('.timeline-container');
+    const timelineContainer = document.querySelector('#timeline-container');
     if (!timelineContainer) {
         console.error('Timeline container not found');
         return;
@@ -701,17 +704,17 @@ function pickMarkerByName(markers, name) {
 // Define colors and bins (keeping existing color logic)
 
 const colors = [
-  '#2222CC',
-  '#4444FF',
-  '#8888FF',
-  '#AAAAFF',
-  '#CCCCFF',
-  '#FFFFFF',
-  '#FFCCCC',
-  '#FF8888',
-  '#FF6666',
-  '#FF4444',
-  '#FF0000'
+  '#2b2a58', // was #2222CC → deep indigo ink
+  '#3a3b74', // was #4444FF → muted royal ink
+  '#54579a', // was #8888FF → dusty manuscript blue
+  '#7a7fb8', // was #AAAAFF → pale ink wash
+  '#a8add3', // was #CCCCFF → faded pigment
+  'rgba(255, 248, 230, 0.88)',
+  '#e1b3a6', // was #FFCCCC → light terracotta wash
+  '#d59482', // was #FF8888 → muted coral pigment
+  '#c87863', // was #FF6666 → clay ink
+  '#b85f4b', // was #FF4444 → sealing wax tone
+  '#9f4738'  // was #FF0000 → deep wax red
 ]
 
 const bins = [
@@ -823,7 +826,7 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
         if (guess) {
             const rightCircle = document.getElementById('circle' + (wrongGuessesNum + 1));
             if (rightCircle) {
-                rightCircle.style.backgroundColor = 'green';
+                rightCircle.style.backgroundColor = ' #6f8f4a';
                 rightCircle.classList.add('popup-button');
                 rightCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
             }
@@ -868,7 +871,7 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
     
     const wrongCircle = document.getElementById('circle' + wrongGuessesNum);
     if (wrongCircle) {
-        wrongCircle.style.backgroundColor = 'red';
+        wrongCircle.style.backgroundColor = '#a9443b';
         wrongCircle.classList.add('popup-button');
         wrongCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
     }

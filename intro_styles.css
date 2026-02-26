@@ -1,156 +1,121 @@
-.introjs-overlay {
-  background: rgba(20, 30, 45, 0.85) !important;
-  position: fixed !important;
+/* Warm parchment overlay (not “software modal”) */
+.introjs-overlay{
+  background: rgba(47, 36, 27, 0.55) !important; /* ink */
 }
 
-/* Tooltip - Two-tone design */
-.introjs-tooltip {
+/* Helper layer = “spotlight” that matches your palette */
+.introjs-helperLayer{
+  background: transparent !important;
   border-radius: 18px !important;
-  padding: 0 !important;
-  font-family: 'Segoe UI', sans-serif !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 
-              0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%) !important;
-  color: #2c3e50 !important;
-  font-size: 2.4vmin !important;
-  font-weight: 400 !important;
-  overflow: hidden !important;
+  box-shadow:
+    0 0 0 9999px rgba(47, 36, 27, 0.55),
+    0 0 0 2px rgba(110, 85, 55, 0.55),
+    0 18px 40px rgba(0,0,0,0.35) !important;
 }
 
-/* Tooltip title - Blue header section */
-.introjs-tooltip h3 {
-  margin: 0 0 1.5vmin 0 !important;
-  padding: 2vmin 2.5vmin !important;
-  margin-left: -2.5vmin !important;
-  margin-right: -2.5vmin !important;
-  margin-top: -1.5vmin !important;
-  font-size: 3vmin !important;
+/* Tooltip = parchment card */
+.introjs-tooltip{
+  padding: 0 !important;
+  border-radius: 16px !important;
+  background: rgba(255, 248, 230, 0.98) !important;  /* paper */
+  border: 1px solid rgba(110, 85, 55, 0.35) !important; /* rule */
+  box-shadow: 0 14px 40px rgba(0,0,0,0.25) !important;
+  color: rgba(47, 36, 27, 0.92) !important;
+  font-family: 'Crimson Text','Georgia',serif !important;
+  overflow: hidden !important;
+  max-width: 360px !important;
+}
+
+/* Title bar = subtle “label strip”, not blue app header */
+.introjs-tooltip h3{
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  font-family: 'Cinzel', serif !important;
   font-weight: 700 !important;
-  color: #ffffff !important;
-  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%) !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-  letter-spacing: 0.3px !important;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  font-size: 16px !important;
+
+  background: rgba(245, 230, 211, 0.95) !important;
+  border-bottom: 1px solid rgba(110, 85, 55, 0.25) !important;
+  color: rgba(47, 36, 27, 0.9) !important;
   text-align: center !important;
 }
 
-/* Body text styling */
-.introjs-tooltiptext {
-  padding: 1.5vmin 2.5vmin !important;
-  color: #2c3e50 !important;
-  font-size: 2.4vmin !important;
-  font-weight: 400 !important;
-  line-height: 1.6 !important;
+/* Body text */
+.introjs-tooltiptext{
+  padding: 12px 16px 6px 16px !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
 }
 
-/* Button container */
-.introjs-tooltipbuttons {
-  padding: 1.5vmin 2.5vmin 2vmin 2.5vmin !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-  background: transparent !important;
+/* Progress bar: ink + parchment */
+.introjs-progress{
+  margin: 8px 16px 0 16px !important;
+  height: 6px !important;
+  background: rgba(110,85,55,0.18) !important;
+  border-radius: 99px !important;
+}
+.introjs-progressbar{
+  height: 100% !important;
+  background: rgba(3, 43, 125, 0.55) !important; /* your classy blue ink */
+  border-radius: 99px !important;
 }
 
-/* Buttons */
-.introjs-button {
+/* Buttons: match your CTA vibe */
+.introjs-tooltipbuttons{
+  padding: 10px 16px 14px 16px !important;
+  border-top: 1px solid rgba(110, 85, 55, 0.18) !important;
+}
+
+.introjs-button{
   border-radius: 10px !important;
-  border: none !important;
-  background: #6e7581 !important;
-  color: white !important;
-  padding: 0.8vmin 1.8vmin !important;
-  font-size: 2.2vmin !important;
-  font-weight: 600 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(110, 85, 55, 0.30) !important;
+  background: rgba(245, 230, 211, 0.95) !important;
+  color: rgba(47, 36, 27, 0.9) !important;
+  padding: 8px 14px !important;
+  font-family: 'Cinzel', serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12) !important;
 }
 
-.introjs-button:hover {
-  background: #5a6169 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+.introjs-nextbutton{
+  background: rgba(3, 43, 125, 0.12) !important;
+  border-color: rgba(3, 43, 125, 0.25) !important;
 }
 
-.introjs-prevbutton {
-  float: left !important;
+.introjs-button:hover{
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.16) !important;
 }
 
-.introjs-nextbutton {
-  border-radius: 10px !important;
-  border: none !important;
-  background: linear-gradient(135deg, #4a69bd 0%, #5a7acc 100%) !important;
-  color: white !important;
-  padding: 0.8vmin 1.8vmin !important;
-  font-size: 2.2vmin !important;
-  font-weight: 600 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(74, 105, 189, 0.3) !important;
+/* Arrows: parchment */
+.introjs-arrow.top{ border-bottom-color: rgba(255, 248, 230, 0.98) !important; }
+.introjs-arrow.bottom{ border-top-color: rgba(255, 248, 230, 0.98) !important; }
+.introjs-arrow.left{ border-right-color: rgba(255, 248, 230, 0.98) !important; }
+.introjs-arrow.right{ border-left-color: rgba(255, 248, 230, 0.98) !important; }
+
+
+
+
+
+/* A transparent shield that blocks clicks during the tour */
+#tour-click-shield{
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 9999980;   /* below intro highlight + tooltip */
+  pointer-events: auto;
 }
 
-.introjs-nextbutton:hover {
-  background: linear-gradient(135deg, #3d5aa8 0%, #4d6bb8 100%) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 16px rgba(74, 105, 189, 0.4) !important;
-}
-
-.introjs-skipbutton {
-  color: #6e7581 !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
-}
-
-.introjs-skipbutton:hover {
-  color: #4a69bd !important;
-}
-
-/* Highlight glow - This creates the bright area around highlighted element */
-.introjs-helperLayer {
-  background: transparent !important;
-  border-radius: 20px !important;
-  box-shadow: 0 0 0 9999px rgba(20, 30, 45, 0.85),
-              0 0 0 4px rgba(74, 105, 189, 0.6),
-              0 20px 50px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Ensure highlighted element shows through */
-.introjs-showElement {
+/* Make sure the highlighted element sits ABOVE the shield */
+.introjs-showElement{
   z-index: 9999999 !important;
 }
 
-.introjs-relativePosition {
-  position: relative !important;
-}
-
-.introjs-fixedPosition {
-  position: fixed !important;
-}
-
-/* Progress bar - Fixed to be solid */
-.introjs-progress {
-  background: rgba(0, 0, 0, 0.1) !important;
-  height: 6px !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
-  margin: 1.5vmin 2.5vmin 0 2.5vmin !important;
-}
-
-.introjs-progressbar {
-  background: linear-gradient(90deg, #4a69bd 0%, #6a89cc 100%) !important;
-  border-radius: 10px !important;
-  height: 100% !important;
-}
-
-/* Arrow with matching color */
-.introjs-arrow.top {
-  border-bottom-color: #4a69bd !important;
-}
-
-.introjs-arrow.bottom {
-  border-top-color: #f8f9fc !important;
-}
-
-.introjs-arrow.left {
-  border-right-color: #f8f9fc !important;
-}
-
-.introjs-arrow.right {
-  border-left-color: #f8f9fc !important;
+/* Tooltip should always be clickable */
+.introjs-tooltip,
+.introjs-tooltip *{
+  pointer-events: auto !important;
 }

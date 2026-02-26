@@ -10,95 +10,14 @@
     <link rel="icon" href="icon3.png" type="image/x-icon">
     <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
-    <link rel="stylesheet" href="intro_styles.css">
+    <link rel="stylesheet" href="all_styles.css">
     <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-weight: 600;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
-            color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 2vmin;
-            animation: fadeIn 0.8s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 3vmin;
-            animation: slideDown 0.6s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .header h1 {
-            font-size: 8vmin;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -1px;
-            display: inline-block;
-        }
-
-        .header h1 .emoji-icon {
-            background: none;
-            -webkit-background-clip: unset;
-            -webkit-text-fill-color: unset;
-            background-clip: unset;
-        }
-
-        .header h1::first-letter {
-            font-size: 1.2em;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Apply gradient only to text content after emoji */
-        .header h1 {
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Override gradient for emoji span */
-        .header h1 .emoji-icon {
-            -webkit-text-fill-color: initial;
-        }
-
-        .header .subtitle {
-            font-size: 3vmin;
-            color: #666;
-            font-weight: 500;
-            color:green
-        }
 
         .container-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
             width: 100%;
-            align-items: center;
             gap: 2rem;
         }
 
@@ -127,30 +46,8 @@
         .search-container {
             position: relative;
             width: 60%;
-            animation: bounceIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             margin-bottom: 35vh;
             z-index: 2000;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.5vmin 1vmin;
-            font-size: 4vmin;
-            border: none;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            font-weight: 500;
-            outline: none;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .search-input:focus {
-            box-shadow: 0 15px 40px rgba(74, 105, 189, 0.2);
-            transform: translateY(-2px) scale(1.01);
-            border-color: #4a69bd;
-            background: white;
         }
 
         .search-results {
@@ -158,9 +55,10 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: white;
+            background: var(--paper);
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            min-height:30vh;
             max-height: 30vh;
             overflow-y: auto;
             z-index: 2500;
@@ -189,6 +87,11 @@
             border-bottom: none;
         }
 
+.panel {
+    justify-items: center;
+    padding:2vmin;
+}
+
         @keyframes bounceIn {
             0% { transform: scale(0.8); opacity: 0; }
             50% { transform: scale(1.05); }
@@ -201,7 +104,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 50vw;
             width: 100%;
-            animation: slideUp 0.8s ease-out 0.2s both;
         }
 
         @keyframes slideUp {
@@ -210,7 +112,7 @@
         }
 
         .info-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--paper);
             border-radius: 20px;
             padding: 2vmin;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -220,6 +122,7 @@
             text-align: center;
             border: 2px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
+            width:22vw
         }
 
         .info-card:hover {
@@ -238,10 +141,6 @@
             position: relative;
         }
 
-        .birthdays-list-icon, .yahrtzeits-list-icon {
-            font-size: 5vmin;
-            animation: bounce 2s ease-in-out infinite;
-        }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -272,22 +171,22 @@
         }
 
         .date-selection-card {
-            background: rgba(255, 255, 255, 0.95);
+            /* background: var(--paper);
             border-radius: 20px;
             padding: 2vmin;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); */
             width: 60%;
             justify-content: center;
             text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            /* border: 2px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all 0.3s ease; */
         }
 
-        .date-selection-card:hover {
+        /* .date-selection-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        }
+        } */
 
         .dropdown-container {
             display: flex;
@@ -307,7 +206,7 @@
             border-radius: 12px;
             font-size: 1rem;
             font-weight: 500;
-            background: white;
+            background: var(--paper);
             transition: all 0.3s ease;
             outline: none;
             cursor: pointer;
@@ -352,7 +251,7 @@
         .action-button:hover {
             transform: translateY(-3px) scale(1.1);
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-            background: white;
+            background: var(--paper);
         }
 
         .action-button:active {
@@ -364,7 +263,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--paper);
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -472,37 +371,30 @@
         <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
     </div>
 
-    <div class="action-buttons">
-        <button class="action-button home-button" onclick="window.location.href='index.html'">
-            🏠
-        </button>
-
-        <button class="action-button info-button" id="info-button">
-            ℹ️
-        </button>
-    </div>
-
-    <div class="header">
-        <h1><span class="emoji-icon">🔍</span> Discover</h1>
-        <p class="subtitle">Search for sages by name, birthday or yahrtzeit</p>
+    <div class="header-section">
+        <div class="header">
+            <h1><span class="emoji-icon">🔍</span> Discover</h1>
+            <p class="subtitle">Search for sages by name, birthday or yahrtzeit</p>
+            <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+            <button class="modern-button" id="info-button">ℹ️</button>
+        </div>
     </div>
     <div class="container-grid">
         <div class="left-container">
-            <div class="info-card">
-                <div class="birthdays-list-icon">🎂</div>
-                <h3 id="birthdays-list-heading" style="justify-self: center;"> Birthdays</h3>
+            <div class="panel">
+                <h3 class="panel-heading" id="birthdays-list-heading" style="justify-self: center;"> Birthdays</h3>
                 <ul id="birthdays-list-content">
                 </ul>
             </div>
         </div>
         <div class="central-container">
             <div class="search-container" id="search-container">
-                <input type="text" class="search-input" id="search-input" placeholder="Search for a sage...">
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Search for a sage...">
                 <ul class="search-results" id="search-results"></ul>
             </div>   
 
-            <div class="date-selection-card" id="date-selection-card">
-                <h3 style="justify-self: center;">📅 Date Selection</h3>
+            <div class="panel date-selection-card" id="date-selection-card">
+                <h3 class="panel-heading" style="justify-self: center;">📅 Date Selection</h3>
                 <div class="dropdown-container">
                     <div class="select-group">
                         <select id="day" name="day"></select>
@@ -530,9 +422,8 @@
             </div>
         </div>
         <div class="right-container">
-            <div class="info-card">
-                <div class="yahrtzeits-list-icon">🕯️</div>
-                <h3 id="yahrtzeits-list-heading" style="justify-self: center;"> Yahrtzeits</h3>
+            <div class="panel">
+                <h3 class="panel-heading"id="yahrtzeits-list-heading" style="justify-self: center;"> Yahrtzeits</h3>
                 <ul id="yahrtzeits-list-content">
                 </ul>
             </div>

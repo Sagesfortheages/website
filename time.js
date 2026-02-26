@@ -12,6 +12,11 @@ document.getElementById('info-button').addEventListener('click', function () {
     startTour()
 })
 let popup, popupMessage;
+let allPeople = [];
+
+let lastSortedSages = [];
+let lastYScale = null;
+let lastMarginTop = 20; // matches renderChart margin.top
 
 // ===================== INITIALIZATION =====================
 async function initializeSages() {
@@ -24,6 +29,17 @@ async function initializeSages() {
 
     // Filter out sages missing birth or passing
     sages = sages.filter(sage => sage.birth != null && sage.passing != null);
+
+        document
+      .getElementById("search-input")
+      .addEventListener("input", function (event) {
+        handleInput(event, sages);
+      });
+
+    allPeople = [
+      ...new Map(sages.map((item) => [item["person"], item])).values(),
+    ];
+    allPeople.sort((a, b) => a.person.localeCompare(b.person));
 
     renderChart(); 
 }
@@ -130,6 +146,80 @@ function hidePopup() {
     popup.classList.remove('visible');
 }
 
+// ---------------- Your existing functions (unchanged) ----------------
+function handleInput(event, markers, searchValue = null) {
+  if (event.inputType !== undefined) {
+    searchValue = event.target.value.trim().toLowerCase();
+  }
+
+  console.log(allPeople)
+
+  const searchResults = markers.filter(
+    (marker) =>
+      (marker.person || "").toLowerCase().includes(searchValue) ||
+      (marker.sage_aka || []).some(akaObj => 
+  akaObj.aka.toLowerCase().includes(searchValue)
+) ||
+      (marker.name || "").toLowerCase().includes(searchValue)
+  );
+
+  const uniqueSearchResults = [
+    ...new Map(searchResults.map((item) => [item["person"], item])).values(),
+  ];
+
+  const suggestionsList = document.getElementById("search-results");
+  suggestionsList.style.padding = "0vmin 0vmin 1vmin 0vmin"
+  suggestionsList.innerHTML = "";
+
+  uniqueSearchResults.forEach((result) => {
+    const li = document.createElement("li");
+    li.textContent = result.person;
+    li.classList.add("clickable");
+    li.addEventListener("click", () => {
+  suggestionsList.innerHTML = "";
+  scrollToPerson(result.person);
+  document.getElementById('search-input').value = "";
+  suggestionsList.style.padding = "0vmin 0vmin 0vmin 0vmin"
+});
+
+    suggestionsList.appendChild(li);
+  });
+
+  if (uniqueSearchResults.length === 0) {
+    var closestMatch = findClosestMatch(searchValue, uniqueNames);
+    const closestResults = markers.filter(
+      (marker) =>
+        (marker.person || "").toLowerCase().includes(closestMatch) ||
+        (marker.sage_aka || []).some(akaObj => 
+  akaObj.aka.toLowerCase().includes(closestMatch)
+) ||
+        (marker.name || "").toLowerCase().includes(closestMatch)
+    );
+    const uniqueClosestResults = [
+      ...new Map(closestResults.map((item) => [item["person"], item])).values(),
+    ];
+    uniqueClosestResults.forEach((result) => {
+      const li = document.createElement("li");
+      li.textContent = "Did you mean " + result.person + "?";
+      li.classList.add("clickable");
+      li.addEventListener("click", () => {
+        suggestionsList.innerHTML = "";
+        allPeople.forEach((result) => {
+          const li = document.createElement("li");
+          li.textContent = result.person;
+          li.classList.add("clickable");
+          li.addEventListener("click", () => {
+            linkToProfile(result);
+          });
+          suggestionsList.appendChild(li);
+        });
+        linkToProfile(result);
+      });
+      suggestionsList.appendChild(li);
+    });
+  }
+}
+
 // ===================== CHART RENDERING =====================
 function renderChart() {
     const leftMarginBase = window.innerWidth / 100 * 20;
@@ -151,28 +241,34 @@ function renderChart() {
     const x = d3.scaleLinear().domain([880, 2000]).range([0, width]);
     const y = d3.scaleBand().domain(sortedSages.map(d => d.person)).range([0, height]).padding(0.3);
 
-    const svg = d3.select("#chart")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .style("background-color", "white")
-        .style("color", "black")
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+    // ✅ save for scrolling later
+    lastSortedSages = sortedSages;
+    lastYScale = y;
+    lastMarginTop = margin.top;
+
+    const svgRoot = d3.select("#chart")
+    .append("svg")
+    .attr("class", "timeline-svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+    const svg = svgRoot
+    .append("g")
+    .attr("class", "plot")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Grid lines
     svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisBottom(x).tickSize(height).tickFormat(" "))
-        .selectAll("line")
-        .attr("stroke", "#444");
+    .attr("class", "grid")
+    .call(d3.axisBottom(x).tickSize(height).tickFormat(""));
 
     // Y-axis
     svg.append("g")
-        .call(d3.axisLeft(y).tickSize(0))
-        .selectAll("text")
-        .attr("class", "clickable y-label")
-        .call(wrap, margin.left - 20);
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(y).tickSize(0))
+    .selectAll("text")
+    .attr("class", "y-label")
+    .call(wrap, margin.left - 20);
 
     // Y-axis click
     svg.selectAll(".y-label")
@@ -190,8 +286,7 @@ function renderChart() {
             .attr("y1", textBox.y + textBox.height + 2)
             .attr("x2", textBox.x)
             .attr("y2", textBox.y + textBox.height + 2)
-            .attr("stroke", "#007bff")
-            .attr("stroke-width", 2);
+            .attr("class", "y-underline");
     });
 
     svg.selectAll(".clickable")
@@ -235,6 +330,39 @@ function renderChart() {
         .call(d3.axisBottom(x).tickFormat(d3.format("d")))
         .selectAll("text")
         .attr("class", "timeline-label");
+}
+
+function scrollToPerson(personName) {
+  const container = document.getElementById('timeline-container');
+  if (!container || !lastYScale) return;
+
+  // If person isn’t currently in the chart (filtered out), do nothing
+  const yPos = lastYScale(personName);
+  if (yPos == null) return;
+
+  // Center the row in the scroll window
+  const targetTop = Math.max(0, yPos + lastMarginTop - container.clientHeight / 2);
+
+  container.scrollTo({
+    top: targetTop,
+    behavior: 'smooth'
+  });
+
+  // Optional: brief highlight on the bar + label
+    d3.selectAll('.bar')
+    .classed('flash', d => d.person === personName);
+
+    d3.selectAll('.y-label')
+    .classed('flash', d => d === personName);
+
+    setTimeout(() => {
+    d3.selectAll('.bar').classed('flash', false);
+    d3.selectAll('.y-label').classed('flash', false);
+    }, 900);
+
+  setTimeout(() => {
+    d3.selectAll('.bar').classed('flash', false);
+  }, 1500);
 }
 
 // ===================== TEXT WRAP =====================

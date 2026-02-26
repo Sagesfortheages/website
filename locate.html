@@ -9,62 +9,13 @@
     <link rel="icon" href="icon3.png" type="image/x-icon">
     <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
-    <link rel="stylesheet" href="intro_styles.css">
+    <link rel="stylesheet" href="all_styles.css">
     <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-weight: 770;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #82c6ee 0%, #e0e6e9 100%);
-            color: #333;
-            min-height: 100vh;
-            overflow: hidden; /* Prevents scrollbars on body */
-        }
 
-        .header {
-            text-align: center;
-            margin-bottom: 1vmin;
-        }
 
-        .header h1 {
-            font-size: 8vmin;
-            font-weight: 800;
-            margin-bottom: 1vmin;
-            letter-spacing: -1px;
-        }
 
-        html {
-            overflow: hidden; /* Prevents scrollbars on html */
-        }
-
-        .gradient-text {
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 8vmin;
-            font-weight: 800;
-        }
-
-        .header .subtitle {
-            font-size: 3vmin;
-            color: #666;
-            font-weight: 500;
-            color:green
-        }
-
-        .container-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 5fr) minmax(0, 1fr);
-            margin: 0 auto;
-            height: 100vh;
-        }
 
         .left-container {
             margin-left: 1vmin;
@@ -80,68 +31,44 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
-        #map {
-            position: relative;
-            width: 100%;
-            height: 80%;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Search Container */
-        .search-container {
-            position: relative;
-            width: 100%;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            margin-bottom: 2vmin;
-        }
-
-        .search-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 1.5vmin 2vmin;
-            border: none;
-            outline: none;
-            font-size: 2vmin;
-            font-weight: 770;
-            background: transparent;
-            color: #333;
-        }
-
-        .search-input::placeholder {
-            color: #888;
-            font-weight: 500;
-        }
-
         .search-results {
             list-style: none;
-            max-height: 33vmin;
-            overflow-y: auto;
+            height: 33vmin;
         }
 
         .mapboxgl-marker.city {
-            width: 25px;
-            height: 25px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background-color: #ffde59;
-            box-shadow: 0 0 15px rgba(255, 222, 89, 0.8);
-            border: 3px solid rgba(255, 94, 125, 0.7);
+
+            /* Pigment fill instead of neon */
+            background: radial-gradient(circle at 30% 30%, #f2e4c6 0%, #d9b77b 60%, #b38b4f 100%);
+
+            /* Ink edge instead of bright border */
+            border: 2px solid #6b4e2e;
+
+            /* Subtle material shadow instead of glow */
+            box-shadow:
+                0 3px 6px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+
         }
 
+
         .mapboxgl-marker.city:hover {
-            transform: scale(1.3) rotate(15deg);
-            box-shadow: 0 0 20px rgba(255, 222, 89, 1);
-            border-color: rgba(138, 43, 226, 0.9);
-            background-color: #ffd700;
+            transform: scale(1.2);
+
+            /* Slightly richer pigment */
+            background: radial-gradient(circle at 30% 30%, #f7e9cd 0%, #e0c08a 60%, #c79c5a 100%);
+
+            /* Slightly darker ink border */
+            border-color: #5a3f22;
+
+            box-shadow:
+                0 6px 10px rgba(0,0,0,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.5);
         }
+
 
         .search-results li {
             padding: 0.5vmin 2vmin;
@@ -157,21 +84,7 @@
         }
 
         /* Country List Container */
-        .country-container {
-            position: relative;
-            width: 100%;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            margin-bottom: 2vmin;
-        }
 
-        .country-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
 
         .country-title {
             font-size: 3vmin;
@@ -188,7 +101,7 @@
 
         #country-list {
             list-style: none;
-            max-height: 33vmin;
+            height: 33vmin;
             overflow-y: auto;
             padding: 0;
             margin: 0;
@@ -215,37 +128,10 @@
         }
 
         /* Info Card - styled like analyze containers */
-        .info-card {
-            position: relative;
-            width: 100%;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-card h3 {
-            font-size: 3vmin;
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 1vmin;
-            padding: 1.5vmin 2vmin 0;
-            background: linear-gradient(120deg, #2c3e50, #4a69bd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
 
         #occupant-list-content {
             list-style: none;
-            max-height: 65vmin;
+            height: 65vmin;
             overflow-y: auto;
             padding: 0;
             margin: 0;
@@ -262,46 +148,6 @@
 
         #occupant-list-content li:hover {
             background: rgba(74, 105, 189, 0.1);
-        }
-
-        /* Modern Button Styling */
-        .modern-button {
-            background: white;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 770;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            z-index: 1001;
-        }
-
-        .modern-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        #home-button {
-            top: 3vmin;
-            left: 48%;
-            transform: translateX(calc(-50% - 20vmin));
-            width: 8vmin;
-            height: 8vmin;
-            font-size: 3vmin;
-        }
-
-        #info-button {
-            top: 3vmin;
-            left: 55%;
-            transform: translateX(calc(-50% + 20vmin));
-            width: 8vmin;
-            height: 8vmin;
-            font-size: 3vmin;
         }
 
         /* Alert Box */
@@ -350,52 +196,7 @@
             margin-right: 3vmin;
         }
 
-        .popup {
-            position: absolute;
-            background: linear-gradient(135deg, rgba(255, 222, 89, 0.9), rgba(255, 94, 125, 0.8));
-            padding: 1vmin 1.5vmin;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
-            z-index: 4000;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(1vmin) scale(0.95) rotate(-2deg);
-            border: 3px solid rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-        }
 
-        .popup.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0) scale(1) rotate(0deg);
-            box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
-        }
-
-        .popup-message {
-            font-size: 2.4vmin;
-            color: #6a3093;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.5;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
-        }
-
-        .mapboxgl-marker {
-            width: 2vmin;
-            height: 2vmin;
-            border-radius: 50%;
-            box-shadow: 0 0 5px rgba(244, 229, 232, 0.8);
-            justify-content: center;
-            display: flex;
-            align-items: center;
-        }
-
-        .mapboxgl-marker:hover {
-            cursor: default;
-            transform: scale(1.3) rotate(15deg);
-            box-shadow: 0 4px 15px rgba(255, 94, 125, 0.6);
-        }
 
         @keyframes bounceIn {
             0% { transform: scale(0.8); opacity: 0; }
@@ -473,12 +274,6 @@
   .right-container { display: contents; }
 
   /* City list = column 1 */
-  #search-container {
-    grid-column: 1;
-    grid-row: 1;
-    height: 100%;
-    overflow: hidden;
-  }
 
   /* Country list = column 2 */
   .country-container {
@@ -500,7 +295,7 @@
   .search-results,
   #country-list,
   #occupant-list-content {
-    max-height: 100%;
+    height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -541,38 +336,39 @@
         <p id="message"></p>
         <button id='exit-button' onclick="hideCustomAlert(restart=false)">×</button>
     </div>
-    <div class="header">
-        <h1>
-            <span class="emoji">🏙️</span> 
-            <span class="gradient-text">Locate</span>
-        </h1>
-        <p class="subtitle">Explore which sages lived where and when by searching for cities or countries.</p>
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="emoji">🏙️</span> 
+                <span class="gradient-text">Locate</span>
+            </h1>
+            <p class="subtitle">Explore which sages lived where and when by searching for cities or countries.</p>
+            <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+            <button class="modern-button" id="info-button">ℹ️</button>
+        </div>
     </div>
 
     <div class="container-grid">
         <div class="left-container">
-            <div class="search-container" id="search-container">
-                <input type="text" class="search-input" id="search-input" placeholder="Search by city">
+            <div class="panel search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Search by city">
                 <ul class="search-results" id="search-results"></ul>
             </div>   
 
 
-            <div class="search-container country-container" id="country-container">
-                <input type="text" class="search-input" id="country-search" placeholder="Search by country">
+            <div class="panel search-container country-container" id="country-container">
+                <input type="text" class="search-input" id="country-search" placeholder="🔍 Search by country">
                 <ul class="country-list" id="country-list"></ul>
             </div>  
         </div>
 
         <div class="central-container">
             <div id="map"></div>  
-
-            <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
-            <button class="modern-button" id="info-button">ℹ️</button>
         </div>  
 
         <div class="right-container">
-            <div class="info-card" id="who-lived-there-list">
-                <h3 id="occupant-list-heading">Who Lived There And When</h3>
+            <div class="panel info-card" id="who-lived-there-list">
+                <h3 class="panel-heading" id="occupant-list-heading">Who Lived There And When</h3>
                 <ul id="occupant-list-content"></ul>
             </div>
         </div>

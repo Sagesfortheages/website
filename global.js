@@ -3,7 +3,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd
 if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback")) {
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mrosen770/cmay4iodx003e01sd7zqeeytu', // Map style
+        style: 'mapbox://styles/mrosen770/cml3bh9as008l01sdeom31pcp', // Map style
         center: [20, 40], // Initial center coordinates [lng, lat]
         zoom: 3 // Initial zoom level;
     });
@@ -14,24 +14,31 @@ if (!window.location.pathname.includes("_select") && !window.location.pathname.i
 window.getColor = function(background) {
     switch (background) {
         case 'Sefarad':
-            return 'rgb(138, 3, 3, 0.9)';
-        // Add more cases for different backgrounds if needed
+            return 'rgba(122, 28, 28, 0.95)';     // deep wine red (aged ink)
+
         case 'Ashkenaz':
-            return 'navy';
+            return 'rgba(25, 45, 92, 0.95)';      // dark indigo blue
+
         case 'Provence':
-            return 'rgb(58, 8, 60, 0.9)';
+            return 'rgba(74, 34, 78, 0.95)';      // muted royal purple
+
         case 'Chassidic':
-            return 'rgb(6, 75, 6)';
+            return 'rgba(22, 78, 42, 0.95)';      // forest green
+
         case 'Litvish':
-            return 'rgb(186, 148, 23)';
+            return 'rgba(168, 134, 40, 0.95)';    // aged gold / ochre
+
         case 'Gaon':
-            return 'rgb(81, 77, 77)';
+            return 'rgba(70, 70, 70, 0.95)';      // charcoal gray
+
         case 'Italian':
-            return 'rgb(208, 106, 5)';
+            return 'rgba(176, 96, 28, 0.95)';     // burnt sienna
+
         default:
-            return 'white'; // Default color
+            return 'rgba(245, 230, 211, 0.9)';    // parchment tone
     }
 }
+
 
 window.pickRandomMarker = function(markers, difficulty = "easy") {
     
@@ -109,13 +116,15 @@ window.displayMarkers = function(markersData, visibleMarkers, visibleMarkersPeop
             el.style.fontSize = markerSize / 10 + "vmin";
         }
 
+        el.style.opacity = 0.65 + 0.25*(marker.from-900)/(1100)
+
         // console.log(marker)
         const newMarker = new mapboxgl.Marker(el)
-            .setLngLat([marker.longitude, marker.latitude])
+            .setLngLat([marker.longitude_shifted??marker.longitude, marker.latitude_shifted??marker.latitude])
             .addTo(map);
         if (annotation) {//disabled this, come back to it
             const annotation = document.createElement('div')
-            annotation.innerHTML = `<h2> ${marker.abbreviation} </h3>`
+            annotation.innerHTML = `<h2> ${marker.abbreviation} </h2>`
             annotation.className = 'annotation'
             newMarker.getElement().appendChild(annotation)
             adjustPosition(newMarker, mode = mode)
@@ -162,6 +171,7 @@ window.displayMarkers = function(markersData, visibleMarkers, visibleMarkersPeop
 
     }
 }
+
 
 window.loadMusic = async function(supabaseClient, filename) {
     // fallback if no filename
