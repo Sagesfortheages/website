@@ -253,7 +253,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
         if (!teacher?.name) return;
         const span = document.createElement("span");
         span.className = "clickable";
-        span.textContent = `⮝ ${teacher.person}`;
+        span.textContent = `▲ ${teacher.person}`;
         span.addEventListener("click", () => {
             // Trigger a profile load or custom action if desired
             linkToProfile(teacher);
@@ -286,7 +286,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
         console.log('adding', student)
         const span = document.createElement("span");
         span.className = "clickable";
-        span.textContent = `⮟ ${student.person}`;
+        span.textContent = `▼ ${student.person}`;
         span.addEventListener("click", () => {
             linkToProfile(student);
         });

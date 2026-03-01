@@ -1,13 +1,22 @@
 (window.location.pathname)
-mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ'; //pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ
+mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ'; //pk.eyJ1IjoibXJWLQ
+
+// Detect mobile-sized screen
+const isMobile = window.innerWidth <= 768;
+
+// Choose zoom level
+const initialZoom = isMobile ? 2 : 3;
+
 if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback")) {
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mrosen770/cml3bh9as008l01sdeom31pcp', // Map style
         center: [20, 40], // Initial center coordinates [lng, lat]
-        zoom: 3 // Initial zoom level;
+        zoom: initialZoom // Initial zoom level;
     });
 }    
+
+
 
 
 // Function to get color based on background
@@ -83,7 +92,11 @@ window.displayMarkers = function(markersData, visibleMarkers, visibleMarkersPeop
     
         marker.duration = marker.to - marker.from;
 
-        const markerSize = useDurationSizing && marker.duration ? Math.min(70, Math.max(25, marker.duration*3)) : 20;
+        let markerSize = useDurationSizing && marker.duration ? Math.min(70, Math.max(25, marker.duration*3)) : 20;
+
+        if(isMobile){
+            markerSize = markerSize * 2; // increase size by 50% for better visibility
+        }
 
         // Create a marker element
         const el = document.createElement('div');

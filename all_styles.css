@@ -37,8 +37,13 @@
   --header-margin: 0.25vh;
 
   /* ===== Textures ===== */
-  --page-texture: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/parchment_2.webp");
+  --page-texture: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/backgrounds/parchment_2.webp");
+                       
   /* --panel-texture: url("Pictures/parchment_long_2.jpg"); */
+    --page-fallback:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,0.55), transparent 55%),
+    radial-gradient(circle at 80% 30%, rgba(139,115,85,0.18), transparent 60%),
+    linear-gradient(135deg, rgba(255,248,230,0.98), rgba(245,230,211,0.94));
 
   /* ===== Fonts ===== */
   --font-body: 'Crimson Text', 'Georgia', serif;
@@ -79,7 +84,7 @@
 }
 
 body{
-  background-image: var(--page-texture);
+  background-image: var(--page-texture), var(--page-fallback);
   background-size: cover;
   background-position: center 0px;
   background-repeat: no-repeat;
@@ -556,6 +561,7 @@ body{
 #info-button{ right: 1vmin; }
 .second-left-button{ left: 10vmin; }
 .third-left-button{ left: 19vmin; }
+.second-right-button{ right: 10vmin; }
 
 
 *::-webkit-scrollbar {
