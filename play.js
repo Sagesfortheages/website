@@ -386,7 +386,9 @@ async function startNewGame() {
 
     // Pick a random marker based on difficulty
     correctAnswer = pickRandomMarker(markers, difficultyLevel);
-    correctAnswer.expertise = correctAnswer.expertise.map(obj => obj.expertise)
+    correctAnswer.expertise = correctAnswer.expertise.map(x =>
+    typeof x === "string" ? x : x?.expertise
+    ).filter(Boolean);
     
     if (!correctAnswer) {
         console.error('Failed to pick random marker');

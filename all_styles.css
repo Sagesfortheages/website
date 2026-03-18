@@ -582,6 +582,29 @@ body{
     background: var(--classy-blue-ink)
 }
 
+
+
+.cta2 {
+  width: 8vmin;
+  height: 8vmin;
+  border-radius: 50%;
+  border: none;
+  background: var(--classy-blue-ink);
+  color: var(--paper);
+  font-size: 4vmin;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta2:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+}
+
 /* ================================
    CTA BUTTON
    ================================ */
@@ -666,16 +689,6 @@ body{
     0 14px 30px rgba(0,0,0,0.20),
     0 0 0 3px rgba(3,43,125,0.25);
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1171,5 +1184,3 @@ body{
     z-index: 1500;
   }
 }
-
-

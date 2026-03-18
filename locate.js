@@ -143,7 +143,20 @@ function initUI() {
     });
 }
 
+function getCityUniquePeopleCount(cityName) {
+    const people = markers
+        .filter(marker => (marker.city || '').toLowerCase() === cityName.toLowerCase())
+        .map(marker => marker.person);
 
+    return new Set(people).size;
+}
+
+function getCityImportance(cityName) {
+    const uniquePeopleCount = getCityUniquePeopleCount(cityName);
+    const rawSize = 10 + Math.sqrt(uniquePeopleCount) * 4;
+    const size = Math.max(12, Math.min(rawSize, 32));
+    return size;
+}
 
 // =====================
 // Original functions
@@ -155,6 +168,9 @@ function displayCities(citiesData, visibleCities) {
         el.classList.add('city', 'popup-button');
         el.dataset.message = `${city.city}, ${city.country}`;
         el.dataset.city = `${city.city}`;
+        const size = getCityImportance(city.city);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
         const newCityMarker = new mapboxgl.Marker(el)
             .setLngLat([city.longitude, city.latitude])
             .addTo(map);

@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Techeiles</title>
+<link rel="icon" href="icon3.png" type="image/x-icon">
+<link rel="shortcut icon" href="icon3.png" type="image/x-icon">
 
 <!-- Mapbox -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet"/>
@@ -11,6 +13,7 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
 
 <style>
+
 
 
 
@@ -75,8 +78,8 @@
   width: 0%;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--blue1), var(--blue2));
-  box-shadow: 0 8px 24px var(--glow);
+  background: linear-gradient(45deg, var(--accent), var(--classy-blue-ink));
+  box-shadow: 0 8px 24px var(--paper);
   transition: width 0.1s linear;
 }
 
@@ -162,7 +165,73 @@
   }
   #mapContainer { width: 52%; height: 78vh; }
   .right-panel { width: 48%; }
-  .timeline { max-height: 78vh; }
+  .timeline { max-height: 70vh; }
+}
+
+@media (max-width: 899px){
+  html, body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  .header-section {
+    min-height: auto;
+  }
+
+  .map-timeline-wrapper {
+    box-sizing: border-box;
+    height: calc(100dvh - var(--header-height) - 1.5vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+
+  .controls-wrapper {
+    margin-bottom: 0.5rem;
+    flex: 0 0 auto;
+  }
+
+  .map-timeline-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 24dvh minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  #mapContainer {
+    height: 24dvh;
+    min-height: 190px;
+  }
+
+  #map {
+    height: 100%;
+  }
+
+  .right-panel {
+    min-height: 0;
+    height: auto;
+    margin-top:4vh;
+  }
+
+  .timeline {
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scroll-behavior: smooth;
+  }
+
+  .event.active {
+    transform: none;
+  }
 }
 
 /* small niceties */
@@ -411,20 +480,54 @@ function unlockUpTo(index) {
   maxUnlockedIndex = index;
 }
 
+function scrollActiveEventIntoView(sel) {
+  const container = timelineEl;
+  const isMobile = window.innerWidth < 900;
+
+  requestAnimationFrame(() => {
+if (isMobile) {
+  const containerRect = container.getBoundingClientRect();
+  const selRect = sel.getBoundingClientRect();
+  const prevCard = sel.previousElementSibling;
+  const prevHeight = prevCard ? prevCard.offsetHeight + 12 : 0; // 12 = gap
+  const targetTop = container.scrollTop + (selRect.top - containerRect.top) - prevHeight - 12;
+  smoothScrollTo(container, targetTop, 250); // 250ms = 0.25s
+} else {
+      const targetTop = sel.offsetTop - container.clientHeight / 2 + sel.offsetHeight / 2;
+      smoothScrollTo(container, targetTop, 250); // 250ms = 0.25s
+    }
+  });
+}
+
+function smoothScrollTo(container, targetTop, duration) {
+  const start = container.scrollTop;
+  const distance = Math.max(0, targetTop) - start;
+  const startTime = performance.now();
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // ease in-out
+    const ease = progress < 0.5 
+      ? 2 * progress * progress 
+      : -1 + (4 - 2 * progress) * progress;
+    container.scrollTop = start + distance * ease;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
 function activateEvent(index){
   unlockUpTo(index);
   if(index<0 || index>=events.length) return;
   currentIndex=index;
 
   document.querySelectorAll('.event').forEach(e=>e.classList.remove('active'));
-  const sel=document.querySelector(`.event[data-index="${index}"]`);
-  if(sel){
+  const sel = document.querySelector(`.event[data-index="${index}"]`);
+  if (sel) {
     sel.classList.add('active');
-    const container = timelineEl;
-    const selTop = sel.offsetTop;
-    const selHeight = sel.offsetHeight;
-    const containerHeight = container.clientHeight;
-    container.scrollTo({top: selTop - containerHeight/2 + selHeight/2, behavior:'smooth'});
+    scrollActiveEventIntoView(sel);
   }
 
   markers.forEach((m,i)=>{
@@ -500,23 +603,21 @@ function stopStoryCompletely(){
   stopProgressAnimation(true);
 }
 
-function startProgressAnimation(duration){
+function startProgressAnimation(duration) {
   stopProgressAnimation();
-  progressStart=performance.now();
-  progressDuration=duration;
-  progressBar.style.width='0%';
+  progressDuration = duration;
+  progressBar.style.width = '0%';
   progressWrap.classList.add('visible');
+  const startTime = performance.now();
 
-  function step(ts){
-    if(!progressStart) progressStart=ts;
-    const elapsed = ts - progressStart;
-    const pct = Math.min(1, elapsed/progressDuration);
-    progressBar.style.width=(pct*100)+'%';
-    progressBar.style.boxShadow = `0 8px 24px rgba(96,165,250,${0.32*pct})`;
-    if(pct<1 && storyRunning) progressRaf=requestAnimationFrame(step);
-    else progressRaf=null;
+  function step(ts) {
+    const elapsed = ts - startTime;
+    const pct = Math.min(1, elapsed / progressDuration);
+    progressBar.style.width = (pct * 100) + '%';
+    if (pct < 1 && storyRunning) progressRaf = requestAnimationFrame(step);
+    else progressRaf = null;
   }
-  progressRaf=requestAnimationFrame(step);
+  progressRaf = requestAnimationFrame(step);
 }
 
 function stopProgressAnimation(reset=false){
