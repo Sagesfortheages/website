@@ -353,6 +353,9 @@ textarea::placeholder{
 
 <script type="module">
 import { supabaseClient } from './supabase/supabaseClient.js';
+import { trackPageView } from './supabase/supabaseFunctions.js';
+trackPageView(); // Track page view for analytics
+
 
 async function checkAuth() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();

@@ -431,6 +431,21 @@ body{
     0 0.55vmin 1.35vmin rgba(0,0,0,0.34);
 }
 
+.annotation {
+  position: absolute;
+  top: 80%;          /* places it below the marker */
+  left: 50%;
+  transform: translateX(-50%);  /* centers it horizontally */
+  width: 120px;       /* make wider as needed */
+  text-align: center;
+  pointer-events: none;
+}
+
+.annotation h2 {
+  font-size: 2vmin;
+  white-space: normal;  /* allows wrapping with the wider width */
+}
+
 /* ================================
    PANEL
    ================================ */
@@ -1148,6 +1163,10 @@ body{
     gap: 0vmin;
 
     align-items: start;
+  }
+
+  .annotation h2 {
+    font-size: 3vmin;
   }
 
 

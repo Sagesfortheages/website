@@ -44,7 +44,7 @@ function startPlaying(videoSpeed) {
         const currentValue = slider.noUiSlider.get();
         const newValue = parseInt(currentValue) + 1;
         slider.noUiSlider.set(newValue);
-        displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople);
+        displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople, false, true);
     }, frameSpeed);
 }
 
@@ -63,7 +63,7 @@ function setSpeed(speed) {
 
 
 
-function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkersPeople) {
+function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkersPeople, useDurationSizing = false, annotation = false) {
     const timeValue = document.getElementById('year-slider').noUiSlider.get();
     const currentMarkersData = markersData.filter(marker => marker.from <= timeValue && marker.to >= timeValue);
 
@@ -74,7 +74,7 @@ function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkers
         marker.passYear = marker.passing == timeValue;
     });
 
-    displayMarkers(currentMarkersData, visibleMarkers, visibleMarkersPeople);
+    displayMarkers(currentMarkersData, visibleMarkers, visibleMarkersPeople, useDurationSizing, annotation);
 }
 
 function startTour() {

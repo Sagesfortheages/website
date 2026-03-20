@@ -296,7 +296,9 @@
 </div>
 
 <script src="global.js"></script>
-<script>
+<script type="module">
+          import { trackPageView } from './supabase/supabaseFunctions.js';
+        trackPageView();
 /* =========================== Data =========================== */
 const events = [
   {
@@ -344,7 +346,7 @@ const events = [
   {
     year: 1887,
     title: "Radzyn Discovery (Naples Aquarium)",
-    text: "In 1887, the Radzyner Rebbe spent months studying at an aquarium in Naples, Italy, looking for the chilazon and concluder that it was the cuttlefish which secreted blank ink.",
+    text: "In 1887, the Radzyner Rebbe spent months studying at an aquarium in Naples, Italy, looking for the chilazon and concludes that it was the cuttlefish which secreted blank ink.",
     coords: [14.27, 40.85] // Naples, Italy
   },
   {
@@ -368,13 +370,13 @@ const events = [
   {
     year: 1913,
     title: "Rav Herzog Refutes Cuttlefish Theory",
-    text: "In 1913, R Yitzchak Isaac Hertzog, later to be come the first Ashkenazi Chief Rabbi of Israel analyzed the case for cuttlefish, rejecting it on the grounds that its ink only turns blue because of exposure to heat, which is true of many other substances as well.",
+    text: "In 1913, R Yitzchak Isaac Hertzog, later to be come the first Ashkenazi Chief Rabbi of Israel, analyzed the case for cuttlefish, rejecting it on the grounds that its ink only turns blue because of exposure to heat, which is true of many other substances as well.",
     coords: [31.8, 34.8] // Jaffa/Jerusalem where he lived and researched
   },
   {
     year: 1913,
     title: "Rav Herzog Suggests Murex Snail",
-    text: "R Herzog proposes that the chilazon is the Murex snail, whose body fluid was commonly used as a due in the ancient world but concludes with doubts based on the facts that its ink is purple, not blue and that its shell has brown and white bands, and is not the color of the sea.",
+    text: "R Herzog proposes that the chilazon is the Murex snail, whose body fluid was commonly used as a dye in the ancient world but concludes with doubts based on the facts that its ink is purple, not blue and that its shell has brown and white bands, and is not the color of the sea.",
     coords: [35.0, 33.0] // Mediterranean snail coast region
   },
 {
@@ -387,7 +389,7 @@ const events = [
   {
     year: 2025,
     title: "Modern Murex Research Confirms Blue Dye",
-    text: 'Nowadays, researchers have concluded that its ink turns blue upon exposure to sunlight and that, when found in the sea, its shell is typically covered with "sea fouling" and indeed has the color of the sea.',
+    text: 'Nowadays, researchers have concluded that the ink of the Murex snail turns blue upon exposure to sunlight and that, when found in the sea, its shell is typically covered with "sea fouling" and indeed has the color of the sea.',
     coords: [35.0, 32.0] // Israeli coastline (modern research sites)
   }
 ];

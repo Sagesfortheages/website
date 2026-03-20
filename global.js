@@ -137,10 +137,11 @@ window.displayMarkers = function(markersData, visibleMarkers, visibleMarkersPeop
             .addTo(map);
         if (annotation) {//disabled this, come back to it
             const annotation = document.createElement('div')
-            annotation.innerHTML = `<h2> ${marker.abbreviation} </h2>`
+            annotation.innerHTML = `<h2> ${marker.person} </h2>`
             annotation.className = 'annotation'
+            annotation.style.color = getColor(marker.background)
             newMarker.getElement().appendChild(annotation)
-            adjustPosition(newMarker, mode = mode)
+            // adjustPosition(newMarker, mode = mode)
         }
         
         

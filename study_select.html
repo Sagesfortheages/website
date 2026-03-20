@@ -3,140 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
     <title>Study Select</title>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+
     <link rel="icon" href="icon3.png" type="image/x-icon">
     <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
     <link rel="stylesheet" href="all_styles.css">
     <script src="global.js"></script>
-    <style>
 
-        .container {
+    <style>
+        /* -------- PAGE WRAPPER -------- */
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-top: 2vh;
+            padding-bottom: 4vh;
             display: flex;
             flex-direction: column;
-            max-width: 1200px;
-            width: 100%;
-            height: 100%;
-            margin: 0 auto;
-            animation: bounceIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.05); }
-            70% { transform: scale(0.95); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .navigate-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr);
-            gap: 2vmin;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .navigate-buttons button {
-            background: white;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            padding: 2vmin;
-            font-size: 5vmin;
-            font-weight: 770;
-            color: #333;
-            font-family: 'Segoe UI';
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            display: flex;
             align-items: center;
+        }
+
+        /* -------- GRID -------- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2.5vmin;
+            width: 85vw;
+            max-width: 650px;
+        }
+
+        /* -------- TILES -------- */
+        .tile {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            border-radius: 22px;
+            padding: 1vmin;
+            min-height: 18vmin;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+            border: none;
+            font: inherit;
         }
 
-        .navigate-buttons button::before {
-            content: '';
+        .tile:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+        }
+
+        .tile:active {
+            transform: translateY(-3px) scale(1.01);
+        }
+
+        .tile-icon {
+            font-size: 6.2vmin;
+            margin-bottom: 1.2vmin;
+            line-height: 1;
+        }
+
+        .tile-label {
+            font-size: 2.5vmin;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-align: center;
+            color: #2e3b4e;
+            line-height: 1.2;
+        }
+
+        /* -------- COMING SOON -------- */
+        .coming {
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .coming::after {
+            content: "UNDER CONSTRUCTION";
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(74, 105, 189, 0.1), transparent);
-            transition: left 0.5s;
+            bottom: -13%;
+            font-size: 1.8vmin;
+            padding: 0.5vmin 1.2vmin;
+            border-radius: 4px;
+            font-weight: 700;
+            background: repeating-linear-gradient(
+                -45deg,
+                #f9d423 0px,
+                #f9d423 14px,
+                #000 14px,
+                #000 16px
+            );
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            transform: rotate(-3deg);
+            white-space: nowrap;
         }
 
-        .navigate-buttons button:hover::before {
-            left: 100%;
-        }
-
-        .navigate-buttons button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        }
-
-        .navigate-buttons button:active {
-            transform: translateY(-2px);
-        }
-
-
+        /* -------- ALERT BOX -------- */
         .alert-box {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 16px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             padding: 4vh 4vw;
             max-width: 80vw;
             max-height: 80vh;
             z-index: 2000;
             text-align: center;
-            font-family: 'Segoe UI';
-            animation: slideIn 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+            animation: fadeSlideIn 0.25s ease;
         }
 
-        .coming {
-            pointer-events: none;
-            opacity: 0.9;
-            position: relative;
-        }
-
-        .coming::after {
-            content: "UNDER CONSTRUCTION";
-            position: absolute;
-            left: 50%;
-            top: 70%;
-            transform: translate(-50%, 10%) rotate(-3deg);
-            font-size: 2.5vmin;
-            padding: 0.5vmin 1.2vmin;
-            border-radius: 4px;
-            font-weight: 700;
-            background: repeating-linear-gradient(
-                -20deg,
-                #f9d423 0px,
-                #f9d423 14px,
-                #000 14px,
-                #000 15px
-            );
-            color: #000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        }
-
-        @keyframes slideIn {
-            from { transform: translate(-50%, -60%) scale(0.9); opacity: 0; }
-            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        @keyframes fadeSlideIn {
+            from {
+                transform: translate(-50%, -56%) scale(0.96);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
         }
 
         .alert-box p {
-            font-size: 3vmin;
-            color: #333;
+            font-size: 2.4vmin;
+            color: #2e3b4e;
             line-height: 1.5;
             margin-bottom: 2vh;
         }
@@ -145,11 +146,11 @@
             position: absolute;
             top: 1vh;
             right: 1vw;
-            width: 4vmin;
-            height: 4vmin;
+            width: 4.2vmin;
+            height: 4.2vmin;
             border-radius: 50%;
             border: none;
-            background: #f0f0f0;
+            background: rgba(240,240,240,0.95);
             font-size: 2vmin;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -161,81 +162,149 @@
             color: #333;
         }
 
-        @media (max-width: 768px) {
-            .navigate-buttons {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(8, 1fr);
+        /* -------- MOBILE -------- */
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 92vw;
+                gap: 3vmin;
             }
 
-            .header h1 {
+            .tile {
+                min-height: 26vmin;
+                padding: 2vmin;
+            }
+
+            .tile-icon {
                 font-size: 8vmin;
             }
 
-            .header .subtitle {
-                font-size: 2.5vmin;
+            .tile-label {
+                font-size: 3.4vmin;
             }
 
-            .navigate-buttons button {
+            .coming::after {
+                font-size: 1.9vmin;
+                bottom: -10%;
+            }
+
+            .alert-box p {
                 font-size: 3.5vmin;
+            }
+
+            #exit-button {
+                width: 7vmin;
+                height: 7vmin;
+                font-size: 3vmin;
+                top: 1.2vh;
+                right: 2vw;
             }
         }
 
-        @media (max-width: 480px) {
-            .navigate-buttons button {
-                font-size: 3vmin;
-                padding: 1.5vmin;
+        @media (max-width: 420px) {
+            .grid {
+                grid-template-columns: 1fr;
             }
 
-            .header h1 {
-                font-size: 10vmin;
+            .tile {
+                min-height: 22vw;
+            }
+
+            .tile-label {
+                font-size: 4.2vmin;
+            }
+
+            .tile-icon {
+                font-size: 9vmin;
+            }
+
+            .coming::after {
+                font-size: 2.4vmin;
             }
         }
     </style>
 </head>
 <body>
+
     <div class="alert-box" id="customAlert">
         <p id="message"></p>
-        <button id='exit-button' onclick="hideCustomAlert(restart=false)">x</button>
+        <button id="exit-button" onclick="hideCustomAlert(restart=false)">x</button>
     </div>
-    <div class="header-section">
+
+    <div class="page">
+
         <div class="header">
             <h1>
-                <span class="emoji">📜</span> 
+                <span class="emoji">📜</span>
                 <span class="gradient-text">Study</span>
             </h1>
             <p class="subtitle">Engage with classic texts like never before. Discover the people behind the words.</p>
+
+            <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">
+                🏠
+            </button>
+
+            <button class="modern-button" id="info-button"
+                onclick="showCustomAlert(`Select a foundational text, to get a guide to the commentaries available on a typical page.`, restart=false)">
+                ℹ️
+            </button>
+
+            <button class="modern-button second-right-button" id="feedback-button"
+                onclick="window.location.href='feedback.html'">
+                📩
+            </button>
         </div>
-        <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">
-            🏠
-        </button>
 
-        <button class="modern-button" id="info-button" onclick="showCustomAlert(`Select a foundational text, to get a guide to the commentaries available on a typical page.`, restart=false)">
-            ℹ️
-        </button>
+        <div class="grid">
 
-        <button class="modern-button second-right-button" id="feedback-button" 
-        onclick="window.location.href='feedback.html'">📩</button>
-    </div>
-    <div class="container">
+            <button class="tile" onclick="window.location.href='texts/mikraos_gedolos.html'">
+                <div class="tile-icon">📒</div>
+                <div class="tile-label">Mikraos Gedolos</div>
+            </button>
 
+            <button class="tile coming">
+                <div class="tile-icon">📔</div>
+                <div class="tile-label">Mishna</div>
+            </button>
 
-        <div class="navigate-buttons">
-            <button onclick="window.location.href='texts/mikraos_gedolos.html'">📒 Mikraos Gedolos</button>
-            <button class="coming">📔 Mishna</button>
-            <button class="coming">📕 Medrash</button>
-            <button class="coming">📗 Gemara</button>
-            <button class="coming">📒 Talmud Yerushalmi</button>
-            <button onclick="window.location.href='texts/frankel_rambam.html'">📘 Rambam</button>
-            <button class="coming">📕 Tur</button>
-            <button onclick="window.location.href='texts/shulchan_aruch.html'">📔 Shulchan Aruch</button>
+            <button class="tile coming">
+                <div class="tile-icon">📕</div>
+                <div class="tile-label">Medrash</div>
+            </button>
+
+            <button class="tile coming">
+                <div class="tile-icon">📗</div>
+                <div class="tile-label">Gemara</div>
+            </button>
+
+            <button class="tile coming">
+                <div class="tile-icon">📒</div>
+                <div class="tile-label">Talmud Yerushalmi</div>
+            </button>
+
+            <button class="tile" onclick="window.location.href='texts/frankel_rambam.html'">
+                <div class="tile-icon">📘</div>
+                <div class="tile-label">Rambam</div>
+            </button>
+
+            <button class="tile coming">
+                <div class="tile-icon">📕</div>
+                <div class="tile-label">Tur</div>
+            </button>
+
+            <button class="tile" onclick="window.location.href='texts/shulchan_aruch.html'">
+                <div class="tile-icon">📔</div>
+                <div class="tile-label">Shulchan Aruch</div>
+            </button>
+
         </div>
     </div>
-
 
     <script src="global.js"></script>
     <script type="module">
         import { trackPageView } from './supabase/supabaseFunctions.js';
         trackPageView();
     </script>
+
 </body>
 </html>

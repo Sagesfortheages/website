@@ -78,7 +78,7 @@ async function fetchPauses() {
 document.addEventListener("DOMContentLoaded", fetchPauses);
 
 // Function to display markers filtered by year during animation
-function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkersPeople) {
+function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkersPeople, useDurationSizing = false, annotation = false) {
     const timeValue = document.getElementById('year-slider').noUiSlider.get();
     const currentMarkersData = markersData.filter(marker => marker.from <= timeValue && marker.to >= timeValue);
 
@@ -89,7 +89,7 @@ function displayMarkersByTimeAnimate(markersData, visibleMarkers, visibleMarkers
         marker.passYear = marker.passing == timeValue;
     });
 
-    displayMarkers(currentMarkersData, visibleMarkers);
+    displayMarkers(currentMarkersData, visibleMarkers, false, useDurationSizing, annotation);
 }
 
 // Function to start playing the timeline
@@ -109,7 +109,7 @@ function startPlaying(videoSpeed, pauses) {
 
         if (pauseInfo) {
             slider.noUiSlider.set(newValue);
-            displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople);
+            displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople, false, true);
 
             // Display information about this pause point
             displayPauseInfo(pauseInfo);
@@ -124,7 +124,7 @@ function startPlaying(videoSpeed, pauses) {
             document.getElementById('icon-space').innerHTML = '';
             document.getElementById('name-content').innerHTML = '';
             slider.noUiSlider.set(newValue);
-            displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople);
+            displayMarkersByTimeAnimate(markers, visibleMarkers, visibleMarkersPeople, false, true);
         }
     }, frameSpeed);
 }
