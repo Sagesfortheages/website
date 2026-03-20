@@ -13,7 +13,11 @@
   --heading-ink: #3a2b22;     /* was hardcoded in panel/strip headings */
   --input-ink: #3d2817;       /* was hardcoded in inputs */
 
-  --classy-blue-ink: rgb(3, 43, 125);
+  --classy-blue-ink: linear-gradient(
+    to bottom,
+    #6a2f52,
+    #4a1f3a
+  );
   --correct-color: rgba(47,79,79,0.92); 
   --incorrect-color: rgba(140,40,40,0.92); 
 

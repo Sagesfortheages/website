@@ -17,440 +17,522 @@
 
   <title>Home</title>
 
-  <!-- If you rely on this for shared helpers (linkToProfile, getColor, etc.) keep it -->
   <script src="global.js"></script>
 
   <style>
+  .gradient-text{
+    font-size: var(--fs-sitename);
+  }
 
+  .inline-s{
+    width: 1em;
+    height: 1.1em;
+    display: inline-block;
+    vertical-align: -0.2em;
+    margin: 0;
+  }
 
-    .gradient-text{
-      font-size: var(--fs-sitename);
+  .hero{
+    position: relative;
+    width: min(1534px, 100%);
+    margin: 0 auto;
+  }
+
+  .hero-image{
+    position: relative;
+    width: 100%;
+    height: 292px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    background-image: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/backgrounds/bg.webp");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    isolation: isolate;
+  }
+
+  /* gentle overall lift so image keeps life */
+  .hero-image::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(255,248,230,0.08) 0%,
+        rgba(255,248,230,0.03) 36%,
+        rgba(255,248,230,0.00) 100%
+      );
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* darker edges, clearer center */
+  .hero-image::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    background:
+      radial-gradient(
+        ellipse at center,
+        rgba(0,0,0,0) 32%,
+        rgba(0,0,0,0.07) 66%,
+        rgba(0,0,0,0.22) 100%
+      );
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .hero-overlay{
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 2vmin;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .hero-content{
+    position: relative;
+    z-index: 2;
+    width: min(92%, 720px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 1.45rem 1rem 1rem;
+    transform: translateY(12px);
+  }
+
+  /* softer localized haze behind text zone only */
+  .hero-content::before{
+    content:"";
+    position:absolute;
+    left: 50%;
+    top: 47%;
+    transform: translate(-50%, -50%);
+    width: min(92%, 630px);
+    height: 150px;
+    border-radius: 999px;
+    background:
+      radial-gradient(
+        ellipse at center,
+        rgba(255,248,232,0.66) 0%,
+        rgba(255,244,224,0.42) 36%,
+        rgba(255,244,224,0.14) 62%,
+        rgba(255,244,224,0.00) 100%
+      );
+    filter: blur(9px);
+    pointer-events:none;
+    z-index:-1;
+  }
+
+  .hero-tagline{
+    text-align:center;
+    font-family: var(--font-ui);
+    font-size: clamp(1.7rem, 3vw, 2.55rem);
+    letter-spacing: 0.08em;
+    margin: 0;
+    color: rgba(88, 58, 28, 0.96);
+    text-transform: uppercase;
+    position: relative;
+    line-height: 1.02;
+    text-shadow:
+      0 1px 0 rgba(255,248,232,0.45),
+      0 2px 6px rgba(255,248,232,0.18);
+  }
+
+  .blurb{
+  color: var(--classy-blue-ink);
+  width: min(30vw, 430px);
+  margin: 0;
+  padding: 0;
+  font-size: clamp(0.95rem, 1.4vw, 1.18rem);
+  line-height: 1.28;
+  background: rgba(255, 244, 224, 0.2);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.45),
+    0 3px 10px rgba(0,0,0,0.05);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.35);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  }
+
+  .cta-button{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.45rem auto 0;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    padding: 1.05rem 2.45rem;
+    border-radius: 999px;
+    border: 2px solid rgba(140, 108, 46, 0.96);
+    background:var(--classy-blue-ink);
+    color: var(--paper);
+;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.22),
+      0 0 20px rgba(244,205,115,0.22),
+      inset 0 1px 0 rgba(255,255,255,0.82),
+      inset 0 -2px 6px rgba(126,88,28,0.12);
+    transition: transform 0.16s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  }
+
+  .cta-button:hover{
+    transform: translateY(-2px) scale(1.035);
+    box-shadow:
+      0 14px 30px rgba(0,0,0,0.27),
+      0 0 26px rgba(244,205,115,0.30),
+      inset 0 1px 0 rgba(255,255,255,0.84),
+      inset 0 -2px 6px rgba(126,88,28,0.14);
+    filter: brightness(1.02) saturate(1.03);
+  }
+
+  .cta-button:active{
+    transform: translateY(0) scale(0.995);
+  }
+
+  /* ======================================================
+     AUTH OVERLAY
+     ====================================================== */
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999999;
+    pointer-events: auto;
+  }
+
+  .overlay::before{
+    content:"";
+    position:absolute;
+    inset: 0;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .auth-modal{
+    position: relative;
+    z-index: 1;
+    width: min(420px, 92vw);
+    border-radius: calc(var(--radius) + 6px);
+    background: var(--paper-strong);
+    border: 1px solid var(--rule-strong);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    padding: 2.2vmin 2.3vmin;
+    overflow: hidden;
+  }
+
+  .auth-modal::after{
+    content:"";
+    position:absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.45), transparent 55%);
+    pointer-events:none;
+    opacity: 0.75;
+  }
+
+  .auth-tabs{
+    position: relative;
+    z-index: 1;
+    display:flex;
+    gap: 1vmin;
+    margin-bottom: 1.4vmin;
+  }
+
+  .auth-tab{
+    flex: 1;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.55);
+    color: var(--heading-ink);
+    font-family: var(--font-ui);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.9vmin 1.2vmin;
+    cursor: default;
+  }
+
+  .auth-tab.active{
+    background: rgba(47,79,79,0.14);
+    border-color: rgba(47,79,79,0.28);
+    color: rgba(47,79,79,0.95);
+  }
+
+  .auth-form{
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 1vmin;
+  }
+
+  .auth-input{
+    width: 100%;
+    padding: 1.1vmin 1.2vmin;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(139,115,85,0.35);
+    background: rgba(255,255,255,0.75);
+    font-family: var(--font-body);
+    font-size: clamp(14px, 2.1vmin, 18px);
+    color: var(--input-ink);
+    box-shadow: inset 0 1px 6px rgba(0,0,0,0.08);
+    outline: none;
+  }
+
+  .auth-input::placeholder{
+    color: #7a6a5a;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  .auth-actions{
+    display:flex;
+    gap: 1vmin;
+    align-items:center;
+    margin-top: 0.2vmin;
+  }
+
+  .auth-button{
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8vmin;
+    padding: 1.2vmin 1.6vmin;
+    min-height: 6.6vmin;
+    border-radius: calc(var(--radius) + 2px);
+    border: 1px solid rgba(3,43,125,0.25);
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 252, 244, 0.96),
+      rgba(245, 230, 211, 0.92)
+    );
+    color: var(--classy-blue-ink);
+    font-family: var(--font-ui);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: clamp(14px, 2.2vmin, 18px);
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.16),
+      inset 0 1px 0 rgba(255,255,255,0.55);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  }
+
+  .auth-button:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      0 14px 30px rgba(0,0,0,0.20),
+      inset 0 1px 0 rgba(255,255,255,0.65);
+    filter: saturate(1.03);
+  }
+
+  .auth-button:active{
+    transform: translateY(0px);
+    box-shadow:
+      0 8px 16px rgba(0,0,0,0.16),
+      inset 0 2px 10px rgba(0,0,0,0.10);
+  }
+
+  .hidden{ display:none; }
+
+  .auth-status{
+    position: fixed;
+    top: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000000;
+    padding: 1vmin 1.6vmin;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: clamp(12px, 1.8vmin, 15px);
+    color: var(--paper);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+  }
+
+  .auth-status.success{ background: var(--correct-color); }
+  .auth-status.error{ background: var(--incorrect-color); }
+
+  body.overlay-open{
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  @media (max-width: 640px){
+    html, body{
+      overflow: hidden !important;
     }
 
-    .inline-s{
-      width: 1em;
-      height: 1.1em;
-      display: inline-block;
-      vertical-align: -0.2em;
-      margin: 0;
+    .chart-button-container{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8vmin;
+      padding: 1vmin;
+      width: 100%;
+      justify-self: stretch;
+      align-content: start;
+
+    }
+
+    .chart-button-item{
+      padding: clamp(6px, 1.2vmin, 10px) clamp(8px, 1.6vmin, 12px);
+      font-size: clamp(11px, 1.6vmin, 13px);
+      border-radius: 12px;
+      letter-spacing: 0.2px;
+      text-transform: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .hero{
-      position: relative;
-      width: min(1534px, 100%);
+      width: 100%;
+      max-width: 375px;
       margin: 0 auto;
     }
 
-    /* Hero now participates in layout (no overlap with mega-strips) */
     .hero-image{
-      position: relative; /* IMPORTANT: not absolute */
       width: 100%;
-      height: 292px;
-
+      max-width: 375px;
+      margin: 0 auto;
+      height: 225px;
+      margin-top: 0vh;
       border-radius: 18px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
-
-      background-image: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/backgrounds/bg.webp");
+      display: block;
+      background-image: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/backgrounds/bg_mobile.webp");
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
     }
 
-
-
-    /* Overlay keeps your existing tagline/blurb/button ON the image */
-    .hero-overlay{
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: start center;
-      text-align: center;
-
-      padding: 2vmin;
-      pointer-events: none; /* lets clicks hit only the button we re-enable */
+    .hero-image::before{
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(255,248,230,0.05) 0%,
+          rgba(255,248,230,0.02) 40%,
+          rgba(255,248,230,0.00) 100%
+        );
     }
 
-
-    /* Optional: very subtle readability wash (doesn't change layout) */
-    .hero-overlay::before{
-      content:"";
-      position:absolute;
-      inset: 0;
-      border-radius: 18px;
-      background: linear-gradient(
-        to bottom,
-        rgba(255,248,230,0.22),
-        rgba(255,248,230,0.06)
-      );
-      pointer-events:none;
+    .hero-image::after{
+      background:
+        radial-gradient(
+          ellipse at center,
+          rgba(0,0,0,0) 31%,
+          rgba(0,0,0,0.07) 66%,
+          rgba(0,0,0,0.20) 100%
+        );
     }
 
-    /* Ensure overlay content sits above the wash */
-    .hero-overlay > *{
-      position: relative;
-      z-index: 1;
+    .hero-content{
+      width: min(95%, 340px);
+      gap: 0.55rem;
+      padding: 0.95rem 0.65rem 0.8rem;
+      transform: translateY(14px);
+    }
+
+    .hero-content::before{
+      width: 300px;
+      max-width: 92%;
+      height: 122px;
+      top: 45%;
+      background:
+        radial-gradient(
+          ellipse at center,
+          rgba(255,248,232,0.72) 0%,
+          rgba(255,244,224,0.48) 36%,
+          rgba(255,244,224,0.14) 62%,
+          rgba(255,244,224,0.00) 100%
+        );
+      filter: blur(7px);
+    }
+
+    .hero-tagline{
+      font-size: clamp(1.22rem, 6.1vw, 1.7rem);
+      letter-spacing: 0.075em;
+      line-height: 1.02;
+      color: rgba(86, 56, 27, 0.97);
     }
 
     .blurb{
-      color: var(--classy-blue-ink);
-      margin-top: -4vh;
-      text-align: center;
-      width: 30vw;
-      margin-left: auto;
-      margin-right: auto;
-      font-size: var(--fs-subtitle-homepage);
+      width: 50vw;
+      max-width: 270px;
+      font-size: clamp(0.82rem, 2.8vw, 0.94rem);
+      line-height: 1.14;
 
     }
 
     .cta-button{
-      display: block;
-      margin: 1vh auto 0 auto;
-      pointer-events: auto;
+      padding: 0.9rem 1.75rem;
+      margin-top: 0.35rem;
+      font-size: 4vmin;
+    }
+
+    .mega-strips,
+    .explore-strip{
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      
+    }
+
+    .mega-strips{
+      padding-bottom: 0vh !important;
+      gap:0vmin;
+      min-height: auto !important;
+    }
+
+    .mega-strips > section:nth-of-type(2) .explore-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      width: 70% !important;
+      margin: 0 auto !important;
     }
 
 
-
-    .hero-tagline{
-      text-align:center;
-      font-family: var(--font-ui);
-      font-size: clamp(1.2rem, 2.2vw, 1.9rem);
-      letter-spacing: 0.12em;
-      margin-top: 0.4vh;
-      margin-bottom: 1.2vh;
-      color: rgba(47, 36, 27, 0.85);
-      text-transform: uppercase;
-      z-index: 1000000 !important;
-      position:relative;
+    .explore-grid {
+      margin: 0 auto !important;
     }
 
-    /* ======================================================
-       🔒 AUTH OVERLAY — PARCHMENT THEME (MATCHES SITE)
-       - fixed + high z-index
-       - blocks all interaction behind it
-       - does not affect layout
-       ====================================================== */
-
-    /* Fullscreen blocker */
-    .overlay{
-      position: fixed;
-      inset: 0;
-      display: none;                 /* toggled by JS */
-      align-items: center;
-      justify-content: center;
-      z-index: 9999999;
-      pointer-events: auto;
+    .strip-title{
+      margin: 0vmin;
     }
 
-    /* Backdrop */
-    .overlay::before{
-      content:"";
-      position:absolute;
-      inset: 0;  /* ink wash */
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+    .explore-grid{
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     }
-
-    /* Modal card */
-    .auth-modal{
-      position: relative;
-      z-index: 1;
-
-      width: min(420px, 92vw);
-      border-radius: calc(var(--radius) + 6px);
-
-      background: var(--paper-strong);
-      border: 1px solid var(--rule-strong);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.35);
-
-      padding: 2.2vmin 2.3vmin;
-      overflow: hidden;
-    }
-
-    .auth-modal::after{
-      content:"";
-      position:absolute;
-      inset: 0;
-      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.45), transparent 55%);
-      pointer-events:none;
-      opacity: 0.75;
-    }
-
-    .auth-tabs{
-      position: relative;
-      z-index: 1;
-      display:flex;
-      gap: 1vmin;
-      margin-bottom: 1.4vmin;
-    }
-
-    .auth-tab{
-      flex: 1;
-      border: 1px solid var(--rule);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.55);
-      color: var(--heading-ink);
-      font-family: var(--font-ui);
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 0.9vmin 1.2vmin;
-      cursor: default;
-    }
-
-    .auth-tab.active{
-      background: rgba(47,79,79,0.14);
-      border-color: rgba(47,79,79,0.28);
-      color: rgba(47,79,79,0.95);
-    }
-
-    .auth-form{
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: 1vmin;
-    }
-
-    .auth-input{
-      width: 100%;
-      padding: 1.1vmin 1.2vmin;
-
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(139,115,85,0.35);
-      background: rgba(255,255,255,0.75);
-
-      font-family: var(--font-body);
-      font-size: clamp(14px, 2.1vmin, 18px);
-      color: var(--input-ink);
-
-      box-shadow: inset 0 1px 6px rgba(0,0,0,0.08);
-      outline: none;
-    }
-
-    .auth-input::placeholder{
-      color: #7a6a5a;
-      font-style: italic;
-      opacity: 0.9;
-    }
-
-    .auth-actions{
-      display:flex;
-      gap: 1vmin;
-      align-items:center;
-      margin-top: 0.2vmin;
-    }
-
-    .auth-button{
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.8vmin;
-
-      padding: 1.2vmin 1.6vmin;
-      min-height: 6.6vmin;
-
-      border-radius: calc(var(--radius) + 2px);
-      border: 1px solid rgba(3,43,125,0.25);
-
-      background: linear-gradient(
-        to bottom,
-        rgba(255, 252, 244, 0.96),
-        rgba(245, 230, 211, 0.92)
-      );
-      color: var(--classy-blue-ink);
-
-      font-family: var(--font-ui);
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-size: clamp(14px, 2.2vmin, 18px);
-
-      box-shadow:
-        0 10px 22px rgba(0,0,0,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.55);
-
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
-    }
-
-    .auth-button:hover{
-      transform: translateY(-2px);
-      box-shadow:
-        0 14px 30px rgba(0,0,0,0.20),
-        inset 0 1px 0 rgba(255,255,255,0.65);
-      filter: saturate(1.03);
-    }
-
-    .auth-button:active{
-      transform: translateY(0px);
-      box-shadow:
-        0 8px 16px rgba(0,0,0,0.16),
-        inset 0 2px 10px rgba(0,0,0,0.10);
-    }
-
-    .hidden{ display:none; }
-
-    /* Auth status toast (kept, but parchment-friendly) */
-    .auth-status{
-      position: fixed;
-      top: 2vh;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10000000;
-
-      padding: 1vmin 1.6vmin;
-      border-radius: 999px;
-
-      font-family: var(--font-ui);
-      font-weight: 900;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-
-      font-size: clamp(12px, 1.8vmin, 15px);
-      color: var(--paper);
-
-      box-shadow: 0 10px 25px rgba(0,0,0,0.20);
-    }
-    .auth-status.success{ background: var(--correct-color); }
-    .auth-status.error{ background: var(--incorrect-color); }
-
-    /* Ensure overlay truly blocks clicking */
-    body.overlay-open{
-      overflow: hidden;
-      touch-action: none;
-    }
-
-/* ======================================================
-   📱 MOBILE: prevent clipping / missing sections
-   Paste at very bottom of all_styles.css
-   ====================================================== */
-@media (max-width: 640px){
-
-  /* 1) Never allow mobile layout to be locked to one screen */
-  html, body{
-    overflow: hidden !important;
   }
-
-    /* Optional: very subtle readability wash (doesn't change layout) */
-    .hero-overlay::before{
-      content:"";
-      position:absolute;
-      inset: 0;
-      border-radius: 18px;
-      background: linear-gradient(
-        to bottom,
-        rgba(255,248,230,0.52),
-        rgba(255,248,230,0.36)
-      );
-      pointer-events:none;
-    }
-
-  
-
-    /* Make button groups dense and grid-based */
-  .chart-button-container{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cols */
-    gap: 0.8vmin;
-    padding: 1vmin;
-    width: 100%;
-    justify-self: stretch;
-    align-content: start;
-  }
-
-  /* Make buttons compact */
-  .chart-button-item{
-    padding: clamp(6px, 1.2vmin, 10px) clamp(8px, 1.6vmin, 12px);
-    font-size: clamp(11px, 1.6vmin, 13px);
-    border-radius: 12px;
-    letter-spacing: 0.2px;
-    text-transform: none;     /* optional: saves width */
-    white-space: nowrap;      /* or remove if you prefer wrapping */
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .hero{
-      width: 100%;
-  max-width: 375px;   /* optional */
-  margin: 0 auto;
-  }
-      .hero-image{
-  width: 100%;
-  max-width: 375px;   /* optional */
-  margin: 0 auto;
-  height:225px;
-  margin-top: 0vh;
-  border-radius: 18px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
-  display: block;
-  background-image: url("https://zxddjxwfcypqoriatwvt.supabase.co/storage/v1/object/public/public_images/backgrounds/bg_mobile.webp");
-    background-size: cover;   /* or cover — see below */
-  background-repeat: no-repeat;
-  background-position: center;
-
-}
-
-    .blurb{
-      width: 60vw;
-
-    }
-
-        .hero-tagline{
-      margin-top: 0.9vh;
-      margin-bottom: 0vh
-        }
-
-  /* If any parent wrapper is forcing a fixed height, neutralize it */
-  .mega-strips,
-  .explore-strip{
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  /* Give bottom padding so last row isn't cut off by iOS UI bars */
-  .mega-strips{
-    padding-bottom: 0vh !important;
-    gap:0vmin;
-    min-height: auto !important;
-  }
-
-  .mega-strips > section:nth-of-type(2) .explore-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    width: 70% !important;            /* makes the 2-button row visually centered */
-    margin: 0 auto !important;
-  }
-
-  .strip-title{
-    margin: 0vmin;
-  }
-
-  /* 3) Make sure your tile grid is still a real grid */
-  .explore-grid{
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    /* gap: 12px !important; */
-  }
-
-  /* .explore-item{
-    min-height: 86px !important;
-  } */
-}
-  </style>
+</style>
 </head>
 
 <body>
 
-  <!-- 🔒 AUTH OVERLAY (blocks everything behind it) -->
   <div id="overlay" class="overlay" aria-modal="true" role="dialog">
     <div class="auth-modal">
       <div class="auth-tabs">
         <button class="auth-tab active" type="button">Login</button>
       </div>
 
-      <!-- LOGIN FORM -->
       <div class="auth-form" id="login-form" aria-live="polite">
         <label for="login-email" class="hidden">Email</label>
         <input type="email" placeholder="Email" class="auth-input" id="login-email" autocomplete="email" required>
@@ -460,45 +542,13 @@
 
         <div class="auth-actions">
           <button class="auth-button" id="login-button" type="button">Login</button>
-
-          <!-- Standard place for "Forgot password?" (COMMENTED OUT, per request) -->
-          <!--
-          <button id="show-forgot" type="button">
-            Forgot password?
-          </button>
-          -->
         </div>
       </div>
-
-      <!-- FORGOT PASSWORD FORM (COMMENTED OUT, per request) -->
-      <!--
-      <div class="auth-form hidden" id="forgot-form" aria-hidden="true">
-        <p style="font-size:2vmin; margin-bottom:1vmin; color:#333;">
-          Enter the email for your account — we’ll send a link to reset your password.
-        </p>
-        <label for="forgot-email" class="hidden">Email</label>
-        <input type="email" placeholder="Email" class="auth-input" id="forgot-email" autocomplete="email">
-        <div style="display:flex; justify-content:space-between; gap:0.5vmin; margin-top:1vmin;">
-          <button class="auth-button" id="send-reset-button" style="flex:1;">Send reset email</button>
-          <button id="forgot-back" class="auth-button"
-            style="background:#eee; color:#333; border-radius:12px; padding:0.8vmin 1.2vmin;">
-            Back
-          </button>
-        </div>
-        <p id="forgot-hint" style="font-size:1.6vmin; color:#666; margin-top:0.8vmin;">
-          Check your inbox and spam. Link will expire per provider policy.
-        </p>
-      </div>
-      -->
     </div>
   </div>
 
-  
-
-  <!-- Status toast -->
   <div id="auth-status" class="auth-status hidden"></div>
 
-  <!-- Page content -->
   <div class="header-section">
     <div class="header">
       <h1>
@@ -509,19 +559,21 @@
     </div>
   </div>
 
-<div class="hero">
-  <div class="hero-image"></div>
+  <div class="hero">
+    <div class="hero-image"></div>
 
-  <div class="hero-overlay">
-    <div class="hero-tagline">Experience Our History</div>
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <div class="hero-tagline">Experience Our History</div>
 
-    <div class="subtitle blurb">
-      Discover the stories, struggles, and genius of our sages from the last 1000 years.
+        <div class="subtitle blurb">
+          Discover the great sages of the last thousand years.
+        </div>
+
+        <button class="cta-button sweep" id="cta-button">Explore a Sage</button>
+      </div>
     </div>
-
-    <button class="cta-button sweep" id="cta-button">Explore a Sage</button>
   </div>
-</div>
 
   <div class="mega-strips">
 
@@ -605,19 +657,15 @@
   </div>
 
   <script>
-    // CTA
     document.getElementById("cta-button")?.addEventListener("click", () => {
-      // assumes linkToProfile exists (global.js)
       linkToProfile("Rambam");
     });
   </script>
 
-  <!-- ✅ Auth gatekeeper + login handler (minimal and layout-safe) -->
   <script type="module">
     import { supabaseClient } from "./supabase/supabaseClient.js";
     import { trackPageView } from "./supabase/supabaseFunctions.js";
 
-    // Make available globally (your other pages/scripts may expect it)
     window.supabaseClient = supabaseClient;
 
     const overlay = document.getElementById("overlay");
@@ -639,17 +687,14 @@
       setTimeout(() => bar.classList.add("hidden"), 3500);
     }
 
-    // Gatekeeper: show overlay if no session
     const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
     if (sessionError) console.error("getSession error:", sessionError);
     setOverlayVisible(!sessionData?.session);
 
-    // Keep overlay synced with auth
     supabaseClient.auth.onAuthStateChange((_event, session) => {
       setOverlayVisible(!session);
     });
 
-    // Login handler
     async function handleLogin(){
       const email = document.getElementById("login-email")?.value?.trim();
       const password = document.getElementById("login-password")?.value ?? "";
@@ -674,7 +719,6 @@
       loginBtn.addEventListener("click", handleLogin);
     }
 
-    // Enter submits ONLY when overlay is visible and focus is inside login form
     document.addEventListener("keydown", async (e) => {
       if (e.key !== "Enter") return;
       if (!overlay || overlay.style.display === "none") return;
@@ -682,82 +726,11 @@
       await handleLogin();
     });
 
-    // Page view (call once)
     try{
       await trackPageView();
     } catch (e){
       console.error("trackPageView failed:", e);
     }
-
-    // Forgot password feature (kept COMMENTED OUT, per request)
-    /*
-    // --- FORGOT PASSWORD HANDLERS ---
-    const showForgotBtn = document.getElementById('show-forgot');
-    const forgotForm = document.getElementById('forgot-form');
-    const forgotEmailInput = document.getElementById('forgot-email');
-    const sendResetButton = document.getElementById('send-reset-button');
-    const forgotBackButton = document.getElementById('forgot-back');
-
-    function openForgotForm() {
-      document.getElementById('login-form').classList.add('hidden');
-      forgotForm.classList.remove('hidden');
-      forgotForm.setAttribute('aria-hidden', 'false');
-      setTimeout(() => { forgotEmailInput.focus(); }, 50);
-    }
-
-    function closeForgotForm() {
-      forgotForm.classList.add('hidden');
-      forgotForm.setAttribute('aria-hidden', 'true');
-      document.getElementById('login-form').classList.remove('hidden');
-      setTimeout(() => { document.getElementById('login-email').focus(); }, 50);
-    }
-
-    if (showForgotBtn) {
-      showForgotBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openForgotForm();
-      });
-    }
-
-    if (forgotBackButton) {
-      forgotBackButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeForgotForm();
-      });
-    }
-
-    if (sendResetButton) {
-      sendResetButton.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const email = forgotEmailInput.value?.trim();
-        if (!email) {
-          showStatus('Please enter your email.', 'error');
-          forgotEmailInput.focus();
-          return;
-        }
-
-        sendResetButton.disabled = true;
-        sendResetButton.textContent = 'Sending...';
-
-        try {
-          const redirectTo = window.location.origin + '/reset-password';
-          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
-          if (error) showStatus(error.message || 'Unable to send reset email.', 'error');
-          else showStatus('Reset email sent — check your inbox (and spam).', 'success');
-        } catch (err) {
-          showStatus('An unexpected error occurred.', 'error');
-          console.error(err);
-        } finally {
-          sendResetButton.disabled = false;
-          sendResetButton.textContent = 'Send reset email';
-        }
-      });
-    }
-
-    forgotEmailInput && forgotEmailInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendResetButton.click();
-    });
-    */
   </script>
 
 </body>
