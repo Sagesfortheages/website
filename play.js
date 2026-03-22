@@ -1,88 +1,146 @@
 import { loadAllSages } from './supabase/sagesWithNames.js';
-import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames} from './supabase/supabaseFunctions.js';
+import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
-
-
 // Global variables
-let markers = []; // Will be populated from database
-let uniqueNames = []; // Will be populated from markers
+let markers = [];
+let uniqueNames = [];
 let correctAnswer = null;
 let wrongGuessesNum = 0;
 let wrongGuesses = [];
 let hints = 0;
-const infoText = `Your goal is to guess the unknown sage. <br><br> Get more clues by guessing sages in the guess bar.<br><br>Each sage you guess will have a place of passing, areas of focus and a place in the timeline.<br><br>The closer your guess's place of passing is to the mystery sage's place of passing, the hotter it will glow.<br><br>Similarly, the closer your guess's spot in the timeline to the mystery sage's place in the timeline.<br><br> There is also a wheel of focus. Each time you guess a sage, his/her name will appear on the outside of the wheel, along with that guess's areas of focus. If an area of a focus of a guess aligns with one of the mystery sage's, the inner wheel will glow green. If it doesn't align, the inner wheel will glow red.<br><br>Click on the question mark to see the answer.<br><br>You have 12 guesses.<br><br> Good luck!`
+const infoText = `Your goal is to guess the unknown sage. <br><br> Get more clues by guessing sages in the guess bar.<br><br>Each sage you guess will have a place of passing, areas of focus and a place in the timeline.<br><br>The closer your guess's place of passing is to the mystery sage's place of passing, the hotter it will glow.<br><br>Similarly, the closer your guess's spot in the timeline to the mystery sage's place in the timeline.<br><br> There is also a wheel of focus. Each time you guess a sage, his/her name will appear on the outside of the wheel, along with that guess's areas of focus. If an area of a focus of a guess aligns with one of the mystery sage's, the inner wheel will glow green. If it doesn't align, the inner wheel will glow red.<br><br>Click on the question mark to see the answer.<br><br>You have 12 guesses.<br><br> Good luck!`;
 const maxGuesses = 12;
 const difficultyLevel = JSON.parse(sessionStorage.getItem('difficulty')) || 'medium';
 const scale = { 'Very Easy': 1, 'Easy': 2, 'Medium': 3, 'Hard': 4, 'Very Hard': 5 };
 const maxDifficulty = scale[difficultyLevel] ?? 5;
-console.log(difficultyLevel)
-let gameId = null
-let gameReady = false
+let gameId = null;
+let gameReady = false;
+let isRevealRunning = false;
 
-// document.getElementById('info-button').addEventListener('click', function () {
-//     showCustomAlert(infoText, '2.25vmin');
-// })
-document.getElementById("info-button").addEventListener("click", startTour)
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+document.getElementById("info-button").addEventListener("click", startTour);
 
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
 
+const playContainer = document.getElementById('play-container');
+const revealOverlay = document.getElementById('reveal-overlay');
+const revealStatus = document.getElementById('reveal-status');
+
+const searchPanel = document.querySelector('.top-left-container');
+const timelinePanel = document.querySelector('.top-right-container');
+const wheelPanel = document.querySelector('.bottom-left-container');
+const mapPanel = document.querySelector('.bottom-right-container');
+
+function normalizeExpertiseArray(value) {
+    if (!Array.isArray(value)) return [];
+    return value
+        .map(item => typeof item === 'string' ? item.trim() : item?.expertise?.trim())
+        .filter(Boolean);
+}
+
+function beginReveal(message = 'Processing guess...') {
+    if (playContainer) playContainer.classList.add('revealing');
+    if (revealOverlay) revealOverlay.classList.add('active');
+    if (revealStatus) {
+        revealStatus.textContent = message;
+        revealStatus.classList.add('show');
+    }
+}
+
+function updateRevealStatus(message) {
+    if (revealStatus) {
+        revealStatus.textContent = message;
+    }
+}
+
+function endReveal() {
+    if (playContainer) playContainer.classList.remove('revealing');
+    if (revealOverlay) revealOverlay.classList.remove('active');
+    if (revealStatus) revealStatus.classList.remove('show');
+    clearPanelFocus();
+}
+
+function clearPanelFocus() {
+    [searchPanel, timelinePanel, wheelPanel, mapPanel].forEach(panel => {
+        if (!panel) return;
+        panel.classList.remove('reveal-focus', 'reveal-dim');
+    });
+}
+
+function focusOnePanel(activePanel) {
+    [searchPanel, timelinePanel, wheelPanel, mapPanel].forEach(panel => {
+        if (!panel) return;
+        if (panel === activePanel) {
+            panel.classList.add('reveal-focus');
+            panel.classList.remove('reveal-dim');
+        } else {
+            panel.classList.add('reveal-dim');
+            panel.classList.remove('reveal-focus');
+        }
+    });
+}
+
+function pulseRing(id) {
+    const ring = document.getElementById(id);
+    if (!ring) return;
+    ring.classList.remove('reveal-ring');
+    void ring.offsetWidth;
+    ring.classList.add('reveal-ring');
+}
+
 async function fetchMarkersFromDatabase() {
     try {
-        // Load all sages from Supabase
         const allMarkers = await loadAllSages();
 
         if (!allMarkers || allMarkers.length === 0) {
             console.warn("No markers found in database");
             return [];
         }
-        
+
         await loadMusic(supabaseClient, "climb_city_morning.mp3");
 
-        // Filter by difficulty
-        markers = allMarkers.filter(sage => sage.difficulty <= maxDifficulty).filter(sage => sage.expertise.length > 0);
+        markers = allMarkers
+            .filter(sage => sage.difficulty <= maxDifficulty)
+            .filter(sage => sage.expertise.length > 0);
 
         console.log(`Fetched ${markers.length} markers from Supabase (difficulty <= ${maxDifficulty})`);
-
-
-
         return markers;
 
     } catch (error) {
         console.error('Error loading markers from Supabase:', error);
+        return [];
     }
 }
 
 function processMarkersData(markersData) {
-    // Process and validate markers data
     const processedMarkers = markersData.map(marker => {
-        // Ensure expertise is an array
         if (typeof marker.expertise === 'string') {
             marker.expertise = marker.expertise.split(',').map(item => item.trim());
         } else if (!Array.isArray(marker.expertise)) {
             marker.expertise = [];
         }
 
-        // Set default values for optional fields
         marker.aka = marker.aka || '';
         marker.name = marker.name || marker.person;
-        marker.city_of_passing = marker.city_of_passing || 'Unknown';
+        marker.city_of_passing = marker.city_of_passing || {};
         marker.country_of_passing = marker.country_of_passing || 'Unknown';
         marker.background = marker.background || '';
         marker.major_works = marker.major_works || '0';
         marker.biography = marker.biography || '';
 
-        // Ensure numeric fields are numbers
         marker.birth = Number(marker.birth) || 0;
         marker.passing = Number(marker.passing) || 0;
         marker.latitude_of_passing = Number(marker.latitude_of_passing) || 0;
         marker.longitude_of_passing = Number(marker.longitude_of_passing) || 0;
 
+        marker.expertise = normalizeExpertiseArray(marker.expertise);
+
         return marker;
     });
 
-    // Generate unique names for suggestions
     const names = processedMarkers.map(marker => {
         const allNames = [marker.person, marker.name];
         if (marker.aka) {
@@ -90,47 +148,34 @@ function processMarkersData(markersData) {
         }
         return allNames;
     }).flat();
-    
-    uniqueNames = [...new Set(names.filter(name => name && name !== 'undefined'))];
 
+    uniqueNames = [...new Set(names.filter(name => name && name !== 'undefined'))];
     return processedMarkers;
 }
 
-// Game initialization function
 async function initializeGame() {
-
-
     try {
-        // Show loading state
         const circleContainer = document.querySelector(".circle-container");
         if (circleContainer) {
             circleContainer.innerHTML = '<div>Loading game data...</div>';
         }
 
-        // Fetch markers from database
         const markersData = await fetchMarkersFromDatabase();
-        
+
         if (markersData.length === 0) {
             throw new Error('No markers data available');
         }
 
-        // Process the data
         markers = processMarkersData(markersData);
-        
-            console.log(markers)
-        
-        // Start the game
-       await startNewGame();
 
-        // Initialize game UI
+        await startNewGame();
         setupGameUI();
 
         console.log('Game initialized successfully');
-        
+
     } catch (error) {
         console.error('Failed to initialize game:', error);
-        
-        // Show error to user
+
         const circleContainer = document.querySelector(".circle-container");
         if (circleContainer) {
             circleContainer.innerHTML = `
@@ -141,16 +186,15 @@ async function initializeGame() {
             `;
         }
     }
+
     const page = await trackPageView(difficultyLevel);
-    if(page.isFirstVisit) {
+    if (page.isFirstVisit) {
         startTour();
     }
 }
 
-
 function startTour() {
     const intro = introJs();
-
 
     intro.setOptions({
         showProgress: true,
@@ -158,148 +202,87 @@ function startTour() {
         exitOnOverlayClick: false,
         exitOnEsc: true,
         disableInteraction: false,
-        scrollToElement: false,  // Add this line to prevent auto-scrolling
+        scrollToElement: false,
         steps: [
             {
                 element: '.play-page',
-                intro: `
-                <h3>👋 Welcome</h3>
-                Your job is to guess the mystery sage. As you guess, you will receive more clues to hone your next guess.
-                `
+                intro: `<h3>👋 Welcome</h3>Your job is to guess the mystery sage. As you guess, you will receive more clues to hone your next guess.`
             },
             {
                 element: '#textbox',
-                intro: `
-                <h3>🔎 Guess</h3>
-                Guess a sage by inputting their name here.
-                `
+                intro: `<h3>🔎 Guess</h3>Guess a sage by inputting their name here.`
             },
             {
                 element: '#search-results',
-                intro: `
-                <h3>👤 Sages</h3>
-                You can also guess by clicking a sage here.
-                `
+                intro: `<h3>👤 Sages</h3>You can also guess by clicking a sage here.`
             },
             {
                 element: '.circle-container',
-                intro: `
-                <h3>👥 Guesses</h3>
-                You have 12 guesses. As you play, hover over a circle to see what you guessed.
-                `
+                intro: `<h3>👥 Guesses</h3>You have 12 guesses. As you play, hover over a circle to see what you guessed.`
             },
             {
                 element: '.target',
-                intro: `
-                <h3>🎯 Wheel of Focus</h3>
-                This is called the Wheel of Focus. With each guess, you learn more about the areas of focus of the mystery sage.
-                `
+                intro: `<h3>🎯 Wheel of Focus</h3>This is called the Wheel of Focus. With each guess, you learn more about the areas of focus of the mystery sage.`
             },
-
-
-            
             {
                 element: '#ring1',
-                intro: `
-                <h3>◎ Guess's Focus</h3>
-                If your guess focused on Talmud, the outer ring will glow green in the Talmud section.This will then reveal whether the mystery sage focused on Talmud.
-                `
+                intro: `<h3>◎ Guess's Focus</h3>If your guess focused on Talmud, the outer ring will glow green in the Talmud section. This will then reveal whether the mystery sage focused on Talmud.`
             },
-
             {
                 element: '#ring2',
-                intro: `
-                <h3>◉ Mystery Focus</h3>
-                If he also focused on Talmud, the inner ring will glow green by Talmud. If not, it will glow pink. If it remains grey, find a guess with that area of focus to reveal another clue.
-                `
+                intro: `<h3>◉ Mystery Focus</h3>If he also focused on Talmud, the inner ring will glow green by Talmud. If not, it will glow pink. If it remains grey, find a guess with that area of focus to reveal another clue.`
             },
             {
                 element: '#guessLabel',
-                intro: `
-                <h3>🗨 Guess Label</h3>
-                Here you can find the name of your most recent guess.
-                `
+                intro: `<h3>🗨 Guess Label</h3>Here you can find the name of your most recent guess.`
             },
             {
                 element: '.gradient-wrapper',
-                intro: `
-                <h3>🌡️ Hot and Cold</h3>
-                Here is a heatmap to help you with the other clues that are revealed as you progress through the game. Blue means your current guess is far from the mystery guess. Red means it is close.
-                `
+                intro: `<h3>🌡️ Hot and Cold</h3>Here is a heatmap to help you with the other clues that are revealed as you progress through the game. Blue means your current guess is far from the mystery guess. Red means it is close.`
             },
             {
                 element: '#timeline-container',
-                intro: `
-                <h3>⏳ Timeline</h3>
-                Your guess's life span will appear. The closer your guess's life span is to the mystery sage's, the more red it will appear. As you play, hover over a sage's lifespan to see more details.
-                `
+                intro: `<h3>⏳ Timeline</h3>Your guess's life span will appear. The closer your guess's life span is to the mystery sage's, the more red it will appear. As you play, hover over a sage's lifespan to see more details.`
             },
-
-
             {
                 element: '#map',
-                intro: `
-                <h3>🌍 Map</h3>
-                Your guess's last place of activity will appear here. The closer your guess's last place is to the mystery sage's last place, the more red it will appear. As you play, hover to see more details.
-                `
+                intro: `<h3>🌍 Map</h3>Your guess's last place of activity will appear here. The closer your guess's last place is to the mystery sage's last place, the more red it will appear. As you play, hover to see more details.`
             },
             {
                 element: '#correctLabel',
-                intro: `
-                <h3>👁️ Reveal the Sage</h3>
-                Click here to reveal the mystery sage.
-                `
+                intro: `<h3>👁️ Reveal the Sage</h3>Click here to reveal the mystery sage.`
             },
             {
                 element: '#hint-button',
-                intro: `
-                <h3>💡 Hint</h3>
-                Click here to receive a hint.
-                `
+                intro: `<h3>💡 Hint</h3>Click here to receive a hint.`
             },
             {
                 element: '#restart-button-main',
-                intro: `
-                <h3>🔄 Restart</h3>
-                Click here to restart the game with a new mystery sage.
-                `
+                intro: `<h3>🔄 Restart</h3>Click here to restart the game with a new mystery sage.`
             },
-
             {
                 element: '#info-button',
-                intro: `
-                <h3>🚶 Restart Tour</h3>
-                Click this button to see this tour again.
-                `
+                intro: `<h3>🚶 Restart Tour</h3>Click this button to see this tour again.`
             }
-
-
         ]
     });
 
     intro.start();
 }
 
-
 function setupGameUI() {
-    // Initialize focus wheels
     setRingColor('ring1', [], [], 'var(--paper)');
     setRingColor('ring2', [], [], 'lightgray');
 
-    // Get the container for circles and create them
     const circleContainer = document.querySelector(".circle-container");
     createCircles(circleContainer, maxGuesses);
 
-    // Setup suggestions list
     setupSuggestionsList();
-    
-    // Setup event listeners
     setupEventListeners();
 }
 
 function handleSearchResultClick(e) {
-    if (!gameReady) return;
-
+    if (!gameReady || isRevealRunning) return;
     const li = e.currentTarget;
     evaluateAnswer(correctAnswer, li._result);
 }
@@ -308,54 +291,44 @@ function setupSuggestionsList() {
     const suggestionsList = document.getElementById('search-results');
     if (!suggestionsList) return;
 
-    // Clear existing suggestions
     suggestionsList.innerHTML = '';
 
-    // Get unique people and sort them
-    const allPeople = [...new Map(markers.map(item => [item['person'], item])).values()];
+    const allPeople = [...new Map(markers.map(item => [item.person, item])).values()];
     allPeople.sort((a, b) => a.person.localeCompare(b.person));
 
-    // Display suggestions
     allPeople.forEach(result => {
         const li = document.createElement('li');
         li.textContent = result.person;
-        li._result = result;   // or use dataset (see below)
+        li._result = result;
         li.addEventListener('click', handleSearchResultClick);
         suggestionsList.appendChild(li);
     });
-
-    
 }
 
 function setupEventListeners() {
-    // Restart button
-    console.log(1)
     const restartButton = document.getElementById('restart-button-main');
     if (restartButton) {
-        console.log(2)
         restartButton.addEventListener('click', function() {
+            if (isRevealRunning) return;
             hideCustomAlert();
             restartGame();
         });
     }
 
-    // Hint button
     const hintButton = document.getElementById('hint-button');
     if (hintButton) {
-        console.log(3)
         hintButton.addEventListener('click', handleHintClick);
     }
 
-    // Text input
     const textbox = document.getElementById('textbox');
     if (textbox) {
         textbox.addEventListener('keypress', handleEnter);
     }
 
-    // Correct label click
     const correctLabel = document.getElementById('correctLabel');
     if (correctLabel) {
         correctLabel.addEventListener('click', function() {
+            if (isRevealRunning) return;
             if (this.textContent.includes('?')) {
                 evaluateAnswer(correctAnswer, correctAnswer, false);
             } else {
@@ -364,52 +337,43 @@ function setupEventListeners() {
         });
     }
 
-    // Suggestion click
     const suggestion = document.getElementById('suggestion');
     if (suggestion) {
         suggestion.addEventListener('click', handleSuggestionClick);
     }
 
-    // Popup events
     document.addEventListener('mouseover', handleHoverPopup);
     document.addEventListener('mousemove', handleHoverPopup);
     document.addEventListener('mouseout', handleMouseOut);
 }
 
 async function startNewGame() {
-
     gameReady = false;
+
     if (markers.length === 0) {
         console.error('No markers available to start game');
         return;
     }
 
-
-
-    // Pick a random marker based on difficulty
     correctAnswer = pickRandomMarker(markers, difficultyLevel);
-    correctAnswer.expertise = correctAnswer.expertise.map(x =>
-    typeof x === "string" ? x : x?.expertise
-    ).filter(Boolean);
-    
+    correctAnswer.expertise = normalizeExpertiseArray(correctAnswer.expertise);
+
     if (!correctAnswer) {
         console.error('Failed to pick random marker');
         return;
     }
 
-    gameId = await trackGameStart(correctAnswer.person, maxDifficulty)
-    console.log('Game ID set to:', gameId); // ADD THIS LINE
+    gameId = await trackGameStart(correctAnswer.person, maxDifficulty);
 
-    // Reset game state
     wrongGuessesNum = 0;
     wrongGuesses = [];
     hints = 0;
+    isRevealRunning = false;
 
-    // Reset UI
     const correctLabel = document.getElementById('correctLabel');
     if (correctLabel) {
         correctLabel.textContent = '';
-        correctLabel.innerHTML += '<button>?</button>';
+        correctLabel.innerHTML = '<button>?</button>';
         correctLabel.classList.remove('clickable');
     }
 
@@ -418,25 +382,25 @@ async function startNewGame() {
         guessLabel.textContent = '';
     }
 
-    console.log('New game started with:', correctAnswer.person);
+    clearPanelFocus();
+    endReveal();
 
     gameReady = true;
 }
 
-// Event handlers
 function handleHintClick() {
-    if (!correctAnswer) return;
+    if (!correctAnswer || isRevealRunning) return;
 
     if (hints < 1) {
         showCustomAlert(`This sage's background was ${correctAnswer.background}.`, "5vmin", false, true);
         hints += 1;
     } else if (hints < 2) {
-        if (correctAnswer.major_works != '0') {
+        if (correctAnswer.major_works !== '0') {
             const works = correctAnswer.major_works.split(',');
-            if (works[0] != correctAnswer.person && !correctAnswer.aka.split(',')[0].includes(works[0])) {
-                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[0]}.`, fontSize="5vmin", restartButtonOn=false, true);
+            if (works[0] !== correctAnswer.person && !correctAnswer.aka.split(',')[0].includes(works[0])) {
+                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[0]}.`, "5vmin", false, true);
             } else if (works.length > 1) {
-                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[1]}.`, fontSize="5vmin", restartButtonOn=false, true);
+                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[1]}.`, "5vmin", false, true);
             } else {
                 showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>No more hints are available.`, "5vmin", false, true);
             }
@@ -448,17 +412,18 @@ function handleHintClick() {
 }
 
 function handleSuggestionClick() {
+    if (isRevealRunning) return;
+
     const suggestionDiv = document.getElementById('suggestion');
     if (!suggestionDiv) return;
 
     const suggestedName = suggestionDiv.getAttribute('data-suggestion');
     const suggestedMarker = pickMarkerByName(markers, suggestedName);
-    
+
     if (suggestedMarker) {
         evaluateAnswer(correctAnswer, suggestedMarker);
     }
-    
-    // Clear suggestion and textbox
+
     suggestionDiv.style.visibility = "hidden";
     const textbox = document.getElementById('textbox');
     if (textbox) {
@@ -467,24 +432,21 @@ function handleSuggestionClick() {
 }
 
 function handleEnter(event) {
-    if (event.key === 'Enter') {
-        if (!gameReady) return;
+    if (event.key !== 'Enter') return;
+    if (!gameReady || isRevealRunning) return;
 
-        const guess = pickMarkerByName(markers, this.value);
-    
-        if (guess !== null) {
-            // Clear textbox and suggestion if valid guess
-            this.value = "";
-            const suggestion = document.getElementById('suggestion');
-            if (suggestion) {
-                suggestion.style.visibility = "hidden";
-            }
-            
-            evaluateAnswer(correctAnswer, guess);
+    const guess = pickMarkerByName(markers, this.value);
+
+    if (guess !== null) {
+        this.value = "";
+        const suggestion = document.getElementById('suggestion');
+        if (suggestion) {
+            suggestion.style.visibility = "hidden";
         }
+
+        evaluateAnswer(correctAnswer, guess);
     }
 }
-
 
 function handleMouseOut(event) {
     if (event.target.classList.contains('popup-button')) {
@@ -496,55 +458,41 @@ function handleMouseOut(event) {
 }
 
 window.restartGame = async function() {
-    if (markers.length === 0) {
-        console.error('No markers available for restart');
+    if (markers.length === 0 || isRevealRunning) {
         return;
     }
 
-    // SHOW LOADING OVERLAY
     showCustomAlert('Loading new game...', "5vmin", false, false);
 
     const circleContainer = document.querySelector(".circle-container");
-    
-    // Reset circles
     if (circleContainer) {
         for (let circle of circleContainer.children) {
             circle.style.backgroundColor = "";
-            if (circle.classList.contains('popup-button')) {
-                circle.classList.remove('popup-button');
-            }
+            circle.classList.remove('popup-button');
+            delete circle.dataset.message;
         }
     }
 
     const suggestionsList = document.getElementById('search-results');
     const items = suggestionsList.querySelectorAll('li');
-
     items.forEach(li => {
         li.addEventListener('click', handleSearchResultClick);
     });
 
-    // Clear focus wheels
     setRingColor('ring1', [], [], 'var(--paper)');
     setRingColor('ring2', [], [], 'lightgray');
-    
-    // Remove rectangles and markers
+
     document.querySelectorAll(".timeline-rectangle").forEach(div => div.remove());
     document.querySelectorAll(".mapboxgl-marker").forEach(div => div.remove());
 
-    // Start new game
     await startNewGame();
-
-    // HIDE LOADING OVERLAY
     hideCustomAlert();
-    
-    // Re-enable textbox event listener
+
     const textbox = document.getElementById('textbox');
     if (textbox) {
         textbox.addEventListener('keypress', handleEnter);
     }
-}
-
-// Modified existing functions to work with database data
+};
 
 function createCircles(container, numCircles) {
     if (!container) {
@@ -552,22 +500,21 @@ function createCircles(container, numCircles) {
         return;
     }
 
-    // Clear existing circles
     container.innerHTML = "";
 
     for (let i = 1; i <= numCircles; i++) {
-        // Create a circle div
         const circle = document.createElement("div");
         circle.classList.add("circle");
-        circle.textContent = i; // Add number to circle
-        circle.id = "circle" + i; // Add id to circle
-
-        // Append circle to container
+        circle.textContent = i;
+        circle.id = "circle" + i;
         container.appendChild(circle);
     }
 }
 
 function setRingColor(ringId, greens, reds, baseColor = "white") {
+    const greensSet = new Set(greens);
+    const redsSet = new Set(reds);
+
     const colorsDict = {
         'empty': [baseColor, '0deg 15deg'],
         'Tanach': [baseColor, '15deg 45deg'],
@@ -586,26 +533,23 @@ function setRingColor(ringId, greens, reds, baseColor = "white") {
 
     for (let key in colorsDict) {
         const checkKey = key === 'empty-end' ? 'empty' : key;
-        if (greens.includes(checkKey)) {
+        if (greensSet.has(checkKey)) {
             colorsDict[key][0] = '#AEF359';
         }
     }
 
     for (let key in colorsDict) {
         const checkKey = key === 'empty-end' ? 'empty' : key;
-        if (reds.includes(checkKey)) {
+        if (redsSet.has(checkKey)) {
             colorsDict[key][0] = 'rgb(255, 182, 193)';
         }
     }
 
-    // Rest stays the same...
     const gradientString = 'conic-gradient(' + Object.values(colorsDict).map(colorArray => {
         const color = colorArray[0];
         const angle = colorArray[1];
         return `${color} ${angle}`;
     }).join(', ') + ')';
-
-    console.log(gradientString)
 
     const ring = document.getElementById(ringId);
     if (ring) {
@@ -616,20 +560,20 @@ function setRingColor(ringId, greens, reds, baseColor = "white") {
 function extractRingColor(ringId, colorToFind) {
     const list = ['empty', 'Tanach', 'Talmud', 'Halacha', 'Responsa', 'Kabbalah', 'Chassidus', 'Mussar', 'Philosophy', 'Linguistics', 'Poetry', 'History', 'empty-end'];
     const ring = document.getElementById(ringId);
-    
+
     if (!ring || !ring.style.background) {
         return [];
     }
-    
+
     const gradientString = ring.style.background;
     const colorRegex = /rgb\(\d{1,3}, \d{1,3}, \d{1,3}\)|lightgray/g;
     const colors = gradientString.match(colorRegex);
-    
+
     if (!colors) return [];
 
     const filteredColors = colors.filter((_, index) => index % 2 === 0);
     const indices = [];
-    
+
     filteredColors.forEach((color, index) => {
         if (color.includes(colorToFind)) {
             indices.push(index);
@@ -646,24 +590,21 @@ function yearToPercentage(year) {
 function createRectangle(birthYear, passingYear, color, height, name) {
     const rectangles = document.querySelectorAll('.timeline-rectangle');
     rectangles.forEach(rectangle => {
-        if (rectangle.classList.contains('animate')) {
-            rectangle.classList.remove('animate');
-        }
+        rectangle.classList.remove('animate');
     });
 
     const timelineContainer = document.querySelector('#timeline-container');
     if (!timelineContainer) {
         console.error('Timeline container not found');
-        return;
+        return null;
     }
 
     const rectangle = document.createElement('div');
-    rectangle.classList.add('timeline-rectangle');
-    rectangle.classList.add('animate');
-    
+    rectangle.classList.add('timeline-rectangle', 'animate', 'reveal-enter');
+
     const startLeft = yearToPercentage(birthYear) + '%';
-    const width = yearToPercentage(passingYear) - yearToPercentage(birthYear) + '%';
-    
+    const width = (yearToPercentage(passingYear) - yearToPercentage(birthYear)) + '%';
+
     rectangle.style.left = startLeft;
     rectangle.style.width = width;
     rectangle.style.backgroundColor = color;
@@ -672,21 +613,29 @@ function createRectangle(birthYear, passingYear, color, height, name) {
     rectangle.dataset.message = `<strong>${name}</strong>: ${birthYear} - ${passingYear}`;
 
     timelineContainer.appendChild(rectangle);
+
+    setTimeout(() => {
+        rectangle.classList.remove('reveal-enter');
+    }, 720);
+
+    return rectangle;
 }
 
 function calculateDistance(person1, person2) {
-    return Math.sqrt(Math.pow(person1.city_of_passing.longitude - person2.city_of_passing.longitude, 2) + 
-                    Math.pow(person1.city_of_passing.latitude - person2.city_of_passing.latitude, 2));
+    return Math.sqrt(
+        Math.pow(person1.city_of_passing.longitude - person2.city_of_passing.longitude, 2) +
+        Math.pow(person1.city_of_passing.latitude - person2.city_of_passing.latitude, 2)
+    );
 }
 
-function pickMarkerByName(markers, name) {
+function pickMarkerByName(markersList, name) {
     const searchName = name.toLowerCase();
     let marker = null;
 
     if (searchName !== 'nan' && searchName !== '') {
-        marker = markers.find(marker => 
-            marker.person.toLowerCase() === searchName || 
-            marker.name.toLowerCase() === searchName || 
+        marker = markersList.find(marker =>
+            marker.person.toLowerCase() === searchName ||
+            marker.name.toLowerCase() === searchName ||
             marker.aka.split(',').some(aka => aka.trim().toLowerCase() === searchName)
         ) || null;
     }
@@ -694,7 +643,7 @@ function pickMarkerByName(markers, name) {
     if (marker === null && searchName !== '') {
         const suggestion = suggestAlternative(searchName, uniqueNames);
         const suggestionDiv = document.getElementById('suggestion');
-        
+
         if (suggestionDiv) {
             suggestionDiv.textContent = 'Did you mean ' + capitalizeWords(suggestion) + '?';
             suggestionDiv.setAttribute('data-suggestion', suggestion);
@@ -705,21 +654,19 @@ function pickMarkerByName(markers, name) {
     return marker;
 }
 
-// Define colors and bins (keeping existing color logic)
-
 const colors = [
-  '#2b2a58', // was #2222CC → deep indigo ink
-  '#3a3b74', // was #4444FF → muted royal ink
-  '#54579a', // was #8888FF → dusty manuscript blue
-  '#7a7fb8', // was #AAAAFF → pale ink wash
-  '#a8add3', // was #CCCCFF → faded pigment
+  '#2b2a58',
+  '#3a3b74',
+  '#54579a',
+  '#7a7fb8',
+  '#a8add3',
   'rgba(255, 248, 230, 0.88)',
-  '#e1b3a6', // was #FFCCCC → light terracotta wash
-  '#d59482', // was #FF8888 → muted coral pigment
-  '#c87863', // was #FF6666 → clay ink
-  '#b85f4b', // was #FF4444 → sealing wax tone
-  '#9f4738'  // was #FF0000 → deep wax red
-]
+  '#e1b3a6',
+  '#d59482',
+  '#c87863',
+  '#b85f4b',
+  '#9f4738'
+];
 
 const bins = [
     [90,160.22],[36.05, 89.99], [27.70, 36.04], [22.58, 27.69],
@@ -741,177 +688,240 @@ function getColorByPercentage(percentage) {
     if (percentage < 0 || percentage > 1) {
         throw new Error("Percentage must be between 0 and 1.");
     }
-    
+
     const index = Math.min(Math.floor(percentage * colors.length), colors.length - 1);
     return colors[index];
 }
 
-async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
-    
-    console.log(currentAnswer)
-    if (!correctAnswer || !currentAnswer) {
-        console.error('Missing answer data');
-        return;
+async function revealTimelineStep(currentAnswer, timelineColor, timelineHeight) {
+    updateRevealStatus(`When · ${currentAnswer.birth}–${currentAnswer.passing}`);
+    focusOnePanel(timelinePanel);
+    createRectangle(
+        currentAnswer.birth,
+        currentAnswer.passing,
+        timelineColor,
+        timelineHeight,
+        currentAnswer.person
+    );
+    await sleep(650);
+    await sleep(500);
+}
+
+async function revealMapStep(correctAnswer, currentAnswer) {
+    updateRevealStatus(`Where · ${currentAnswer.city_of_passing.city}, ${currentAnswer.city_of_passing.country}`);
+    focusOnePanel(mapPanel);
+
+    const mapMarkers = document.querySelectorAll('.mapboxgl-marker');
+    mapMarkers.forEach(marker => marker.classList.remove('animate'));
+
+    if (typeof mapboxgl !== 'undefined' && window.map) {
+        window.map.flyTo({
+            center: [currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude],
+            duration: 1200,
+            essential: true,
+            zoom: 2
+        });
     }
 
-    // Calculate and display results
-    const correctMidpoint = (correctAnswer.birth + correctAnswer.passing) / 2;
-    const guessMidpoint = (currentAnswer.birth + currentAnswer.passing) / 2;
-    const offBy = Math.abs(correctMidpoint - guessMidpoint);
-    const percentage = (1100 - offBy) / 1100;
+    await sleep(950);
 
-    // Create timeline rectangle
-    createRectangle(currentAnswer.birth, currentAnswer.passing, getColorByPercentage(percentage), 
-        percentage * 80 + '%', currentAnswer.person);
-
-    // Update focus wheel labels and colors
-    const guessLabel = document.getElementById('guessLabel');
-    if (guessLabel && currentAnswer.person.trim().toLowerCase() !== correctAnswer.person.trim().toLowerCase()) {
-        guessLabel.textContent = currentAnswer.person;
-    }
-    let currentExpertise = currentAnswer.expertise
-  .map(x => typeof x === "string" ? x : x?.expertise)
-  .filter(Boolean);
-
-    setRingColor('ring1', currentExpertise, 'white');
-    console.log(currentAnswer.expertise);
-
-    // Update mystery ring colors
-    let redsExisting = extractRingColor('ring2', 'rgb(255, 182, 193)');
-    let greensExisting = extractRingColor('ring2', 'rgb(174, 243, 89)');
-    
-    
-    for (let expertise of currentExpertise) {
-        if (!correctAnswer.expertise.includes(expertise)) {
-            console.log(expertise)
-            redsExisting.push(expertise);
-            console.log(redsExisting)
-        } else {
-            greensExisting.push(expertise);
-            console.log(expertise)
-            console.log(greensExisting)
-        }
-    }
-
-    setRingColor('ring2', greensExisting, redsExisting, 'lightgray');
-
-    // Update map markers
-    const markers = document.querySelectorAll('.mapboxgl-marker');
-    markers.forEach(marker => {
-        if (marker.classList.contains('animate')) {
-            marker.classList.remove('animate');
-        }
-    });
-    
-    // Create new map marker
     const markerElement = document.createElement('div');
     markerElement.style.background = getColorByDistance(calculateDistance(correctAnswer, currentAnswer));
     markerElement.style.border = '2px solid black';
     markerElement.style.width = '30px';
     markerElement.style.height = '30px';
-    markerElement.classList.add('animate');
     markerElement.classList.add('popup-button');
-    console.log(currentAnswer)
     markerElement.dataset.message = `<strong>${currentAnswer.person}</strong>: ${currentAnswer.city_of_passing.city}, ${currentAnswer.city_of_passing.country}`;
-    
-    // Assuming mapboxgl and map are available globally
+
     if (typeof mapboxgl !== 'undefined' && window.map) {
         new mapboxgl.Marker({ element: markerElement })
             .setLngLat([currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude])
             .addTo(window.map);
     }
-        window.map.flyTo({
-            center: [currentAnswer.city_of_passing.longitude, currentAnswer.city_of_passing.latitude],
-            duration: 3000,
-            essential: true,
-            zoom: 2
-        });
 
-    // Check if the guess is correct
-    if (currentAnswer.person.trim().toLowerCase() === correctAnswer.person.trim().toLowerCase()) {
-        if (guess) {
-            const rightCircle = document.getElementById('circle' + (wrongGuessesNum + 1));
-            if (rightCircle) {
-                rightCircle.style.backgroundColor = ' #6f8f4a';
-                rightCircle.classList.add('popup-button');
-                rightCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
-            }
-        
-        await trackGuess(currentAnswer.person, true, wrongGuessesNum + 1, gameId)
+    await sleep(700);
+    await sleep(450);
+}
 
-        await updateGameResult(gameId, true, wrongGuessesNum + 1).catch(err => {
-            console.error('Failed to update game result:', err);
-        });
+async function revealWheelStep(correctAnswer, currentAnswer) {
+    updateRevealStatus(`What · ${currentAnswer.expertise}`);
+    focusOnePanel(wheelPanel);
 
-            const cheerSound = document.getElementById('cheer-sound');
-            if (cheerSound) {
-                cheerSound.play();
-            }
+    const guessLabel = document.getElementById('guessLabel');
+    if (
+        guessLabel &&
+        currentAnswer.person.trim().toLowerCase() !== correctAnswer.person.trim().toLowerCase()
+    ) {
+        guessLabel.textContent = currentAnswer.person;
+    }
 
-        const solvedNumber = await countSolvedGames()
-        console.log(solvedNumber)
+    const currentExpertise = normalizeExpertiseArray(currentAnswer.expertise);
+    const normalizedCorrectExpertise = normalizeExpertiseArray(correctAnswer.expertise);
 
-        maybeShowCongrats(solvedNumber)
-            
-            showCustomAlert(`Well done! 🎉<br> The correct answer is ${correctAnswer.person}. <br> 
-            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`, "2.5vmin", true, true);
+    // Stage 1: guessed sage's outer ring
+    setRingColor('ring1', currentExpertise, [], 'white');
+    pulseRing('ring1');
+    await sleep(800);
+
+    // Stage 2: mystery ring resolves
+    let redsExisting = extractRingColor('ring2', 'rgb(255, 182, 193)');
+    let greensExisting = extractRingColor('ring2', 'rgb(174, 243, 89)');
+
+    currentExpertise.forEach(expertise => {
+        if (normalizedCorrectExpertise.includes(expertise)) {
+            greensExisting.push(expertise);
         } else {
-            showCustomAlert(`The correct answer is ${correctAnswer.person}. <br> 
-            (${correctAnswer.birth} - ${correctAnswer.passing})${correctAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${correctAnswer.biography}</span>` : ''}`, "2.5vmin", true, true);        }
+            redsExisting.push(expertise);
+        }
+    });
 
-        finishGame(correctAnswer);
+    setRingColor('ring2', greensExisting, redsExisting, 'lightgray');
+    pulseRing('ring2');
+    await sleep(850);
+    await sleep(500);
+}
+
+async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
+    if (isRevealRunning || !correctAnswerArg || !currentAnswer) {
         return;
     }
 
-    // Check if already guessed
-    if (wrongGuesses.includes(currentAnswer)) {
-        showCustomAlert('You already guessed ' + currentAnswer.person + '. Try again.', "5vmin", false);
+    const normalizedCorrectAnswer = {
+        ...correctAnswerArg,
+        expertise: normalizeExpertiseArray(correctAnswerArg.expertise)
+    };
+
+    const normalizedCurrentAnswer = {
+        ...currentAnswer,
+        expertise: normalizeExpertiseArray(currentAnswer.expertise)
+    };
+
+    if (
+        guess &&
+        normalizedCurrentAnswer.person.trim().toLowerCase() !== normalizedCorrectAnswer.person.trim().toLowerCase() &&
+        wrongGuesses.includes(normalizedCurrentAnswer)
+    ) {
+        showCustomAlert('You already guessed ' + normalizedCurrentAnswer.person + '. Try again.', "5vmin", false);
         return;
     }
 
-    // Wrong guess
-    wrongGuessesNum += 1;
-    wrongGuesses.push(currentAnswer);
+    isRevealRunning = true;
+    gameReady = false;
 
-    await trackGuess(currentAnswer.person, false, wrongGuessesNum, gameId)
-    
-    const wrongCircle = document.getElementById('circle' + wrongGuessesNum);
-    if (wrongCircle) {
-        wrongCircle.style.backgroundColor = '#a9443b';
-        wrongCircle.classList.add('popup-button');
-        wrongCircle.dataset.message = `<strong>${currentAnswer.person}</strong>`;
-    }
+    try {
+        beginReveal(`Processing ${normalizedCurrentAnswer.person}...`);
+        await sleep(220);
 
-    
+        const correctMidpoint = (normalizedCorrectAnswer.birth + normalizedCorrectAnswer.passing) / 2;
+        const guessMidpoint = (normalizedCurrentAnswer.birth + normalizedCurrentAnswer.passing) / 2;
+        const offBy = Math.abs(correctMidpoint - guessMidpoint);
+        const percentage = (1100 - offBy) / 1100;
 
-    // Check if max guesses reached
-    if (wrongGuessesNum === maxGuesses) {
+        const timelineColor = getColorByPercentage(percentage);
+        const timelineHeight = percentage * 80 + '%';
 
+        await revealTimelineStep(normalizedCurrentAnswer, timelineColor, timelineHeight);
+        await sleep(150);
 
-        updateGameResult(gameId, false, wrongGuessesNum).catch(err => {
-            console.error('Failed to update game result:', err);
-        });
+        await revealMapStep(normalizedCorrectAnswer, normalizedCurrentAnswer);
+        await sleep(160);
 
-        setTimeout(() => {
-            evaluateAnswer(correctAnswer, correctAnswer, guess=false);
-        }, 500);
+        await revealWheelStep(normalizedCorrectAnswer, normalizedCurrentAnswer);
+        await sleep(180);
+
+        clearPanelFocus();
+
+        const isCorrect =
+            normalizedCurrentAnswer.person.trim().toLowerCase() ===
+            normalizedCorrectAnswer.person.trim().toLowerCase();
+
+        if (isCorrect) {
+            if (guess) {
+                const rightCircle = document.getElementById('circle' + (wrongGuessesNum + 1));
+                if (rightCircle) {
+                    rightCircle.style.backgroundColor = '#6f8f4a';
+                    rightCircle.classList.add('popup-button');
+                    rightCircle.dataset.message = `<strong>${normalizedCurrentAnswer.person}</strong>`;
+                }
+
+                await trackGuess(normalizedCurrentAnswer.person, true, wrongGuessesNum + 1, gameId);
+
+                await updateGameResult(gameId, true, wrongGuessesNum + 1).catch(err => {
+                    console.error('Failed to update game result:', err);
+                });
+
+                const cheerSound = document.getElementById('cheer-sound');
+                if (cheerSound) {
+                    cheerSound.play();
+                }
+
+                const solvedNumber = await countSolvedGames();
+                maybeShowCongrats(solvedNumber);
+
+                showCustomAlert(
+                    `Well done! 🎉<br> The correct answer is ${normalizedCorrectAnswer.person}. <br>
+                    (${normalizedCorrectAnswer.birth} - ${normalizedCorrectAnswer.passing})${normalizedCorrectAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${normalizedCorrectAnswer.biography}</span>` : ''}`,
+                    "2.5vmin",
+                    true,
+                    true
+                );
+            } else {
+                showCustomAlert(
+                    `The correct answer is ${normalizedCorrectAnswer.person}. <br>
+                    (${normalizedCorrectAnswer.birth} - ${normalizedCorrectAnswer.passing})${normalizedCorrectAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${normalizedCorrectAnswer.biography}</span>` : ''}`,
+                    "2.5vmin",
+                    true,
+                    true
+                );
+            }
+
+            finishGame(normalizedCorrectAnswer);
+            return;
+        }
+
+        wrongGuessesNum += 1;
+        wrongGuesses.push(normalizedCurrentAnswer);
+
+        await trackGuess(normalizedCurrentAnswer.person, false, wrongGuessesNum, gameId);
+
+        const wrongCircle = document.getElementById('circle' + wrongGuessesNum);
+        if (wrongCircle) {
+            wrongCircle.style.backgroundColor = '#a9443b';
+            wrongCircle.classList.add('popup-button');
+            wrongCircle.dataset.message = `<strong>${normalizedCurrentAnswer.person}</strong>`;
+        }
+
+        if (wrongGuessesNum === maxGuesses) {
+            updateGameResult(gameId, false, wrongGuessesNum).catch(err => {
+                console.error('Failed to update game result:', err);
+            });
+
+            setTimeout(() => {
+                evaluateAnswer(normalizedCorrectAnswer, normalizedCorrectAnswer, false);
+            }, 500);
+        }
+
+    } finally {
+        endReveal();
+        isRevealRunning = false;
+        if (!document.getElementById('correctLabel')?.classList.contains('clickable')) {
+            gameReady = true;
+        }
     }
 }
 
-function finishGame(correctAnswer) {
-    // Remove event listener
+function finishGame(finalCorrectAnswer) {
     const textbox = document.getElementById('textbox');
     if (textbox) {
         textbox.removeEventListener('keypress', handleEnter);
     }
 
-    // Label focus wheel
     const correctLabel = document.getElementById('correctLabel');
     if (correctLabel) {
-        correctLabel.textContent = correctAnswer.person;
+        correctLabel.textContent = finalCorrectAnswer.person;
         correctLabel.classList.add('clickable');
     }
-    
+
     const guessLabel = document.getElementById('guessLabel');
     if (guessLabel) {
         guessLabel.textContent = '';
@@ -923,6 +933,8 @@ function finishGame(correctAnswer) {
     items.forEach(li => {
         li.removeEventListener('click', handleSearchResultClick);
     });
+
+    gameReady = false;
 }
 
 const congratsMessages = {
@@ -930,45 +942,31 @@ const congratsMessages = {
   10: 'This is your 10th win. Well done.'
 };
 
-
 function maybeShowCongrats(answer) {
-  const message = congratsMessages[answer];
+    const message = congratsMessages[answer];
+    if (!message) return;
 
-  // No message for this value → do nothing
-  if (!message) return;
+    const toast = document.getElementById('toast-overlay');
+    const text = document.getElementById('toast-text');
 
-  const toast = document.getElementById('toast-overlay');
-  const text = document.getElementById('toast-text');
+    text.textContent = message;
+    toast.classList.remove('hidden');
 
-  text.textContent = message;
-  toast.classList.remove('hidden');
-
-  // Auto-hide after 5 seconds
-  setTimeout(() => {
-    toast.classList.add('hidden');
-  }, 5000);
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 5000);
 }
 
-
-
-
-
-
-
-// Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('DOM loaded, initializing game...');
     await initializeGame();
 });
 
-
-// 🔊 audio unlock lives OUTSIDE DOMContentLoaded
 function enableMusic() {
     const music = document.getElementById('song');
     if (!music) return;
 
     music.play().catch(() => {});
-    
+
     document.removeEventListener('click', enableMusic);
     document.removeEventListener('keydown', enableMusic);
     document.removeEventListener('touchstart', enableMusic);
@@ -980,5 +978,4 @@ document.addEventListener('keydown', enableMusic);
 document.addEventListener('touchstart', enableMusic);
 document.addEventListener('mousedown', enableMusic);
 
-// Also provide a manual initialization function
 window.initializeGame = initializeGame;
