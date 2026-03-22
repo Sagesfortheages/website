@@ -92,7 +92,7 @@ function startTour() {
                 element: 'body',
                 intro: `
                 <h3>👋 Welcome</h3>
-                This page shows a animated visualization of sages across time and space.
+                This page shows an animated visualization of sages across time and space.
                 Let’s take a quick tour.
                 `
             },
@@ -101,7 +101,7 @@ function startTour() {
                 intro: `
                 <h3>📍 The Map</h3>
                 This map shows where figures lived and moved throughout their lives.
-                You can pan and zoom freely. Hover a marker to see more information.
+                You can pan and zoom freely. Hover over a marker to see more information.
                 `
             },
             {

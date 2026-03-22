@@ -414,14 +414,14 @@ function startTour() {
                 element: '#timeline-container',
                 intro: `
                 <h3>🕰️ Timeline</h3>
-                This timeline shows the relative lifetimes of sages. Hover over a rectangle for more detail or click on a sage's name to be taken to their profile page.
+                This timeline shows the relative lifetimes of sages. Hover over a bar for more detail or click on a sage's name to be taken to their profile page.
                 `
             },
             {
                 element: '#background-container',
                 intro: `
                 <h3>🏷️ Background</h3>
-                The color of the rectangle indicates the background of that sage. Click a background to filter for sages with that background.
+                The color of the bar indicates the background of that sage. Click a background to filter for sages with that background.
                 `
             },
             {
@@ -429,6 +429,13 @@ function startTour() {
                 intro: `
                 <h3>⇅ Sort</h3>
                 You can sort in time order or in alphabetical order by clicking one of these buttons.
+                `
+            },
+            {
+                element: '#search-container',
+                intro: `
+                <h3>🔍 Search</h3>
+                Type a name into the search box to find a specific sage. Click on a name in the search results to jump to that sage on the timeline.
                 `
             },
             {

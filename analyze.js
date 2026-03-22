@@ -351,6 +351,13 @@ function startTour() {
                 `
             },
             {
+                element: '#reset-filters-button',
+                intro: `
+                <h3>🗑️ Reset Filters</h3>
+                Click here to reset all filters and see all sages again.
+                `
+            },
+            {
                 element: '#info-button',
                 intro: `
                 <h3>🚶 Tour</h3>

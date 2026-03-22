@@ -164,65 +164,82 @@
         }
 
         /* -------- MOBILE -------- */
-        @media (max-width: 600px) {
-            .grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                width: 92vw;
-                gap: 3vmin;
-            }
+@media (max-width: 600px) {
 
-            .tile {
-                min-height: 26vmin;
-                padding: 2vmin;
-            }
+  /* PAGE */
+  .page {
+    padding: 2vh 4vw 4vh;
+  }
 
-            .tile-icon {
-                font-size: 8vmin;
-            }
+  /* HEADER */
+  .header {
+    padding-top: 1vh;
+    margin-bottom: 2vh;
+  }
 
-            .tile-label {
-                font-size: 3.4vmin;
-            }
+  .header h1 {
+    font-size: 6.5vmin;
+    text-align: center;
+  }
 
-            .coming::after {
-                font-size: 1.9vmin;
-                bottom: -10%;
-            }
+  .subtitle {
+    font-size: 3.2vmin;
+    line-height: 1.35;
+    text-align: center;
+    margin: 1vh 0 2vh;
+    padding: 0 2vw;
+  }
 
-            .alert-box p {
-                font-size: 3.5vmin;
-            }
 
-            #exit-button {
-                width: 7vmin;
-                height: 7vmin;
-                font-size: 3vmin;
-                top: 1.2vh;
-                right: 2vw;
-            }
-        }
+  /* GRID */
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3.5vmin;
+    width: 100%;
+  }
 
-        @media (max-width: 420px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
+  /* TILES */
+  .tile {
+    min-height: 20vh;
+    padding: 2.5vmin;
+    border-radius: 18px;
+  }
 
-            .tile {
-                min-height: 22vw;
-            }
+  .tile-icon {
+    font-size: 7.5vmin;
+    margin-bottom: 1vmin;
+  }
 
-            .tile-label {
-                font-size: 4.2vmin;
-            }
+  .tile-label {
+    font-size: 3.6vmin;
+    line-height: 1.25;
+  }
 
-            .tile-icon {
-                font-size: 9vmin;
-            }
+  /* COMING SOON TAG */
+  .coming::after {
+    font-size: 2.2vmin;
+    bottom: -8%;
+    transform: rotate(-2deg);
+  }
 
-            .coming::after {
-                font-size: 2.4vmin;
-            }
-        }
+  /* ALERT */
+  .alert-box {
+    width: 88vw;
+    padding: 3vh 5vw;
+  }
+
+  .alert-box p {
+    font-size: 3.8vmin;
+  }
+
+  #exit-button {
+    width: 8vmin;
+    height: 8vmin;
+    font-size: 3.5vmin;
+    top: 1vh;
+    right: 2vw;
+  }
+} 
     </style>
 </head>
 <body>

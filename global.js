@@ -375,7 +375,7 @@ window.linkToProfile = function(person, filePath = 'discover.html') {
         console.error('Error linking to profile:', error);
     } finally {
         sessionStorage.setItem('selected', JSON.stringify(person));
-        window.open(filePath, '_blank');
+        window.location.href = filePath;;
     }
 }
 

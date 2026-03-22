@@ -98,6 +98,8 @@ function processMarkersData(markersData) {
 
 // Game initialization function
 async function initializeGame() {
+
+
     try {
         // Show loading state
         const circleContainer = document.querySelector(".circle-container");
@@ -115,7 +117,7 @@ async function initializeGame() {
         // Process the data
         markers = processMarkersData(markersData);
         
-
+            console.log(markers)
         
         // Start the game
        await startNewGame();
@@ -767,7 +769,9 @@ async function evaluateAnswer(correctAnswer, currentAnswer, guess = true) {
     if (guessLabel && currentAnswer.person.trim().toLowerCase() !== correctAnswer.person.trim().toLowerCase()) {
         guessLabel.textContent = currentAnswer.person;
     }
-    let currentExpertise = currentAnswer.expertise.map(obj => obj.expertise)
+    let currentExpertise = currentAnswer.expertise
+  .map(x => typeof x === "string" ? x : x?.expertise)
+  .filter(Boolean);
 
     setRingColor('ring1', currentExpertise, 'white');
     console.log(currentAnswer.expertise);

@@ -277,7 +277,7 @@
         const difficulty = this.querySelector('.level-sub').textContent.trim();
         console.log(`Selected difficulty: ${difficulty}`);
         sessionStorage.setItem('difficulty', JSON.stringify(difficulty));
-        window.open('play.html');
+        window.location.href = 'play.html';
       });
     });
   </script>
