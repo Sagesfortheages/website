@@ -130,7 +130,7 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     console.log("Rendering profile for:", selected);
 
-    const imageToUse = selected.picture? `sages/${selected.picture}` : 'sages/blank_image.png';
+    const imageToUse = selected.picture? `sages/${selected.picture}` : 'sages/sage';
 
     const { data, error } = await supabaseClient.storage
     .from('public_images')
