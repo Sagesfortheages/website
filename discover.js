@@ -1,18 +1,19 @@
-import { getSelectedSage } from './supabase/selectedSage.js';
+import { getSelectedSage, getDailySageByDifficulty } from './supabase/selectedSage.js';
 import { trackPageView } from './supabase/supabaseFunctions.js';
 
 
 // Detect course mode
-let course = JSON.parse(sessionStorage.getItem("course"));
-let courseIndex = parseInt(sessionStorage.getItem("courseIndex"), 10);
-let courseMode = sessionStorage.getItem("courseModeActive") === "true";
-console.log(course);
-console.log(courseIndex);
+
+
+
+const params = new URLSearchParams(window.location.search);
+
+const course = JSON.parse(decodeURIComponent(params.get('course') || '[]'));
+const courseIndex = parseInt(params.get('courseIndex') || '0', 10);
+const courseModeActive = params.get('courseModeActive') === 'true';
+
+let courseMode = courseModeActive;
 console.log("Course mode:", courseMode);
-
-
-
-
 
 
 import { supabaseClient } from './supabase/supabaseClient.js';
@@ -21,17 +22,25 @@ import { supabaseClient } from './supabase/supabaseClient.js';
 
 const { data: { session } } = await supabaseClient.auth.getSession()
 
+const isMobile = window.innerWidth <= 768;
 
-
+if (isMobile) {
+    document.getElementById("prev-button").innerHTML = "⬅";
+    document.getElementById("next-button").innerHTML = "➡";
+}
 
 let visibleMarkers = []
+console.log(courseMode)
 
-let selected = JSON.parse(sessionStorage.getItem('selected'));
-console.log("Selected from sessionStorage:", selected);
+
+
+const selectedRaw = params.get('selected');
+
+const selected = selectedRaw ? JSON.parse(decodeURIComponent(selectedRaw)) : null;
 
 
 // Ensure we have a person
-const selectedPerson = selected?.person ?? selected
+const selectedPerson = selected?.person ?? selected ?? await getDailySageByDifficulty(3)
 
 
 
@@ -323,20 +332,24 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     progressBar.style.width = progressPercent + "%";
     progressLabel.textContent = "Progress: " + Math.round(progressPercent,0) + "%";
 
+if (courseIndex > 0) {
+    prevBtn.style.display = "inline-block";
+    prevBtn.onclick = () => {
+        const prevIndex = courseIndex - 1;
+        const prevPerson = course[prevIndex];
 
-    // Previous button
-    if (courseIndex > 0) {
-        prevBtn.style.display = "inline-block";
-        prevBtn.onclick = () => {
-            courseIndex -= 1;
-            sessionStorage.setItem("courseIndex", courseIndex);
-            sessionStorage.setItem("selected", JSON.stringify({ person: course[courseIndex] }));
-            location.reload();
-        };
-    } else {
-        prevBtn.style.display = "none";
-    }
+        const encodedCourse = encodeURIComponent(JSON.stringify(course));
+        const encodedSelected = encodeURIComponent(JSON.stringify({ person: prevPerson }));
 
+        window.location.href =
+            `../discover.html?course=${encodedCourse}` +
+            `&courseIndex=${prevIndex}` +
+            `&selected=${encodedSelected}` +
+            `&courseModeActive=true`;
+    };
+} else {
+    prevBtn.style.display = "none";
+}
 
 
 
@@ -345,21 +358,23 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 if (courseIndex < totalPages - 1) {
     nextBtn.style.display = "inline-block";
     nextBtn.onclick = () => {
-
-        courseIndex += 1;
-        sessionStorage.setItem("courseIndex", courseIndex);
-
-        const nextPerson = course[courseIndex];
+        const nextIndex = courseIndex + 1;
+        const nextPerson = course[nextIndex];
 
         // If the next item is our SPECIAL TEST PAGE
         if (nextPerson === "__TEST__") {
-            sessionStorage.removeItem("courseModeActive");
             window.location.href = "../test.html";
             return;
         }
 
-        sessionStorage.setItem("selected", JSON.stringify({ person: nextPerson }));
-        location.reload();
+        const encodedCourse = encodeURIComponent(JSON.stringify(course));
+        const encodedSelected = encodeURIComponent(JSON.stringify({ person: nextPerson }));
+
+        window.location.href =
+            `../discover.html?course=${encodedCourse}` +
+            `&courseIndex=${nextIndex}` +
+            `&selected=${encodedSelected}` +
+            `&courseModeActive=true`;
     };
 } else {
     nextBtn.style.display = "none";

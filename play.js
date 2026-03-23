@@ -799,7 +799,7 @@ async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
     if (
         guess &&
         normalizedCurrentAnswer.person.trim().toLowerCase() !== normalizedCorrectAnswer.person.trim().toLowerCase() &&
-        wrongGuesses.includes(normalizedCurrentAnswer)
+        wrongGuesses.some(guess => guess.person.trim().toLowerCase() === normalizedCurrentAnswer.person.trim().toLowerCase())
     ) {
         showCustomAlert('You already guessed ' + normalizedCurrentAnswer.person + '. Try again.', "5vmin", false);
         return;

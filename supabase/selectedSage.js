@@ -176,3 +176,44 @@ export async function getSelectedSage(personName) {
     throw err;
   }
 }
+
+
+function getDayOfYear(date = new Date()) {
+  const startOfYear = new Date(date.getFullYear(), 0, 0);
+  const diff = date - startOfYear;
+  const oneDay = 1000 * 60 * 60 * 24;
+  return Math.floor(diff / oneDay); // 1..365/366
+}
+
+export async function getDailySageByDifficulty(maxDifficulty) {
+  const start = performance.now();
+
+  if (!maxDifficulty) throw new Error("No difficulty provided");
+
+  try {
+    // 1️⃣ Get all matching sages in a stable order
+    const { data: sages, error } = await supabaseClient
+      .from('sage')
+      .select('person')
+      .lte('difficulty', maxDifficulty)
+      .order('person', { ascending: true });
+
+    if (error) throw error;
+    if (!sages || sages.length === 0) {
+      return { data: [], meta: { message: "No sages found" } };
+    }
+
+    // 2️⃣ Pick sage based on day of year
+    const dayOfYear = getDayOfYear();
+    const index = (dayOfYear - 1) % sages.length;
+    const selectedPerson = sages[index].person;
+
+
+    const duration = (performance.now() - start) / 1000;
+
+    return selectedPerson
+  } catch (err) {
+    console.error("Supabase getDailySageByDifficulty error:", err);
+    throw err;
+  }
+}

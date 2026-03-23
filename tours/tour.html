@@ -459,7 +459,7 @@
             </div>
             <div class="hero-content" id="hero-content">
                 <div>
-                    <span id="name-content">Tour of Chabad</span>
+                    <span id="name-content">Tour of</span>
                 </div>
             </div>
         </div>
@@ -488,34 +488,7 @@
 
     <button class="sweep" id="next-button" >▶ Continue Tour</button>
 
-    <script>
-        const nextButton = document.getElementById("next-button");
-
-        nextButton.addEventListener("click", () => {
-            // Define the course order
-            const course = [
-            "Alter Rebbe",
-            "Mitteler Rebbe",
-            "Rebbe Tzemach Tzedek",
-            "Rebbe Maharash",
-            "Rebbe Rashab",
-            "Frierdiker Rebbe",
-            "Lubavitcher Rebbe",
-            "__TEST__"
-            ];
-
-            // encode everything
-            const encodedCourse = encodeURIComponent(JSON.stringify(course));
-            const encodedSelected = encodeURIComponent(JSON.stringify({ person: course[0] }));
-
-            const url = `../discover.html?course=${encodedCourse}&courseIndex=0&selected=${encodedSelected}&courseModeActive=true`;
-
-            window.location.href = url;
-        });
-    </script>
-
-    <script src="../markers.js"></script>
     <script src="../global.js"></script>
-    <script type="module" src="tour_chabad.js"></script>
+    <script type="module" src="tour.js"></script>
 </body>
 </html>

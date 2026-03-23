@@ -364,18 +364,21 @@ window.extractNames=function(data){
 
 // Function to handle suggestion click
 window.linkToProfile = function(person, filePath = 'discover.html') {
-
-    sessionStorage.setItem("courseModeActive", "false")
     try {
-        //clear search bar
-        document.getElementById('search-input').value = "";
-        
+        // clear search bar (if exists)
+        const input = document.getElementById('search-input');
+        if (input) input.value = "";
+
+        // encode person safely for URL
+        const encodedPerson = encodeURIComponent(JSON.stringify(person.person??person));
+
+        // build URL with params
+        const url = `${filePath}?selected=${encodedPerson}&courseModeActive=false`;
+
+        window.location.href = url;
 
     } catch (error) {
         console.error('Error linking to profile:', error);
-    } finally {
-        sessionStorage.setItem('selected', JSON.stringify(person));
-        window.location.href = filePath;;
     }
 }
 

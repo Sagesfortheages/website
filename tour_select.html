@@ -105,6 +105,70 @@
             white-space: nowrap;
         }
 
+        /* -------- NEW -------- */
+.new {
+    position: relative;
+}
+
+.new::after {
+    content: "NEW";
+    position: absolute;
+    top: -9%;
+    right: -6%;
+    font-size: 1.7vmin;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: white;
+    background: linear-gradient(135deg, #ff4d6d, #ff9f1c);
+    padding: 0.7vmin 1.2vmin;
+    border-radius: 999px;
+    box-shadow:
+        0 6px 18px rgba(255, 90, 90, 0.38),
+        0 0 0 0.35vmin rgba(255,255,255,0.7);
+    transform: rotate(10deg);
+    white-space: nowrap;
+    animation: newPulse 1.6s ease-in-out infinite;
+    z-index: 3;
+}
+
+.new::before {
+    content: "✦";
+    position: absolute;
+    top: -2%;
+    right: 16%;
+    font-size: 1.8vmin;
+    color: #ffd166;
+    text-shadow: 0 0 10px rgba(255, 209, 102, 0.7);
+    animation: sparkleTwinkle 1.4s ease-in-out infinite alternate;
+    z-index: 3;
+}
+
+@keyframes newPulse {
+    0%, 100% {
+        transform: rotate(10deg) scale(1);
+        box-shadow:
+            0 6px 18px rgba(255, 90, 90, 0.38),
+            0 0 0 0.35vmin rgba(255,255,255,0.7);
+    }
+    50% {
+        transform: rotate(10deg) scale(1.08);
+        box-shadow:
+            0 10px 24px rgba(255, 90, 90, 0.5),
+            0 0 0 0.45vmin rgba(255,255,255,0.88);
+    }
+}
+
+@keyframes sparkleTwinkle {
+    from {
+        opacity: 0.55;
+        transform: scale(0.9) rotate(-8deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1.15) rotate(8deg);
+    }
+}
+
         /* -------- ALERT BOX -------- */
         .alert-box {
             display: none;
@@ -190,6 +254,18 @@
     padding: 0 2vw;
   }
 
+  .new::after {
+    font-size: 2.2vmin;
+    top: -7%;
+    right: -4%;
+}
+
+.new::before {
+    font-size: 2.4vmin;
+    top: 0%;
+    right: 14%;
+}
+
 
   /* GRID */
   .grid {
@@ -273,6 +349,11 @@
                 <div class="tile-label">Chabad Rebbes</div>
             </button>
 
+            <button class="tile new" onclick="window.location.href='tours/tour.html'">
+                <div class="tile-icon">📜</div>
+                <div class="tile-label">Major Chumash Commentaries</div>
+            </button>
+
             <button class="tile coming">
                 <div class="tile-icon">📖</div>
                 <div class="tile-label">Major Halachic Works</div>
@@ -288,10 +369,7 @@
                 <div class="tile-label">Golden Age of Spain</div>
             </button>
 
-            <button class="tile coming">
-                <div class="tile-icon">📜</div>
-                <div class="tile-label">Major Chumash Commentaries</div>
-            </button>
+
 
             <button class="tile coming">
                 <div class="tile-icon">📚</div>
