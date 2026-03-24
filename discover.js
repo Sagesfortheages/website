@@ -1,11 +1,8 @@
 import { getSelectedSage, getDailySageByDifficulty } from './supabase/selectedSage.js';
 import { trackPageView } from './supabase/supabaseFunctions.js';
-
+import { supabaseClient } from './supabase/supabaseClient.js';
 
 // Detect course mode
-
-
-
 const params = new URLSearchParams(window.location.search);
 
 const course = JSON.parse(decodeURIComponent(params.get('course') || '[]'));
@@ -15,12 +12,7 @@ const courseModeActive = params.get('courseModeActive') === 'true';
 let courseMode = courseModeActive;
 console.log("Course mode:", courseMode);
 
-
-import { supabaseClient } from './supabase/supabaseClient.js';
-
-
-
-const { data: { session } } = await supabaseClient.auth.getSession()
+const { data: { session } } = await supabaseClient.auth.getSession();
 
 const isMobile = window.innerWidth <= 768;
 
@@ -29,146 +21,257 @@ if (isMobile) {
     document.getElementById("next-button").innerHTML = "➡";
 }
 
-let visibleMarkers = []
-console.log(courseMode)
-
-
+let visibleMarkers = [];
+console.log(courseMode);
 
 const selectedRaw = params.get('selected');
-
 const selected = selectedRaw ? JSON.parse(decodeURIComponent(selectedRaw)) : null;
 
-
 // Ensure we have a person
-const selectedPerson = selected?.person ?? selected ?? await getDailySageByDifficulty(3)
+const selectedPerson = selected?.person ?? selected ?? await getDailySageByDifficulty(3);
 
+// ===== Trail globals =====
+let trailCoords = [];
+let trailInitialized = false;
+let trailAnimationFrame = null;
+let activeSequenceRunId = 0;
 
-
-
-
+const FLY_DURATION = 6000;
+const STEP_DELAY = 8000;
 
 async function fetchSelectedSage(person) {
-  try {
-    // Call Supabase directly
-    const data = await getSelectedSage(person);
+    try {
+        const data = await getSelectedSage(person);
 
-    if (!data?.data || !Array.isArray(data.data)) {
-      throw new Error("No sage data returned");
+        if (!data?.data || !Array.isArray(data.data)) {
+            throw new Error("No sage data returned");
+        }
+
+        const mainSageData = data.data.filter(item => item.is_main_sage === true);
+        const relatedSagesData = data.data.filter(item => item.is_main_sage === false);
+
+        console.log(relatedSagesData);
+
+        const selected = mainSageData.length > 0 ? mainSageData : data.data;
+
+        const relatedSages = {
+            teachers: relatedSagesData.filter(sage => sage.relationship_type === 'teacher'),
+            students: relatedSagesData.filter(sage => sage.relationship_type === 'student'),
+            all: relatedSagesData
+        };
+
+        console.log("Selected sage:", selected);
+        console.log("Related sages:", relatedSages);
+        console.log("Metadata:", data.meta);
+
+        return {
+            selected,
+            relatedSages,
+            meta: data.meta
+        };
+
+    } catch (err) {
+        console.error("Error fetching selected sage:", err);
+        return null;
     }
-
-    // Separate main sage data from related sages
-    const mainSageData = data.data.filter(item => item.is_main_sage === true);
-    const relatedSagesData = data.data.filter(item => item.is_main_sage === false);
-
-    console.log(relatedSagesData)
-
-    // Keep selected as the main sage data (preserving original behavior)
-    const selected = mainSageData.length > 0 ? mainSageData : data.data;
-
-    console.log(relatedSagesData)
-    // Store related sages separately
-    const relatedSages = {
-    teachers: relatedSagesData.filter(sage => sage.relationship_type === 'teacher'),
-    students: relatedSagesData.filter(sage => sage.relationship_type === 'student'),
-    all: relatedSagesData
-    };
-
-    // Optional: log for debugging
-    console.log("Selected sage:", selected);
-    console.log("Related sages:", relatedSages);
-    console.log("Metadata:", data.meta);
-
-    return {
-      selected,
-      relatedSages,
-      meta: data.meta
-    };
-
-  } catch (err) {
-    console.error("Error fetching selected sage:", err);
-    return null;
-  }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-function fitMapToMarkers(filteredMarkers){
+function fitMapToMarkers(filteredMarkers) {
     if (!filteredMarkers.length) return;
 
-    const latitudes = filteredMarkers.map(marker => marker.latitude)
-    const longitudes = filteredMarkers.map(marker => marker.longitude)
+    const latitudes = filteredMarkers.map(marker => marker.latitude);
+    const longitudes = filteredMarkers.map(marker => marker.longitude);
 
     map.fitBounds(
         [
-            [Math.min(...longitudes), Math.min(...latitudes)], 
+            [Math.min(...longitudes), Math.min(...latitudes)],
             [Math.max(...longitudes), Math.max(...latitudes)]
         ],
-        {padding: 100, maxZoom: 4}
+        { padding: 100, maxZoom: 4 }
     );
 }
 
+// ===== Trail helpers =====
+function ensureTrailLayer(color) {
+    if (!map || !map.loaded()) return;
+
+    if (!map.getSource("journey-trail")) {
+        map.addSource("journey-trail", {
+            type: "geojson",
+            lineMetrics: true,
+            data: {
+                type: "Feature",
+                geometry: {
+                    type: "LineString",
+                    coordinates: []
+                }
+            }
+        });
+    }
+
+    if (!map.getLayer("journey-trail-glow")) {
+        map.addLayer({
+            id: "journey-trail-glow",
+            type: "line",
+            source: "journey-trail",
+            layout: {
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            paint: {
+                "line-color": color,
+                "line-width": 14,
+                "line-opacity": 0.28,
+                "line-blur": 8,
+                "line-dasharray": [1.5, 2]
+            }
+        });
+    }
+
+    if (!map.getLayer("journey-trail-line")) {
+        map.addLayer({
+            id: "journey-trail-line",
+            type: "line",
+            source: "journey-trail",
+            layout: {
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            paint: {
+                "line-color": color,
+                "line-width": 4,
+                "line-opacity": 0.95,
+                "line-dasharray": [1.5, 2]
+            }
+        });
+    }
+
+    trailInitialized = true;
+}
+
+function updateTrailSource(coords) {
+    const source = map.getSource("journey-trail");
+    if (!source) return;
+
+    source.setData({
+        type: "Feature",
+        geometry: {
+            type: "LineString",
+            coordinates: coords
+        }
+    });
+}
+
+function resetTrail(startCoord = null) {
+    cancelTrailAnimation();
+
+    trailCoords = startCoord ? [startCoord] : [];
+    updateTrailSource(trailCoords);
+}
+
+function setTrailToFinalCoord(coord) {
+    if (!coord) return;
+
+    if (!trailCoords.length) {
+        trailCoords = [coord];
+    } else {
+        trailCoords.push(coord);
+    }
+
+    updateTrailSource(trailCoords);
+}
+
+function cancelTrailAnimation() {
+    if (trailAnimationFrame) {
+        cancelAnimationFrame(trailAnimationFrame);
+        trailAnimationFrame = null;
+    }
+}
+
+function animateTrailSegment(startCoord, endCoord, duration, runId, onComplete) {
+    cancelTrailAnimation();
+
+    const startTime = performance.now();
+    const baseCoords = [...trailCoords];
+
+    if (!baseCoords.length) {
+        baseCoords.push(startCoord);
+    }
+
+    function step(now) {
+        if (runId !== activeSequenceRunId) return;
+
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+
+        const currentCoord = [
+            startCoord[0] + (endCoord[0] - startCoord[0]) * t,
+            startCoord[1] + (endCoord[1] - startCoord[1]) * t
+        ];
+
+        updateTrailSource([...baseCoords, currentCoord]);
+
+        if (t < 1) {
+            trailAnimationFrame = requestAnimationFrame(step);
+        } else {
+            trailAnimationFrame = null;
+            trailCoords = [...baseCoords, endCoord];
+            updateTrailSource(trailCoords);
+            if (typeof onComplete === "function") onComplete();
+        }
+    }
+
+    trailAnimationFrame = requestAnimationFrame(step);
+}
+
 // Render a single main sage profile
-// selected: object (one record, e.g. sage + a dwelling)
-// relatedSages: { teachers: [...], students: [...], all: [...] }
 async function renderSageProfile(selected, relatedSages = { teachers: [], students: [], all: [] }) {
     if (!selected) return;
 
     const page = await trackPageView(selected?.person || null);
-    if(page.isFirstVisit) {
-        startTour()
+    if (page.isFirstVisit) {
+        startTour();
     }
 
     console.log("Rendering profile for:", selected);
 
-    const imageToUse = selected.picture? `sages/${selected.picture}` : 'sages/sage';
+    const imageToUse = selected.picture ? `sages/${selected.picture}` : 'sages/sage';
 
     const { data, error } = await supabaseClient.storage
-    .from('public_images')
-    .getPublicUrl(imageToUse + '.webp')
+        .from('public_images')
+        .getPublicUrl(imageToUse + '.webp');
 
-    console.log(data, error)
+    console.log(data, error);
 
-    // Basic fields
     const titleEl = document.getElementById("title-content");
     if (titleEl) titleEl.innerHTML = `${selected.person || ''} ${selected.person_hebrew ? '- ' + selected.person_hebrew : ''}`;
 
     const nameEl = document.getElementById("name-content");
     if (nameEl) nameEl.innerHTML = selected.name ? `R ${selected.name} ${selected.name_hebrew ? "- ר' " + selected.name_hebrew : ""}` : '';
     if (selected.name && selected.name != "NaN") {
-        nameEl.innerHTML = `R ${selected.name} ${selected.name_hebrew ? "- ר' " + selected.name_hebrew : ""}`
-    } else {
+        nameEl.innerHTML = `R ${selected.name} ${selected.name_hebrew ? "- ר' " + selected.name_hebrew : ""}`;
+    } else if (nameEl) {
         nameEl.style.display = "none";
     }
 
     const yearsEl = document.getElementById("years-content");
-
     if (selected.birth && selected.birth !== 'NaN' && selected.passing && selected.passing != 'NaN') {
-        yearsEl.innerHTML = `${selected.birth} - ${selected.passing}`
-    } else {
+        yearsEl.innerHTML = `${selected.birth} - ${selected.passing}`;
+    } else if (yearsEl) {
         yearsEl.style.display = "none";
     }
 
     const birthdayEl = document.getElementById("birthday-content");
     if (selected.birthday && selected.birthday != "NaN") {
         birthdayEl.innerHTML = `🎂${selected.birthday}`;
-    } else {
+    } else if (birthdayEl) {
         birthdayEl.style.display = "none";
     }
 
     const yahrtzeitEl = document.getElementById("yahrtzeit-content");
     if (selected.yahrtzeit && selected.yahrtzeit != "NaN") {
         yahrtzeitEl.innerHTML = `🕯️${selected.yahrtzeit}`;
-    } else {
+    } else if (yahrtzeitEl) {
         yahrtzeitEl.style.display = "none";
     }
 
@@ -181,25 +284,15 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     const bioEl = document.getElementById("biography-content");
     if (bioEl) bioEl.innerHTML = selected.biography || "";
 
-    // const furtherLink = document.getElementById("further-reading-link-text");
-    // if (furtherLink) {
-    //     furtherLink.href = selected.further_link || "#";
-    //     furtherLink.style.color = getColor(selected.background || "");
-    //     furtherLink.innerText = `Explore ${selected.person || ''} Further`;
-    // }
-
-    // Picture
     const picEl = document.getElementById("profile-pic");
-    if (picEl) picEl.src = data.publicUrl
+    if (picEl) picEl.src = data.publicUrl;
     if (picEl) picEl.style.boxShadow = `0 0.8vmin 2.5vmin ${getColor(selected.background || "")}`;
 
-    // Books — support array of objects, array of strings, or comma-string
     const majorWorksList = document.getElementById("major-works-list-content");
     if (majorWorksList) {
         majorWorksList.innerHTML = "";
         const books = selected.books || [];
         if (Array.isArray(books)) {
-            // could be ['Book A','Book B'] OR [{book:'Book A'},...]
             books.forEach(b => {
                 const title = (typeof b === 'string') ? b : (b.book || '');
                 if (!title) return;
@@ -218,7 +311,6 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
         }
     }
 
-    // Expertises — support array-of-objects or comma-string
     const expertiseList = document.getElementById("expertise-list-content");
     if (expertiseList) {
         expertiseList.innerHTML = "";
@@ -242,301 +334,241 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
         }
     }
 
-
-
-
-    // --- TEACHERS ---
     const teachersContainer = document.getElementById("teachers-content");
     if (teachersContainer) {
-    teachersContainer.innerHTML = "";
+        teachersContainer.innerHTML = "";
 
-    const teachers = relatedSages?.teachers || [];
+        const teachers = relatedSages?.teachers || [];
+        const uniqueTeachers = Array.from(
+            new Map(teachers.map(t => [t.person, t])).values()
+        );
 
-    // Remove duplicates by person ID
-    const uniqueTeachers = Array.from(
-        new Map(teachers.map(t => [t.person, t])).values()
-    );
+        if (uniqueTeachers.length > 0) {
+            uniqueTeachers.forEach((teacher, idx) => {
+                if (!teacher?.name) return;
+                const span = document.createElement("span");
+                span.className = "clickable";
+                span.textContent = `▲ ${teacher.person}`;
+                span.addEventListener("click", () => {
+                    linkToProfile(teacher);
+                });
+                teachersContainer.appendChild(span);
 
-    if (uniqueTeachers.length > 0) {
-        uniqueTeachers.forEach((teacher, idx) => {
-        if (!teacher?.name) return;
-        const span = document.createElement("span");
-        span.className = "clickable";
-        span.textContent = `▲ ${teacher.person}`;
-        span.addEventListener("click", () => {
-            // Trigger a profile load or custom action if desired
-            linkToProfile(teacher);
-        });
-        teachersContainer.appendChild(span);
-
-        if (idx < uniqueTeachers.length - 1) {
-            teachersContainer.appendChild(document.createTextNode(" | "));
+                if (idx < uniqueTeachers.length - 1) {
+                    teachersContainer.appendChild(document.createTextNode(" | "));
+                }
+            });
         }
-        });
-    }
     }
 
-    // --- STUDENTS ---
     const studentsContainer = document.getElementById("students-content");
     if (studentsContainer) {
-    studentsContainer.innerHTML = "";
+        studentsContainer.innerHTML = "";
 
-    const students = relatedSages?.students || [];
+        const students = relatedSages?.students || [];
+        const uniqueStudents = Array.from(
+            new Map(students.map(s => [s.person, s])).values()
+        );
 
-    // Remove duplicates by person ID
-    const uniqueStudents = Array.from(
-        new Map(students.map(s => [s.person, s])).values()
-    );
+        if (uniqueStudents.length > 0) {
+            uniqueStudents.forEach((student, idx) => {
+                console.log(student);
+                if (!student?.person) return;
+                console.log('adding', student);
+                const span = document.createElement("span");
+                span.className = "clickable";
+                span.textContent = `▼ ${student.person}`;
+                span.addEventListener("click", () => {
+                    linkToProfile(student);
+                });
+                studentsContainer.appendChild(span);
 
-    if (uniqueStudents.length > 0) {
-        uniqueStudents.forEach((student, idx) => {
-        console.log(student)    
-        if (!student?.person) return;
-        console.log('adding', student)
-        const span = document.createElement("span");
-        span.className = "clickable";
-        span.textContent = `▼ ${student.person}`;
-        span.addEventListener("click", () => {
-            linkToProfile(student);
-        });
-        studentsContainer.appendChild(span);
-
-        if (idx < uniqueStudents.length - 1) {
-            studentsContainer.appendChild(document.createTextNode(" | "));
+                if (idx < uniqueStudents.length - 1) {
+                    studentsContainer.appendChild(document.createTextNode(" | "));
+                }
+            });
         }
-        });
-    }
     }
 
-
-    // Journey button
     const journeyBtn = document.getElementById("journey-button");
     if (journeyBtn) journeyBtn.innerHTML = `Follow ${selected.person}'s Journey →`;
 
-
-
-    
     if (courseMode) {
-    const nav = document.getElementById("course-nav");
-    const prevBtn = document.getElementById("prev-button");
-    const nextBtn = document.getElementById("next-button");
-    const progressBar = document.getElementById("progress-bar");
-    const progressLabel = document.getElementById("progress-label")
+        const nav = document.getElementById("course-nav");
+        const prevBtn = document.getElementById("prev-button");
+        const nextBtn = document.getElementById("next-button");
+        const progressBar = document.getElementById("progress-bar");
+        const progressLabel = document.getElementById("progress-label");
 
-    // Show the nav container
-    nav.style.display = "block";
+        nav.style.display = "block";
 
-    // Fill progress bar
-    const totalPages = course.length;
-    const progressPercent = ((courseIndex + 1) / totalPages) * 100;
-    progressBar.style.width = progressPercent + "%";
-    progressLabel.textContent = "Progress: " + Math.round(progressPercent,0) + "%";
+        const totalPages = course.length;
+        const progressPercent = ((courseIndex + 1) / totalPages) * 100;
+        progressBar.style.width = progressPercent + "%";
+        progressLabel.textContent = "Progress: " + Math.round(progressPercent, 0) + "%";
 
-if (courseIndex > 0) {
-    prevBtn.style.display = "inline-block";
-    prevBtn.onclick = () => {
-        const prevIndex = courseIndex - 1;
-        const prevPerson = course[prevIndex];
+        if (courseIndex > 0) {
+            prevBtn.style.display = "inline-block";
+            prevBtn.onclick = () => {
+                const prevIndex = courseIndex - 1;
+                const prevPerson = course[prevIndex];
 
-        const encodedCourse = encodeURIComponent(JSON.stringify(course));
-        const encodedSelected = encodeURIComponent(JSON.stringify({ person: prevPerson }));
+                const encodedCourse = encodeURIComponent(JSON.stringify(course));
+                const encodedSelected = encodeURIComponent(JSON.stringify({ person: prevPerson }));
 
-        window.location.href =
-            `../discover.html?course=${encodedCourse}` +
-            `&courseIndex=${prevIndex}` +
-            `&selected=${encodedSelected}` +
-            `&courseModeActive=true`;
-    };
-} else {
-    prevBtn.style.display = "none";
-}
-
-
-
-
-// --- NEXT BUTTON ---
-if (courseIndex < totalPages - 1) {
-    nextBtn.style.display = "inline-block";
-    nextBtn.onclick = () => {
-        const nextIndex = courseIndex + 1;
-        const nextPerson = course[nextIndex];
-
-        // If the next item is our SPECIAL TEST PAGE
-        if (nextPerson === "__TEST__") {
-            window.location.href = "../test.html";
-            return;
+                window.location.href =
+                    `../discover.html?course=${encodedCourse}` +
+                    `&courseIndex=${prevIndex}` +
+                    `&selected=${encodedSelected}` +
+                    `&courseModeActive=true`;
+            };
+        } else {
+            prevBtn.style.display = "none";
         }
 
-        const encodedCourse = encodeURIComponent(JSON.stringify(course));
-        const encodedSelected = encodeURIComponent(JSON.stringify({ person: nextPerson }));
+        if (courseIndex < totalPages - 1) {
+            nextBtn.style.display = "inline-block";
+            nextBtn.onclick = () => {
+                const nextIndex = courseIndex + 1;
+                const nextPerson = course[nextIndex];
 
-        window.location.href =
-            `../discover.html?course=${encodedCourse}` +
-            `&courseIndex=${nextIndex}` +
-            `&selected=${encodedSelected}` +
-            `&courseModeActive=true`;
-    };
-} else {
-    nextBtn.style.display = "none";
-}
+                if (nextPerson === "__TEST__") {
+                    window.location.href = "../test.html";
+                    return;
+                }
 
+                const encodedCourse = encodeURIComponent(JSON.stringify(course));
+                const encodedSelected = encodeURIComponent(JSON.stringify({ person: nextPerson }));
 
+                window.location.href =
+                    `../discover.html?course=${encodedCourse}` +
+                    `&courseIndex=${nextIndex}` +
+                    `&selected=${encodedSelected}` +
+                    `&courseModeActive=true`;
+            };
+        } else {
+            nextBtn.style.display = "none";
+        }
 
-
-
-} else {
-    // Hide nav if not in course
-    document.getElementById("course-nav").style.display = "none";
-}
-
-
-}
-function startTour(){
-  const intro = introJs();
-
-  // Create (or reuse) the shield
-  function ensureShield(){
-    let shield = document.getElementById("tour-click-shield");
-    if (!shield){
-      shield = document.createElement("div");
-      shield.id = "tour-click-shield";
-      document.body.appendChild(shield);
+    } else {
+        document.getElementById("course-nav").style.display = "none";
     }
-    return shield;
-  }
+}
 
-  const shield = ensureShield();
+function startTour() {
+    const intro = introJs();
 
-  intro.setOptions({
-    showProgress: true,
-    showBullets: false,
-    exitOnOverlayClick: false,
-    exitOnEsc: true,
-    scrollToElement: false,
-
-    // IMPORTANT: do NOT let Intro.js globally disable interaction
-    disableInteraction: false,
-
-    steps: [
-      { element: "body", intro: `<h3>👋 Welcome</h3>This is a guided profile. In one minute, you’ll see the highlights — then you can explore freely.` },
-      { element: "#hero-content", intro: `<h3>🧾 Quick Identity</h3>The essentials at a glance: name, background, dates, and links to teachers/students.` },
-      { element: "#major-works", intro: `<h3>📚 What he wrote</h3>Major works — the fastest way to see why he matters.` },
-      { element: "#areas-of-focus", intro: `<h3>💡 What he shaped</h3>The fields where he made his mark.` },
-
-      // Map step (interactive)
-      { element: "#map", intro: `<h3>📍 Trace the journey</h3><b>Hover the numbered cities</b> to see what happened where.` },
-
-      { element: "#journey-button", intro: `<h3>🧳 Make it move</h3>Start the animated journey through the life path (if available).` },
-      { element: "#info-button", intro: `<h3>🚶 Tour anytime</h3>Click ℹ️ whenever you want to replay the tour.` },
-    ],
-  });
-
-  // Lock everything EXCEPT the map step
-  intro.onbeforechange(function(targetEl){
-    const isMapStep = targetEl && targetEl.id === "map";
-
-    // Shield blocks interaction everywhere
-    // Turn it OFF on the map step so hover works
-    shield.style.display = isMapStep ? "none" : "block";
-
-    // If we’re on map step, make sure map can receive pointer events
-    if (isMapStep){
-      const mapEl = document.getElementById("map");
-      if (mapEl) mapEl.style.pointerEvents = "auto";
+    function ensureShield() {
+        let shield = document.getElementById("tour-click-shield");
+        if (!shield) {
+            shield = document.createElement("div");
+            shield.id = "tour-click-shield";
+            document.body.appendChild(shield);
+        }
+        return shield;
     }
-  });
 
-  intro.onexit(function(){
-    shield.style.display = "none";
-  });
-  intro.oncomplete(function(){
-    shield.style.display = "none";
-  });
+    const shield = ensureShield();
 
-  intro.start();
+    intro.setOptions({
+        showProgress: true,
+        showBullets: false,
+        exitOnOverlayClick: false,
+        exitOnEsc: true,
+        scrollToElement: false,
+        disableInteraction: false,
+        steps: [
+            { element: "body", intro: `<h3>👋 Welcome</h3>This is a guided profile. In one minute, you’ll see the highlights — then you can explore freely.` },
+            { element: "#hero-content", intro: `<h3>🧾 Quick Identity</h3>The essentials at a glance: name, background, dates, and links to teachers/students.` },
+            { element: "#major-works", intro: `<h3>📚 What he wrote</h3>Major works — the fastest way to see why he matters.` },
+            { element: "#areas-of-focus", intro: `<h3>💡 What he shaped</h3>The fields where he made his mark.` },
+            { element: "#map", intro: `<h3>📍 Trace the journey</h3><b>Hover the numbered cities</b> to see what happened where.` },
+            { element: "#journey-button", intro: `<h3>🧳 Make it move</h3>Start the animated journey through the life path (if available).` },
+            { element: "#info-button", intro: `<h3>🚶 Tour anytime</h3>Click ℹ️ whenever you want to replay the tour.` },
+        ],
+    });
+
+    intro.onbeforechange(function(targetEl) {
+        const isMapStep = targetEl && targetEl.id === "map";
+        shield.style.display = isMapStep ? "none" : "block";
+
+        if (isMapStep) {
+            const mapEl = document.getElementById("map");
+            if (mapEl) mapEl.style.pointerEvents = "auto";
+        }
+    });
+
+    intro.onexit(function() {
+        shield.style.display = "none";
+    });
+
+    intro.oncomplete(function() {
+        shield.style.display = "none";
+    });
+
+    intro.start();
 }
 
-function setPlayUIPlaying(isPlaying, text=""){
-  const btn = document.getElementById("play-button");
-  const status = document.getElementById("play-status");
+function setPlayUIPlaying(isPlaying, text = "") {
+    const btn = document.getElementById("play-button");
+    const status = document.getElementById("play-status");
 
-  if (!btn || !status) return;
+    if (!btn || !status) return;
 
-  if (isPlaying){
-    btn.classList.add("hidden");
-    status.classList.remove("hidden");
-    status.innerHTML = text;
-  } else {
-    status.classList.add("hidden");
-    status.innerHTML = "";
-    btn.classList.remove("hidden");
-  }
+    if (isPlaying) {
+        btn.classList.add("hidden");
+        status.classList.remove("hidden");
+        status.innerHTML = text;
+    } else {
+        status.classList.add("hidden");
+        status.innerHTML = "";
+        btn.classList.remove("hidden");
+    }
 }
-
 
 // --- Main fetch + render ---
 fetchSelectedSage(selectedPerson).then(async sage => {
     if (!sage) return;
 
-    // sage.selected is the array of marker objects (one per dwelling)
-    const selectedArray = sage.selected;         // array
-    const mainSelected = selectedArray[0] || {}; // first (primary) record
+    const selectedArray = sage.selected;
+    const mainSelected = selectedArray[0] || {};
     const relatedSages = sage.relatedSages || { teachers: [], students: [], all: [] };
 
     console.log("Fetched sage:", sage);
     console.log("Selected array:", selectedArray);
-    
     console.log("Main selected:", mainSelected);
-    console.log(selectedArray[0])
+    console.log(selectedArray[0]);
     console.log("Related sages:", relatedSages);
 
-    // pass data into renderer and map functions
     await renderSageProfile(mainSelected, relatedSages);
-    
+
     const overlay = document.getElementById("map-overlay");
 
     if (selectedArray[0].latitude == null) {
-        // 🚫 Show overlay and STOP map logic
         overlay.classList.remove("hidden");
         console.log("Map disabled — missing location data");
-        var journeyBtn = document.getElementById('journey-button')
+        const journeyBtn = document.getElementById('journey-button');
         journeyBtn.disabled = true;
         journeyBtn.textContent = "Journey not available";
         return;
     }
 
-    // ✅ Locations are good — hide overlay and render map
     overlay.classList.add("hidden");
-console.log(selectedArray)
-    // markers expect an array
+    console.log(selectedArray);
+
     displayMarkers(selectedArray, visibleMarkers, false, true);
-    
     fitMapToMarkers(selectedArray);
 
     document.getElementById("play-button").addEventListener("click", function () {
-  setPlayUIPlaying(true, "Starting journey…");
-  initMapSequence(selectedArray);
+        setPlayUIPlaying(true, "Starting journey…");
+        initMapSequence(selectedArray);
+    });
 });
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Function to format location description text
 function formatLocationText(location, born = false, passing = false) {
-    const textStyle = `color: ${getColor(location.background)}; 
-                      font-weight: bold; 
+    const textStyle = `color: ${getColor(location.background)};
+                      font-weight: bold;
                       text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
                       font-style: italic;`;
 
@@ -546,57 +578,62 @@ function formatLocationText(location, born = false, passing = false) {
         text += `In <span style="${textStyle}">${location.from}</span>, <span style="${textStyle}">${location.person}</span> was born in <span style="${textStyle}">${location.city}</span>, <span style="${textStyle}">${location.country}</span>.`;
     } else {
         text += `In <span style="${textStyle}">${location.from}</span>, <span style="${textStyle}">${location.person}</span> moved to <span style="${textStyle}">${location.city}</span>, <span style="${textStyle}">${location.country}</span>.`;
-    }            
+    }
+
     if (passing) {
         text += `<br>He lived there for <span style="${textStyle}">${location.to - location.from}</span> years.`;
         text += `<br>He passed away there in <span style="${textStyle}">${location.passing}</span>.`;
     } else {
-        text += `<br>He lived there for <span style="${textStyle}">${location.to - location.from + 1}</span> years.`; 
+        text += `<br>He lived there for <span style="${textStyle}">${location.to - location.from + 1}</span> years.`;
     }
+
     return text;
 }
 
 function initMapSequence(filteredMarkers) {
     console.log("initMapSequence called");
+    activeSequenceRunId += 1;
+    const runId = activeSequenceRunId;
 
-    // If the map is already loaded, start immediately
+    const start = () => {
+    ensureTrailLayer(getColor(filteredMarkers[0]?.background || ""));
+
+        const firstMarker = filteredMarkers[0];
+        if (firstMarker) {
+            resetTrail([firstMarker.longitude, firstMarker.latitude]);
+        } else {
+            resetTrail();
+        }
+
+        startSequence(filteredMarkers, runId);
+    };
+
     if (map.loaded()) {
         console.log("Map already loaded — starting sequence immediately");
-        startSequence(filteredMarkers);
+        start();
     } else {
-        // Otherwise, wait for it to finish loading
         map.on('load', () => {
             console.log("Map load event triggered");
-            startSequence(filteredMarkers);
+            start();
         });
     }
 }
 
-function startSequence(filteredMarkers) {
-  displayMarkers(filteredMarkers, [], false, true);
+function startSequence(filteredMarkers, runId) {
+    displayMarkers(filteredMarkers, [], false, true);
 
-  let currentLocationIndex = -1;
+    let currentLocationIndex = -1;
 
-  function flyToNextLocation() {
-    if (currentLocationIndex < filteredMarkers.length - 1) {
-      currentLocationIndex++;
+    function flyToNextLocation() {
+        if (runId !== activeSequenceRunId) return;
 
-      const nextLocation = filteredMarkers[currentLocationIndex];
+        if (currentLocationIndex < filteredMarkers.length - 1) {
+            currentLocationIndex++;
 
-      // Update the inline status text (replaces button)
-      setPlayUIPlaying(
-        true,
-        `${nextLocation.city}, ${nextLocation.country} • ${nextLocation.from}–${nextLocation.to}`
-      );
+            const nextLocation = filteredMarkers[currentLocationIndex];
+            const nextCoord = [nextLocation.longitude, nextLocation.latitude];
 
-      map.flyTo({
-        center: [nextLocation.longitude, nextLocation.latitude],
-        duration: 6000,
-        essential: true,
-        zoom: 7
-      });
-
-let formattedText;
+            let formattedText;
             if (currentLocationIndex === 0 && currentLocationIndex === filteredMarkers.length - 1) {
                 formattedText = formatLocationText(nextLocation, true, true);
             } else if (currentLocationIndex !== 0 && currentLocationIndex === filteredMarkers.length - 1) {
@@ -606,44 +643,67 @@ let formattedText;
             } else {
                 formattedText = formatLocationText(nextLocation, false, false);
             }
-            
 
             typewriterEffect("play-status", formattedText, 50);
             document.getElementById('keyboard-sound').play();
 
+            map.flyTo({
+                center: nextCoord,
+                duration: FLY_DURATION,
+                essential: true,
+                zoom: 7
+            });
 
-      setTimeout(flyToNextLocation, 8000);
-    } else {
-      // DONE: restore play button
-      setPlayUIPlaying(false);
-    }
-  }
+            if (currentLocationIndex === 0) {
+                resetTrail(nextCoord);
+            } else {
+                const previousLocation = filteredMarkers[currentLocationIndex - 1];
+                const previousCoord = [previousLocation.longitude, previousLocation.latitude];
 
-  flyToNextLocation();
+                animateTrailSegment(previousCoord, nextCoord, FLY_DURATION, runId);
+            }
+
+            setTimeout(flyToNextLocation, STEP_DELAY);
+} else {
+    cancelTrailAnimation();
+
+    const latitudes = filteredMarkers.map(marker => marker.latitude);
+    const longitudes = filteredMarkers.map(marker => marker.longitude);
+
+    map.fitBounds(
+        [
+            [Math.min(...longitudes), Math.min(...latitudes)],
+            [Math.max(...longitudes), Math.max(...latitudes)]
+        ],
+        {
+            padding: 100,
+            maxZoom: 7,
+            duration: 3000,
+            linear: true,
+            essential: true
+        }
+    );
+
+    setTimeout(() => {
+        setPlayUIPlaying(false);
+    }, 3200);
 }
+    }
 
-
-
-
-
-
-
-
-
-
-
+    flyToNextLocation();
+}
 
 // --- Hover popup logic ---
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
 
-document.getElementById("info-button").addEventListener("click", startTour)
+document.getElementById("info-button").addEventListener("click", startTour);
 
-document.addEventListener('mouseover', handleHoverPopup)
+document.addEventListener('mouseover', handleHoverPopup);
 document.addEventListener('mousemove', (event) => {
-    popup.style.left = event.pageX + 10 + "px"
-    popup.style.top = event.pageY -28 + "px"
-})
+    popup.style.left = event.pageX + 10 + "px";
+    popup.style.top = event.pageY - 28 + "px";
+});
 document.addEventListener('mouseout', (event) => {
     if (event.target.classList.contains('popup-button')) {
         popup.classList.remove('visible');

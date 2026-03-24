@@ -346,14 +346,14 @@ body{
 .noUi-tooltip{
   background: rgba(61, 40, 23, 0.95);
   border: 2px solid rgba(139, 115, 85, 0.8);
-  color: #f5e6d3;
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: var(--paper);
+  font-size: 2vmin;
+  padding: 1vmin 1.5vmin;
+  border-radius: 1vmin;
+  box-shadow: 0 1vmin 3vmin rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(4px);
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.5vmin;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   display: block;
   position: absolute;
@@ -361,8 +361,8 @@ body{
   left: 50%;
   transform: translateX(-50%);
   z-index: 10001;
-  visibility: hidden;
-  opacity: 0;
+  visibility: visible;
+  opacity: 1;
   transition: opacity 0.2s;
   font-family: 'Cinzel', serif;
 }
