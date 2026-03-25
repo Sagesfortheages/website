@@ -813,192 +813,262 @@
   </script>
 
   <script type="module">
-    import { supabaseClient } from "./supabase/supabaseClient.js";
-    import { trackPageView } from "./supabase/supabaseFunctions.js";
+  import { supabaseClient } from "./supabase/supabaseClient.js";
+  import { trackPageView } from "./supabase/supabaseFunctions.js";
 
-    window.supabaseClient = supabaseClient;
+  window.supabaseClient = supabaseClient;
 
-    const overlay = document.getElementById("overlay");
-    const authTitle = document.getElementById("auth-title");
-    const authSubtitle = document.getElementById("auth-subtitle");
-    const authTabs = Array.from(document.querySelectorAll(".auth-tab"));
-    const authPanels = Array.from(document.querySelectorAll(".auth-panel"));
+  const overlay = document.getElementById("overlay");
+  const authTitle = document.getElementById("auth-title");
+  const authSubtitle = document.getElementById("auth-subtitle");
+  const authTabs = Array.from(document.querySelectorAll(".auth-tab"));
+  const authPanels = Array.from(document.querySelectorAll(".auth-panel"));
 
-    const loginBtn = document.getElementById("login-button");
-    const signupBtn = document.getElementById("signup-button");
-    const resetBtn = document.getElementById("reset-button");
+  const loginBtn = document.getElementById("login-button");
+  const signupBtn = document.getElementById("signup-button");
+  const resetBtn = document.getElementById("reset-button");
 
-    const toResetLink = document.getElementById("to-reset-link");
-    const backToLoginLink = document.getElementById("back-to-login-link");
+  const toResetLink = document.getElementById("to-reset-link");
+  const backToLoginLink = document.getElementById("back-to-login-link");
 
-    function setOverlayVisible(visible){
-      if (!overlay) return;
-      overlay.style.display = visible ? "flex" : "none";
-      document.body.classList.toggle("overlay-open", visible);
-    }
+  let isLoggedIn = false;
+  let pendingNavigation = null;
 
-    function showStatus(message, type = "success"){
-      const bar = document.getElementById("auth-status");
-      if (!bar) return;
-      bar.textContent = message;
-      bar.className = `auth-status ${type}`;
-      bar.classList.remove("hidden");
-      setTimeout(() => bar.classList.add("hidden"), 4000);
-    }
+  function setOverlayVisible(visible){
+    if (!overlay) return;
+    overlay.style.display = visible ? "flex" : "none";
+    document.body.classList.toggle("overlay-open", visible);
+  }
 
-    function switchAuthTab(tabName){
-      authTabs.forEach(tab => {
-        const isActive = tab.dataset.tab === tabName;
-        tab.classList.toggle("active", isActive);
-        tab.setAttribute("aria-selected", String(isActive));
-      });
+  function showStatus(message, type = "success"){
+    const bar = document.getElementById("auth-status");
+    if (!bar) return;
+    bar.textContent = message;
+    bar.className = `auth-status ${type}`;
+    bar.classList.remove("hidden");
+    setTimeout(() => bar.classList.add("hidden"), 4000);
+  }
 
-      authPanels.forEach(panel => {
-        panel.classList.toggle("active", panel.id === `panel-${tabName}`);
-      });
-
-      if (tabName === "login"){
-        authTitle.textContent = "Welcome Back";
-        authSubtitle.textContent = "Log in to track your progress and continue exploring.";
-      } else if (tabName === "signup"){
-        authTitle.textContent = "Create Your Account";
-        authSubtitle.textContent = "Sign up to save progress, stats, and achievements.";
-      } else if (tabName === "reset"){
-        authTitle.textContent = "Reset Password";
-        authSubtitle.textContent = "Enter your email and we’ll send a reset link.";
-      }
-    }
-
+  function switchAuthTab(tabName){
     authTabs.forEach(tab => {
-      tab.addEventListener("click", () => switchAuthTab(tab.dataset.tab));
+      const isActive = tab.dataset.tab === tabName;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
     });
 
-    toResetLink?.addEventListener("click", () => switchAuthTab("reset"));
-    backToLoginLink?.addEventListener("click", () => switchAuthTab("login"));
+    authPanels.forEach(panel => {
+      panel.classList.toggle("active", panel.id === `panel-${tabName}`);
+    });
 
-    async function handleLogin(){
-      const email = document.getElementById("login-email")?.value?.trim();
-      const password = document.getElementById("login-password")?.value ?? "";
+    if (tabName === "login"){
+      authTitle.textContent = "Welcome Back";
+      authSubtitle.textContent = "Log in to track your progress and continue exploring.";
+    } else if (tabName === "signup"){
+      authTitle.textContent = "Create Your Account";
+      authSubtitle.textContent = "Sign up to save progress, stats, and achievements.";
+    } else if (tabName === "reset"){
+      authTitle.textContent = "Reset Password";
+      authSubtitle.textContent = "Enter your email and we’ll send a reset link.";
+    }
+  }
 
-      if (!email || !password){
-        showStatus("Enter email and password.", "error");
-        return;
-      }
+  function continuePendingNavigation(){
+    if (typeof pendingNavigation === "function"){
+      const fn = pendingNavigation;
+      pendingNavigation = null;
+      fn();
+    }
+  }
 
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  function shouldRequireLogin(target){
+    return !!target.closest(".cta-button, .explore-item, a");
+  }
 
-      if (error){
-        showStatus(error.message, "error");
-        return;
-      }
+  authTabs.forEach(tab => {
+    tab.addEventListener("click", () => switchAuthTab(tab.dataset.tab));
+  });
 
-      showStatus("Login successful!");
+  toResetLink?.addEventListener("click", () => switchAuthTab("reset"));
+  backToLoginLink?.addEventListener("click", () => switchAuthTab("login"));
+
+  async function handleLogin(){
+    const email = document.getElementById("login-email")?.value?.trim();
+    const password = document.getElementById("login-password")?.value ?? "";
+
+    if (!email || !password){
+      showStatus("Enter email and password.", "error");
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error){
+      showStatus(error.message, "error");
+      return;
+    }
+
+    isLoggedIn = true;
+    showStatus("Login successful!");
+    setOverlayVisible(false);
+    continuePendingNavigation();
+  }
+
+  async function handleSignup(){
+    const email = document.getElementById("signup-email")?.value?.trim();
+    const password = document.getElementById("signup-password")?.value ?? "";
+    const confirmPassword = document.getElementById("signup-password-confirm")?.value ?? "";
+
+    if (!email || !password || !confirmPassword){
+      showStatus("Fill out all sign up fields.", "error");
+      return;
+    }
+
+    if (password.length < 6){
+      showStatus("Password must be at least 6 characters.", "error");
+      return;
+    }
+
+    if (password !== confirmPassword){
+      showStatus("Passwords do not match.", "error");
+      return;
+    }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
+    });
+
+    if (error){
+      showStatus(error.message, "error");
+      return;
+    }
+
+    if (data?.session){
+      isLoggedIn = true;
+      showStatus("Account created!");
       setOverlayVisible(false);
+      continuePendingNavigation();
+      return;
     }
 
-    async function handleSignup(){
-      const email = document.getElementById("signup-email")?.value?.trim();
-      const password = document.getElementById("signup-password")?.value ?? "";
-      const confirmPassword = document.getElementById("signup-password-confirm")?.value ?? "";
+    showStatus("Account created. Check your email to confirm.");
+    switchAuthTab("login");
+  }
 
-      if (!email || !password || !confirmPassword){
-        showStatus("Fill out all sign up fields.", "error");
-        return;
-      }
+  async function handlePasswordReset(){
+    const email = document.getElementById("reset-email")?.value?.trim();
 
-      if (password.length < 6){
-        showStatus("Password must be at least 6 characters.", "error");
-        return;
-      }
-
-      if (password !== confirmPassword){
-        showStatus("Passwords do not match.", "error");
-        return;
-      }
-
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password
-      });
-
-      if (error){
-        showStatus(error.message, "error");
-        return;
-      }
-
-      if (data?.session){
-        showStatus("Account created!");
-        setOverlayVisible(false);
-        return;
-      }
-
-      showStatus("Account created. Check your email to confirm.");
-      switchAuthTab("login");
+    if (!email){
+      showStatus("Enter your email address.", "error");
+      return;
     }
 
-    async function handlePasswordReset(){
-      const email = document.getElementById("reset-email")?.value?.trim();
-
-      if (!email){
-        showStatus("Enter your email address.", "error");
-        return;
-      }
-
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset_password.html`
-      });
-
-      if (error){
-        showStatus(error.message, "error");
-        return;
-      }
-
-      showStatus("Password reset email sent.");
-      switchAuthTab("login");
-    }
-
-    if (loginBtn){
-      loginBtn.addEventListener("click", handleLogin);
-    }
-
-    if (signupBtn){
-      signupBtn.addEventListener("click", handleSignup);
-    }
-
-    if (resetBtn){
-      resetBtn.addEventListener("click", handlePasswordReset);
-    }
-
-    document.addEventListener("keydown", async (e) => {
-      if (e.key !== "Enter") return;
-      if (!overlay || overlay.style.display === "none") return;
-
-      const activePanel = document.querySelector(".auth-panel.active");
-      if (!activePanel || !activePanel.contains(document.activeElement)) return;
-
-      if (activePanel.id === "panel-login"){
-        await handleLogin();
-      } else if (activePanel.id === "panel-signup"){
-        await handleSignup();
-      } else if (activePanel.id === "panel-reset"){
-        await handlePasswordReset();
-      }
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset_password.html`
     });
 
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-    if (sessionError) console.error("getSession error:", sessionError);
-    setOverlayVisible(!sessionData?.session);
-
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-      setOverlayVisible(!session);
-    });
-
-    try{
-      await trackPageView();
-    } catch (e){
-      console.error("trackPageView failed:", e);
+    if (error){
+      showStatus(error.message, "error");
+      return;
     }
-  </script>
+
+    showStatus("Password reset email sent.");
+    switchAuthTab("login");
+  }
+
+  if (loginBtn){
+    loginBtn.addEventListener("click", handleLogin);
+  }
+
+  if (signupBtn){
+    signupBtn.addEventListener("click", handleSignup);
+  }
+
+  if (resetBtn){
+    resetBtn.addEventListener("click", handlePasswordReset);
+  }
+
+  document.addEventListener("keydown", async (e) => {
+    if (e.key !== "Enter") return;
+    if (!overlay || overlay.style.display === "none") return;
+
+    const activePanel = document.querySelector(".auth-panel.active");
+    if (!activePanel || !activePanel.contains(document.activeElement)) return;
+
+    if (activePanel.id === "panel-login"){
+      await handleLogin();
+    } else if (activePanel.id === "panel-signup"){
+      await handleSignup();
+    } else if (activePanel.id === "panel-reset"){
+      await handlePasswordReset();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (isLoggedIn) return;
+    if (e.target.closest("#overlay")) return;
+
+    const ctaButton = e.target.closest("#cta-button");
+    const exploreItem = e.target.closest(".explore-item");
+    const link = e.target.closest("a");
+
+    if (!shouldRequireLogin(e.target)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (ctaButton){
+      pendingNavigation = () => {
+        window.location.href = "discover.html";
+      };
+    } else if (exploreItem){
+      const onclickCode = exploreItem.getAttribute("onclick");
+
+      if (onclickCode){
+        pendingNavigation = () => {
+          new Function(onclickCode).call(window);
+        };
+      } else {
+        pendingNavigation = null;
+      }
+    } else if (link){
+      const href = link.getAttribute("href");
+      if (href){
+        pendingNavigation = () => {
+          window.location.href = href;
+        };
+      } else {
+        pendingNavigation = null;
+      }
+    } else {
+      pendingNavigation = null;
+    }
+
+    switchAuthTab("login");
+    setOverlayVisible(true);
+  }, true);
+
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (sessionError) console.error("getSession error:", sessionError);
+
+  isLoggedIn = !!sessionData?.session;
+  setOverlayVisible(false);
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    isLoggedIn = !!session;
+
+    if (isLoggedIn){
+      setOverlayVisible(false);
+      continuePendingNavigation();
+    }
+  });
+
+  try{
+    await trackPageView();
+  } catch (e){
+    console.error("trackPageView failed:", e);
+  }
+</script>
 
 </body>
 </html>
