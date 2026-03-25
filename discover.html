@@ -205,13 +205,7 @@
             padding-left: 0.5vmin
         }
 
-        .info-card li::before {
-            content: "•";
-            color: #4a69bd;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
+
 
         .clickable {
             color: #4a69bd;
@@ -385,8 +379,12 @@ white-space: nowrap;
 
         @media (max-width: 768px) {
             body {
-                padding: 1rem;
+                padding: 2vmin;
                 overflow-y: auto;
+            }
+
+            .subtitle {
+                font-size: 6.5vmin;
             }
 
             .container {
@@ -430,6 +428,20 @@ white-space: nowrap;
                 height: 40vh !important;
                 width: 100%;
                 flex:none;
+            }
+
+            .play-status{
+                width: 100%;
+                height: 8vh;
+                justify-content: center;
+
+                text-align: top;
+
+                white-space: wrap;
+            }
+
+            .map-header-controls {
+            gap: 0;
             }
         }
 

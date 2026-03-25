@@ -58,13 +58,13 @@
   --fs-sitename:11vmin;
   --fs-subtitle-homepage: 4vmin;
   --fs-h1: 8vmin;
-  --fs-subtitle: 3.25vmin;
+  --fs-subtitle: 3.5vmin;
   --fs-emoji: 6.5vmin;
 
   --fs-panel-heading: 2.54vmin;
-  --fs-input: 2.5vmin;
+  --fs-input: 2.3vmin;
 
-  --fs-modern-btn: 3vmin;
+  --fs-modern-btn: 3.9vmin;
 
   --fs-cta: 2.7vmin;
   --fs-cta-icon: 3.2vmin;
@@ -78,6 +78,8 @@
   --explore-divider-w: 2px;
   --explore-divider-h: 10vmin;
   --explore-divider-color: rgba(110,85,55,0.22);
+
+  --panel-page-side-margin: 0.5vmin;
 }
 
 *{
@@ -104,6 +106,12 @@ body{
   grid-template-columns: minmax(0, 1fr) minmax(0, 6fr) minmax(0, 1fr);
   margin: 0 auto;
   height: 100vh;
+}
+
+.left-container, .right-container{
+  margin-left: var(--panel-page-side-margin);
+  margin-right: var(--panel-page-side-margin);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 /* ================================
@@ -455,7 +463,7 @@ body{
    ================================ */
 .panel{
   position: relative;
-  width: calc(100% - 0.5vmin); /* fixed spacing: you had calc(100%-...) */
+  width: 100%;
   overflow: hidden;
 
   background-color: var(--paper-strong);
@@ -468,7 +476,7 @@ body{
   background-position: center;
 
   transition: all 0.3s ease;
-  margin: 0.25vmin;
+
 }
 
 .panel::after{
@@ -500,9 +508,11 @@ body{
 }
 
 .search-input{
-  width: calc(100% - 2vmin);
+  width: calc(100% - 1vmin);
   padding: 0.75vmin 1vmin;
-  margin: 1vmin;
+  margin: 0.5vmin;
+  justify-self: center;
+
 
   border: 1px solid rgba(139,115,85,0.35); /* kept as-is; optional token */
   border-radius: var(--radius-sm);
@@ -1206,7 +1216,7 @@ body{
   #year-slider {
     width: calc(100% - 20vmin);
     left: 10vmin;
-    bottom: 30vmin;
+    bottom: 20vmin;
     transform: none;
     z-index: 1500;
   }
