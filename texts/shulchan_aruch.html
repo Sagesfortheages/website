@@ -8,10 +8,47 @@
     <link rel="stylesheet" href="../all_styles.css">
     <title>📜 Study</title>
     <style>
+
+        :root{
+        --sage-pri-megadim: rgba(240, 170, 60, 0.38);         /* deep clay */
+        --sage-shulchan-aruch: rgba(220, 200, 120, 0.38);      /* pale parchment (brightest) */
+
+        --sage-gra: rgba(200, 120, 40, 0.38)
+        ;         /* vivid indigo */
+        --sage-rema: rgba(0, 140, 170, 0.38);       /* clean teal */
+
+        --sage-be-er-heitev: rgba(110, 160, 40, 0.38);        /* brighter olive-green */
+
+        --sage-pischei-teshuva: rgba(190, 60, 60, 0.38);      /* true red */
+
+        --sage-r-shlomo-eiger: rgba(0, 150, 120, 0.38);    /* aqua-green */
+        
+        --sage-taz: rgba(120, 60, 220, 0.38); /* bold purple */
+        --sage-shach: rgba(60, 160, 110, 0.38);      /* fresh green */
+
+
+        --sage-machatzis-hashekel: rgba(90, 70, 200, 0.38);         /* strong amber */
+
+        --sage-be-er-hagola: rgba(140, 70, 30, 0.38);       /* bright ochre (lighter than rashi) */
+        --sage-r-akiva-eiger: rgba(60, 150, 200, 0.38);      /* sky blue */
+        --sage-yad-efraim: rgba(40, 140, 60, 0.38);      /* lavender-purple */
+        --sage-rabbeinu-bachya: rgba(180, 50, 120, 0.38); /* magenta-wine */
+        
+        --sage-daas-zekeinim: rgba(160, 120, 50, 0.38); /* darker gold-brown */
+
+        --sage-onkelos: rgba(40, 80, 160, 0.38);        /* strong blue */
+        --sage-yonasan: rgba(40, 140, 60, 0.38);        /* clean green */
+
+
+        --sage-baal-haturim: rgba(200, 60, 160, 0.38);          /* pink-magenta */
+        }
+
         .container {
             position: relative;
-            margin: 20px auto;
-            max-width: 1000px;
+            margin-left: 0;
+            margin-right: 0;
+            margin: auto;
+            max-width: 60vw;
         }
         .image-container {
             position: relative;
@@ -52,7 +89,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 120, 0, 0.3);
+            background: var(--sage-pri-megadim);
         }
 
         #taz-1 {
@@ -64,7 +101,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(155, 220, 0, 0.3);
+            background: var(--sage-taz);
         }
 
         #taz-2 {
@@ -76,7 +113,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(155, 220, 0, 0.3);
+            background: var(--sage-taz);
         }
                 
         #taz-3 {
@@ -88,7 +125,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(155, 220, 0, 0.3);
+            background: var(--sage-taz);
         }
 
         #shach {
@@ -100,7 +137,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(55, 20, 200, 0.3);
+            background: var(--sage-shach);
         }
 
         
@@ -113,7 +150,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 20, 100, 0.3);
+            background: var(--sage-shulchan-aruch);
         }
 
         #shulchan-aruch-2 {
@@ -125,7 +162,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 20, 100, 0.3);
+            background: var(--sage-shulchan-aruch);
         }
 
         #shulchan-aruch-3 {
@@ -137,7 +174,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 20, 100, 0.3);
+            background: var(--sage-shulchan-aruch);
         }
 
 
@@ -150,7 +187,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 20, 100, 0.3);
+            background: var(--sage-shulchan-aruch);
         }
 
         #rema-1 {
@@ -162,7 +199,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(55, 120, 200, 0.3);
+            background: var(--sage-rema);
         }
 
         #rema-2 {
@@ -174,7 +211,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(55, 120, 200, 0.3);
+            background: var(--sage-rema);
         }
         
         #rema-3 {
@@ -186,7 +223,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(55, 120, 200, 0.3);
+            background: var(--sage-rema);
         }
 
         #r-akiva-eiger {
@@ -198,7 +235,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 120, 200, 0.3);
+            background: var(--sage-r-akiva-eiger);
         }
 
         #gra-1 {
@@ -210,7 +247,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(245, 207, 30, 0.3);
+            background: var(--sage-gra);
         }
 
         #gra-2 {
@@ -222,7 +259,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(245, 207, 30, 0.3);
+            background: var(--sage-gra);
         }
 
         #pischei-teshuva-1 {
@@ -234,7 +271,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(215, 207, 130, 0.3);
+            background: var(--sage-pischei-teshuva);
         }
         #pischei-teshuva-2 {
             position: absolute;
@@ -245,10 +282,10 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(215, 207, 130, 0.3);
+            background: var(--sage-pischei-teshuva);
         }
 
-        #be-er-hagolah {
+        #be-er-hagola {
             position: absolute;
             left: 91.25%;  /* Y-position */
             top: 4.75%; /* X-position */
@@ -257,7 +294,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(155, 200, 240, 0.3)
+            background: var(--sage-be-er-hagola)
         }
 
         #r-shlomo-eiger {
@@ -269,7 +306,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(115, 207, 130, 0.3);
+            background: var(--sage-r-shlomo-eiger);
         }
 
         #be-er-heitev {
@@ -281,7 +318,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(15, 207, 230, 0.3);
+            background: var(--sage-be-er-heitev);
         }
 
 
@@ -292,11 +329,11 @@
             left: 8%;  /* Y-position */
             top: 80.75%; /* X-position */
             width: 40.75%; /* right - left */
-            height: 18.75%; /* bottom - top */
+            height: 18%; /* bottom - top */
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(80, 10, 95, 0.3);
+            background: var(--sage-machatzis-hashekel);
         }
 
 
@@ -311,10 +348,13 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(145, 120, 30, 0.3);
+            background: var(--sage-yad-efraim);
         }
 
-
+        .hotspot:hover {
+            filter: brightness(1.25) saturate(1.2);
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
 
 
         /* The tooltip itself (hidden by default) */
@@ -324,8 +364,8 @@
             bottom: 100%; /* Position it above the element */
             left: 50%; /* Center horizontally */
             transform: translateX(-50%); /* Adjust horizontal position */
-            background-color: #007bff; /* Blue background */
-            color: white; /* White text */
+            background: var(--classy-blue-ink); /* Blue background */
+            color: var(--paper); /* White text */
             padding: 5px 10px; /* Padding for the tooltip */
             border-radius: 5px; /* Rounded corners */
             opacity: 0; /* Initially hidden */
@@ -339,15 +379,32 @@
             opacity: 1;
             visibility: visible;
         }
+
+@media (max-width: 600px) {
+    .container {
+            max-width: 90vw;
+    }
+}
     </style>
 </head>
 <body>
     
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="gradient-text">Shulchan Aruch</span>
+            </h1>
+        </div>
+        <button class="modern-button" id="home-button" onclick="window.location.href='../index.html'">🏠</button>
+        <button class="modern-button" id="info-button">ℹ️</button>
+        <button class="modern-button second-right-button" id="feedback-button" 
+        onclick="window.location.href='../feedback.html'">📩</button>
+    </div>
     
     <div class="container">
         <div class="image-container">
             <!-- Replace with actual path to the PDF image -->
-            <img alt="מקראות גדולות" usemap="#commentaries-map" id="shulchan-aruch">
+            <img alt="Shulchan Aruch" usemap="#commentaries-map" id="shulchan-aruch">
 
             <a class="hotspot" id="pri-megadim" data-tooltip="Pri Megadim"></a>
             <a class="hotspot" id="taz-1" data-tooltip="Taz"></a>
@@ -366,7 +423,7 @@
             <a class="hotspot" id="gra-2" data-tooltip="Vilna Gaon"></a>      
             <a class="hotspot" id="pischei-teshuva-1" data-tooltip="Pischei Teshuva"></a>        
             <a class="hotspot" id="pischei-teshuva-2" data-tooltip="Pischei Teshuva"></a>      
-            <a class="hotspot" id="be-er-hagolah" data-tooltip="Be-er Hagola"></a>  
+            <a class="hotspot" id="be-er-hagola" data-tooltip="Be-er Hagola"></a>  
             <a class="hotspot" id="r-shlomo-eiger" data-tooltip="R Shlomo Eiger"></a>  
             <a class="hotspot" id="be-er-heitev" data-tooltip="Be-er Heitev"></a>              
             <a class="hotspot" id="machatzis-hashekel" data-tooltip="Machatzis Hashekel"></a> 

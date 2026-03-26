@@ -60,6 +60,7 @@
   --fs-h1: 8vmin;
   --fs-subtitle: 3.5vmin;
   --fs-emoji: 6.5vmin;
+  --fs-sage-list: clamp(12px, 2vmin, 18px);
 
   --fs-panel-heading: 2.54vmin;
   --fs-input: 2.3vmin;
@@ -72,6 +73,9 @@
   --fs-strip-title: 3.2vmin;
   --fs-strip-icon: clamp(40px, 10vmin, 72px);
   --fs-strip-label: clamp(13px, 3vmin, 19px);
+
+  --fs-searchable-filter: clamp(14px, 2.5vmin, 20px);
+  --fs-nonsearchable-filter: clamp(12px, 2.2vmin, 18px);
 
   /* ===== Explore buttons ===== */
   --explore-btn-size: clamp(86px, 15vmin, 140px);

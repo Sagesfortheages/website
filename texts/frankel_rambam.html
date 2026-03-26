@@ -8,14 +8,31 @@
     <link rel="stylesheet" href="../all_styles.css">
     <title>📜 Study</title>
     <style>
+
+        :root{
+        --sage-migdal-oz: rgba(160, 120, 50, 0.38); /* darker gold-brown */
+
+        --sage-raavad: rgba(40, 80, 160, 0.38);        /* strong blue */
+        --sage-kesef-mishna: rgba(40, 140, 60, 0.38);        /* clean green */
+        --sage-gemara: rgba(140, 70, 30, 0.38);         /* deep clay */
+        --sage-rambam: rgba(220, 200, 120, 0.38);      /* pale parchment (brightest) */
+
+        --sage-hagaos-maimoniyos: rgba(120, 60, 220, 0.38); /* bold purple */
+        --sage-lechem-mishna: rgba(60, 160, 110, 0.38);      /* fresh green */
+        --sage-maggid-mishna: rgba(200, 60, 160, 0.38);          /* pink-magenta */
+        }
+
+
         body {
             font-family: 'Times New Roman', Times, serif;
             text-align: center;
         }
         .container {
             position: relative;
-            margin: 20px auto;
-            max-width: 1000px;
+            margin-left: 0;
+            margin-right: 0;
+            margin: auto;
+            max-width: 32vw;
         }
         .image-container {
             position: relative;
@@ -51,12 +68,12 @@
             position: absolute;
             left: 3%;  /* Y-position */
             top: 44.5%; /* X-position */
-            width: 14.6%; /* right - left */
+            width: 14.5%; /* right - left */
             height: 20.5%; /* bottom - top */
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 120, 0, 0.3);
+            background: var(--sage-r-akiva-eiger);
         }
 
         #hagaos-maimoniyos {
@@ -64,11 +81,11 @@
             left: 17.5%;  /* Y-position */
             top: 72.25%; /* X-position */
             width: 77.5%; /* right - left */
-            height: 6%; /* bottom - top */
+            height: 5.75%; /* bottom - top */
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(243, 174, 15, 0.3);
+            background: var(--sage-hagaos-maimoniyos);
         }
 
         #rambam-one {
@@ -80,7 +97,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 107, 235, 0.3);
+            background: var(--sage-rambam);
         }
 
         #rambam-two {
@@ -92,7 +109,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 107, 235, 0.3);
+            background: var(--sage-rambam);
         }
 
         #rambam-three {
@@ -104,7 +121,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 107, 235, 0.3);
+            background: var(--sage-rambam);
         }
 
         #rambam-four {
@@ -116,7 +133,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 107, 235, 0.3);
+            background: var(--sage-rambam);
         }
         #raavad-one {
             position: absolute;
@@ -127,7 +144,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(243, 4, 231, 0.3);
+            background: var(--sage-raavad);
         }
         #raavad-two {
             position: absolute;
@@ -138,7 +155,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(243, 4, 231, 0.3);
+            background: var(--sage-raavad);
         }
 
         #kesef-mishna-one {
@@ -150,7 +167,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(35, 35, 250, 0.3);
+            background: var(--sage-kesef-mishna);
         }
 
         #kesef-mishna-two {
@@ -162,7 +179,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(35, 35, 250, 0.3);
+            background: var(--sage-kesef-mishna);
         }
 
         #lechem-mishna {
@@ -174,19 +191,19 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(9, 235, 47, 0.3);
+            background: var(--sage-lechem-mishna);
         }
         
         #migdal-oz {
             position: absolute;
             left: 17.5%;  /* Y-position */
-            top: 78.25%; /* X-position */
+            top: 78%; /* X-position */
             width: 77.5%; /* right - left */
-            height: 19.75%; /* bottom - top */
+            height: 20%; /* bottom - top */
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(223, 253, 28, 0.3);
+            background: var(--sage-migdal-oz);
         }
 
         #maggid-mishna-one {
@@ -198,7 +215,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(237, 46, 25, 0.3);
+            background: var(--sage-maggid-mishna);
         }
 
         #maggid-mishna-two {
@@ -210,7 +227,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(237, 46, 25, 0.3);
+            background: var(--sage-maggid-mishna);
         }
 
         #maggid-mishna-three {
@@ -222,14 +239,17 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(237, 46, 25, 0.3);
+            background: var(--sage-maggid-mishna);
         }
 
 
 
 
 
-
+        .hotspot:hover {
+            filter: brightness(1.25) saturate(1.2);
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
 
 
         /* The tooltip itself (hidden by default) */
@@ -239,8 +259,8 @@
             bottom: 100%; /* Position it above the element */
             left: 50%; /* Center horizontally */
             transform: translateX(-50%); /* Adjust horizontal position */
-            background-color: #007bff; /* Blue background */
-            color: white; /* White text */
+            background: var(--classy-blue-ink); /* Blue background */
+            color: var(--paper); /* White text */
             padding: 5px 10px; /* Padding for the tooltip */
             border-radius: 5px; /* Rounded corners */
             opacity: 0; /* Initially hidden */
@@ -254,14 +274,32 @@
             opacity: 1;
             visibility: visible;
         }
+
+@media (max-width: 600px) {
+    .container {
+            max-width: 90vw;
+    }
+}
     </style>
 </head>
 <body>
+
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="gradient-text">Rambam</span>
+            </h1>
+        </div>
+        <button class="modern-button" id="home-button" onclick="window.location.href='../index.html'">🏠</button>
+        <button class="modern-button" id="info-button">ℹ️</button>
+        <button class="modern-button second-right-button" id="feedback-button" 
+        onclick="window.location.href='../feedback.html'">📩</button>
+    </div>
     
     <div class="container">
         <div class="image-container">
             <!-- Replace with actual path to the PDF image -->
-            <img alt="מקראות גדולות" usemap="#commentaries-map" id="frankel_rambam">
+            <img alt="Rambam" usemap="#commentaries-map" id="frankel_rambam">
 
             <a class="hotspot" id="r-akiva-eiger" data-tooltip="R Akiva Eiger"></a>
             <a class="hotspot" id="hagaos-maimoniyos" data-tooltip="Haga'os Maimoniyos"></a>
@@ -278,8 +316,6 @@
             <a class="hotspot" id="maggid-mishna-one" data-tooltip="Maggid Mishna"></a>
             <a class="hotspot" id="maggid-mishna-two" data-tooltip="Maggid Mishna"></a>
             <a class="hotspot" id="maggid-mishna-three" data-tooltip="Maggid Mishna"></a>
-            
-            <button id="1-button" style="left:96%; top:7.5%">1</button>
 
             
         </div>
@@ -324,10 +360,10 @@
             linkToProfile('Raavad', "../discover.html");
         });
         document.getElementById('kesef-mishna-one').addEventListener('click', function() {
-            linkToProfile('Beis yosef', "../discover.html");
+            linkToProfile('Beis Yosef', "../discover.html");
         });
         document.getElementById('kesef-mishna-two').addEventListener('click', function() {
-            linkToProfile('Beis yosef', "../discover.html");
+            linkToProfile('Beis Yosef', "../discover.html");
             
         });
 

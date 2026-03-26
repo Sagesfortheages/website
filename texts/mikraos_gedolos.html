@@ -5,17 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
-        <link rel="stylesheet" href="../all_styles.css">
+    <link rel="stylesheet" href="../all_styles.css">
     <title> Mikraos Gedolos - Interactive Page</title>
     <style>
+        :root{
+            --sage-rashi: rgba(200, 120, 40, 0.38);         /* strong amber */
+            --sage-ramban: rgba(90, 70, 200, 0.38);         /* vivid indigo */
+            --sage-ibn-ezra: rgba(0, 140, 170, 0.38);       /* clean teal */
+            --sage-sforno: rgba(110, 160, 40, 0.38);        /* brighter olive-green */
+            --sage-kli-yakar: rgba(190, 60, 60, 0.38);      /* true red */
+            --sage-ohr-hachaim: rgba(0, 150, 120, 0.38);    /* aqua-green */
+
+            --sage-rashbam: rgba(240, 170, 60, 0.38);       /* bright ochre (lighter than rashi) */
+            --sage-chizkuni: rgba(140, 90, 220, 0.38);      /* lavender-purple */
+            --sage-rabbeinu-bachya: rgba(180, 50, 120, 0.38); /* magenta-wine */
+            --sage-metzudos: rgba(60, 150, 200, 0.38);      /* sky blue */
+            --sage-daas-zekeinim: rgba(160, 120, 50, 0.38); /* darker gold-brown */
+
+            --sage-onkelos: rgba(40, 80, 160, 0.38);        /* strong blue */
+            --sage-yonasan: rgba(40, 140, 60, 0.38);        /* clean green */
+            --sage-gemara: rgba(140, 70, 30, 0.38);         /* deep clay */
+            --sage-chumash: rgba(220, 200, 120, 0.38);      /* pale parchment (brightest) */
+
+            --sage-selection-from-gemara: rgba(120, 60, 220, 0.38); /* bold purple */
+            --sage-sifsei-chachamim: rgba(60, 160, 110, 0.38);      /* fresh green */
+            --sage-baal-haturim: rgba(200, 60, 160, 0.38);          /* pink-magenta */
+        }
+
+
         .container {
             position: relative;
-            margin: 20px auto;
-            max-width: 1000px;
+            margin-left: 0;
+            margin-right: 0;
+            margin: auto;
+            max-width: 60vw;
         }
         .image-container {
             position: relative;
             display: inline-block;
+
         }
         img {
             max-width: 100%;
@@ -47,7 +75,7 @@
             cursor: pointer;
             
             /* optional: for debugging */
-            background: rgba(225, 127, 127, 0.3);
+            background: var(--sage-baal-haturim);
         }
 
         #ramban {
@@ -59,7 +87,7 @@
             cursor: pointer;
             
             /* optional: for debugging */
-            background: rgba(0, 255, 0, 0.3);
+            background: var(--sage-ramban);
         }
 
         #ibn-ezra {
@@ -71,7 +99,7 @@
             cursor: pointer;
         
             /* optional: for debugging */
-            background: rgba(255, 0, 255, 0.3);
+            background: var(--sage-ibn-ezra);
         }
 
         #ibn-ezra-two {
@@ -83,7 +111,7 @@
             cursor: pointer;
         
             /* optional: for debugging */
-            background: rgba(255, 0, 255, 0.3);
+            background: var(--sage-ibn-ezra);
         }
 
         #kli-yakar {
@@ -95,7 +123,7 @@
             cursor: pointer;
         
             /* optional: for debugging */
-            background: rgba(255, 255, 0, 0.3);
+            background: var(--sage-kli-yakar);
         }
 
         #ohr-hachaim {
@@ -107,7 +135,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 0, 60, 0.3);
+            background: var(--sage-ohr-hachaim);
         }
 
         #sforno {
@@ -119,7 +147,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 120, 0, 0.3);
+            background: var(--sage-sforno);
         }
 
         #sifsei-chachamim {
@@ -131,7 +159,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(255, 120, 200, 0.3);
+            background: var(--sage-sifsei-chachamim);
         }
 
         #rashi {
@@ -143,7 +171,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 120, 200, 0.3);
+            background: var(--sage-rashi);
         }
 
         #rashi-two {
@@ -155,7 +183,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 120, 200, 0.3);
+            background: var(--sage-rashi);
         }
 
         #rashbam {
@@ -167,7 +195,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(2, 220, 200, 0.3);
+            background: var(--sage-rashbam);
         }
 
         #chizkuni {
@@ -179,7 +207,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(200, 220, 200, 0.3);
+            background: var(--sage-chizkuni);
         }
 
         #chizkuni-two {
@@ -191,7 +219,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(200, 220, 200, 0.3);
+            background: var(--sage-chizkuni);
         }
 
         #rabbeinu-bachya {
@@ -203,7 +231,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(240, 20, 200, 0.3);
+            background: var(--sage-rabbeinu-bachya);
         }
 
         #metzudos {
@@ -215,7 +243,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(130, 191, 203, 0.3);
+            background: var(--sage-metzudos);
         }
 
 
@@ -230,7 +258,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(140, 160, 240, 0.3);
+            background: var(--sage-daas-zekeinim);
         }
 
         #chumash {
@@ -242,7 +270,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(190, 160, 40, 0.3);
+            background: var(--sage-chumash);
         }
 
         #chumash-two {
@@ -254,7 +282,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(190, 160, 40, 0.3);
+            background: var(--sage-chumash);
         }
 
         #onkelos {
@@ -266,7 +294,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(20, 160, 200, 0.3);
+            background: var(--sage-onkelos);
         }
 
         #selections-from-gemara {
@@ -278,7 +306,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(120, 60, 200, 0.3);
+            background: var(--sage-selection-from-gemara);
         }
         
         #selections-from-gemara-two {
@@ -290,7 +318,7 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(120, 60, 200, 0.3);
+            background: var(--sage-selection-from-gemara);
         }
 
         #yonasan {
@@ -302,12 +330,15 @@
             cursor: pointer;
     
             /* optional: for debugging */
-            background: rgba(20, 230, 160, 0.3);
+            background: var(--sage-yonasan);
         }
 
 
 
-
+        .hotspot:hover {
+            filter: brightness(1.25) saturate(1.2);
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
 
 
 
@@ -320,14 +351,14 @@
             bottom: 100%; /* Position it above the element */
             left: 50%; /* Center horizontally */
             transform: translateX(-50%); /* Adjust horizontal position */
-            background-color: #007bff; /* Blue background */
-            color: white; /* White text */
+            background: var(--classy-blue-ink); /* Blue background */
+            color: var(--paper); /* White text */
             padding: 5px 10px; /* Padding for the tooltip */
             border-radius: 5px; /* Rounded corners */
             opacity: 0; /* Initially hidden */
             visibility: hidden; /* Initially hidden */
             transition: opacity 0.2s ease, visibility 0.2s ease; /* Fade-in effect */
-            z-index: 10; /* Ensure the tooltip is above other content */
+            z-index: 1000; /* Ensure the tooltip is above other content */
         }
 
         /* Make the tooltip visible when hovering */
@@ -335,9 +366,27 @@
             opacity: 1;
             visibility: visible;
         }
+
+@media (max-width: 600px) {
+    .container {
+            max-width: 90vw;
+    }
+}
     </style>
 </head>
 <body>
+
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="gradient-text">Mikraos Gedolos</span>
+            </h1>
+        </div>
+        <button class="modern-button" id="home-button" onclick="window.location.href='../index.html'">🏠</button>
+        <button class="modern-button" id="info-button">ℹ️</button>
+        <button class="modern-button second-right-button" id="feedback-button" 
+        onclick="window.location.href='../feedback.html'">📩</button>
+    </div>
     
     <div class="container">
         <div class="image-container">
