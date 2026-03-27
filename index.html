@@ -452,6 +452,53 @@
       text-align: center;
     }
 
+    .password-checklist{
+  margin-top: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.46);
+  border: 1px solid rgba(139,115,85,0.22);
+}
+
+.password-checklist__title{
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+    .password-checklist__item{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      line-height: 1.35;
+      color: var(--ink-soft);
+      margin: 4px 0;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+
+    .password-checklist__icon{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.1em;
+      min-width: 1.1em;
+      font-weight: 700;
+    }
+
+    .password-checklist__item.valid{
+      color: var(--correct-color);
+    }
+
+    .password-checklist__item.valid .password-checklist__icon{
+      content: "✓";
+    }
+
+    .password-checklist__item.valid{
+      filter: saturate(1.1);
+    }
+
     .auth-status.success{ background: var(--correct-color); }
     .auth-status.error{ background: var(--incorrect-color); }
 
@@ -664,6 +711,34 @@
           <label for="signup-password-confirm" class="sr-only">Confirm password</label>
           <input type="password" placeholder="Confirm password" class="auth-input" id="signup-password-confirm" autocomplete="new-password" required>
 
+          <div class="password-checklist" id="password-checklist" aria-live="polite">
+            <div class="password-checklist__title">Password must include:</div>
+
+            <div class="password-checklist__item" id="check-lowercase">
+              <span class="password-checklist__icon">○</span>
+              <span>a lowercase letter</span>
+            </div>
+
+            <div class="password-checklist__item" id="check-uppercase">
+              <span class="password-checklist__icon">○</span>
+              <span>an uppercase letter</span>
+            </div>
+
+            <div class="password-checklist__item" id="check-number">
+              <span class="password-checklist__icon">○</span>
+              <span>a number</span>
+            </div>
+
+            <div class="password-checklist__item" id="check-special">
+              <span class="password-checklist__icon">○</span> 
+              <span>a special character</span>
+            </div>
+
+            <div class="password-checklist__item" id="check-length">
+              <span class="password-checklist__icon">○</span>
+              <span>at least 8 characters</span>
+            </div>
+          </div>
           <div class="auth-actions">
             <button class="auth-button" id="signup-button" type="button">Create Account</button>
           </div>
@@ -831,6 +906,15 @@
   const toResetLink = document.getElementById("to-reset-link");
   const backToLoginLink = document.getElementById("back-to-login-link");
 
+  const signupPasswordInput = document.getElementById("signup-password");
+  const checklistItems = {
+    lowercase: document.getElementById("check-lowercase"),
+    uppercase: document.getElementById("check-uppercase"),
+    number: document.getElementById("check-number"),
+    special: document.getElementById("check-special"),
+    length: document.getElementById("check-length")
+  };
+
   let isLoggedIn = false;
   let pendingNavigation = null;
 
@@ -891,6 +975,12 @@
   toResetLink?.addEventListener("click", () => switchAuthTab("reset"));
   backToLoginLink?.addEventListener("click", () => switchAuthTab("login"));
 
+  signupPasswordInput?.addEventListener("input", (e) => {
+    updatePasswordChecklist(e.target.value);
+  });
+
+  updatePasswordChecklist("");
+
   async function handleLogin(){
     const email = document.getElementById("login-email")?.value?.trim();
     const password = document.getElementById("login-password")?.value ?? "";
@@ -913,6 +1003,39 @@
     continuePendingNavigation();
   }
 
+  function getPasswordChecks(password){
+    return {
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      special: /[^A-Za-z\d]/.test(password),
+      length: password.length >= 8
+    };
+  }
+
+  function updatePasswordChecklist(password){
+    const checks = getPasswordChecks(password);
+
+    Object.entries(checks).forEach(([key, isValid]) => {
+      const item = checklistItems[key];
+      if (!item) return;
+
+      item.classList.toggle("valid", isValid);
+
+      const icon = item.querySelector(".password-checklist__icon");
+      if (icon){
+        icon.textContent = isValid ? "✓" : "○";
+      }
+    });
+
+    return checks;
+  }
+
+  function passwordMeetsRequirements(password){
+    const checks = getPasswordChecks(password);
+    return checks.lowercase && checks.uppercase && checks.number && checks.special && checks.length;
+  }
+
   async function handleSignup(){
     const email = document.getElementById("signup-email")?.value?.trim();
     const password = document.getElementById("signup-password")?.value ?? "";
@@ -923,8 +1046,11 @@
       return;
     }
 
-    if (password.length < 6){
-      showStatus("Password must be at least 6 characters.", "error");
+    if (!passwordMeetsRequirements(password)){
+      showStatus(
+        "Password must include an uppercase letter, a lowercase letter, a number, and a special character and be at least 8 characters long.",
+        "error"
+      );
       return;
     }
 

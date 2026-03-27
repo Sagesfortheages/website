@@ -8,12 +8,6 @@
 <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
 <title>Test</title>
 <style>
-/* =========================================
-   DRAG / MATCH UI — PARCHMENT SITE-WIDE THEME
-   Assumes your :root tokens + fonts already exist
-   Drop-in replacement for the CSS you pasted
-   ========================================= */
-
 *{
   margin: 0;
   padding: 0;
@@ -25,8 +19,6 @@ body{
   min-height: 100vh;
   padding: 0;
   margin: 0;
-
-  /* site-wide background + warm fallback */
   background-color: #f7ecd6;
   background-image:
     var(--page-texture),
@@ -37,11 +29,10 @@ body{
   background-size: cover, cover, cover, cover;
   background-position: center, center, center, center;
   background-attachment: fixed, fixed, fixed, fixed;
-
   color: var(--ink);
+  overflow-y: scroll;
 }
 
-/* full-screen section layout stays the same, but ink + parchment spacing */
 section{
   min-height: 100vh;
   display: flex;
@@ -50,9 +41,13 @@ section{
   align-items: center;
   padding: 4vmin 3.5vmin;
   position: relative;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-/* Titles match header vibe */
+section.hidden{
+  display: none;
+}
+
 h1{
   font-family: var(--font-display);
   font-size: clamp(28px, 6vmin, 54px);
@@ -75,7 +70,6 @@ h2{
   text-align: center;
 }
 
-/* Instruction text = your subtitle tone */
 p.instructions{
   font-family: var(--font-display);
   font-style: italic;
@@ -87,7 +81,6 @@ p.instructions{
   max-width: 70ch;
 }
 
-/* list container */
 .list{
   list-style: none;
   padding: 0;
@@ -95,37 +88,29 @@ p.instructions{
   max-width: 520px;
 }
 
-/* parchment “card” list items */
 .list-item{
   position: relative;
   border-radius: var(--radius);
   padding: 18px 20px;
   margin-bottom: 12px;
-
   cursor: grab;
   user-select: none;
-
   display: flex;
   align-items: center;
   gap: 14px;
-
-  /* parchment panel look */
   background: linear-gradient(
     135deg,
     rgba(255, 252, 244, 0.96),
     rgba(245, 230, 211, 0.92)
   );
   border: 1px solid var(--rule-strong);
-
   box-shadow:
     0 10px 22px rgba(0,0,0,0.14),
     inset 0 1px 0 rgba(255,255,255,0.55);
-
   transition: transform 0.12s ease, box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease;
   overflow: hidden;
 }
 
-/* subtle inner rule */
 .list-item::before{
   content:"";
   position:absolute;
@@ -136,7 +121,6 @@ p.instructions{
   opacity: 0.65;
 }
 
-/* slight texture wash */
 .list-item::after{
   content:"";
   position:absolute;
@@ -148,7 +132,6 @@ p.instructions{
   pointer-events:none;
 }
 
-/* hover: parchment lift + your accent */
 .list-item:hover{
   transform: translateY(-2px);
   box-shadow:
@@ -158,7 +141,6 @@ p.instructions{
   filter: saturate(1.02);
 }
 
-/* dragging states */
 .list-item.dragging{
   opacity: 0.55;
   cursor: grabbing;
@@ -168,7 +150,6 @@ p.instructions{
 .list-item.drag-over{
   border-color: rgba(47,79,79,0.55);
   border-style: dashed;
-
   background: linear-gradient(
     135deg,
     rgba(255,248,230,0.92),
@@ -176,7 +157,6 @@ p.instructions{
   );
 }
 
-/* drag handle */
 .drag-handle{
   position: relative;
   z-index: 1;
@@ -190,83 +170,68 @@ p.instructions{
   cursor: grabbing;
 }
 
-/* number badge: parchment coin w/ ink */
 .item-number{
   position: relative;
   z-index: 1;
-
   width: 34px;
   height: 34px;
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-family: var(--font-ui);
   font-weight: 900;
   font-size: 14px;
   letter-spacing: 0.02em;
-
   color: var(--ink);
   background: linear-gradient(#f5e6d3, #d4c4a8);
   border: 2px solid rgba(139,115,85,0.70);
-
   box-shadow:
     0 6px 14px rgba(0,0,0,0.12),
     inset 0 1px 0 rgba(255,255,255,0.55);
   flex-shrink: 0;
 }
 
-/* item text */
 .item-text{
   position: relative;
   z-index: 1;
   flex: 1;
-
   color: var(--input-ink);
   font-weight: 600;
   font-size: 16px;
   line-height: 1.25;
 }
 
-/* primary button = your cta-button vibe */
-button{
-  margin-top: 20px;
+button,
+.secondary-btn{
   width: 100%;
   max-width: 520px;
   padding: 14px 16px;
-
   font-family: var(--font-ui);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: 16px;
-
   color: var(--classy-blue-ink);
-
   background: linear-gradient(
     to bottom,
     rgba(255, 252, 244, 0.96),
     rgba(245, 230, 211, 0.92)
   );
-
   border: 1px solid var(--rule-strong);
   border-radius: calc(var(--radius) + 4px);
-
   cursor: pointer;
   user-select: none;
-
   box-shadow:
     0 10px 22px rgba(0,0,0,0.16),
     inset 0 1px 0 rgba(255,255,255,0.55);
-
   transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
   position: relative;
   overflow: hidden;
 }
 
-button::before{
+button::before,
+.secondary-btn::before{
   content:"";
   position:absolute;
   inset: 8px;
@@ -277,7 +242,8 @@ button::before{
   opacity: 0.7;
 }
 
-button:hover{
+button:hover,
+.secondary-btn:hover{
   transform: translateY(-2px);
   box-shadow:
     0 14px 30px rgba(0,0,0,0.20),
@@ -285,25 +251,21 @@ button:hover{
   filter: saturate(1.03);
 }
 
-button:active{
+button:active,
+.secondary-btn:active{
   transform: translateY(0px);
   box-shadow:
     0 8px 16px rgba(0,0,0,0.16),
     inset 0 2px 10px rgba(0,0,0,0.10);
 }
 
-button:focus-visible{
+button:focus-visible,
+.secondary-btn:focus-visible{
   outline: none;
   box-shadow:
     0 14px 30px rgba(0,0,0,0.20),
     0 0 0 3px rgba(3,43,125,0.22);
 }
-
-.hidden{ display: none; }
-
-/* =========================================
-   OVERLAY / MODAL — parchment
-   ========================================= */
 
 .overlay{
   position: fixed;
@@ -327,12 +289,10 @@ button:focus-visible{
   max-width: 460px;
   width: 90%;
   text-align: center;
-
   border: 1px solid var(--rule-strong);
   box-shadow:
     0 18px 46px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.55);
-
   overflow: hidden;
   color: var(--ink);
 }
@@ -355,13 +315,11 @@ button:focus-visible{
   z-index: 1;
 }
 
-/* make modal button match site */
 .overlay-content button{
   max-width: 360px;
   margin-top: 16px;
 }
 
-/* success / error states with your tokens */
 .overlay-content.success{
   border-top: 6px solid rgba(47,79,79,0.70);
 }
@@ -384,10 +342,6 @@ button:focus-visible{
   text-transform: uppercase;
 }
 
-/* =========================================
-   MATCHING LAYOUT + LINK CANVAS
-   ========================================= */
-
 .matching-container{
   display: flex;
   gap: 8vmin;
@@ -405,7 +359,6 @@ button:focus-visible{
   position: relative;
 }
 
-/* SVG canvas for drawing links */
 .link-canvas{
   position: absolute;
   top: 0;
@@ -421,9 +374,244 @@ button:focus-visible{
   z-index: 2;
 }
 
-/* =========================================
-   Mobile
-   ========================================= */
+/* test identities */
+#test1-section h1{ color: #7b5a2e; }
+#test2-section h1{ color: #2f4f7f; }
+#test3-section h1{ color: #8a4b2a; }
+#test4-section h1{ color: #444; }
+
+#test1-section .list-item{
+  background: linear-gradient(135deg, rgba(255,250,235,0.98), rgba(240,220,190,0.92));
+  border-color: rgba(139,115,85,0.55);
+}
+
+#test2-section .list-item{
+  background: linear-gradient(135deg, rgba(245,248,255,0.96), rgba(220,230,250,0.92));
+  border-color: rgba(70,90,140,0.45);
+}
+
+#test3-section{
+  background-image:
+    radial-gradient(circle at 12% 10%, rgba(255,255,255,0.35), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(196,117,68,0.10), transparent 30%),
+    var(--page-texture),
+    linear-gradient(135deg, rgba(255,247,238,0.98), rgba(248,229,213,0.92));
+}
+
+#test4-section{
+  background-image:
+    radial-gradient(circle at 14% 15%, rgba(255,255,255,0.30), transparent 28%),
+    radial-gradient(circle at 82% 25%, rgba(80,80,80,0.08), transparent 30%),
+    var(--page-texture),
+    linear-gradient(135deg, rgba(245,245,245,0.96), rgba(228,228,228,0.92));
+}
+
+/* TEST 3: tap match */
+.tap-match-shell{
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(320px, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.choice-bank,
+.assign-board,
+.quiz-board{
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255,252,244,0.96),
+    rgba(245,230,211,0.92)
+  );
+  border: 1px solid var(--rule-strong);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.choice-bank::before,
+.assign-board::before,
+.quiz-board::before{
+  content:"";
+  position:absolute;
+  inset: 8px;
+  border-radius: calc(var(--radius) + 1px);
+  border: 1px solid var(--rule-faint);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.panel-title{
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: var(--heading-ink);
+}
+
+.choice-grid{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.choice-pill{
+  border: 1px solid rgba(160,90,60,0.35);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(255,249,242,0.98), rgba(250,225,210,0.92));
+  color: var(--input-ink);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.choice-pill:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.10);
+}
+
+.choice-pill.selected{
+  border-color: rgba(160,90,60,0.80);
+  box-shadow: 0 0 0 3px rgba(201,106,61,0.18);
+  background: linear-gradient(135deg, rgba(255,240,228,1), rgba(248,214,190,0.95));
+}
+
+.choice-pill.used{
+  opacity: 0.42;
+  filter: grayscale(0.15);
+}
+
+.choice-pill.used.selected{
+  opacity: 1;
+}
+
+.assignment-list{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.assignment-row{
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr auto;
+  gap: 1px;
+  align-items: center;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.28);
+  border: 1px solid rgba(160,90,60,0.18);
+}
+
+.assignment-row.active-target{
+  border-color: rgba(160,90,60,0.65);
+  box-shadow: 0 0 0 3px rgba(201,106,61,0.14);
+}
+
+.assignment-name{
+  font-weight: 700;
+  color: var(--heading-ink);
+}
+
+.assignment-slot{
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px dashed rgba(160,90,60,0.38);
+  background: rgba(255,252,248,0.72);
+  color: rgba(61,40,23,0.72);
+  font-style: italic;
+}
+
+.assignment-slot.filled{
+  border-style: solid;
+  background: linear-gradient(135deg, rgba(255,244,233,1), rgba(247,221,202,0.96));
+  color: var(--input-ink);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.clear-assignment{
+  padding: 10px 12px;
+  width: auto;
+  max-width: none;
+  margin-top: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+/* TEST 4: multiple choice */
+.quiz-board{
+  width: 100%;
+  max-width: 900px;
+}
+
+.quiz-list{
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1px;
+}
+
+.quiz-row{
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 1px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.32);
+  border: 1px solid rgba(80,80,80,0.16);
+}
+
+.quiz-name{
+  font-weight: 700;
+  color: #333;
+}
+
+.quiz-select{
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(80,80,80,0.28);
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(235,235,235,0.95));
+  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+
+.quiz-select:focus{
+  border-color: rgba(80,80,80,0.55);
+  box-shadow: 0 0 0 3px rgba(90,90,90,0.12);
+}
+
+#final-section h1{
+  color: var(--correct-color);
+}
+
+#final-section p{
+  text-align: center;
+  color: var(--ink);
+  font-size: 18px;
+  max-width: 42ch;
+}
+
 @media (max-width: 700px){
   section{ padding: 5vmin 3.5vmin; }
 
@@ -433,7 +621,21 @@ button:focus-visible{
     align-items: stretch;
   }
 
-  .list, button{
+  .tap-match-shell{
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .list-item{
+    padding: 1px 2px;
+  }
+
+  .assignment-row,
+  .quiz-row{
+    grid-template-columns: 1fr;
+  }
+
+  .list, button, .secondary-btn, .quiz-board{
     max-width: 95vw;
   }
 
@@ -443,7 +645,6 @@ button:focus-visible{
 </head>
 <body>
 
-<!-- ================= TEST 1: ORDER ================= -->
 <section id="test1-section">
     <h1>Test 1: Order the Figures</h1>
     <p class="instructions">Drag and drop the names into the correct chronological order.</p>
@@ -451,10 +652,9 @@ button:focus-visible{
     <button id="submit-test1">Submit</button>
 </section>
 
-<!-- ================= TEST 2: MATCH WORKS ================= -->
 <section id="test2-section" class="hidden">
     <h1>Test 2: Match Figures to Their Works</h1>
-    <p class="instructions">Drag the work onto the correct figure to form a link.</p>
+    <p class="instructions">Drag each work onto the correct figure to draw a connection.</p>
     <div class="matching-container" id="matching-container-works">
         <svg class="link-canvas" id="canvas-works"></svg>
         <div class="matching-column">
@@ -467,29 +667,43 @@ button:focus-visible{
     <button id="submit-test2">Submit</button>
 </section>
 
-<!-- ================= TEST 3: MATCH BIRTHDAYS ================= -->
 <section id="test3-section" class="hidden">
-    <h1>Test 3: Match Figures to Birthdays</h1>
-    <p class="instructions">Drag the birthday onto the correct figure to form a link.</p>
-    <div class="matching-container" id="matching-container-bday">
-        <svg class="link-canvas" id="canvas-bday"></svg>
-        <div class="matching-column">
-            <ul class="list" id="people-list-bday"></ul>
+    <h1>Test 3: Assign the Birthdays</h1>
+    <p class="instructions">Tap a birthday on the left, then tap the figure you want to assign it to.</p>
+
+    <div class="tap-match-shell">
+        <div class="choice-bank">
+            <div class="panel-title">Birthdays</div>
+            <div class="choice-grid" id="birthday-choices"></div>
         </div>
-        <div class="matching-column">
-            <ul class="list" id="birthdays-list"></ul>
+
+        <div class="assign-board">
+            <div class="panel-title">Assignments</div>
+            <div class="assignment-list" id="birthday-assignment-list"></div>
+            <button class="secondary-btn" id="clear-birthday-assignments" type="button">Clear All</button>
         </div>
     </div>
+
     <button id="submit-test3">Submit</button>
 </section>
 
-<!-- ================= FINAL ================= -->
-<section id="final-section" class="hidden">
-    <h1>Perfect! Course Completed</h1>
-    <p style="text-align:center;color:#eee;">You successfully passed all tests.</p>
+<section id="test4-section" class="hidden">
+    <h1>Test 4: Choose the Passing Year</h1>
+    <p class="instructions">For each figure, choose the correct passing year from the dropdown.</p>
+
+    <div class="quiz-board">
+        <div class="panel-title">Final Round</div>
+        <div class="quiz-list" id="passing-quiz-list"></div>
+    </div>
+
+    <button id="submit-test4">Submit</button>
 </section>
 
-<!-- ================= OVERLAY ================= -->
+<section id="final-section" class="hidden">
+    <h1>Perfect! Course Completed</h1>
+    <p>You successfully passed all four tests.</p>
+</section>
+
 <div class="overlay" id="result-overlay">
     <div class="overlay-content">
         <h3 id="overlay-title"></h3>
@@ -498,267 +712,6 @@ button:focus-visible{
     </div>
 </div>
 
-<script>
-// ================= DATA =================
-const PEOPLE = ["Alter Rebbe","Mitteler Rebbe","Tzemach Tzedek","Rebbe Maharash","Rebbe Rashab","Frierdiker Rebbe","Lubavitcher Rebbe"];
-const CORRECT_ORDER = [...PEOPLE];
-const WORKS = {
-    "Alter Rebbe":"Tanya",
-    "Mitteler Rebbe":"Kuntres Hahispaalus",
-    "Tzemach Tzedek":"Derech Mitzvosecha",
-    "Rebbe Maharash":"Likkutei Torah Toras Shmuel",
-    "Rebbe Rashab":"Kuntres Haavodah",
-    "Frierdiker Rebbe":"Likutei Diburim",
-    "Lubavitcher Rebbe":"Hayom Yom"
-}
-const BIRTHDAYS = {
-    "Alter Rebbe":"18 Elul",
-    "Mitteler Rebbe":"9 Kislev",
-    "Tzemach Tzedek":"29 Elul",
-    "Rebbe Maharash":"2 Iyar",
-    "Rebbe Rashab":"20 Cheshvan",
-    "Frierdiker Rebbe":"12 Tammuz",
-    "Lubavitcher Rebbe":"11 Nissan"
-}
-
-// ================= UTILS =================
-function shuffle(arr){return arr.map(a=>({sort:Math.random(),value:a})).sort((a,b)=>a.sort-b.sort).map(a=>a.value);}
-function showOverlay(title,msg,btnLabel,onClick){
-    const overlayContent = document.querySelector(".overlay-content");
-    overlayContent.classList.remove("success", "error");
-    
-    // Add success or error class based on title
-    if(title.includes("Perfect") || title.includes("Excellent") || title.includes("Fantastic")) {
-        overlayContent.classList.add("success");
-    } else {
-        overlayContent.classList.add("error");
-    }
-    
-    document.getElementById("overlay-title").textContent=title;
-    document.getElementById("overlay-message").textContent=msg;
-    const btn=document.getElementById("overlay-btn");
-    btn.textContent=btnLabel;
-    btn.onclick=()=>{document.getElementById("result-overlay").style.display="none";if(onClick) onClick();};
-    document.getElementById("result-overlay").style.display="flex";
-}
-function enableDragging(list,callback){
-    let draggedEl=null;
-    list.querySelectorAll(".list-item").forEach(item=>{
-        item.addEventListener("dragstart",()=>{draggedEl=item;item.classList.add("dragging");});
-        item.addEventListener("dragend",()=>{draggedEl=null;item.classList.remove("dragging");});
-        item.addEventListener("dragover",e=>{e.preventDefault();});
-        item.addEventListener("drop",()=>{if(draggedEl!==item && callback) callback(draggedEl,item);});
-    });
-}
-
-// Function to draw links between matched items
-function drawLinks(canvasId, peopleListId, itemsListId, dataAttr) {
-    const canvas = document.getElementById(canvasId);
-    const peopleList = document.getElementById(peopleListId);
-    const itemsList = document.getElementById(itemsListId);
-    
-    if (!canvas || !peopleList || !itemsList) return;
-    
-    canvas.innerHTML = '';
-    
-    const container = canvas.parentElement;
-    const containerRect = container.getBoundingClientRect();
-    canvas.setAttribute('width', containerRect.width);
-    canvas.setAttribute('height', containerRect.height);
-    
-    [...peopleList.children].forEach(personLi => {
-        const linkedValue = personLi.dataset[dataAttr];
-        if (!linkedValue) return;
-        
-        const itemLi = [...itemsList.children].find(li => 
-            li.querySelector('.item-text').textContent === linkedValue
-        );
-        if (!itemLi) return;
-        
-        const personRect = personLi.getBoundingClientRect();
-        const itemRect = itemLi.getBoundingClientRect();
-        
-        const x1 = personRect.right - containerRect.left;
-        const y1 = personRect.top + personRect.height / 2 - containerRect.top;
-        const x2 = itemRect.left - containerRect.left;
-        const y2 = itemRect.top + itemRect.height / 2 - containerRect.top;
-        
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', x1);
-        line.setAttribute('y1', y1);
-        line.setAttribute('x2', x2);
-        line.setAttribute('y2', y2);
-        line.setAttribute('stroke', '#667eea');
-        line.setAttribute('stroke-width', '3');
-        line.setAttribute('stroke-linecap', 'round');
-        canvas.appendChild(line);
-    });
-}
-
-// ================= TEST 1 =================
-const list1=document.getElementById("list1");
-function fillTest1(){
-    list1.innerHTML="";
-    shuffle(PEOPLE).forEach((name,i)=>{
-        const li=document.createElement("li");
-        li.className="list-item";
-        li.draggable=true;
-        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-number">${i+1}</span><span class="item-text">${name}</span>`;
-        list1.appendChild(li);
-    });
-    enableDragging(list1,(dragged,target)=>{
-        const children=[...list1.children];
-        const dragIdx=children.indexOf(dragged);
-        const tgtIdx=children.indexOf(target);
-        if(dragIdx<tgtIdx) target.after(dragged); else target.before(dragged);
-        children.forEach((c,i)=>c.querySelector(".item-number").textContent=i+1);
-    });
-}
-fillTest1();
-document.getElementById("submit-test1").onclick=()=>{
-    const answers=[...document.querySelectorAll("#list1 .item-text")].map(span=>span.textContent.trim());
-    const correct=JSON.stringify(answers)===JSON.stringify(CORRECT_ORDER);
-    showOverlay(correct?"Perfect!":"Try Again",
-                correct?`All correct (${answers.length}/${CORRECT_ORDER.length})`:`Some incorrect (${answers.filter((v,i)=>v===CORRECT_ORDER[i]).length}/${CORRECT_ORDER.length})`,
-                correct?"Continue":"Try Again",
-                ()=>{if(correct){document.getElementById("test2-section").classList.remove("hidden");document.getElementById("test2-section").scrollIntoView({behavior:"smooth"});buildMatchingTest();} else fillTest1();});
-};
-
-// ================= TEST 2 =================
-function buildMatchingTest(){
-    const peopleList=document.getElementById("people-list");
-    const worksList=document.getElementById("works-list");
-    peopleList.innerHTML=""; worksList.innerHTML="";
-    
-    // People on the left (not draggable)
-    PEOPLE.forEach(person=>{
-        const li=document.createElement("li"); 
-        li.className="list-item"; 
-        li.draggable=false;
-        li.innerHTML=`<span class="item-text">${person}</span>`;
-        li.dataset.linkedWork="";
-        peopleList.appendChild(li);
-    });
-    
-    // Works on the right (draggable)
-    shuffle(Object.values(WORKS)).forEach(work=>{
-        const li=document.createElement("li"); 
-        li.className="list-item"; 
-        li.draggable=true;
-        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-text">${work}</span>`;
-        worksList.appendChild(li);
-    });
-    
-    // Enable dragging from works to people
-    let draggedWork = null;
-    
-    worksList.querySelectorAll(".list-item").forEach(item => {
-        item.addEventListener("dragstart", () => {
-            draggedWork = item;
-            item.classList.add("dragging");
-        });
-        item.addEventListener("dragend", () => {
-            draggedWork = null;
-            item.classList.remove("dragging");
-        });
-    });
-    
-    peopleList.querySelectorAll(".list-item").forEach(personItem => {
-        personItem.addEventListener("dragover", e => {
-            e.preventDefault();
-            personItem.classList.add("drag-over");
-        });
-        personItem.addEventListener("dragleave", () => {
-            personItem.classList.remove("drag-over");
-        });
-        personItem.addEventListener("drop", () => {
-            personItem.classList.remove("drag-over");
-            if (draggedWork) {
-                const workText = draggedWork.querySelector(".item-text").textContent;
-                personItem.dataset.linkedWork = workText;
-                drawLinks('canvas-works', 'people-list', 'works-list', 'linkedWork');
-            }
-        });
-    });
-}
-
-document.getElementById("submit-test2").onclick=()=>{
-    const peopleList=document.getElementById("people-list");
-    const results=[...peopleList.children].map(li=>li.dataset.linkedWork===WORKS[li.querySelector(".item-text").textContent]);
-    const correctCount=results.filter(r=>r).length;
-    const total=PEOPLE.length;
-    const passed=correctCount===total;
-    showOverlay(passed?"Excellent!":"Incorrect",`${correctCount}/${total} correct (${Math.round(correctCount/total*100)}%)`,passed?"Continue":"Try Again",
-                ()=>{if(passed){document.getElementById("test3-section").classList.remove("hidden");setTimeout(()=>{document.getElementById("test3-section").scrollIntoView({behavior:"smooth"});},50);buildBirthdayTest();} else buildMatchingTest();});
-};
-
-// ================= TEST 3 =================
-function buildBirthdayTest(){
-    const peopleList=document.getElementById("people-list-bday");
-    const bdayList=document.getElementById("birthdays-list");
-    peopleList.innerHTML=""; bdayList.innerHTML="";
-    
-    // People on the left (not draggable)
-    PEOPLE.forEach(person=>{
-        const li=document.createElement("li"); 
-        li.className="list-item"; 
-        li.draggable=false;
-        li.innerHTML=`<span class="item-text">${person}</span>`;
-        li.dataset.linkedBday="";
-        peopleList.appendChild(li);
-    });
-    
-    // Birthdays on the right (draggable)
-    shuffle(Object.values(BIRTHDAYS)).forEach(bday=>{
-        const li=document.createElement("li"); 
-        li.className="list-item"; 
-        li.draggable=true;
-        li.innerHTML=`<span class="drag-handle">⋮⋮</span><span class="item-text">${bday}</span>`;
-        bdayList.appendChild(li);
-    });
-    
-    // Enable dragging from birthdays to people
-    let draggedBday = null;
-    
-    bdayList.querySelectorAll(".list-item").forEach(item => {
-        item.addEventListener("dragstart", () => {
-            draggedBday = item;
-            item.classList.add("dragging");
-        });
-        item.addEventListener("dragend", () => {
-            draggedBday = null;
-            item.classList.remove("dragging");
-        });
-    });
-    
-    peopleList.querySelectorAll(".list-item").forEach(personItem => {
-        personItem.addEventListener("dragover", e => {
-            e.preventDefault();
-            personItem.classList.add("drag-over");
-        });
-        personItem.addEventListener("dragleave", () => {
-            personItem.classList.remove("drag-over");
-        });
-        personItem.addEventListener("drop", () => {
-            personItem.classList.remove("drag-over");
-            if (draggedBday) {
-                const bdayText = draggedBday.querySelector(".item-text").textContent;
-                personItem.dataset.linkedBday = bdayText;
-                drawLinks('canvas-bday', 'people-list-bday', 'birthdays-list', 'linkedBday');
-            }
-        });
-    });
-}
-
-document.getElementById("submit-test3").onclick=()=>{
-    const peopleList=document.getElementById("people-list-bday");
-    const results=[...peopleList.children].map(li=>li.dataset.linkedBday===BIRTHDAYS[li.querySelector(".item-text").textContent]);
-    const correctCount=results.filter(r=>r).length;
-    const total=PEOPLE.length;
-    const passed=correctCount===total;
-    showOverlay(passed?"Fantastic!":"Incorrect",`${correctCount}/${total} correct (${Math.round(correctCount/total*100)}%)`,passed?"Continue":"Try Again",
-                ()=>{if(passed){document.getElementById("final-section").classList.remove("hidden");document.getElementById("final-section").scrollIntoView({behavior:"smooth"});} else buildBirthdayTest();});
-};
-</script>
+<script src="test.js"></script>
 </body>
 </html>
