@@ -938,10 +938,17 @@
       password
     });
 
-    if (error){
-      showStatus(error.message, "error");
-      return;
-    }
+if (error){
+  let message = error.message;
+
+  // Override password validation message
+  if (message.toLowerCase().includes("password")) {
+    message = "Please include an uppercase letter, a lowercase letter, a number and a special character.";
+  }
+
+  showStatus(message, "error");
+  return;
+}
 
     if (data?.session){
       isLoggedIn = true;
