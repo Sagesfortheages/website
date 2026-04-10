@@ -246,6 +246,14 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     const titleEl = document.getElementById("title-content");
     if (titleEl) titleEl.innerHTML = `${selected.person || ''} ${selected.person_hebrew ? '- ' + selected.person_hebrew : ''}`;
 
+    const akaEl = document.getElementById("aka-content");
+
+    if (akaEl) {
+    akaEl.innerHTML = selected.aka
+        ? `${selected.aka.split(",").map(name => name.trim()).join(" | ")}`
+        : "";
+    }
+
     const nameEl = document.getElementById("name-content");
     if (nameEl) nameEl.innerHTML = selected.name ? `R ${selected.name} ${selected.name_hebrew ? "- ר' " + selected.name_hebrew : ""}` : '';
     if (selected.name && selected.name != "NaN") {
@@ -256,20 +264,23 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
 
     const yearsEl = document.getElementById("years-content");
     if (selected.birth && selected.birth !== 'NaN' && selected.passing && selected.passing != 'NaN') {
-        yearsEl.innerHTML = `${selected.birth} - ${selected.passing}`;
+        yearsEl.innerHTML = `🕰️${selected.birth} - ${selected.passing}`;
     } else if (yearsEl) {
         yearsEl.style.display = "none";
     }
 
+    yearsEl.addEventListener("click", () => {
+        window.location.href=`time.html?person=${encodeURIComponent(selected.person)}`})
+
     const birthdayEl = document.getElementById("birthday-content");
-    if (selected.birthday && selected.birthday != "NaN") {
+    if (selected.birthday && selected.birthday != "NaN" && selected.birthday != 0) {
         birthdayEl.innerHTML = `🎂${selected.birthday}`;
     } else if (birthdayEl) {
         birthdayEl.style.display = "none";
     }
 
     const yahrtzeitEl = document.getElementById("yahrtzeit-content");
-    if (selected.yahrtzeit && selected.yahrtzeit != "NaN") {
+    if (selected.yahrtzeit && selected.yahrtzeit != "NaN" && selected.yahrtzeit.toLowerCase() != "not found") {
         yahrtzeitEl.innerHTML = `🕯️${selected.yahrtzeit}`;
     } else if (yahrtzeitEl) {
         yahrtzeitEl.style.display = "none";
@@ -279,6 +290,12 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     if (bgEl) {
         bgEl.innerHTML = selected.background || "";
         bgEl.style.color = getColor(selected.background || "");
+        bgEl.classList.add("clickable");
+
+        bgEl.addEventListener("click", () => {
+            window.location.href =
+                "analyze.html?background=" + encodeURIComponent(selected.background || "");;
+        });
     }
 
     const bioEl = document.getElementById("biography-content");
@@ -312,27 +329,42 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     }
 
     const expertiseList = document.getElementById("expertise-list-content");
-    if (expertiseList) {
-        expertiseList.innerHTML = "";
-        const exs = selected.expertise || [];
-        if (Array.isArray(exs)) {
-            exs.forEach(e => {
-                const text = (typeof e === 'string') ? e : (e.expertise || '');
-                if (!text) return;
-                const li = document.createElement("li");
-                li.classList.add("focus");
-                li.textContent = text;
-                expertiseList.appendChild(li);
-            });
-        } else if (typeof exs === 'string') {
-            exs.split(',').map(s => s.trim()).filter(Boolean).forEach(text => {
-                const li = document.createElement("li");
-                li.classList.add("focus");
-                li.textContent = text;
-                expertiseList.appendChild(li);
-            });
-        }
+
+if (expertiseList) {
+    expertiseList.innerHTML = "";
+
+    const exs = selected.expertise || [];
+
+    const addFocusItem = (text) => {
+        if (!text) return;
+
+        const li = document.createElement("li");
+        li.classList.add("focus");
+        li.classList.add("clickable");
+        li.textContent = text;
+        li.style.cursor = "pointer";
+
+        li.addEventListener("click", () => {
+            window.location.href =
+                "analyze.html?focus=" + encodeURIComponent(text);
+        });
+
+        expertiseList.appendChild(li);
+    };
+
+    if (Array.isArray(exs)) {
+        exs.forEach(e => {
+            const text = typeof e === "string" ? e : (e.expertise || "");
+            addFocusItem(text);
+        });
+    } else if (typeof exs === "string") {
+        exs
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean)
+            .forEach(addFocusItem);
     }
+}
 
     const teachersContainer = document.getElementById("teachers-content");
     if (teachersContainer) {
@@ -531,6 +563,7 @@ fetchSelectedSage(selectedPerson).then(async sage => {
     if (!sage) return;
 
     const selectedArray = sage.selected;
+    console.log(selectedArray)
     const mainSelected = selectedArray[0] || {};
     const relatedSages = sage.relatedSages || { teachers: [], students: [], all: [] };
 
@@ -697,6 +730,7 @@ function startSequence(filteredMarkers, runId) {
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
 
+
 document.getElementById("info-button").addEventListener("click", startTour);
 
 document.addEventListener('mouseover', handleHoverPopup);
@@ -708,4 +742,18 @@ document.addEventListener('mouseout', (event) => {
     if (event.target.classList.contains('popup-button')) {
         popup.classList.remove('visible');
     }
+});
+
+document.addEventListener('click', (event) => {
+    const markerEl = event.target.closest('.popup-button');
+    if (!markerEl) return;
+
+    const city = markerEl.dataset.city;
+    const country = markerEl.dataset.country;
+
+    if (!city) return;
+
+    window.location.href =
+        `locate.html?city=${encodeURIComponent(city)}` +
+        (country ? `&country=${encodeURIComponent(country)}` : '');
 });

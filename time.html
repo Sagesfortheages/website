@@ -181,18 +181,34 @@
             box-shadow: 0 4px 12px rgba(238, 90, 82, 0.4);
         }
 
-/* bar flash */
+/* =========================
+   TIMELINE HIGHLIGHT FLASH
+   ========================= */
+
 .bar.flash {
-  stroke: #3f2a22;          /* your title ink */
-  stroke-width: 3px;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
+  stroke: #2f241b;
+  stroke-width: 0.6vmin;
+  opacity: 1 !important;
+  filter:
+    brightness(1.18)
+    saturate(1.18)
+    drop-shadow(0 0 1.2vmin rgba(255, 215, 120, 0.85))
+    drop-shadow(0 0 2.2vmin rgba(255, 215, 120, 0.55))
+    drop-shadow(0 0.8vmin 1.4vmin rgba(0, 0, 0, 0.28));
+  transition: all 0.25s ease;
 }
 
-/* label flash */
 .y-label.flash {
-  font-weight: 800;
-  fill: #3f2a22;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.25); /* mostly works in SVG text */
+  font-weight: 900;
+  fill: #1f140f !important;
+  font-size: 2.6vmin;
+  letter-spacing: 0.08vmin;
+
+  filter:
+    drop-shadow(0 0 0.9vmin rgba(255, 220, 140, 0.85))
+    drop-shadow(0 0 1.6vmin rgba(255, 220, 140, 0.55));
+
+  transition: all 0.22s ease;
 }
 
 

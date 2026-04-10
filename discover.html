@@ -208,14 +208,15 @@
 
 
         .clickable {
-            color: #4a69bd;
+            color: var(--classy-blue-ink) !important;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
 
         .clickable:hover {
-            color: #2c3e50;
+            color: rgb(13, 107, 201) !important;
         }
 
         #map {
@@ -476,7 +477,7 @@ white-space: nowrap;
             <h1>
                 <span class="gradient-text" id="title-content"></span>
             </h1>
-            <p class="subtitle" id="years-content"></p>
+            <p class="subtitle" id="aka-content"></p>
         </div>
         <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
         <button class="modern-button" id="info-button">ℹ️</button>
@@ -494,6 +495,7 @@ white-space: nowrap;
                         <div>
                             <p id="name-content"></p>
                             <p id="background-content"></p>
+                            <p id="years-content" class="clickable">🕰️</p>
                             <p id="birthday-content">🎂</p>
                             <p id="yahrtzeit-content">🕯</p>
                             <p id="teachers-content">▲</p>

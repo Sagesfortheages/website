@@ -121,6 +121,8 @@ window.displayMarkers = function(markersData, visibleMarkers, visibleMarkersPeop
 
 
         el.classList.add('popup-button')
+        el.dataset.city = marker.city || "";
+        el.dataset.country = marker.country || "";
         el.dataset.message = `<strong>${marker.person}</strong>: ${marker.city}, ${marker.country}<br> ${marker.from}-${marker.to}`
         if (useDurationSizing) {
 

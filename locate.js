@@ -71,6 +71,32 @@ let countriesList = document.getElementById('country-list');
 // Fetch cities and markers from DB
 // =====================
 
+function applyCityFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+
+    const cityParam = params.get('city');
+    const countryParam = params.get('country');
+
+    if (!cityParam) return;
+
+    const matchedCities = cities.filter(city => {
+        const cityMatches = (city.city || '').toLowerCase() === cityParam.toLowerCase();
+        const countryMatches = !countryParam || (city.country || '').toLowerCase() === countryParam.toLowerCase();
+        return cityMatches && countryMatches;
+    });
+
+    if (!matchedCities.length) return;
+
+    const selectedCity = matchedCities[0].city;
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = selectedCity;
+    }
+
+    handleCityClick(selectedCity, cities);
+}
+
 async function loadData() {
     try {
         // Fetch cities and sages in parallel
@@ -87,6 +113,7 @@ async function loadData() {
 
         // Initialize your UI with the loaded data
         initUI();
+        applyCityFromUrl();
     } catch (err) {
         console.error("Error loading data:", err);
     }

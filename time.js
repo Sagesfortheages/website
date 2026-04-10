@@ -41,7 +41,20 @@ async function initializeSages() {
     ];
     allPeople.sort((a, b) => a.person.localeCompare(b.person));
 
-    renderChart(); 
+    renderChart();
+
+    const params = new URLSearchParams(window.location.search);
+    const personFromUrl = params.get("person");
+
+    if (personFromUrl) {
+    const searchInput = document.getElementById("search-input");
+
+    if (searchInput) {
+        searchInput.value = personFromUrl;
+    }
+
+    scrollToPerson(personFromUrl);
+    }
 }
 
 // ===================== FILTERING & SORTING =====================
@@ -358,11 +371,11 @@ function scrollToPerson(personName) {
     setTimeout(() => {
     d3.selectAll('.bar').classed('flash', false);
     d3.selectAll('.y-label').classed('flash', false);
-    }, 900);
+    }, 2500);
 
   setTimeout(() => {
     d3.selectAll('.bar').classed('flash', false);
-  }, 1500);
+  }, 2500);
 }
 
 // ===================== TEXT WRAP =====================

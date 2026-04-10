@@ -267,7 +267,7 @@ async function loadMarkers() {
 
         initializeUI();
         await loadMusic(supabaseClient, "StockTune-Epic Voyage Through Time_1765329202.mp3");
-        displayMarkers(markers, visibleMarkers, visibleMarkersPeople);
+        filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
 
     } catch (error) {
         console.error('Error loading markers:', error);
@@ -369,7 +369,91 @@ function startTour() {
 
     intro.start();
 }
+function applyFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search);
 
+    // supports:
+    // ?focus=Tanach
+    // ?focus=Tanach,Halacha
+    // ?focus=Tanach&focus=Halacha
+    const rawFocusParams = params.getAll('focus');
+    const focusValues = rawFocusParams
+        .flatMap(value => value.split(','))
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    // supports:
+    // ?background=Litvish
+    // ?background=Litvish,Chassidic
+    // ?background=Litvish&background=Chassidic
+    const rawBackgroundParams = params.getAll('background');
+    const backgroundValues = rawBackgroundParams
+        .flatMap(value => value.split(','))
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    const expertiseItems = [
+        'tanach', 'talmud', 'halacha', 'responsa', 'kabbalah',
+        'chassidus', 'mussar', 'philosophy', 'linguistics',
+        'poetry', 'history'
+    ];
+
+    const backgroundItems = [
+        'sefarad', 'ashkenaz', 'provence', 'chassidic',
+        'litvish', 'gaon', 'italian'
+    ];
+
+    focusValues.forEach(focus => {
+        const normalizedFocus = focus.toLowerCase();
+
+        const matchedItem = expertiseItems.find(item => item.toLowerCase() === normalizedFocus);
+        if (!matchedItem) return;
+
+        const filterName = matchedItem.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
+        const expertiseId = matchedItem + '-expertise';
+        const button = document.getElementById(expertiseId);
+
+        if (!button) return;
+
+        button.classList.add('filter-clicked');
+
+        if (!expertises.includes(filterName)) {
+            expertises.push(filterName);
+        }
+    });
+
+    backgroundValues.forEach(background => {
+        const normalizedBackground = background.toLowerCase();
+
+        const matchedItem = backgroundItems.find(item => item.toLowerCase() === normalizedBackground);
+        if (!matchedItem) return;
+
+        const filterName = matchedItem.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
+        const legendId = matchedItem + '-legend';
+        const button = document.getElementById(legendId);
+
+        if (!button) return;
+
+        button.classList.add('filter-clicked');
+
+        if (!backgrounds.includes(filterName)) {
+            backgrounds.push(filterName);
+        }
+    });
+
+    // only run filtering if at least one URL filter was supplied
+    if (focusValues.length || backgroundValues.length) {
+        filterMarkers(
+            markers,
+            visibleMarkers,
+            visibleMarkersPeople,
+            backgrounds,
+            expertises,
+            uniqueness,
+            birthPlace
+        );
+    }
+}
 
 function initializeUI() {
     document.getElementById('search-input').addEventListener('input', function (event) {
@@ -463,6 +547,8 @@ function initializeUI() {
             popup.classList.remove('visible');
         }
     });
+
+    applyFiltersFromUrl();
 }
 
 
