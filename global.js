@@ -1,5 +1,5 @@
 (window.location.pathname)
-mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNsdDJibGM4NjFqYXEyam8xd2Vndnk1bXcifQ.reIp2txrTni6K6crcHUWLQ'; //pk.eyJ1IjoibXJWLQ
+mapboxgl.accessToken = 'pk.eyJ1IjoibXJvc2VuNzcwIiwiYSI6ImNtbzVhcXA4dTFubmIycW9sM3VuOWQ5eGoifQ.i1CI34z8l6Au4StrVb54pA'; //pk.eyJ1IjoibXJWLQ
 
 // Detect mobile-sized screen
 const isMobile = window.innerWidth <= 768;
