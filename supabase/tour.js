@@ -4,14 +4,17 @@ export async function getTour(filters = {}) {
   const start = performance.now();
 
   let query = supabaseClient
-    .from('tour')
+    .from('tour_event')
     .select(`
       text,
       year,
       duration,
       zoom,
       icon,
-      tour,
+      tour:tour_id!inner (
+        tour_id,
+        tour_name
+      ),
       city:city (
         city,
         country,
@@ -20,10 +23,10 @@ export async function getTour(filters = {}) {
       )
     `);
 
-  // Apply filters if they exist
   if (filters.tour) {
-    query = query.eq('tour', filters.tour);
+    query = query.eq('tour.tour_name', filters.tour);
   }
+
   if (filters.category) {
     query = query.eq('category', filters.category);
   }
@@ -32,17 +35,22 @@ export async function getTour(filters = {}) {
 
   if (error) throw new Error(error.message);
 
+  const normalizedData = (data || []).map(row => ({
+    ...row,
+    tour_id: row.tour?.tour_id ?? null,
+    tour_name: row.tour?.tour_name ?? null
+  }));
+
   const duration = (performance.now() - start) / 1000;
 
   return {
-    data,
+    data: normalizedData,
     meta: {
       duration_seconds: duration.toFixed(4),
-      count: data.length
+      count: normalizedData.length
     }
   };
 }
-
 
 export async function getTourSages(filters = {}) {
   const start = performance.now();
@@ -51,28 +59,32 @@ export async function getTourSages(filters = {}) {
   console.log('filters:', filters);
 
   let tourQuery = supabaseClient
-    .from('tour_tag')
-    .select('person');
+    .from('tour_sage')
+    .select(`
+      person,
+      tour:tour_id!inner (
+        tour_id,
+        tour_name
+      )
+    `);
 
-  console.log('Initial tourQuery created for table: tour_tag');
+  console.log('Initial tourQuery created for table: tour_sage');
 
   if (filters.tour) {
     console.log('Applying tour filter:', filters.tour);
-    tourQuery = tourQuery.eq('tour', filters.tour);
+    tourQuery = tourQuery.eq('tour.tour_name', filters.tour);
   } else {
     console.log('No tour filter provided');
   }
 
   const { data: tourData, error: tourError } = await tourQuery;
 
-
   if (tourError) {
     console.error('Error in tourQuery:', tourError);
     throw new Error(tourError.message);
   }
 
-  const sageIds = [...new Set(tourData.map(row => row.person))];
-
+  const sageIds = [...new Set((tourData || []).map(row => row.person))];
 
   if (sageIds.length === 0) {
     const duration = (performance.now() - start) / 1000;
@@ -82,7 +94,8 @@ export async function getTourSages(filters = {}) {
       meta: {
         duration_seconds: duration.toFixed(4),
         count: 0
-      }
+      },
+      sageIds: []
     };
   }
 
@@ -90,7 +103,6 @@ export async function getTourSages(filters = {}) {
     .from('sages_with_dwellings')
     .select('*')
     .in('person', sageIds);
-
 
   if (filters.year) {
     console.log('Applying year filter:', filters.year);
