@@ -28,13 +28,13 @@ function normalizeDisplayName(value) {
 }
 
 function generateSecurePin(length = 6) {
-  const digits = new Uint32Array(length);
-  crypto.getRandomValues(digits);
-
+  const bytes = crypto.randomBytes(length);
   let pin = '';
+
   for (let i = 0; i < length; i++) {
-    pin += (digits[i] % 10).toString();
+    pin += (bytes[i] % 10).toString();
   }
+
   return pin;
 }
 

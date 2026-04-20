@@ -1,4 +1,5 @@
 import { supabaseClient } from './supabase/supabaseClient.js';
+import crypto from 'crypto'
 
 async function createStudent(e) {
   e?.preventDefault();
@@ -21,7 +22,7 @@ async function createStudent(e) {
       throw new Error('No logged-in teacher session found.');
     }
 
-    const res = await fetch('https://websiteauto.vercel.app/api/create-student', {
+    const res = await fetch('https://websiteauto.vercel.app/api/create_student', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
