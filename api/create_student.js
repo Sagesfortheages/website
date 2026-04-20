@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto'
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
