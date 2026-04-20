@@ -22,7 +22,7 @@ async function createStudent(e) {
       throw new Error('No logged-in teacher session found.');
     }
 
-    const res = await fetch('/api/create-student', {
+    const res = await fetch('/api/create_student', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
