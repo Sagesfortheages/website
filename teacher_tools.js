@@ -22,7 +22,7 @@ async function createStudent(e) {
       throw new Error('No logged-in teacher session found.');
     }
 
-    const res = await fetch('https://websiteauto.vercel.app/api/create_student', {
+    const res = await fetch('/api/create-student', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
