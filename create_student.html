@@ -1,32 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teacher Tools</title>
-</head>
-<body>
-  <h1>Teacher Tools</h1>
+<link rel="stylesheet" href="all_styles.css" />
+<link rel="stylesheet" href="create_student.css" />
 
-  <div>
-    <label>Class ID</label>
-    <input id="class-id" type="number" />
+<div class="header-section">
+  <div class="header">
+    <h1>
+      <span class="emoji">🧑‍🎓</span>
+      <span class="gradient-text">Create Student</span>
+    </h1>
+    <p class="subtitle">Create a student login for your class.</p>
+    <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
   </div>
+</div>
 
-  <div>
-    <label>Student Display Name</label>
-    <input id="student-name" type="text" />
-  </div>
+<main class="create-student-wrap">
+  <section class="create-student-card">
+    <div class="create-student-head">
+      <div class="rule"></div>
+      <h2>Teacher Tools</h2>
+      <div class="rule"></div>
+    </div>
 
-  <div>
-    <label>Student Username</label>
-    <input id="student-username" type="text" />
-  </div>
+    <div class="create-student-form">
+      <div class="field-group">
+        <label class="field-label" for="class-id">Class ID</label>
+        <input id="class-id" class="search-input" type="number" />
+      </div>
 
-  <button type="button" id="create-student-btn">Create Student</button>
+      <div class="field-group">
+        <label class="field-label" for="student-name">Student Display Name</label>
+        <input id="student-name" class="search-input" type="text" />
+      </div>
 
-  <pre id="result"></pre>
+      <div class="field-group">
+        <label class="field-label" for="student-username">Student Username</label>
+        <input id="student-username" class="search-input" type="text" />
+        <div class="helper-text">Use lowercase letters, numbers, or underscores.</div>
+      </div>
 
-  <script type="module" src="teacher_tools.js"></script>
-</body>
-</html>
+      <div class="actions">
+        <button type="button" id="create-student-btn" class="cta-button sweep">
+          Create Student
+        </button>
+      </div>
+
+      <div class="result-wrap">
+        <div class="result-title">Result</div>
+        <pre id="result"></pre>
+      </div>
+    </div>
+  </section>
+</main>
