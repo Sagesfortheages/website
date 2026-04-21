@@ -1,0 +1,117 @@
+body {
+  overflow: hidden;
+}
+
+.login-wrap {
+  min-height: calc(100vh - var(--header-height) - 2vh);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3vh 2vw;
+}
+
+.login-card {
+  width: min(560px, 92vw);
+  background: var(--paper-strong);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 2.2vmin;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(47,79,79,0.04);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.section-head {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.2vmin;
+  margin-bottom: 1.4vmin;
+}
+
+.section-head h2 {
+  font-family: var(--font-ui);
+  font-size: clamp(15px, 2.5vmin, 20px);
+  letter-spacing: 0.06em;
+  color: var(--heading-ink);
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.section-head .rule {
+  height: 1px;
+  background: rgba(110,85,55,0.30);
+}
+
+.login-form {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.login-form label {
+  font-family: var(--font-ui);
+  font-size: clamp(13px, 2.1vmin, 16px);
+  color: var(--heading-ink);
+  letter-spacing: 0.03em;
+}
+
+.login-form .search-input {
+  width: 100%;
+  margin: 0;
+  font-size: clamp(15px, 2.2vmin, 18px);
+}
+
+#student-login-btn {
+  margin-top: 0.6rem;
+  justify-self: center;
+  min-width: 220px;
+}
+
+.login-status {
+  min-height: 1.5em;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: clamp(14px, 2.1vmin, 17px);
+  color: var(--ink-soft);
+  margin-top: 0.4rem;
+}
+
+.login-status.error {
+  color: rgba(140,40,40,0.95);
+  font-weight: 600;
+}
+
+.login-status.success {
+  color: rgba(47,79,79,0.95);
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .login-wrap {
+    padding: 2vh 4vw;
+  }
+
+  .login-card {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  #student-login-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}

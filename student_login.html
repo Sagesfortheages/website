@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login</title>
+  <link rel="stylesheet" href="all_styles.css" />
+  <link rel="stylesheet" href="student_login.css" />
+</head>
+<body>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">🎓</span>
+        <span class="gradient-text">Student Login</span>
+      </h1>
+      <p class="subtitle">Enter your class code, username, and PIN.</p>
+
+      <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+    </div>
+  </div>
+
+  <main class="login-wrap">
+    <section class="login-card">
+      <div class="section-head">
+        <div class="rule"></div>
+        <h2>Sign In</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="login-form">
+        <label for="class-code">Class Code</label>
+        <input id="class-code" class="search-input" type="text" autocomplete="off" />
+
+        <label for="username">Username</label>
+        <input id="username" class="search-input" type="text" autocomplete="username" />
+
+        <label for="pin">PIN</label>
+        <input id="pin" class="search-input" type="password" inputmode="numeric" autocomplete="current-password" />
+
+        <button id="student-login-btn" class="cta-button sweep" type="button">
+          Sign In
+        </button>
+
+        <div id="login-status" class="login-status" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabaseClient } from './supabase/supabaseClient.js';
+
+    const classCodeEl = document.getElementById('class-code');
+    const usernameEl = document.getElementById('username');
+    const pinEl = document.getElementById('pin');
+    const buttonEl = document.getElementById('student-login-btn');
+    const statusEl = document.getElementById('login-status');
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle('error', isError);
+      statusEl.classList.toggle('success', !isError && !!message);
+    }
+
+    async function loginStudent() {
+      const classCode = classCodeEl.value.trim();
+      const username = usernameEl.value.trim();
+      const pin = pinEl.value.trim();
+
+      if (!classCode || !username || !pin) {
+        setStatus('Please fill in all fields.', true);
+        return;
+      }
+
+      buttonEl.disabled = true;
+      setStatus('Signing in...');
+
+      try {
+        const res = await fetch('/api/student_login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            classCode,
+            username,
+            pin
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Login failed');
+        }
+
+        const { session } = data;
+
+        const { error: setSessionError } = await supabaseClient.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token
+        });
+
+        if (setSessionError) {
+          throw setSessionError;
+        }
+
+        setStatus('Login successful.');
+
+        // Change this later to your student landing page
+        window.location.href = 'student_home.html';
+      } catch (err) {
+        setStatus(err.message || 'Login failed.', true);
+      } finally {
+        buttonEl.disabled = false;
+      }
+    }
+
+    buttonEl.addEventListener('click', loginStudent);
+
+    [classCodeEl, usernameEl, pinEl].forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loginStudent();
+      });
+    });
+  </script>
+</body>
+</html>
