@@ -95,12 +95,16 @@ export default async function handler(req, res) {
       .select('id, class_id, activity_type, target_sage_person, title, status, created_at')
       .single();
 
-    if (assignmentError || !assignment) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to create assignment'
-      });
-    }
+if (assignmentError || !assignment) {
+  return res.status(500).json({
+    success: false,
+    message: 'Failed to create assignment',
+    error: assignmentError?.message,
+    details: assignmentError?.details,
+    hint: assignmentError?.hint,
+    code: assignmentError?.code
+  });
+}
 
     return res.status(200).json({
       success: true,
