@@ -85,7 +85,32 @@ async function loadStudentHome() {
       err.message || 'Could not load student dashboard.';
     startActivityBtn.disabled = true;
   }
+
+  const { data: assignment, error: assignmentError } = await supabaseClient
+  .from('assignments')
+  .select('id, title, activity_type, target_sage_person, status, created_at')
+  .eq('class_id', studentRow.class_id)
+  .eq('status', 'active')
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .maybeSingle();
+
+  if (!assignment) {
+  studentStatusEl.textContent = 'No activity has been assigned yet.';
+  startActivityBtn.disabled = true;
+  return;
 }
+
+studentStatusEl.textContent = `Today’s activity: ${assignment.title}`;
+startActivityBtn.disabled = false;
+
+startActivityBtn.onclick = () => {
+  window.location.href = `play.html?assignment_id=${assignment.id}`;
+};
+}
+
+
+
 
 async function logoutStudent() {
   await supabaseClient.auth.signOut();
