@@ -2,9 +2,6 @@ import { loadAllSages } from './supabase/sagesWithNames.js';
 import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
-const params = new URLSearchParams(window.location.search);
-const assignmentId = params.get('assignment_id');
-
 // Global variables
 let markers = [];
 let uniqueNames = [];
@@ -20,6 +17,10 @@ const maxDifficulty = scale[difficultyLevel] ?? 5;
 let gameId = null;
 let gameReady = false;
 let isRevealRunning = false;
+
+const params = new URLSearchParams(window.location.search);
+const assignmentId = params.get('assignment_id');
+let currentAssignment = null;
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -350,6 +351,36 @@ function setupEventListeners() {
     document.addEventListener('mouseout', handleMouseOut);
 }
 
+async function loadAssignedCorrectAnswer() {
+    if (!assignmentId) return null;
+
+    const { data: assignment, error } = await supabaseClient
+        .from('assignments')
+        .select('id, title, activity_type, target_sage_person, status')
+        .eq('id', assignmentId)
+        .eq('status', 'active')
+        .single();
+
+    if (error || !assignment) {
+        console.error('Assignment load error:', error);
+        throw new Error('Assigned activity not found.');
+    }
+
+    currentAssignment = assignment;
+
+    const targetPerson = assignment.target_sage_person?.trim().toLowerCase();
+
+    const assignedAnswer = markers.find(marker =>
+        marker.person?.trim().toLowerCase() === targetPerson
+    );
+
+    if (!assignedAnswer) {
+        throw new Error(`Assigned sage not found in game data: ${assignment.target_sage_person}`);
+    }
+
+    return assignedAnswer;
+}
+
 async function startNewGame() {
     gameReady = false;
 
@@ -358,40 +389,16 @@ async function startNewGame() {
         return;
     }
 
-    let assignedCorrectAnswer = null;
+    const assignedCorrectAnswer = await loadAssignedCorrectAnswer();
 
-    if (assignmentId) {
-    const { data: assignment, error } = await supabaseClient
-        .from('assignments')
-        .select('id, target_sage_person')
-        .eq('id', assignmentId)
-        .eq('status', 'active')
-        .single();
-
-    if (error || !assignment) {
-        throw new Error('Assignment not found.');
-    }
-
-    // store the target name
-    const targetPerson = assignment.target_sage_person;
-
-    // map it to your sages data
-    assignedCorrectAnswer = allPeople.find(
-        (p) => p.person === targetPerson
-    );
-
-    if (!assignedCorrectAnswer) {
-        throw new Error('Assigned sage not found in dataset.');
-    }
-    }
-    let correctAnswer;
-    console.log(assignmentId)
-    if (assignmentId) {
-    correctAnswer = assignedCorrectAnswer;
-    console.log(correctAnswer)
+    if (assignedCorrectAnswer) {
+        correctAnswer = assignedCorrectAnswer;
     } else {
-    correctAnswer = pickRandomMarker(markers, difficultyLevel);;
+        correctAnswer = pickRandomMarker(markers, difficultyLevel);
     }
+
+    correctAnswer.expertise = normalizeExpertiseArray(correctAnswer.expertise);
+
     correctAnswer.expertise = normalizeExpertiseArray(correctAnswer.expertise);
 
     if (!correctAnswer) {
