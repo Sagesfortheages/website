@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sage Challenge</title>
+
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    body { overflow: hidden; }
+
+    .quiz-wrap{
+      min-height: calc(100vh - var(--header-height) - 2vh);
+      display:flex;
+      justify-content:center;
+      padding:2.5vh 2vw;
+    }
+
+    .quiz-card{
+      width:min(900px,94vw);
+      max-height:78vh;
+      overflow-y:auto;
+      background:var(--paper-strong);
+      border:1px solid var(--rule);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-soft);
+      padding:2vmin;
+      position:relative;
+    }
+
+    .quiz-head{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      gap:1.2vmin;
+      margin-bottom:1rem;
+    }
+
+    .quiz-head .rule{
+      height:1px;
+      background:rgba(110,85,55,0.30);
+    }
+
+    .quiz-head h2{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(16px,2.6vmin,23px);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .quiz-intro{
+      text-align:center;
+      font-family:var(--font-display);
+      font-size:clamp(18px,2.7vmin,25px);
+      color:var(--ink-soft);
+      font-style:italic;
+      margin-bottom:1.2rem;
+    }
+
+    .progress-line{
+      height:10px;
+      background:var(--rule-faint);
+      border-radius:99px;
+      overflow:hidden;
+      margin-bottom:1.2rem;
+    }
+
+    .progress-fill{
+      width:0%;
+      height:100%;
+      background:var(--accent);
+      transition:width .25s ease;
+    }
+
+    .question-block{
+      background:rgba(255,255,255,.38);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      padding:1rem;
+      margin-bottom:1rem;
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+    }
+
+    .question-title{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(15px,2.25vmin,19px);
+      margin-bottom:.75rem;
+      letter-spacing:.03em;
+    }
+
+    .choice-grid{
+      display:grid;
+      gap:.65rem;
+    }
+
+    .choice{
+      width:100%;
+      text-align:left;
+      cursor:pointer;
+      border:1px solid rgba(139,115,85,.35);
+      border-radius:var(--radius-sm);
+      background:rgba(255,255,255,.62);
+      color:var(--input-ink);
+      font-family:var(--font-body);
+      font-size:clamp(15px,2.15vmin,18px);
+      padding:.75rem .9rem;
+      transition:transform .12s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    .choice:hover{
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-tight);
+      background:rgba(255,255,255,.78);
+    }
+
+    .choice.selected{
+      border:2px solid #76411c;
+      background:linear-gradient(#d8c1a2,#c8a884);
+      font-weight:700;
+    }
+
+    .choice.correct{
+      border-color:var(--correct-color);
+      background:rgba(47,79,79,.16);
+    }
+
+    .choice.wrong{
+      border-color:var(--incorrect-color);
+      background:rgba(140,40,40,.12);
+    }
+
+    .feedback{
+      margin-top:.7rem;
+      font-family:var(--font-display);
+      color:var(--ink-soft);
+      font-size:clamp(15px,2.1vmin,18px);
+      min-height:1.4em;
+    }
+
+    .actions{
+      display:flex;
+      justify-content:center;
+      gap:1rem;
+      margin-top:1rem;
+      flex-wrap:wrap;
+    }
+
+    .score-box{
+      text-align:center;
+      font-family:var(--font-display);
+      color:var(--title-ink);
+      font-size:clamp(20px,3.2vmin,30px);
+      margin-top:1rem;
+      min-height:1.5em;
+    }
+
+    @media(max-width:700px){
+      .quiz-wrap{padding:1.5vh 3vw;}
+      .quiz-card{max-height:82vh;padding:1rem;}
+      .quiz-head h2{white-space:normal;}
+      .actions .cta-button{width:100%;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">📜</span>
+        <span class="gradient-text">Sage Challenge</span>
+      </h1>
+      <p class="subtitle">Test what you discovered from the profile.</p>
+      <button class="modern-button" id="home-button" onclick="window.location.href='student_home.html'">🏠</button>
+    </div>
+  </div>
+
+  <main class="quiz-wrap">
+    <section class="quiz-card">
+      <div class="quiz-head">
+        <div class="rule"></div>
+        <h2 id="sage-title">Loading...</h2>
+        <div class="rule"></div>
+      </div>
+
+      <p class="quiz-intro">Choose the answers that match the sage you explored.</p>
+
+      <div class="progress-line">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <form id="quiz-form"></form>
+
+      <div class="actions">
+        <button type="button" class="cta-button sweep" id="check-btn">Check Answers</button>
+        <button type="button" class="cta-button" id="profile-btn">Back to Profile</button>
+      </div>
+
+      <div class="score-box" id="score-box"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { loadAllSages } from './supabase/sagesWithNames.js';
+
+    const params = new URLSearchParams(window.location.search);
+    const sageName = params.get('sage') || params.get('selected') || '';
+    const assignmentId = params.get('assignment_id');
+
+    const form = document.getElementById('quiz-form');
+    const progressFill = document.getElementById('progress-fill');
+    const scoreBox = document.getElementById('score-box');
+    const sageTitle = document.getElementById('sage-title');
+
+    let questions = [];
+
+    function cleanValue(value){
+      if (value === null || value === undefined) return '';
+      return String(value).trim();
+    }
+
+    function firstValue(value){
+      const cleaned = cleanValue(value);
+      if (!cleaned || cleaned === '0') return '';
+      return cleaned.split(',')[0].trim();
+    }
+
+    function shuffle(array){
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function unique(values){
+      return [...new Set(values.map(cleanValue).filter(Boolean).filter(v => v !== '0'))];
+    }
+
+    function pickWrongChoices(allSages, getter, correct, count = 3){
+      const correctClean = cleanValue(correct).toLowerCase();
+
+      const pool = unique(
+        allSages
+          .map(getter)
+          .filter(v => cleanValue(v).toLowerCase() !== correctClean)
+      );
+
+      return shuffle(pool).slice(0, count);
+    }
+
+    function buildChoices(allSages, getter, correct){
+      const correctClean = cleanValue(correct);
+      const wrong = pickWrongChoices(allSages, getter, correctClean, 3);
+      return shuffle([correctClean, ...wrong]);
+    }
+
+    function cityOf(sage){
+      return sage.city_of_passing?.city || sage.city || sage.city_of_passing || '';
+    }
+
+    function countryOf(sage){
+      return sage.city_of_passing?.country || sage.country_of_passing || sage.country || '';
+    }
+
+    function workOf(sage){
+      return firstValue(sage.major_works);
+    }
+
+    function backgroundOf(sage){
+      return sage.background || '';
+    }
+
+    function birthdayOf(sage){
+      return sage.birthday || '';
+    }
+
+    function yahrtzeitOf(sage){
+      return sage.yahrtzeit || '';
+    }
+
+    function buildQuestion({ key, prompt, correct, choices, preference = false }){
+      if (!preference && !cleanValue(correct)) return null;
+
+      return {
+        key,
+        prompt,
+        correct: cleanValue(correct),
+        choices: choices || [],
+        preference
+      };
+    }
+
+    function buildQuestions(target, allSages){
+      const otherNames = unique(allSages.map(s => s.person).filter(p => p !== target.person));
+
+      return [
+        buildQuestion({
+          key: 'city',
+          prompt: `Which of these cities did ${target.person} live in?`,
+          correct: cityOf(target),
+          choices: buildChoices(allSages, cityOf, cityOf(target))
+        }),
+        buildQuestion({
+          key: 'country',
+          prompt: `Which of these countries did ${target.person} live in?`,
+          correct: countryOf(target),
+          choices: buildChoices(allSages, countryOf, countryOf(target))
+        }),
+        buildQuestion({
+          key: 'work',
+          prompt: `Which of these works did ${target.person} write?`,
+          correct: workOf(target),
+          choices: buildChoices(allSages, workOf, workOf(target))
+        }),
+        buildQuestion({
+          key: 'birth',
+          prompt: `What year was ${target.person} born?`,
+          correct: target.birth,
+          choices: buildChoices(allSages, s => String(s.birth || ''), target.birth)
+        }),
+        buildQuestion({
+          key: 'passing',
+          prompt: `What year did ${target.person} pass away?`,
+          correct: target.passing,
+          choices: buildChoices(allSages, s => String(s.passing || ''), target.passing)
+        }),
+        buildQuestion({
+          key: 'birthday',
+          prompt: `What is ${target.person}'s birthday?`,
+          correct: birthdayOf(target),
+          choices: buildChoices(allSages, birthdayOf, birthdayOf(target))
+        }),
+        buildQuestion({
+          key: 'yahrtzeit',
+          prompt: `What is ${target.person}'s yahrtzeit?`,
+          correct: yahrtzeitOf(target),
+          choices: buildChoices(allSages, yahrtzeitOf, yahrtzeitOf(target))
+        }),
+        buildQuestion({
+          key: 'background',
+          prompt: `What was ${target.person}'s background?`,
+          correct: backgroundOf(target),
+          choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
+        }),
+        buildQuestion({
+          key: 'explore_next',
+          prompt: `Which sage would you like to explore next?`,
+          correct: '',
+          preference: true,
+          choices: shuffle(otherNames).slice(0, 4)
+        })
+      ].filter(Boolean);
+    }
+
+    function renderQuestions(){
+      form.innerHTML = '';
+
+      questions.forEach((q, index) => {
+        const block = document.createElement('div');
+        block.className = 'question-block';
+
+        const title = document.createElement('div');
+        title.className = 'question-title';
+        title.textContent = `${index + 1}. ${q.prompt}`;
+
+        const grid = document.createElement('div');
+        grid.className = 'choice-grid';
+
+        q.choices.forEach((choice) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'choice';
+          btn.textContent = choice;
+          btn.dataset.question = index;
+          btn.dataset.choice = choice;
+
+          btn.addEventListener('click', () => {
+            grid.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+            updateProgress();
+          });
+
+          grid.appendChild(btn);
+        });
+
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.id = `feedback-${index}`;
+
+        block.appendChild(title);
+        block.appendChild(grid);
+        block.appendChild(feedback);
+        form.appendChild(block);
+      });
+    }
+
+    function updateProgress(){
+      const answered = document.querySelectorAll('.choice.selected').length;
+      progressFill.style.width = `${(answered / questions.length) * 100}%`;
+    }
+
+    document.getElementById('check-btn').addEventListener('click', () => {
+      let score = 0;
+      let gradedCount = 0;
+
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`.choice.selected[data-question="${index}"]`);
+        const feedback = document.getElementById(`feedback-${index}`);
+
+        document.querySelectorAll(`.choice[data-question="${index}"]`).forEach(btn => {
+          btn.classList.remove('correct', 'wrong');
+
+          if (!q.preference && btn.dataset.choice === q.correct) {
+            btn.classList.add('correct');
+          }
+
+          if (!q.preference && selected && btn === selected && btn.dataset.choice !== q.correct) {
+            btn.classList.add('wrong');
+          }
+        });
+
+        if (q.preference) {
+          feedback.textContent = selected
+            ? `Good choice. You can explore ${selected.dataset.choice} next.`
+            : 'Choose one sage you are curious about.';
+          return;
+        }
+
+        gradedCount += 1;
+
+        if (selected && selected.dataset.choice === q.correct) {
+          score += 1;
+          feedback.textContent = 'Correct.';
+        } else {
+          feedback.textContent = `The correct answer is: ${q.correct}`;
+        }
+      });
+
+      scoreBox.textContent = `Score: ${score} / ${gradedCount}`;
+    });
+
+    document.getElementById('profile-btn').addEventListener('click', () => {
+      window.location.href =
+        `discover.html?selected=${encodeURIComponent(sageName)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
+    });
+
+    async function init(){
+      const allSagesRaw = await loadAllSages();
+
+      const allSages = [
+        ...new Map(allSagesRaw.map(item => [item.person, item])).values()
+      ];
+
+      const target = allSages.find(s =>
+        s.person?.trim().toLowerCase() === sageName.trim().toLowerCase()
+      );
+
+      if (!target) {
+        sageTitle.textContent = 'Sage Not Found';
+        form.innerHTML = `<div class="question-block">Could not find this sage.</div>`;
+        return;
+      }
+
+      sageTitle.textContent = target.person;
+      questions = buildQuestions(target, allSages);
+      renderQuestions();
+    }
+
+    init();
+  </script>
+</body>
+</html>
