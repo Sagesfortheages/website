@@ -108,12 +108,14 @@ async function assignSage(e) {
       })
     });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || 'Failed to create assignment.');
-    }
-
+  if (!res.ok || !data.success) {
+    console.error('CREATE ASSIGNMENT ERROR:', data);
+    resultEl.textContent = JSON.stringify(data, null, 2);
+    return;
+  }
+  
     resultEl.textContent =
       `Assignment created!\n\n` +
       `Class: ${data.assignment.className}\n` +
