@@ -2,7 +2,7 @@
 /* Assumes all_styles.css is already loaded */
 
 body{
-  overflow: hidden;
+  overflow: auto;
 }
 
 .create-student-wrap{
@@ -181,4 +181,27 @@ body{
   #result{
     min-height: 8.5rem;
   }
+
+  .assignment-divider{
+  height: 1px;
+  background: var(--rule-faint);
+  margin: 1.4rem 0 0.4rem;
+}
+
+.mini-head{
+  margin-top: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.mini-head h2{
+  font-size: clamp(13px, 2.1vmin, 17px);
+}
+
+#sage-select{
+  cursor: pointer;
+}
+
+#assign-sage-btn{
+  min-width: 260px;
+}
 }

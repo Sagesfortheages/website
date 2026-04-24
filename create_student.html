@@ -43,10 +43,42 @@
         </button>
       </div>
 
+      <div class="assignment-divider"></div>
+
+
+
       <div class="result-wrap">
         <div class="result-title">Result</div>
         <pre id="result"></pre>
       </div>
+
+
+
+      <div class="create-student-head mini-head">
+        <div class="rule"></div>
+        <h2>Assign Game</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="assignment-class-id">Class ID</label>
+        <input id="assignment-class-id" class="search-input" type="number" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="sage-select">Choose the Mystery Sage</label>
+        <select id="sage-select" class="search-input">
+          <option value="">Loading sages...</option>
+        </select>
+        <div class="helper-text">Students in this class will play with this sage as the correct answer.</div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="assign-sage-btn" class="cta-button sweep">
+          Assign Sage
+        </button>
+      </div>
+
     </div>
   </section>
 </main>
