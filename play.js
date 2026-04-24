@@ -2,6 +2,9 @@ import { loadAllSages } from './supabase/sagesWithNames.js';
 import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
+const params = new URLSearchParams(window.location.search);
+const assignmentId = params.get('assignment_id');
+
 // Global variables
 let markers = [];
 let uniqueNames = [];
@@ -355,7 +358,39 @@ async function startNewGame() {
         return;
     }
 
-    correctAnswer = pickRandomMarker(markers, difficultyLevel);
+    let assignedCorrectAnswer = null;
+
+    if (assignmentId) {
+    const { data: assignment, error } = await supabaseClient
+        .from('assignments')
+        .select('id, target_sage_person')
+        .eq('id', assignmentId)
+        .eq('status', 'active')
+        .single();
+
+    if (error || !assignment) {
+        throw new Error('Assignment not found.');
+    }
+
+    // store the target name
+    const targetPerson = assignment.target_sage_person;
+
+    // map it to your sages data
+    assignedCorrectAnswer = allPeople.find(
+        (p) => p.person === targetPerson
+    );
+
+    if (!assignedCorrectAnswer) {
+        throw new Error('Assigned sage not found in dataset.');
+    }
+    }
+    let correctAnswer;
+
+    if (assignmentId) {
+    correctAnswer = assignedCorrectAnswer;
+    } else {
+    correctAnswer = pickRandomMarker(markers, difficultyLevel);;
+    }
     correctAnswer.expertise = normalizeExpertiseArray(correctAnswer.expertise);
 
     if (!correctAnswer) {
