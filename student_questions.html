@@ -209,7 +209,10 @@
     import { loadAllSages } from './supabase/sagesWithNames.js';
 
     const params = new URLSearchParams(window.location.search);
-    const sageName = params.get('sage') || params.get('selected') || '';
+
+    const sageName = 'Rambam'
+    // const sageName = params.get('sage') || params.get('selected') || '';
+
     const assignmentId = params.get('assignment_id');
 
     const form = document.getElementById('quiz-form');
