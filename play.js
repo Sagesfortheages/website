@@ -385,9 +385,10 @@ async function startNewGame() {
     }
     }
     let correctAnswer;
-
+    console.log(assignmentId)
     if (assignmentId) {
     correctAnswer = assignedCorrectAnswer;
+    console.log(correctAnswer)
     } else {
     correctAnswer = pickRandomMarker(markers, difficultyLevel);;
     }
