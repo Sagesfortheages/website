@@ -18,7 +18,7 @@
     }
 
     .quiz-card{
-      width:min(900px,94vw);
+      width:min(860px,94vw);
       max-height:78vh;
       overflow-y:auto;
       background:var(--paper-strong);
@@ -61,6 +61,17 @@
       margin-bottom:1.2rem;
     }
 
+    .progress-meta{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(12px,1.9vmin,15px);
+      letter-spacing:.04em;
+      margin-bottom:.45rem;
+    }
+
     .progress-line{
       height:10px;
       background:var(--rule-faint);
@@ -73,34 +84,43 @@
       width:0%;
       height:100%;
       background:var(--accent);
-      transition:width .25s ease;
+      transition:width .35s ease;
     }
 
-    .question-block{
+    .question-card{
       background:rgba(255,255,255,.38);
       border:1px solid var(--rule-faint);
       border-radius:var(--radius-sm);
-      padding:1rem;
-      margin-bottom:1rem;
+      padding:1.2rem;
       box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+      animation: fadeSlide .22s ease;
+    }
+
+    @keyframes fadeSlide{
+      from{ opacity:0; transform:translateY(8px); }
+      to{ opacity:1; transform:translateY(0); }
     }
 
     .question-title{
       font-family:var(--font-ui);
       color:var(--heading-ink);
-      font-size:clamp(15px,2.25vmin,19px);
-      margin-bottom:.75rem;
+      font-size:clamp(17px,2.55vmin,23px);
+      margin-bottom:1rem;
       letter-spacing:.03em;
+      line-height:1.35;
+      text-align:center;
     }
 
     .choice-grid{
-      display:grid;
-      gap:.65rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:.7rem;
     }
 
     .choice{
-      width:100%;
-      text-align:left;
+      flex:1 1 calc(50% - .7rem);
+      min-width:150px;
+      text-align:center;
       cursor:pointer;
       border:1px solid rgba(139,115,85,.35);
       border-radius:var(--radius-sm);
@@ -108,45 +128,90 @@
       color:var(--input-ink);
       font-family:var(--font-body);
       font-size:clamp(15px,2.15vmin,18px);
-      padding:.75rem .9rem;
-      transition:transform .12s ease, box-shadow .15s ease, background .15s ease;
+      padding:.8rem .95rem;
+      transition:transform .12s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
     }
 
-    .choice:hover{
+    .choice:hover:not(:disabled){
       transform:translateY(-1px);
       box-shadow:var(--shadow-tight);
       background:rgba(255,255,255,.78);
+    }
+
+    .choice:active:not(:disabled){
+      transform:scale(.98);
+    }
+
+    .choice:disabled{
+      cursor:default;
     }
 
     .choice.selected{
       border:2px solid #76411c;
       background:linear-gradient(#d8c1a2,#c8a884);
       font-weight:700;
+      animation: selectPop .18s ease;
+    }
+
+    @keyframes selectPop{
+      0%{ transform:scale(1); }
+      50%{ transform:scale(1.035); }
+      100%{ transform:scale(1); }
     }
 
     .choice.correct{
       border-color:var(--correct-color);
-      background:rgba(47,79,79,.16);
+      background:rgba(47,79,79,.18);
+      animation: correctGlow .4s ease;
+      font-weight:700;
     }
 
     .choice.wrong{
       border-color:var(--incorrect-color);
-      background:rgba(140,40,40,.12);
+      background:rgba(140,40,40,.13);
+      opacity:.86;
+    }
+
+    @keyframes correctGlow{
+      0%{ transform:scale(1); box-shadow:none; }
+      50%{ transform:scale(1.025); box-shadow:0 0 14px rgba(47,79,79,.35); }
+      100%{ transform:scale(1); box-shadow:none; }
     }
 
     .feedback{
-      margin-top:.7rem;
+      margin-top:1rem;
+      padding:.85rem 1rem;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--rule-faint);
+      background:rgba(255,255,255,.42);
       font-family:var(--font-display);
       color:var(--ink-soft);
-      font-size:clamp(15px,2.1vmin,18px);
-      min-height:1.4em;
+      font-size:clamp(16px,2.2vmin,20px);
+      line-height:1.35;
+      min-height:3.2rem;
+      opacity:0;
+      transform:translateY(5px);
+      transition:opacity .2s ease, transform .2s ease;
+    }
+
+    .feedback.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .feedback.good{
+      color:rgba(47,79,79,.95);
+    }
+
+    .feedback.review{
+      color:rgba(140,40,40,.95);
     }
 
     .actions{
       display:flex;
       justify-content:center;
       gap:1rem;
-      margin-top:1rem;
+      margin-top:1.1rem;
       flex-wrap:wrap;
     }
 
@@ -159,11 +224,45 @@
       min-height:1.5em;
     }
 
+    .completion-card{
+      display:none;
+      text-align:center;
+      background:rgba(255,255,255,.38);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      padding:1.4rem;
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+      animation: fadeSlide .25s ease;
+    }
+
+    .completion-card.show{
+      display:block;
+    }
+
+    .completion-title{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(18px,2.8vmin,26px);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin-bottom:.6rem;
+    }
+
+    .completion-text{
+      font-family:var(--font-display);
+      color:var(--ink-soft);
+      font-size:clamp(17px,2.4vmin,22px);
+      line-height:1.35;
+      margin-bottom:1rem;
+    }
+
     @media(max-width:700px){
       .quiz-wrap{padding:1.5vh 3vw;}
       .quiz-card{max-height:82vh;padding:1rem;}
       .quiz-head h2{white-space:normal;}
+      .choice{flex:1 1 100%;}
       .actions .cta-button{width:100%;}
+      .progress-meta{flex-direction:column; align-items:center; gap:.2rem;}
     }
   </style>
 </head>
@@ -188,16 +287,31 @@
         <div class="rule"></div>
       </div>
 
-      <p class="quiz-intro">Choose the answers that match the sage you explored.</p>
+      <p class="quiz-intro">Answer one question at a time. Your first answer is locked in.</p>
+
+      <div class="progress-meta">
+        <div id="question-counter">Question 1</div>
+        <div id="score-counter">Score: 0</div>
+      </div>
 
       <div class="progress-line">
         <div class="progress-fill" id="progress-fill"></div>
       </div>
 
-      <form id="quiz-form"></form>
+      <div id="question-area"></div>
 
-      <div class="actions">
-        <button type="button" class="cta-button sweep" id="check-btn">Check Answers</button>
+      <div class="completion-card" id="completion-card">
+        <div class="completion-title">Challenge Complete</div>
+        <div class="completion-text" id="completion-text"></div>
+
+        <div class="actions">
+          <button type="button" class="cta-button sweep" id="finish-btn">Finish Assignment</button>
+          <button type="button" class="cta-button" id="profile-btn-final">Review Profile</button>
+        </div>
+      </div>
+
+      <div class="actions" id="question-actions">
+        <button type="button" class="cta-button sweep" id="next-btn" disabled>Next Question</button>
         <button type="button" class="cta-button" id="profile-btn">Back to Profile</button>
       </div>
 
@@ -209,18 +323,28 @@
     import { loadAllSages } from './supabase/sagesWithNames.js';
 
     const params = new URLSearchParams(window.location.search);
-
-    const sageName = 'Rambam'
-    // const sageName = params.get('sage') || params.get('selected') || '';
-
+    const sageName = params.get('sage') || params.get('selected') || '';
     const assignmentId = params.get('assignment_id');
 
-    const form = document.getElementById('quiz-form');
-    const progressFill = document.getElementById('progress-fill');
-    const scoreBox = document.getElementById('score-box');
     const sageTitle = document.getElementById('sage-title');
+    const questionArea = document.getElementById('question-area');
+    const progressFill = document.getElementById('progress-fill');
+    const questionCounter = document.getElementById('question-counter');
+    const scoreCounter = document.getElementById('score-counter');
+    const scoreBox = document.getElementById('score-box');
+    const nextBtn = document.getElementById('next-btn');
+    const profileBtn = document.getElementById('profile-btn');
+    const questionActions = document.getElementById('question-actions');
+    const completionCard = document.getElementById('completion-card');
+    const completionText = document.getElementById('completion-text');
+    const finishBtn = document.getElementById('finish-btn');
+    const profileBtnFinal = document.getElementById('profile-btn-final');
 
     let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+    let selectedExploreNext = null;
 
     function cleanValue(value){
       if (value === null || value === undefined) return '';
@@ -238,7 +362,12 @@
     }
 
     function unique(values){
-      return [...new Set(values.map(cleanValue).filter(Boolean).filter(v => v !== '0'))];
+      return [...new Set(
+        values
+          .map(cleanValue)
+          .filter(Boolean)
+          .filter(v => v !== '0')
+      )];
     }
 
     function pickWrongChoices(allSages, getter, correct, count = 3){
@@ -283,15 +412,39 @@
       return sage.yahrtzeit || '';
     }
 
+    function teacherOf(sage){
+      return firstValue(sage.teacher || sage.teachers || sage.rav || '');
+    }
+
+    function studentOf(sage){
+      return firstValue(sage.student || sage.students || sage.talmid || '');
+    }
+
     function buildQuestion({ key, prompt, correct, choices, preference = false }){
-      if (!preference && !cleanValue(correct)) return null;
+      if (!preference) {
+        if (!cleanValue(correct)) return null;
+
+        const validChoices = unique(choices || []);
+        if (validChoices.length < 3) return null;
+
+        return {
+          key,
+          prompt,
+          correct: cleanValue(correct),
+          choices: validChoices,
+          preference: false
+        };
+      }
+
+      const validPreferenceChoices = unique(choices || []);
+      if (validPreferenceChoices.length < 2) return null;
 
       return {
         key,
         prompt,
-        correct: cleanValue(correct),
-        choices: choices || [],
-        preference
+        correct: '',
+        choices: validPreferenceChoices,
+        preference: true
       };
     }
 
@@ -313,9 +466,21 @@
         }),
         buildQuestion({
           key: 'work',
-          prompt: `Which of these works did ${target.person} write?`,
+          prompt: `Which work is his?`,
           correct: workOf(target),
           choices: buildChoices(allSages, workOf, workOf(target))
+        }),
+        buildQuestion({
+          key: 'teacher',
+          prompt: `Which of these is his teacher?`,
+          correct: teacherOf(target),
+          choices: buildChoices(allSages, teacherOf, teacherOf(target))
+        }),
+        buildQuestion({
+          key: 'student',
+          prompt: `Which of these is his student?`,
+          correct: studentOf(target),
+          choices: buildChoices(allSages, studentOf, studentOf(target))
         }),
         buildQuestion({
           key: 'birth',
@@ -343,7 +508,7 @@
         }),
         buildQuestion({
           key: 'background',
-          prompt: `What was ${target.person}'s background?`,
+          prompt: `What is his background?`,
           correct: backgroundOf(target),
           choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
         }),
@@ -357,96 +522,142 @@
       ].filter(Boolean);
     }
 
-    function renderQuestions(){
-      form.innerHTML = '';
-
-      questions.forEach((q, index) => {
-        const block = document.createElement('div');
-        block.className = 'question-block';
-
-        const title = document.createElement('div');
-        title.className = 'question-title';
-        title.textContent = `${index + 1}. ${q.prompt}`;
-
-        const grid = document.createElement('div');
-        grid.className = 'choice-grid';
-
-        q.choices.forEach((choice) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'choice';
-          btn.textContent = choice;
-          btn.dataset.question = index;
-          btn.dataset.choice = choice;
-
-          btn.addEventListener('click', () => {
-            grid.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
-            btn.classList.add('selected');
-            updateProgress();
-          });
-
-          grid.appendChild(btn);
-        });
-
-        const feedback = document.createElement('div');
-        feedback.className = 'feedback';
-        feedback.id = `feedback-${index}`;
-
-        block.appendChild(title);
-        block.appendChild(grid);
-        block.appendChild(feedback);
-        form.appendChild(block);
-      });
+    function updateHeader(){
+      const total = questions.length;
+      const currentNumber = Math.min(currentIndex + 1, total);
+      questionCounter.textContent = `Question ${currentNumber} of ${total}`;
+      scoreCounter.textContent = `Score: ${score}`;
+      progressFill.style.width = `${(currentIndex / total) * 100}%`;
     }
 
-    function updateProgress(){
-      const answered = document.querySelectorAll('.choice.selected').length;
-      progressFill.style.width = `${(answered / questions.length) * 100}%`;
+    function renderCurrentQuestion(){
+      answered = false;
+      nextBtn.disabled = true;
+      scoreBox.textContent = '';
+
+      if (currentIndex >= questions.length) {
+        showCompletion();
+        return;
+      }
+
+      updateHeader();
+
+      const q = questions[currentIndex];
+
+      questionArea.innerHTML = '';
+
+      const card = document.createElement('div');
+      card.className = 'question-card';
+
+      const title = document.createElement('div');
+      title.className = 'question-title';
+      title.textContent = q.prompt;
+
+      const grid = document.createElement('div');
+      grid.className = 'choice-grid';
+
+      q.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice';
+        btn.textContent = choice;
+        btn.dataset.choice = choice;
+
+        btn.addEventListener('click', () => handleChoice(q, btn, grid));
+
+        grid.appendChild(btn);
+      });
+
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback';
+      feedback.id = 'feedback';
+
+      card.appendChild(title);
+      card.appendChild(grid);
+      card.appendChild(feedback);
+      questionArea.appendChild(card);
     }
 
-    document.getElementById('check-btn').addEventListener('click', () => {
-      let score = 0;
-      let gradedCount = 0;
+    function handleChoice(q, selectedBtn, grid){
+      if (answered) return;
+      answered = true;
 
-      questions.forEach((q, index) => {
-        const selected = document.querySelector(`.choice.selected[data-question="${index}"]`);
-        const feedback = document.getElementById(`feedback-${index}`);
+      const selected = selectedBtn.dataset.choice;
+      const feedback = document.getElementById('feedback');
 
-        document.querySelectorAll(`.choice[data-question="${index}"]`).forEach(btn => {
-          btn.classList.remove('correct', 'wrong');
+      grid.querySelectorAll('.choice').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('selected');
+      });
 
-          if (!q.preference && btn.dataset.choice === q.correct) {
-            btn.classList.add('correct');
-          }
+      selectedBtn.classList.add('selected');
 
-          if (!q.preference && selected && btn === selected && btn.dataset.choice !== q.correct) {
-            btn.classList.add('wrong');
-          }
-        });
+      if (q.preference) {
+        selectedExploreNext = selected;
+        feedback.textContent = `Good choice. You can explore ${selected} next.`;
+        feedback.classList.add('show', 'good');
+        nextBtn.disabled = false;
+        return;
+      }
 
-        if (q.preference) {
-          feedback.textContent = selected
-            ? `Good choice. You can explore ${selected.dataset.choice} next.`
-            : 'Choose one sage you are curious about.';
-          return;
-        }
+      const isCorrect = selected === q.correct;
 
-        gradedCount += 1;
-
-        if (selected && selected.dataset.choice === q.correct) {
-          score += 1;
-          feedback.textContent = 'Correct.';
-        } else {
-          feedback.textContent = `The correct answer is: ${q.correct}`;
+      grid.querySelectorAll('.choice').forEach(btn => {
+        if (btn.dataset.choice === q.correct) {
+          btn.classList.add('correct');
         }
       });
 
-      scoreBox.textContent = `Score: ${score} / ${gradedCount}`;
+      if (isCorrect) {
+        score += 1;
+        selectedBtn.classList.add('correct');
+        feedback.textContent = 'Correct — this matches what you saw in the profile.';
+        feedback.classList.add('show', 'good');
+      } else {
+        selectedBtn.classList.add('wrong');
+        feedback.textContent = `Review this — the correct answer is: ${q.correct}`;
+        feedback.classList.add('show', 'review');
+      }
+
+      scoreCounter.textContent = `Score: ${score}`;
+      nextBtn.disabled = false;
+    }
+
+    function showCompletion(){
+      questionArea.innerHTML = '';
+      questionActions.style.display = 'none';
+      completionCard.classList.add('show');
+      progressFill.style.width = '100%';
+      questionCounter.textContent = 'Complete';
+
+      const gradedCount = questions.filter(q => !q.preference).length;
+      completionText.innerHTML =
+        `You completed the challenge.<br>` +
+        `Score: ${score} / ${gradedCount}` +
+        (selectedExploreNext ? `<br>Next sage to explore: ${selectedExploreNext}` : '');
+
+      scoreBox.textContent = '';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex += 1;
+      renderCurrentQuestion();
     });
 
-    document.getElementById('profile-btn').addEventListener('click', () => {
+    function goToProfile(name = sageName){
       window.location.href =
-        `discover.html?selected=${encodeURIComponent(sageName)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
+        `discover.html?selected=${encodeURIComponent(name)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
+    }
+
+    profileBtn.addEventListener('click', () => goToProfile());
+    profileBtnFinal.addEventListener('click', () => goToProfile());
+
+    finishBtn.addEventListener('click', () => {
+      if (selectedExploreNext) {
+        goToProfile(selectedExploreNext);
+      } else {
+        window.location.href = 'student_home.html';
+      }
     });
 
     async function init(){
@@ -462,13 +673,21 @@
 
       if (!target) {
         sageTitle.textContent = 'Sage Not Found';
-        form.innerHTML = `<div class="question-block">Could not find this sage.</div>`;
+        questionArea.innerHTML = `<div class="question-card">Could not find this sage.</div>`;
+        nextBtn.disabled = true;
         return;
       }
 
       sageTitle.textContent = target.person;
       questions = buildQuestions(target, allSages);
-      renderQuestions();
+
+      if (!questions.length) {
+        questionArea.innerHTML = `<div class="question-card">No questions are available for this sage yet.</div>`;
+        nextBtn.disabled = true;
+        return;
+      }
+
+      renderCurrentQuestion();
     }
 
     init();
