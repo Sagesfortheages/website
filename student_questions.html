@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sage Challenge</title>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
   <link rel="stylesheet" href="all_styles.css" />
 
@@ -256,6 +257,13 @@
       margin-bottom:1rem;
     }
 
+    .lottie-wrap{
+        display:flex;
+        justify-content:center;
+        min-height:120px;
+        margin-top:.5rem;
+    }
+
     @media(max-width:700px){
       .quiz-wrap{padding:1.5vh 3vw;}
       .quiz-card{max-height:82vh;padding:1rem;}
@@ -287,7 +295,7 @@
         <div class="rule"></div>
       </div>
 
-      <p class="quiz-intro">Answer one question at a time. Your first answer is locked in.</p>
+      <p class="quiz-intro">Test your knowledge.</p>
 
       <div class="progress-meta">
         <div id="question-counter">Question 1</div>
@@ -299,6 +307,8 @@
       </div>
 
       <div id="question-area"></div>
+
+      <div class="lottie-wrap" id="lottie"></div>
 
       <div class="completion-card" id="completion-card">
         <div class="completion-title">Challenge Complete</div>
@@ -323,7 +333,11 @@
     import { loadAllSages } from './supabase/sagesWithNames.js';
 
     const params = new URLSearchParams(window.location.search);
-    const sageName = params.get('sage') || params.get('selected') || '';
+
+    const sageName = 'Lubavitcher Rebbe'
+
+    // const sageName = params.get('sage') || params.get('selected') || '';
+
     const assignmentId = params.get('assignment_id');
 
     const sageTitle = document.getElementById('sage-title');
@@ -453,6 +467,12 @@
 
       return [
         buildQuestion({
+        key: 'name',
+        prompt: `What is this sage's name?`,
+        correct: target.name,
+        choices: buildChoices(allSages, s => s.name, target.name)
+        }),
+        buildQuestion({
           key: 'city',
           prompt: `Which of these cities did ${target.person} live in?`,
           correct: cityOf(target),
@@ -463,24 +483,6 @@
           prompt: `Which of these countries did ${target.person} live in?`,
           correct: countryOf(target),
           choices: buildChoices(allSages, countryOf, countryOf(target))
-        }),
-        buildQuestion({
-          key: 'work',
-          prompt: `Which work is his?`,
-          correct: workOf(target),
-          choices: buildChoices(allSages, workOf, workOf(target))
-        }),
-        buildQuestion({
-          key: 'teacher',
-          prompt: `Which of these is his teacher?`,
-          correct: teacherOf(target),
-          choices: buildChoices(allSages, teacherOf, teacherOf(target))
-        }),
-        buildQuestion({
-          key: 'student',
-          prompt: `Which of these is his student?`,
-          correct: studentOf(target),
-          choices: buildChoices(allSages, studentOf, studentOf(target))
         }),
         buildQuestion({
           key: 'birth',
@@ -513,11 +515,27 @@
           choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
         }),
         buildQuestion({
+          key: 'teacher',
+          prompt: `Which of these was his teacher?`,
+          correct: teacherOf(target),
+          choices: buildChoices(allSages, teacherOf, teacherOf(target))
+        }),
+        buildQuestion({
+          key: 'student',
+          prompt: `Which of these was his student?`,
+          correct: studentOf(target),
+          choices: buildChoices(allSages, studentOf, studentOf(target))
+        }),
+        buildQuestion({
+          key: 'work',
+          prompt: `Which of these did he write?`,
+          correct: workOf(target),
+          choices: buildChoices(allSages, workOf, workOf(target))
+        }),
+        buildQuestion({
           key: 'explore_next',
           prompt: `Which sage would you like to explore next?`,
-          correct: '',
-          preference: true,
-          choices: shuffle(otherNames).slice(0, 4)
+          textInput: true
         })
       ].filter(Boolean);
     }
@@ -531,6 +549,7 @@
     }
 
     function renderCurrentQuestion(){
+      document.getElementById('lottie').innerHTML = '';
       answered = false;
       nextBtn.disabled = true;
       scoreBox.textContent = '';
@@ -555,6 +574,22 @@
 
       const grid = document.createElement('div');
       grid.className = 'choice-grid';
+
+      if (q.textInput) {
+        const input = document.createElement('input');
+        input.className = 'text-input';
+        input.placeholder = 'Type a sage...';
+
+        input.addEventListener('input', () => {
+            selectedExploreNext = input.value.trim();
+            nextBtn.disabled = !selectedExploreNext;
+        });
+
+        card.appendChild(title);
+        card.appendChild(input);
+        questionArea.appendChild(card);
+        return;
+        }
 
       q.choices.forEach(choice => {
         const btn = document.createElement('button');
@@ -593,6 +628,16 @@
       selectedBtn.classList.add('selected');
 
       if (q.preference) {
+        const lottie = document.getElementById('lottie');
+        lottie.innerHTML = `
+        <lottie-player
+        src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
+        background="transparent"
+        speed="1"
+        style="width:120px;height:120px;"
+        autoplay>
+        </lottie-player>
+        `;
         selectedExploreNext = selected;
         feedback.textContent = `Good choice. You can explore ${selected} next.`;
         feedback.classList.add('show', 'good');
@@ -611,11 +656,23 @@
       if (isCorrect) {
         score += 1;
         selectedBtn.classList.add('correct');
-        feedback.textContent = 'Correct — this matches what you saw in the profile.';
+
+        const lottie = document.getElementById('lottie');
+        lottie.innerHTML = `
+            <lottie-player
+            src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
+            background="transparent"
+            speed="1"
+            style="width:120px;height:120px;"
+            autoplay>
+            </lottie-player>
+        `;
+
+        feedback.textContent = 'Correct — Well done';
         feedback.classList.add('show', 'good');
-      } else {
+        } else {
         selectedBtn.classList.add('wrong');
-        feedback.textContent = `Review this — the correct answer is: ${q.correct}`;
+        feedback.textContent = `The correct answer is: ${q.correct}`;
         feedback.classList.add('show', 'review');
       }
 
@@ -679,6 +736,7 @@
       }
 
       sageTitle.textContent = target.person;
+      console.log(target)
       questions = buildQuestions(target, allSages);
 
       if (!questions.length) {
