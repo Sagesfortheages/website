@@ -434,33 +434,46 @@
       return firstValue(sage.student || sage.students || sage.talmid || '');
     }
 
-    function buildQuestion({ key, prompt, correct, choices, preference = false }){
-      if (!preference) {
-        if (!cleanValue(correct)) return null;
+function buildQuestion({ key, prompt, correct, choices, preference = false, textInput = false }){
+  if (textInput) {
+    return {
+      key,
+      prompt,
+      correct: '',
+      choices: [],
+      preference: false,
+      textInput: true
+    };
+  }
 
-        const validChoices = unique(choices || []);
-        if (validChoices.length < 3) return null;
+  if (!preference) {
+    if (!cleanValue(correct)) return null;
 
-        return {
-          key,
-          prompt,
-          correct: cleanValue(correct),
-          choices: validChoices,
-          preference: false
-        };
-      }
+    const validChoices = unique(choices || []);
+    if (validChoices.length < 3) return null;
 
-      const validPreferenceChoices = unique(choices || []);
-      if (validPreferenceChoices.length < 2) return null;
+    return {
+      key,
+      prompt,
+      correct: cleanValue(correct),
+      choices: validChoices,
+      preference: false,
+      textInput: false
+    };
+  }
 
-      return {
-        key,
-        prompt,
-        correct: '',
-        choices: validPreferenceChoices,
-        preference: true
-      };
-    }
+  const validPreferenceChoices = unique(choices || []);
+  if (validPreferenceChoices.length < 2) return null;
+
+  return {
+    key,
+    prompt,
+    correct: '',
+    choices: validPreferenceChoices,
+    preference: true,
+    textInput: false
+  };
+}
 
     function buildQuestions(target, allSages){
       const otherNames = unique(allSages.map(s => s.person).filter(p => p !== target.person));
