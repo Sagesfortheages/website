@@ -433,7 +433,7 @@
         const { error } = await supabaseClient
         .from('assignment_progress')
         .insert({
-            assignment_id: assignmentId,
+            assignment_id: 3,
             student_id: student.id,
             game_score: score,
             game_completed: true
