@@ -263,6 +263,55 @@
         min-height:120px;
         margin-top:.5rem;
     }
+    
+
+    .text-input{
+        width:100%;
+        margin-top:.8rem;
+        padding:.75rem 1rem;
+
+        font-family:var(--font-body);
+        font-size:clamp(15px,2.2vmin,18px);
+        color:var(--input-ink);
+
+        background:rgba(255,255,255,.75);
+        border:1px solid rgba(139,115,85,.35);
+        border-radius:var(--radius-sm);
+
+        box-shadow:
+            inset 0 1px 6px rgba(0,0,0,.06);
+
+        transition:
+            border-color .15s ease,
+            box-shadow .15s ease,
+            background .15s ease;
+        }
+
+        /* Hover (very subtle) */
+        .text-input:hover{
+        background:rgba(255,255,255,.85);
+        }
+
+        /* Focus (important — makes it feel premium) */
+        .text-input:focus{
+        outline:none;
+
+        border-color:rgba(106,47,82,.45);
+
+        box-shadow:
+            inset 0 1px 6px rgba(0,0,0,.08),
+            0 0 0 3px rgba(106,47,82,.12);
+        }
+
+        /* Placeholder styling */
+        .text-input::placeholder{
+        color:rgba(80,60,40,.55);
+        font-style:italic;
+        }
+
+        .text-input:focus{
+  transform:translateY(-1px);
+}
 
     @media(max-width:700px){
       .quiz-wrap{padding:1.5vh 3vw;}
@@ -331,6 +380,7 @@
 
   <script type="module">
     import { loadAllSages } from './supabase/sagesWithNames.js';
+    import { supabaseClient } from './supabase/supabaseClient.js';
 
     const params = new URLSearchParams(window.location.search);
 
@@ -354,11 +404,50 @@
     const finishBtn = document.getElementById('finish-btn');
     const profileBtnFinal = document.getElementById('profile-btn-final');
 
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    const { data: profile } = await supabaseClient
+    .from('profiles')
+    .select('id')
+    .eq('auth_user_id', user.id)
+    .single();
+
+    const { data: student } = await supabaseClient
+    .from('students')
+    .select('id')
+    .eq('profile_id', profile.id)
+    .single();
+
     let questions = [];
     let currentIndex = 0;
     let score = 0;
     let answered = false;
     let selectedExploreNext = null;
+
+    async function saveProgress() {
+    try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+
+        const { error } = await supabaseClient
+        .from('assignment_progress')
+        .insert({
+            assignment_id: assignmentId,
+            student_id: student.id,
+            score: score,
+            completed: true
+        });
+
+        if (error) {
+        console.error('SAVE ERROR:', error);
+        } else {
+        console.log('Progress saved');
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+    }
 
     function cleanValue(value){
       if (value === null || value === undefined) return '';
@@ -707,6 +796,7 @@ function buildQuestion({ key, prompt, correct, choices, preference = false, text
         (selectedExploreNext ? `<br>Next sage to explore: ${selectedExploreNext}` : '');
 
       scoreBox.textContent = '';
+      saveProgress(); // 👈 add this
     }
 
     nextBtn.addEventListener('click', () => {
