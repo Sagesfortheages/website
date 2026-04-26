@@ -429,13 +429,14 @@
         const { data: { user } } = await supabaseClient.auth.getUser();
 
 
+
         const { error } = await supabaseClient
         .from('assignment_progress')
         .insert({
             assignment_id: assignmentId,
             student_id: student.id,
-            score: score,
-            completed: true
+            game_score: score,
+            game_completed: true
         });
 
         if (error) {
