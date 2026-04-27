@@ -562,7 +562,7 @@
 
         const { data: assignments, error } = await supabaseClient
           .from('assignments')
-          .select('id, title, sage_name')
+          .select('id, title, target_sage_person')
           .eq('class_id', classId)
           .order('title', { ascending:true });
 
@@ -579,7 +579,7 @@
         assignments.forEach(a => {
           const option = document.createElement('option');
           option.value = a.id;
-          option.textContent = a.title || a.sage_name || `Assignment ${a.id}`;
+          option.textContent = a.title || a.target_sage_person || `Assignment ${a.id}`;
           assignmentSelect.appendChild(option);
         });
 
