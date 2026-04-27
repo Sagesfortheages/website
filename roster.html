@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View Students</title>
+
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    body { overflow: hidden; }
+
+    .teacher-wrap{
+      min-height: calc(100vh - var(--header-height) - 2vh);
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:2.5vh 2vw;
+    }
+
+    .teacher-card{
+      width:min(720px,94vw);
+      background:var(--paper-strong);
+      border:1px solid var(--rule);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-soft);
+      padding:2vmin;
+    }
+
+    .teacher-head{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      gap:1.2vmin;
+      margin-bottom:1.4rem;
+    }
+
+    .teacher-head .rule{
+      height:1px;
+      background:rgba(110,85,55,0.30);
+    }
+
+    .teacher-head h2{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(16px,2.6vmin,23px);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .field-group{
+      display:grid;
+      gap:.45rem;
+      margin-bottom:1.2rem;
+    }
+
+    .field-label{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      letter-spacing:.04em;
+      font-size:clamp(13px,2vmin,16px);
+    }
+
+    #class-select{
+      width:100%;
+      padding:.75rem 1rem;
+      border:1px solid rgba(139,115,85,.35);
+      border-radius:var(--radius-sm);
+      background:rgba(255,255,255,.72);
+      color:var(--input-ink);
+      font-family:var(--font-body);
+      font-size:clamp(15px,2.2vmin,18px);
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.06);
+    }
+
+    #student-list{
+      display:grid;
+      gap:.65rem;
+      margin-top:1rem;
+    }
+
+    .student-row{
+      padding:.8rem 1rem;
+      background:rgba(255,255,255,.45);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      font-family:var(--font-body);
+      color:var(--ink);
+      font-size:clamp(15px,2.1vmin,18px);
+    }
+
+    .status-text{
+      font-family:var(--font-display);
+      color:var(--ink-soft);
+      font-size:clamp(16px,2.3vmin,20px);
+      text-align:center;
+      padding:1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">👥</span>
+        <span class="gradient-text">Class Roster</span>
+      </h1>
+      <p class="subtitle">View the students in your class.</p>
+      <button class="modern-button" id="home-button" onclick="window.location.href='teacher_home.html'">🏠</button>
+    </div>
+  </div>
+
+  <main class="teacher-wrap">
+    <section class="teacher-card">
+      <div class="teacher-head">
+        <div class="rule"></div>
+        <h2>View Students</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="class-select">Select Class</label>
+        <select id="class-select">
+          <option value="">Loading classes...</option>
+        </select>
+      </div>
+
+      <div id="student-list">
+        <div class="status-text">Select a class to view students.</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabaseClient } from './supabase/supabaseClient.js';
+
+    const classSelect = document.getElementById('class-select');
+    const studentList = document.getElementById('student-list');
+
+    async function loadClasses() {
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+      if (userError || !user) {
+        classSelect.innerHTML = '<option value="">Please log in</option>';
+        studentList.innerHTML = '<div class="status-text">No logged-in teacher session found.</div>';
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        classSelect.innerHTML = '<option value="">Profile not found</option>';
+        return;
+      }
+
+      const { data: classes, error: classError } = await supabaseClient
+        .from('classes')
+        .select('id, class_name')
+        .eq('teacher_profile_id', profile.id)
+        .order('class_name');
+
+      if (classError) {
+        console.error(classError);
+        classSelect.innerHTML = '<option value="">Error loading classes</option>';
+        return;
+      }
+
+      classSelect.innerHTML = '<option value="">Select class...</option>';
+
+      if (!classes.length) {
+        studentList.innerHTML = '<div class="status-text">No classes found.</div>';
+        return;
+      }
+
+      classes.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.textContent = c.class_name;
+        classSelect.appendChild(option);
+      });
+    }
+
+    async function loadStudents(classId) {
+      if (!classId) {
+        studentList.innerHTML = '<div class="status-text">Select a class to view students.</div>';
+        return;
+      }
+
+      studentList.innerHTML = '<div class="status-text">Loading students...</div>';
+
+      const { data: students, error } = await supabaseClient
+        .from('students')
+        .select(`
+          id,
+          username,
+          profile:profiles(display_name)
+        `)
+        .eq('class_id', classId)
+        .order('username');
+
+      if (error) {
+        console.error(error);
+        studentList.innerHTML = '<div class="status-text">Error loading students.</div>';
+        return;
+      }
+
+      studentList.innerHTML = '';
+
+      if (!students.length) {
+        studentList.innerHTML = '<div class="status-text">No students in this class.</div>';
+        return;
+      }
+
+      students.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'student-row';
+
+        const name = s.profile?.display_name || 'Student';
+        div.textContent = `${name} (${s.username})`;
+
+        studentList.appendChild(div);
+      });
+    }
+
+    classSelect.addEventListener('change', (e) => {
+      loadStudents(e.target.value);
+    });
+
+    loadClasses();
+  </script>
+</body>
+</html>
