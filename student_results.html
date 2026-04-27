@@ -3,383 +3,426 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teacher Assignment Results</title>
-
-  <!-- Optional fonts to match your parchment/classic style -->
+  <title>Assignment Results</title>
 
   <link rel="stylesheet" href="all_styles.css" />
+
   <style>
-    :root {
-      --title-ink: #3f2a22;
-      --body-ink: #2f231d;
-      --muted-ink: #735f50;
-      --classy-blue-ink: rgb(3, 43, 125);
-      --parchment: #f5ead4;
-      --parchment-deep: #ead6ae;
-      --panel: rgba(255, 250, 238, 0.82);
-      --rule: rgba(91, 61, 35, 0.24);
-      --shadow: 0 18px 45px rgba(64, 38, 18, 0.18);
-      --radius: 18px;
-      --correct-color: rgba(47,79,79,0.92);
-      --incorrect-color: rgba(140,40,40,0.92);
-      --warning-color: rgba(148, 104, 28, 0.95);
+    body{
+      overflow:hidden;
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--body-ink);
-      font-family: "Crimson Text", Georgia, serif;
-      background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.5), transparent 34%),
-        linear-gradient(135deg, rgba(122, 83, 44, 0.12), rgba(255,255,255,0.05)),
-        var(--parchment);
+    .results-wrap{
+      min-height:calc(100vh - var(--header-height) - 2vh);
+      display:flex;
+      justify-content:center;
+      padding:2.5vh 2vw;
     }
 
-    .page-shell {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 52px;
+    .results-card{
+      width:min(1100px,94vw);
+      max-height:78vh;
+      overflow-y:auto;
+      background:var(--paper-strong);
+      border:1px solid var(--rule);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-soft);
+      padding:2vmin;
+      position:relative;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 22px;
+    .results-head{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      gap:1.2vmin;
+      margin-bottom:1rem;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .results-head .rule{
+      height:1px;
+      background:rgba(110,85,55,0.30);
     }
 
-    .seal {
-      width: 48px;
-      height: 48px;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      color: var(--title-ink);
-      border: 1px solid var(--rule);
-      background: rgba(255,255,255,0.35);
-      box-shadow: inset 0 0 16px rgba(85, 56, 25, 0.14);
-      font-family: "IM Fell English SC", serif;
-      font-size: 26px;
+    .results-head h2{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(16px,2.6vmin,23px);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      text-align:center;
+      white-space:nowrap;
     }
 
-    h1, h2, h3 {
-      margin: 0;
-      color: var(--title-ink);
-      font-family: Cinzel, serif;
-      letter-spacing: 0.03em;
+    .results-intro{
+      text-align:center;
+      font-family:var(--font-display);
+      font-size:clamp(18px,2.7vmin,25px);
+      color:var(--ink-soft);
+      font-style:italic;
+      margin-bottom:1.2rem;
     }
 
-    h1 { font-size: clamp(1.65rem, 2.8vw, 2.55rem); }
-
-    .subtitle {
-      margin-top: 4px;
-      color: var(--muted-ink);
-      font-size: 1.08rem;
+    .control-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr auto;
+      gap:1rem;
+      align-items:end;
+      background:rgba(255,255,255,.38);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      padding:1.1rem;
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+      margin-bottom:1.1rem;
     }
 
-    .status-pill {
-      border: 1px solid var(--rule);
-      border-radius: 999px;
-      padding: 8px 13px;
-      background: rgba(255,255,255,0.42);
-      color: var(--muted-ink);
-      font-family: Cinzel, serif;
-      font-size: 0.78rem;
-      white-space: nowrap;
+    .field-label{
+      display:block;
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(12px,1.8vmin,15px);
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      margin-bottom:.35rem;
+      font-weight:700;
     }
 
-    .panel {
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
+    .select-input,
+    .text-input{
+      width:100%;
+      padding:.75rem 1rem;
+      font-family:var(--font-body);
+      font-size:clamp(15px,2.2vmin,18px);
+      color:var(--input-ink);
+      background:rgba(255,255,255,.75);
+      border:1px solid rgba(139,115,85,.35);
+      border-radius:var(--radius-sm);
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.06);
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .15s ease;
     }
 
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 14px;
-      padding: 18px;
-      margin-bottom: 18px;
-      align-items: end;
+    .select-input:hover,
+    .text-input:hover{
+      background:rgba(255,255,255,.85);
     }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-family: Cinzel, serif;
-      font-size: 0.78rem;
-      color: var(--title-ink);
-      letter-spacing: 0.05em;
-      font-weight: 700;
+    .select-input:focus,
+    .text-input:focus{
+      outline:none;
+      border-color:rgba(106,47,82,.45);
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.08), 0 0 0 3px rgba(106,47,82,.12);
+      transform:translateY(-1px);
     }
 
-    select, input {
-      width: 100%;
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.68);
-      padding: 11px 12px;
-      color: var(--body-ink);
-      font: 1rem "Crimson Text", Georgia, serif;
-      outline: none;
+    .select-input:disabled{
+      opacity:.65;
+      transform:none;
     }
 
-    select:focus, input:focus {
-      border-color: rgba(3,43,125,0.45);
-      box-shadow: 0 0 0 3px rgba(3,43,125,0.12);
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:.8rem;
+      margin-bottom:1.1rem;
     }
 
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 12px 18px;
-      cursor: pointer;
-      background: var(--classy-blue-ink);
-      color: #fffdf6;
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      box-shadow: 0 12px 22px rgba(3,43,125,0.16);
+    .summary-card{
+      text-align:center;
+      background:rgba(255,255,255,.38);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      padding:.9rem;
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
     }
 
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: 0.52; cursor: not-allowed; transform: none; }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 18px;
+    .summary-label{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(11px,1.65vmin,14px);
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      margin-bottom:.3rem;
     }
 
-    .stat-card {
-      padding: 16px;
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.42);
+    .summary-value{
+      font-family:var(--font-display);
+      color:var(--title-ink);
+      font-size:clamp(24px,4vmin,38px);
+      line-height:1;
     }
 
-    .stat-label {
-      font-family: Cinzel, serif;
-      font-size: 0.74rem;
-      color: var(--muted-ink);
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
+    .table-tools{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:1rem;
+      margin-bottom:.8rem;
     }
 
-    .stat-value {
-      margin-top: 6px;
-      font-size: 2rem;
-      color: var(--title-ink);
-      font-weight: 700;
+    .student-search-wrap{
+      width:min(380px,100%);
     }
 
-    .tools-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      padding: 15px 18px;
-      margin-bottom: 0;
-      border-bottom: 1px solid var(--rule);
+    .results-table-wrap{
+      overflow-x:auto;
+      background:rgba(255,255,255,.30);
+      border:1px solid var(--rule-faint);
+      border-radius:var(--radius-sm);
+      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
     }
 
-    .search-wrap { width: min(360px, 100%); }
-
-    .small-button {
-      background: rgba(63,42,34,0.88);
-      box-shadow: none;
-      padding: 10px 14px;
-      font-size: 0.76rem;
+    .results-table{
+      width:100%;
+      min-width:760px;
+      border-collapse:collapse;
     }
 
-    .table-panel { overflow: hidden; }
-
-    .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 820px;
+    .results-table th,
+    .results-table td{
+      padding:.8rem .9rem;
+      border-bottom:1px solid var(--rule-faint);
+      text-align:left;
+      vertical-align:middle;
     }
 
-    th, td {
-      padding: 13px 15px;
-      text-align: left;
-      border-bottom: 1px solid rgba(91,61,35,0.16);
-      vertical-align: middle;
+    .results-table th{
+      font-family:var(--font-ui);
+      color:var(--heading-ink);
+      font-size:clamp(11px,1.65vmin,14px);
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      background:rgba(245,230,211,.72);
+      cursor:pointer;
+      white-space:nowrap;
     }
 
-    th {
-      font-family: Cinzel, serif;
-      font-size: 0.76rem;
-      color: var(--title-ink);
-      background: rgba(234,214,174,0.46);
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
+    .results-table tr:last-child td{
+      border-bottom:none;
     }
 
-    tr:hover td { background: rgba(255,255,255,0.28); }
-
-    .student-name { font-weight: 700; color: var(--title-ink); }
-    .muted { color: var(--muted-ink); }
-
-    .score-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 58px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      color: white;
-      font-weight: 700;
-      background: var(--warning-color);
+    .results-table tbody tr{
+      transition:background .15s ease, transform .12s ease;
     }
 
-    .score-good { background: var(--correct-color); }
-    .score-low { background: var(--incorrect-color); }
-
-    .progress-track {
-      height: 9px;
-      width: 130px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(91,61,35,0.15);
+    .results-table tbody tr:hover{
+      background:rgba(255,255,255,.42);
     }
 
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--classy-blue-ink);
-      border-radius: inherit;
+    .student-name{
+      font-family:var(--font-display);
+      color:var(--title-ink);
+      font-size:clamp(17px,2.35vmin,21px);
+      font-weight:600;
     }
 
-    .empty-state, .message-state {
-      padding: 34px 18px;
-      text-align: center;
-      color: var(--muted-ink);
-      font-size: 1.08rem;
+    .muted{
+      color:var(--ink-soft);
+      opacity:.82;
+      font-style:italic;
     }
 
-    .error-state { color: var(--incorrect-color); }
+    .score-pill,
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:4.8rem;
+      padding:.35rem .65rem;
+      border-radius:99px;
+      border:1px solid var(--rule-faint);
+      font-family:var(--font-ui);
+      font-size:clamp(12px,1.8vmin,15px);
+      font-weight:700;
+      letter-spacing:.03em;
+      background:rgba(255,255,255,.55);
+      color:var(--heading-ink);
+    }
 
-    @media (max-width: 760px) {
-      .topbar {
-        align-items: flex-start;
-        flex-direction: column;
+    .status-complete{
+      color:rgba(47,79,79,.98);
+      background:rgba(47,79,79,.12);
+      border-color:rgba(47,79,79,.28);
+    }
+
+    .status-open{
+      color:rgba(140,40,40,.95);
+      background:rgba(140,40,40,.10);
+      border-color:rgba(140,40,40,.24);
+    }
+
+    .score-good{
+      color:rgba(47,79,79,.98);
+      background:rgba(47,79,79,.14);
+      border-color:rgba(47,79,79,.30);
+    }
+
+    .score-review{
+      color:rgba(140,40,40,.95);
+      background:rgba(140,40,40,.12);
+      border-color:rgba(140,40,40,.24);
+    }
+
+    .progress-line-small{
+      width:150px;
+      max-width:100%;
+      height:10px;
+      background:var(--rule-faint);
+      border-radius:99px;
+      overflow:hidden;
+      margin-top:.25rem;
+    }
+
+    .progress-fill-small{
+      width:0%;
+      height:100%;
+      background:var(--accent);
+      transition:width .35s ease;
+    }
+
+    .message-row{
+      text-align:center !important;
+      padding:2rem !important;
+      font-family:var(--font-display);
+      color:var(--ink-soft);
+      font-size:clamp(18px,2.5vmin,24px);
+      font-style:italic;
+    }
+
+    .error-row{
+      color:rgba(140,40,40,.95);
+    }
+
+    .actions{
+      display:flex;
+      justify-content:center;
+      gap:1rem;
+      flex-wrap:wrap;
+    }
+
+    .mini-button{
+      min-height:auto;
+      min-width:auto;
+      padding:.8rem 1.1rem;
+      font-size:clamp(12px,1.7vmin,15px);
+    }
+
+    @media(max-width:800px){
+      .control-grid{
+        grid-template-columns:1fr;
       }
 
-      .controls {
-        grid-template-columns: 1fr;
+      .summary-grid{
+        grid-template-columns:repeat(2,1fr);
       }
 
-      .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .table-tools{
+        flex-direction:column;
+        align-items:stretch;
       }
 
-      .tools-row {
-        flex-direction: column;
-        align-items: stretch;
+      .student-search-wrap{
+        width:100%;
       }
-
-      .search-wrap { width: 100%; }
     }
 
-    @media (max-width: 460px) {
-      .summary-grid { grid-template-columns: 1fr; }
-      .page-shell { width: min(100% - 20px, 1180px); }
+    @media(max-width:700px){
+      .results-wrap{padding:1.5vh 3vw;}
+      .results-card{max-height:82vh;padding:1rem;}
+      .results-head h2{white-space:normal;}
+      .summary-grid{grid-template-columns:1fr;}
+      .control-grid .cta-button,
+      .table-tools .cta-button{width:100%;}
     }
   </style>
 </head>
+
 <body>
-  <main class="page-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="seal">S</div>
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">📜</span>
+        <span class="gradient-text">Assignment Results</span>
+      </h1>
+      <p class="subtitle">Review each student’s challenge progress.</p>
+      <button class="modern-button" id="home-button" onclick="window.location.href='teacher_home.html'">🏠</button>
+    </div>
+  </div>
+
+  <main class="results-wrap">
+    <section class="results-card">
+      <div class="results-head">
+        <div class="rule"></div>
+        <h2 id="results-title">Teacher Dashboard</h2>
+        <div class="rule"></div>
+      </div>
+
+      <p class="results-intro" id="teacher-line">Choose a class and assignment.</p>
+
+      <section class="control-grid">
         <div>
-          <h1>Assignment Results</h1>
-          <div class="subtitle">See every student’s progress, score, and completion status.</div>
+          <label class="field-label" for="class-select">Class</label>
+          <select class="select-input" id="class-select">
+            <option value="">Loading classes...</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="assignment-select">Assignment</label>
+          <select class="select-input" id="assignment-select" disabled>
+            <option value="">Select a class first...</option>
+          </select>
+        </div>
+
+        <button type="button" class="cta-button sweep" id="load-results-button" disabled>Load Results</button>
+      </section>
+
+      <section class="summary-grid" aria-label="Assignment summary">
+        <article class="summary-card">
+          <div class="summary-label">Students</div>
+          <div class="summary-value" id="stat-students">—</div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-label">Completed</div>
+          <div class="summary-value" id="stat-completed">—</div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-label">Average Score</div>
+          <div class="summary-value" id="stat-average">—</div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-label">Open</div>
+          <div class="summary-value" id="stat-open">—</div>
+        </article>
+      </section>
+
+      <div class="table-tools">
+        <div class="student-search-wrap">
+          <label class="field-label" for="student-search">Search Students</label>
+          <input class="text-input" id="student-search" type="search" placeholder="Type a student name..." />
+        </div>
+
+        <div class="actions">
+          <button type="button" class="cta-button mini-button" id="export-csv-button" disabled>Export CSV</button>
         </div>
       </div>
-      <div id="teacher-status" class="status-pill">Checking teacher account...</div>
-    </header>
 
-    <section class="panel controls">
-      <div>
-        <label for="class-select">Class</label>
-        <select id="class-select">
-          <option value="">Loading classes...</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="assignment-select">Assignment</label>
-        <select id="assignment-select" disabled>
-          <option value="">Select a class first...</option>
-        </select>
-      </div>
-
-      <button id="load-results-button" disabled>Load Results</button>
-    </section>
-
-    <section class="summary-grid" aria-label="Assignment summary">
-      <article class="stat-card">
-        <div class="stat-label">Students</div>
-        <div id="stat-students" class="stat-value">—</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-label">Completed</div>
-        <div id="stat-completed" class="stat-value">—</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-label">Average Score</div>
-        <div id="stat-average" class="stat-value">—</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-label">Needs Review</div>
-        <div id="stat-review" class="stat-value">—</div>
-      </article>
-    </section>
-
-    <section class="panel table-panel">
-      <div class="tools-row">
-        <div class="search-wrap">
-          <label for="student-search">Search Students</label>
-          <input id="student-search" type="search" placeholder="Type a student name..." />
-        </div>
-        <button id="export-csv-button" class="small-button" disabled>Export CSV</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
+      <div class="results-table-wrap">
+        <table class="results-table">
           <thead>
             <tr>
               <th data-sort="student_name">Student</th>
-              <th data-sort="status">Status</th>
-              <th data-sort="score_percent">Score</th>
-              <th data-sort="correct_count">Correct</th>
-              <th data-sort="attempts">Attempts</th>
-              <th data-sort="time_spent_seconds">Time Spent</th>
-              <th data-sort="submitted_at">Submitted</th>
+              <th data-sort="game_completed">Status</th>
+              <th data-sort="game_score">Game Score</th>
+              <th data-sort="assignment_id">Assignment</th>
+              <th data-sort="created_at">Submitted</th>
             </tr>
           </thead>
           <tbody id="results-body">
             <tr>
-              <td colspan="7" class="empty-state">Choose a class and assignment to begin.</td>
+              <td colspan="5" class="message-row">Choose a class and assignment to begin.</td>
             </tr>
           </tbody>
         </table>
@@ -388,251 +431,229 @@
   </main>
 
   <script type="module">
-    /********************************************************************
-     * 1. SUPABASE SETUP
-     * Replace this import with your real client path.
-     ********************************************************************/
     import { supabaseClient } from './supabase/supabaseClient.js';
 
-    /********************************************************************
-     * 2. EXPECTED TABLE SHAPE
-     *
-     * This page assumes roughly:
-     *
-     * profiles:
-     *   id, auth_user_id, full_name, role
-     *
-     * classes:
-     *   id, class_name, teacher_profile_id
-     *
-     * class_students:
-     *   class_id, student_profile_id
-     *
-     * assignments:
-     *   id, class_id, title
-     *
-     * student_assignment_results:
-     *   id, assignment_id, student_profile_id, score_percent,
-     *   correct_count, total_count, attempts, time_spent_seconds,
-     *   status, submitted_at
-     *
-     * If your table names differ, change only the functions below.
-     ********************************************************************/
+    const classSelect = document.getElementById('class-select');
+    const assignmentSelect = document.getElementById('assignment-select');
+    const loadResultsButton = document.getElementById('load-results-button');
+    const resultsBody = document.getElementById('results-body');
+    const studentSearch = document.getElementById('student-search');
+    const exportCsvButton = document.getElementById('export-csv-button');
+    const teacherLine = document.getElementById('teacher-line');
+    const resultsTitle = document.getElementById('results-title');
 
-    const els = {
-      teacherStatus: document.getElementById('teacher-status'),
-      classSelect: document.getElementById('class-select'),
-      assignmentSelect: document.getElementById('assignment-select'),
-      loadButton: document.getElementById('load-results-button'),
-      resultsBody: document.getElementById('results-body'),
-      search: document.getElementById('student-search'),
-      exportButton: document.getElementById('export-csv-button'),
-      statStudents: document.getElementById('stat-students'),
-      statCompleted: document.getElementById('stat-completed'),
-      statAverage: document.getElementById('stat-average'),
-      statReview: document.getElementById('stat-review')
-    };
+    const statStudents = document.getElementById('stat-students');
+    const statCompleted = document.getElementById('stat-completed');
+    const statAverage = document.getElementById('stat-average');
+    const statOpen = document.getElementById('stat-open');
 
-    let currentTeacherProfile = null;
+    let teacherProfile = null;
     let currentRows = [];
     let sortKey = 'student_name';
     let sortDirection = 'asc';
 
     document.addEventListener('DOMContentLoaded', init);
-    els.classSelect.addEventListener('change', handleClassChange);
-    els.assignmentSelect.addEventListener('change', updateLoadButtonState);
-    els.loadButton.addEventListener('click', loadResults);
-    els.search.addEventListener('input', renderResults);
-    els.exportButton.addEventListener('click', exportCsv);
+    classSelect.addEventListener('change', handleClassChange);
+    assignmentSelect.addEventListener('change', updateLoadButtonState);
+    loadResultsButton.addEventListener('click', loadResults);
+    studentSearch.addEventListener('input', renderRows);
+    exportCsvButton.addEventListener('click', exportCsv);
 
     document.querySelectorAll('th[data-sort]').forEach(th => {
       th.addEventListener('click', () => {
         const nextKey = th.dataset.sort;
+
         if (sortKey === nextKey) {
           sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
           sortKey = nextKey;
           sortDirection = 'asc';
         }
-        renderResults();
+
+        renderRows();
       });
     });
 
-    async function init() {
-      try {
-        setMessage('Loading your teacher dashboard...');
+    async function init(){
+      try{
+        setMessage('Loading teacher account...');
 
         const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
         if (userError) throw userError;
+
         if (!user) {
-          els.teacherStatus.textContent = 'Not signed in';
           setError('Please sign in as a teacher to view assignment results.');
+          teacherLine.textContent = 'Not signed in.';
           return;
         }
 
-        currentTeacherProfile = await getTeacherProfile(user.id);
-        els.teacherStatus.textContent = `Teacher: ${currentTeacherProfile.full_name || 'Signed in'}`;
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+        teacherProfile = profile;
+
+        if (teacherProfile.role && teacherProfile.role !== 'teacher') {
+          throw new Error('This page is only available for teacher accounts.');
+        }
+
+        teacherLine.textContent = teacherProfile.full_name
+          ? `Welcome, ${teacherProfile.full_name}.`
+          : 'Welcome. Choose a class and assignment.';
 
         await loadClasses();
         resetStats();
-      } catch (err) {
+      } catch(err) {
         console.error(err);
-        els.teacherStatus.textContent = 'Error';
-        setError(err.message || 'Something went wrong loading this page.');
+        setError(err.message || 'Could not load this page.');
       }
     }
 
-    async function getTeacherProfile(authUserId) {
-      const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('id, full_name, role')
-        .eq('auth_user_id', authUserId)
-        .single();
-
-      if (error) throw error;
-
-      if (data.role && data.role !== 'teacher') {
-        throw new Error('This page is only available for teacher accounts.');
-      }
-
-      return data;
-    }
-
-    async function loadClasses() {
+    async function loadClasses(){
       const { data: classes, error } = await supabaseClient
         .from('classes')
         .select('id, class_name')
-        .eq('teacher_profile_id', currentTeacherProfile.id)
-        .order('class_name', { ascending: true });
+        .eq('teacher_profile_id', teacherProfile.id)
+        .order('class_name', { ascending:true });
 
       if (error) throw error;
 
       if (!classes?.length) {
-        els.classSelect.innerHTML = '<option value="">No classes found</option>';
-        els.assignmentSelect.innerHTML = '<option value="">No assignments available</option>';
+        classSelect.innerHTML = '<option value="">No classes found</option>';
+        assignmentSelect.innerHTML = '<option value="">No assignments available</option>';
         setMessage('No classes were found for this teacher account.');
         return;
       }
 
-      els.classSelect.innerHTML = '<option value="">Select class...</option>';
+      classSelect.innerHTML = '<option value="">Select class...</option>';
+
       classes.forEach(c => {
         const option = document.createElement('option');
         option.value = c.id;
         option.textContent = c.class_name;
-        els.classSelect.appendChild(option);
+        classSelect.appendChild(option);
       });
 
       setMessage('Choose a class and assignment to begin.');
     }
 
-    async function handleClassChange() {
-      const classId = els.classSelect.value;
-      currentRows = [];
-      renderResults();
-      resetStats();
+    async function handleClassChange(){
+      const classId = classSelect.value;
 
-      els.assignmentSelect.disabled = true;
-      els.loadButton.disabled = true;
-      els.exportButton.disabled = true;
+      currentRows = [];
+      renderRows();
+      resetStats();
+      exportCsvButton.disabled = true;
+      assignmentSelect.disabled = true;
+      loadResultsButton.disabled = true;
 
       if (!classId) {
-        els.assignmentSelect.innerHTML = '<option value="">Select a class first...</option>';
+        assignmentSelect.innerHTML = '<option value="">Select a class first...</option>';
         setMessage('Choose a class and assignment to begin.');
         return;
       }
 
-      try {
-        els.assignmentSelect.innerHTML = '<option value="">Loading assignments...</option>';
+      try{
+        setMessage('Loading assignments...');
+        assignmentSelect.innerHTML = '<option value="">Loading assignments...</option>';
 
         const { data: assignments, error } = await supabaseClient
           .from('assignments')
-          .select('id, title')
+          .select('id, title, sage_name')
           .eq('class_id', classId)
-          .order('title', { ascending: true });
+          .order('title', { ascending:true });
 
         if (error) throw error;
 
         if (!assignments?.length) {
-          els.assignmentSelect.innerHTML = '<option value="">No assignments found</option>';
+          assignmentSelect.innerHTML = '<option value="">No assignments found</option>';
           setMessage('No assignments were found for this class.');
           return;
         }
 
-        els.assignmentSelect.innerHTML = '<option value="">Select assignment...</option>';
+        assignmentSelect.innerHTML = '<option value="">Select assignment...</option>';
+
         assignments.forEach(a => {
           const option = document.createElement('option');
           option.value = a.id;
-          option.textContent = a.title;
-          els.assignmentSelect.appendChild(option);
+          option.textContent = a.title || a.sage_name || `Assignment ${a.id}`;
+          assignmentSelect.appendChild(option);
         });
 
-        els.assignmentSelect.disabled = false;
+        assignmentSelect.disabled = false;
         setMessage('Now choose an assignment.');
-      } catch (err) {
+      } catch(err) {
         console.error(err);
         setError(err.message || 'Could not load assignments.');
       }
     }
 
-    function updateLoadButtonState() {
-      els.loadButton.disabled = !els.classSelect.value || !els.assignmentSelect.value;
+    function updateLoadButtonState(){
+      loadResultsButton.disabled = !classSelect.value || !assignmentSelect.value;
     }
 
-    async function loadResults() {
-      const classId = els.classSelect.value;
-      const assignmentId = els.assignmentSelect.value;
+    async function loadResults(){
+      const classId = classSelect.value;
+      const assignmentId = assignmentSelect.value;
       if (!classId || !assignmentId) return;
 
-      try {
-        els.loadButton.disabled = true;
+      try{
+        loadResultsButton.disabled = true;
         setMessage('Loading student results...');
 
         const students = await getStudentsForClass(classId);
-        const results = await getResultsForAssignment(assignmentId);
+        const progressRows = await getProgressForAssignment(assignmentId);
 
-        const resultsByStudentId = new Map(
-          results.map(result => [result.student_profile_id, result])
-        );
+        const progressByStudentId = new Map();
+
+        progressRows.forEach(row => {
+          const current = progressByStudentId.get(row.student_id);
+
+          if (!current || dateValue(row.created_at) > dateValue(current.created_at)) {
+            progressByStudentId.set(row.student_id, row);
+          }
+        });
 
         currentRows = students.map(student => {
-          const result = resultsByStudentId.get(student.id);
-          const totalCount = result?.total_count ?? 0;
-          const correctCount = result?.correct_count ?? 0;
-          const scorePercent = result?.score_percent ?? (
-            totalCount ? Math.round((correctCount / totalCount) * 100) : null
-          );
+          const progress = progressByStudentId.get(student.id);
 
           return {
             student_id: student.id,
-            student_name: student.full_name || 'Unnamed student',
-            status: result?.status || 'not_started',
-            score_percent: scorePercent,
-            correct_count: correctCount,
-            total_count: totalCount,
-            attempts: result?.attempts ?? 0,
-            time_spent_seconds: result?.time_spent_seconds ?? 0,
-            submitted_at: result?.submitted_at || null
+            student_name: student.full_name || student.name || 'Unnamed Student',
+            assignment_id: assignmentId,
+            game_score: progress?.game_score ?? null,
+            game_completed: Boolean(progress?.game_completed),
+            created_at: progress?.created_at || null
           };
         });
 
+        const selectedAssignmentText = assignmentSelect.options[assignmentSelect.selectedIndex]?.textContent || 'Assignment';
+        resultsTitle.textContent = selectedAssignmentText;
+
         renderStats(currentRows);
-        renderResults();
-        els.exportButton.disabled = currentRows.length === 0;
-      } catch (err) {
+        renderRows();
+        exportCsvButton.disabled = currentRows.length === 0;
+      } catch(err) {
         console.error(err);
-        setError(err.message || 'Could not load student results.');
+        setError(err.message || 'Could not load results.');
       } finally {
         updateLoadButtonState();
       }
     }
 
-    async function getStudentsForClass(classId) {
+    async function getStudentsForClass(classId){
       const { data, error } = await supabaseClient
         .from('class_students')
         .select(`
-          student:student_profile_id (
+          student:student_id (
             id,
-            full_name
+            profile_id,
+            profile:profile_id (
+              full_name
+            )
           )
         `)
         .eq('class_id', classId);
@@ -642,42 +663,59 @@
       return (data || [])
         .map(row => row.student)
         .filter(Boolean)
-        .sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+        .map(student => ({
+          id: student.id,
+          full_name: student.profile?.full_name || student.full_name || student.name || 'Unnamed Student'
+        }))
+        .sort((a, b) => a.full_name.localeCompare(b.full_name));
     }
 
-    async function getResultsForAssignment(assignmentId) {
+    async function getProgressForAssignment(assignmentId){
       const { data, error } = await supabaseClient
-        .from('student_assignment_results')
-        .select(`
-          student_profile_id,
-          score_percent,
-          correct_count,
-          total_count,
-          attempts,
-          time_spent_seconds,
-          status,
-          submitted_at
-        `)
+        .from('assignment_progress')
+        .select('assignment_id, student_id, game_score, game_completed, created_at')
         .eq('assignment_id', assignmentId);
 
       if (error) throw error;
       return data || [];
     }
 
-    function renderResults() {
-      const searchTerm = els.search.value.trim().toLowerCase();
+    function renderStats(rows){
+      const total = rows.length;
+      const completed = rows.filter(row => row.game_completed).length;
+      const open = total - completed;
+      const scored = rows.filter(row => typeof row.game_score === 'number');
+      const average = scored.length
+        ? Math.round(scored.reduce((sum, row) => sum + row.game_score, 0) / scored.length)
+        : null;
+
+      statStudents.textContent = total;
+      statCompleted.textContent = completed;
+      statAverage.textContent = average === null ? '—' : average;
+      statOpen.textContent = open;
+    }
+
+    function resetStats(){
+      statStudents.textContent = '—';
+      statCompleted.textContent = '—';
+      statAverage.textContent = '—';
+      statOpen.textContent = '—';
+    }
+
+    function renderRows(){
+      const search = studentSearch.value.trim().toLowerCase();
       let rows = [...currentRows];
 
-      if (searchTerm) {
-        rows = rows.filter(row => row.student_name.toLowerCase().includes(searchTerm));
+      if (search) {
+        rows = rows.filter(row => row.student_name.toLowerCase().includes(search));
       }
 
       rows.sort((a, b) => compareRows(a, b, sortKey, sortDirection));
 
       if (!rows.length) {
-        els.resultsBody.innerHTML = `
+        resultsBody.innerHTML = `
           <tr>
-            <td colspan="7" class="empty-state">
+            <td colspan="5" class="message-row">
               ${currentRows.length ? 'No students match your search.' : 'Choose a class and assignment to begin.'}
             </td>
           </tr>
@@ -685,53 +723,21 @@
         return;
       }
 
-      els.resultsBody.innerHTML = rows.map(row => `
+      resultsBody.innerHTML = rows.map(row => `
         <tr>
           <td>
             <div class="student-name">${escapeHtml(row.student_name)}</div>
-            <div class="muted">ID: ${escapeHtml(row.student_id)}</div>
+            <div class="muted">Student ID: ${escapeHtml(row.student_id)}</div>
           </td>
-          <td>${formatStatus(row.status)}</td>
-          <td>${formatScore(row.score_percent)}</td>
-          <td>${row.correct_count || 0} / ${row.total_count || 0}</td>
-          <td>${row.attempts || 0}</td>
-          <td>
-            <div class="progress-track" title="${formatDuration(row.time_spent_seconds)}">
-              <div class="progress-fill" style="width: ${getTimeBarWidth(row.time_spent_seconds)}%"></div>
-            </div>
-            <div class="muted">${formatDuration(row.time_spent_seconds)}</div>
-          </td>
-          <td>${row.submitted_at ? formatDate(row.submitted_at) : '<span class="muted">—</span>'}</td>
+          <td>${formatCompletion(row.game_completed)}</td>
+          <td>${formatScore(row.game_score)}</td>
+          <td><span class="muted">${escapeHtml(row.assignment_id)}</span></td>
+          <td>${row.created_at ? formatDate(row.created_at) : '<span class="muted">Not submitted</span>'}</td>
         </tr>
       `).join('');
     }
 
-    function renderStats(rows) {
-      const totalStudents = rows.length;
-      const completed = rows.filter(r => r.status === 'completed' || r.submitted_at).length;
-      const scoredRows = rows.filter(r => typeof r.score_percent === 'number');
-      const average = scoredRows.length
-        ? Math.round(scoredRows.reduce((sum, r) => sum + r.score_percent, 0) / scoredRows.length)
-        : null;
-      const needsReview = rows.filter(r => {
-        const lowScore = typeof r.score_percent === 'number' && r.score_percent < 70;
-        return r.status === 'needs_review' || lowScore;
-      }).length;
-
-      els.statStudents.textContent = totalStudents;
-      els.statCompleted.textContent = completed;
-      els.statAverage.textContent = average === null ? '—' : `${average}%`;
-      els.statReview.textContent = needsReview;
-    }
-
-    function resetStats() {
-      els.statStudents.textContent = '—';
-      els.statCompleted.textContent = '—';
-      els.statAverage.textContent = '—';
-      els.statReview.textContent = '—';
-    }
-
-    function compareRows(a, b, key, direction) {
+    function compareRows(a, b, key, direction){
       const dir = direction === 'asc' ? 1 : -1;
       const av = a[key];
       const bv = b[key];
@@ -743,109 +749,96 @@
         return (av - bv) * dir;
       }
 
+      if (typeof av === 'boolean' && typeof bv === 'boolean') {
+        return (Number(av) - Number(bv)) * dir;
+      }
+
       return String(av).localeCompare(String(bv)) * dir;
     }
 
-    function formatStatus(status) {
-      const labelMap = {
-        completed: 'Completed',
-        in_progress: 'In Progress',
-        not_started: 'Not Started',
-        needs_review: 'Needs Review'
-      };
-
-      return labelMap[status] || status.replaceAll('_', ' ');
+    function formatCompletion(completed){
+      return completed
+        ? '<span class="status-pill status-complete">Complete</span>'
+        : '<span class="status-pill status-open">Open</span>';
     }
 
-    function formatScore(score) {
-      if (typeof score !== 'number') return '<span class="muted">—</span>';
-      const className = score >= 85 ? 'score-good' : score < 70 ? 'score-low' : '';
-      return `<span class="score-badge ${className}">${score}%</span>`;
+    function formatScore(score){
+      if (typeof score !== 'number') {
+        return '<span class="muted">—</span>';
+      }
+
+      const className = score >= 8 ? 'score-good' : 'score-review';
+
+      return `
+        <span class="score-pill ${className}">${score}</span>
+        <div class="progress-line-small" aria-hidden="true">
+          <div class="progress-fill-small" style="width:${Math.min(100, Math.round((score / 12) * 100))}%"></div>
+        </div>
+      `;
     }
 
-    function getTimeBarWidth(seconds) {
-      const maxReasonableSeconds = 30 * 60;
-      return Math.min(100, Math.round(((seconds || 0) / maxReasonableSeconds) * 100));
-    }
-
-    function formatDuration(seconds) {
-      seconds = Number(seconds || 0);
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
-      if (minutes === 0) return `${remainingSeconds}s`;
-      return `${minutes}m ${remainingSeconds}s`;
-    }
-
-    function formatDate(value) {
+    function formatDate(value){
       return new Intl.DateTimeFormat(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
+        month:'short',
+        day:'numeric',
+        year:'numeric',
+        hour:'numeric',
+        minute:'2-digit'
       }).format(new Date(value));
     }
 
-    function setMessage(message) {
-      els.resultsBody.innerHTML = `
+    function dateValue(value){
+      return value ? new Date(value).getTime() : 0;
+    }
+
+    function setMessage(message){
+      resultsBody.innerHTML = `
         <tr>
-          <td colspan="7" class="message-state">${escapeHtml(message)}</td>
+          <td colspan="5" class="message-row">${escapeHtml(message)}</td>
         </tr>
       `;
     }
 
-    function setError(message) {
-      els.resultsBody.innerHTML = `
+    function setError(message){
+      resultsBody.innerHTML = `
         <tr>
-          <td colspan="7" class="message-state error-state">${escapeHtml(message)}</td>
+          <td colspan="5" class="message-row error-row">${escapeHtml(message)}</td>
         </tr>
       `;
     }
 
-    function exportCsv() {
+    function exportCsv(){
       if (!currentRows.length) return;
 
-      const headers = [
-        'Student',
-        'Status',
-        'Score Percent',
-        'Correct Count',
-        'Total Count',
-        'Attempts',
-        'Time Spent Seconds',
-        'Submitted At'
-      ];
-
+      const headers = ['Student', 'Student ID', 'Completed', 'Game Score', 'Assignment ID', 'Submitted At'];
       const rows = currentRows.map(row => [
         row.student_name,
-        row.status,
-        row.score_percent ?? '',
-        row.correct_count ?? '',
-        row.total_count ?? '',
-        row.attempts ?? '',
-        row.time_spent_seconds ?? '',
-        row.submitted_at ?? ''
+        row.student_id,
+        row.game_completed ? 'Complete' : 'Open',
+        row.game_score ?? '',
+        row.assignment_id,
+        row.created_at ?? ''
       ]);
 
       const csv = [headers, ...rows]
-        .map(values => values.map(csvEscape).join(','))
+        .map(row => row.map(csvEscape).join(','))
         .join('\n');
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'assignment-results.csv';
-      a.click();
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'assignment-results.csv';
+      link.click();
       URL.revokeObjectURL(url);
     }
 
-    function csvEscape(value) {
+    function csvEscape(value){
       const str = String(value ?? '');
       return `"${str.replaceAll('"', '""')}"`;
     }
 
-    function escapeHtml(value) {
+    function escapeHtml(value){
       return String(value ?? '')
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
