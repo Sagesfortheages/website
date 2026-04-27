@@ -489,7 +489,7 @@
 
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, display_name, role')
           .eq('auth_user_id', user.id)
           .single();
 
@@ -500,8 +500,8 @@
           throw new Error('This page is only available for teacher accounts.');
         }
 
-        teacherLine.textContent = teacherProfile.full_name
-          ? `Welcome, ${teacherProfile.full_name}.`
+        teacherLine.textContent = teacherProfile.display_name
+          ? `Welcome, ${teacherProfile.display_name}.`
           : 'Welcome. Choose a class and assignment.';
 
         await loadClasses();
@@ -622,7 +622,7 @@
 
           return {
             student_id: student.id,
-            student_name: student.full_name || student.name || 'Unnamed Student',
+            student_name: student.display_name || student.name || 'Unnamed Student',
             assignment_id: assignmentId,
             game_score: progress?.game_score ?? null,
             game_completed: Boolean(progress?.game_completed),
@@ -652,7 +652,7 @@
             id,
             profile_id,
             profile:profile_id (
-              full_name
+              display_name
             )
           )
         `)
@@ -665,9 +665,9 @@
         .filter(Boolean)
         .map(student => ({
           id: student.id,
-          full_name: student.profile?.full_name || student.full_name || student.name || 'Unnamed Student'
+          display_name: student.profile?.display_name || student.display_name || student.name || 'Unnamed Student'
         }))
-        .sort((a, b) => a.full_name.localeCompare(b.full_name));
+        .sort((a, b) => a.display_name.localeCompare(b.display_name));
     }
 
     async function getProgressForAssignment(assignmentId){
