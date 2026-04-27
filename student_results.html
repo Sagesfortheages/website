@@ -644,31 +644,34 @@
       }
     }
 
-    async function getStudentsForClass(classId){
-      const { data, error } = await supabaseClient
-        .from('students')
-        .select(`
-          student:student_id (
-            id,
-            profile_id,
-            profile:profile_id (
-              display_name
-            )
-          )
-        `)
-        .eq('class_id', classId);
+async function getStudentsForClass(classId){
+  const { data, error } = await supabaseClient
+    .from('students')
+    .select(`
+      id,
+      username,
+      placeholder_email,
+      profile_id,
+      profile:profile_id (
+        display_name
+      )
+    `)
+    .eq('class_id', classId)
+    .eq('active', true);
 
-      if (error) throw error;
+  if (error) throw error;
 
-      return (data || [])
-        .map(row => row.student)
-        .filter(Boolean)
-        .map(student => ({
-          id: student.id,
-          display_name: student.profile?.display_name || student.display_name || student.name || 'Unnamed Student'
-        }))
-        .sort((a, b) => a.display_name.localeCompare(b.display_name));
-    }
+  return (data || [])
+    .map(student => ({
+      id: student.id,
+      display_name:
+        student.profile?.display_name ||
+        student.username ||
+        student.placeholder_email ||
+        'Unnamed Student'
+    }))
+    .sort((a, b) => a.display_name.localeCompare(b.display_name));
+}
 
     async function getProgressForAssignment(assignmentId){
       const { data, error } = await supabaseClient
