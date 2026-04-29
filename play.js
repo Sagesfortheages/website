@@ -420,6 +420,15 @@ async function startNewGame() {
         correctLabel.classList.remove('clickable');
     }
 
+    const restartButton = document.getElementById('restart-button');
+
+    if (restartButton) {
+        restartButton.textContent = '🔄';
+        restartButton.onclick = function () {
+            hideCustomAlert(true);
+        };
+    }
+
     const guessLabel = document.getElementById('guessLabel');
     if (guessLabel) {
         guessLabel.textContent = '';
@@ -963,6 +972,17 @@ function finishGame(finalCorrectAnswer) {
     if (correctLabel) {
         correctLabel.textContent = finalCorrectAnswer.person;
         correctLabel.classList.add('clickable');
+    }
+
+    if (assignmentId) {
+        const restartButton = document.getElementById('restart-button');
+
+        if (restartButton) {
+            restartButton.textContent = 'Go To Profile';
+            restartButton.onclick = function () {
+                linkToProfile(finalCorrectAnswer);
+            };
+        }
     }
 
     const guessLabel = document.getElementById('guessLabel');
