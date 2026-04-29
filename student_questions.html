@@ -384,9 +384,7 @@
 
     const params = new URLSearchParams(window.location.search);
 
-    const sageName = 'Lubavitcher Rebbe'
-
-    // const sageName = params.get('sage') || params.get('selected') || '';
+    const sageName = params.get('sage') || params.get('selected') || '';
 
     const assignmentId = params.get('assignment_id');
 
