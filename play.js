@@ -982,7 +982,7 @@ function finishGame(finalCorrectAnswer) {
             restartButton.textContent = 'Explore The Sage';
             restartButton.classList.add('button-wide');
             restartButton.onclick = function () {
-                linkToProfile(finalCorrectAnswer);
+                linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId);
             };
         }
     }

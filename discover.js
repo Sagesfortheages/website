@@ -9,6 +9,9 @@ const course = JSON.parse(decodeURIComponent(params.get('course') || '[]'));
 const courseIndex = parseInt(params.get('courseIndex') || '0', 10);
 const courseModeActive = params.get('courseModeActive') === 'true';
 
+const assignmentId = params.get('assignmentId');
+const isAssignment = !!assignmentId;
+
 let courseMode = courseModeActive;
 console.log("Course mode:", courseMode);
 
@@ -485,6 +488,25 @@ if (expertiseList) {
     } else {
         document.getElementById("course-nav").style.display = "none";
     }
+
+    if (isAssignment) {
+    const hero = document.getElementById("hero-content");
+
+    if (hero && !document.getElementById("assignment-cta")) {
+        const btn = document.createElement("button");
+        btn.id = "assignment-cta";
+        btn.className = "cta2 round-sweep";
+        btn.textContent = "Continue Assignment →";
+
+        btn.style.marginTop = "1vmin";
+
+        btn.onclick = () => {
+            window.location.href = `student_questions.html?assignmentId=${encodeURIComponent(assignmentId)}`;
+        };
+
+        hero.appendChild(btn);
+    }
+}
 }
 
 function startTour() {
