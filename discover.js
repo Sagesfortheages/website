@@ -503,7 +503,7 @@ if (expertiseList) {
         btn.style.marginTop = "1vmin";
 
         btn.onclick = () => {
-            window.location.href = `student_questions.html?assignmentId=${encodeURIComponent(assignmentId)}`;
+            window.location.href = `student_questions.html?sage=${encodeURIComponent(selectedPerson)}assignmentId=${encodeURIComponent(assignmentId)}`;
         };
 
         hero.appendChild(btn);
