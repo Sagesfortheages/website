@@ -424,6 +424,7 @@ async function startNewGame() {
 
     if (restartButton) {
         restartButton.textContent = '🔄';
+        restartButton.classList.remove('button-wide');
         restartButton.onclick = function () {
             hideCustomAlert(true);
         };
@@ -978,7 +979,8 @@ function finishGame(finalCorrectAnswer) {
         const restartButton = document.getElementById('restart-button');
 
         if (restartButton) {
-            restartButton.textContent = 'Go To Profile';
+            restartButton.textContent = 'Explore The Sage';
+            restartButton.classList.add('button-wide');
             restartButton.onclick = function () {
                 linkToProfile(finalCorrectAnswer);
             };
