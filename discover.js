@@ -494,6 +494,8 @@ if (expertiseList) {
 
     if (hero && !document.getElementById("assignment-cta")) {
         const btn = document.createElement("button");
+        console.log(btn)
+        console.log(btn.style)
         btn.id = "assignment-cta";
         btn.className = "cta2 round-sweep";
         btn.textContent = "Continue Assignment →";
