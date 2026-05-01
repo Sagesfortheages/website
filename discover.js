@@ -497,7 +497,7 @@ if (expertiseList) {
         console.log(btn)
         console.log(btn.style)
         btn.id = "assignment-cta";
-        btn.className = "cta2 round-sweep";
+        btn.className = "cta2 sweep";
         btn.textContent = "Continue Assignment →";
 
         btn.style.marginTop = "1vmin";
@@ -506,7 +506,7 @@ if (expertiseList) {
             window.location.href = `student_questions.html?sage=${encodeURIComponent(selectedPerson)}&assignmentId=${encodeURIComponent(assignmentId)}`;
         };
 
-        hero.appendChild(btn);
+        document.body.appendChild(btn);
     }
 }
 }
