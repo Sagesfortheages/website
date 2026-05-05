@@ -579,7 +579,13 @@
         assignments.forEach(a => {
           const option = document.createElement('option');
           option.value = a.id;
-          option.textContent = a.title || a.target_sage_person || `Assignment ${a.id}`;
+
+          const baseTitle = a.title || "Mystery Sage";
+
+          option.textContent = a.target_sage_person
+            ? `${baseTitle} – ${a.target_sage_person}`
+            : baseTitle;
+
           assignmentSelect.appendChild(option);
         });
 
