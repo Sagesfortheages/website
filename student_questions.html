@@ -258,10 +258,10 @@
     }
 
     .lottie-wrap{
-        display:flex;
-        justify-content:center;
-        min-height:120px;
-        margin-top:.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1vmin;
     }
     
 
@@ -764,7 +764,7 @@ function buildQuestion({ key, prompt, correct, choices, preference = false, text
             src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
             background="transparent"
             speed="1"
-            style="width:120px;height:120px;"
+            style="width:90px;height:120px;"
             autoplay>
             </lottie-player>
         `;
@@ -808,8 +808,8 @@ function buildQuestion({ key, prompt, correct, choices, preference = false, text
         `discover.html?selected=${encodeURIComponent(name)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
     }
 
-    profileBtn.addEventListener('click', () => goToProfile());
-    profileBtnFinal.addEventListener('click', () => goToProfile());
+    profileBtn.addEventListener('click', () => linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId));
+    profileBtnFinal.addEventListener('click', () => linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId));
 
     finishBtn.addEventListener('click', () => {
       if (selectedExploreNext) {
