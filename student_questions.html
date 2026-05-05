@@ -810,8 +810,8 @@ function buildQuestion({ key, prompt, correct, choices, preference = false, text
         `discover.html?selected=${encodeURIComponent(name)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
     }
 
-    profileBtn.addEventListener('click', () => linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId));
-    profileBtnFinal.addEventListener('click', () => linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId));
+    profileBtn.addEventListener('click', () => linkToProfile(name, 'discover.html', assignmentId));
+    profileBtnFinal.addEventListener('click', () => linkToProfile(name, 'discover.html', assignmentId));
 
     finishBtn.addEventListener('click', () => {
       if (selectedExploreNext) {
