@@ -35,16 +35,13 @@
       border: 0;
       padding: 1.4vmin 1vmin;
       cursor: pointer;
-
       font-family: var(--font-ui);
       font-size: clamp(12px, 1.7vmin, 16px);
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-
       color: var(--ink-soft);
       opacity: 0.75;
-
       transition: background 0.18s ease, color 0.18s ease, opacity 0.18s ease;
     }
 
@@ -101,13 +98,11 @@
     .field-label {
       display: block;
       margin-bottom: 0.7vmin;
-
       font-family: var(--font-ui);
       font-size: clamp(12px, 1.5vmin, 15px);
       font-weight: 700;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-
       color: var(--heading-ink);
     }
 
@@ -115,18 +110,14 @@
     .teacher-select {
       width: 100%;
       padding: 1.1vmin 1.3vmin;
-
       border: 1px solid rgba(139,115,85,0.35);
       border-radius: var(--radius-sm);
       outline: none;
-
       font-family: var(--font-body);
       font-size: var(--fs-input);
       font-weight: 500;
-
       background: rgba(255,255,255,0.7);
       color: var(--input-ink);
-
       box-shadow: inset 0 1px 6px rgba(0,0,0,0.08);
     }
 
@@ -166,13 +157,11 @@
 
     .result-label {
       margin-bottom: 0.8vmin;
-
       font-family: var(--font-ui);
       font-size: clamp(12px, 1.4vmin, 14px);
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-
       color: var(--ink-soft);
     }
 
@@ -180,15 +169,12 @@
       min-height: 8vmin;
       margin: 0;
       padding: 1.4vmin;
-
       background: rgba(255,255,255,0.45);
       border: 1px dashed var(--rule);
       border-radius: var(--radius-sm);
-
       font-family: var(--font-body);
       font-size: clamp(14px, 1.8vmin, 17px);
       color: var(--ink);
-      white-space: pre-wrap;
       word-break: break-word;
     }
 
@@ -197,6 +183,96 @@
       color: var(--ink-soft);
       opacity: 0.7;
       font-style: italic;
+    }
+
+    .result-card {
+      border-radius: var(--radius-sm);
+      padding: 1.4vmin;
+      background: rgba(255,255,255,0.42);
+      border: 1px solid var(--rule-faint);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .result-card.success {
+      border-color: rgba(47,79,79,0.35);
+      background: rgba(47,79,79,0.07);
+    }
+
+    .result-card.error {
+      border-color: rgba(140,40,40,0.35);
+      background: rgba(140,40,40,0.07);
+    }
+
+    .result-card.loading {
+      border-color: rgba(110,85,55,0.28);
+      background: rgba(255,255,255,0.35);
+    }
+
+    .result-title {
+      margin-bottom: 1.2vmin;
+      font-family: var(--font-ui);
+      font-size: clamp(14px, 1.8vmin, 18px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--heading-ink);
+    }
+
+    .result-card.error .result-title {
+      color: rgba(140,40,40,0.96);
+    }
+
+    .result-message {
+      margin-bottom: 1.2vmin;
+      color: var(--ink-soft);
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 0.45fr) 1fr;
+      gap: 1.5vmin;
+      padding: 0.75vmin 0;
+      border-top: 1px solid var(--rule-faint);
+      align-items: baseline;
+    }
+
+    .result-row:first-of-type {
+      border-top: 0;
+    }
+
+    .result-row span {
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .result-row b {
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-size: 0.95em;
+      overflow-wrap: anywhere;
+    }
+
+    .result-small {
+      margin-top: 1vmin;
+      color: var(--ink-soft);
+      opacity: 0.82;
+      font-size: 0.95em;
+      line-height: 1.35;
+    }
+
+    .result-debug {
+      margin-top: 1.2vmin;
+      padding: 1vmin;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.45);
+      border: 1px dashed var(--rule-faint);
+      font-family: monospace;
+      font-size: 0.85em;
+      color: var(--ink-soft);
+      white-space: pre-wrap;
+      max-height: 22vmin;
+      overflow: auto;
     }
 
     @media (max-width: 700px) {
@@ -220,6 +296,11 @@
 
       .section-head .rule {
         display: none;
+      }
+
+      .result-row {
+        grid-template-columns: 1fr;
+        gap: 0.3vmin;
       }
     }
   </style>
@@ -291,7 +372,7 @@
 
         <div class="result-wrap">
           <div class="result-label">Result</div>
-          <pre id="result" class="teacher-result"></pre>
+          <div id="result" class="teacher-result"></div>
         </div>
       </div>
 
@@ -323,7 +404,7 @@
 
         <div class="result-wrap">
           <div class="result-label">Result</div>
-          <pre id="assign-result" class="teacher-result"></pre>
+          <div id="assign-result" class="teacher-result"></div>
         </div>
       </div>
 
@@ -354,6 +435,73 @@
     import { supabaseClient } from './supabase/supabaseClient.js';
     import { loadAllSages } from './supabase/sagesWithNames.js';
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function readJsonSafely(res) {
+      const text = await res.text();
+
+      if (!text) return null;
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { rawText: text };
+      }
+    }
+
+    function showLoading(resultEl, message) {
+      resultEl.innerHTML = `
+        <div class="result-card loading">
+          <div class="result-title">⏳ Working…</div>
+          <div class="result-message">${escapeHtml(message)}</div>
+        </div>
+      `;
+    }
+
+    function showSuccess(resultEl, title, rows = [], message = "") {
+      resultEl.innerHTML = `
+        <div class="result-card success">
+          <div class="result-title">✅ ${escapeHtml(title)}</div>
+          ${message ? `<div class="result-message">${escapeHtml(message)}</div>` : ""}
+          ${rows.map(row => `
+            <div class="result-row">
+              <span>${escapeHtml(row.label)}</span>
+              <b>${escapeHtml(row.value || "—")}</b>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function showError(resultEl, title, message, details = null) {
+      resultEl.innerHTML = `
+        <div class="result-card error">
+          <div class="result-title">⚠️ ${escapeHtml(title)}</div>
+          <div class="result-message">${escapeHtml(message)}</div>
+          ${details ? `<div class="result-debug">${escapeHtml(details)}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function friendlyApiError(data, fallback) {
+      if (!data) return fallback;
+      return (
+        data.userMessage ||
+        data.message ||
+        data.error ||
+        data.details ||
+        data.rawText ||
+        fallback
+      );
+    }
+
     async function createStudent(e) {
       e?.preventDefault();
 
@@ -362,13 +510,30 @@
       const username = document.getElementById('student-username').value.trim();
       const resultEl = document.getElementById('result');
 
-      resultEl.textContent = 'Creating student…';
+      if (!classId || !displayName || !username) {
+        showError(
+          resultEl,
+          "Missing information",
+          "Please enter a class ID, display name, and username before creating the student."
+        );
+        return;
+      }
+
+      showLoading(resultEl, "Creating the student account…");
 
       try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
         if (sessionError) throw sessionError;
-        if (!session?.access_token) throw new Error('No logged-in teacher session found.');
+
+        if (!session?.access_token) {
+          showError(
+            resultEl,
+            "Not signed in",
+            "No logged-in teacher session was found. Please sign in again and retry."
+          );
+          return;
+        }
 
         const res = await fetch('/api/create_student', {
           method: 'POST',
@@ -379,11 +544,40 @@
           body: JSON.stringify({ classId, displayName, username })
         });
 
-        const text = await res.text();
-        resultEl.textContent = `Status: ${res.status}\n${text || '(empty response)'}`;
+        const data = await readJsonSafely(res);
+
+        if (!res.ok || data?.success === false) {
+          showError(
+            resultEl,
+            "Student was not created",
+            friendlyApiError(data, "The student could not be created. Please check the class ID and username, then try again."),
+            data?.rawText ? data.rawText : JSON.stringify(data, null, 2)
+          );
+          return;
+        }
+
+        const student = data?.student || data?.data?.student || data || {};
+
+        showSuccess(
+          resultEl,
+          "Student created successfully",
+          [
+            { label: "Display name", value: student.display_name || student.displayName || displayName },
+            { label: "Username", value: student.username || username },
+            { label: "Class ID", value: student.class_id || student.classId || classId },
+            { label: "Temporary PIN", value: student.pin || student.tempPin || student.temporary_pin || "Check your saved student record" }
+          ],
+          "The student can now use this account to access assigned activities."
+        );
+
       } catch (err) {
-        resultEl.textContent = `Error: ${err.message}`;
         console.error(err);
+        showError(
+          resultEl,
+          "Student was not created",
+          "Something went wrong while creating the student. Please check your connection and try again.",
+          err.message
+        );
       }
     }
 
@@ -407,6 +601,13 @@
       } catch (err) {
         console.error('Error loading sages:', err);
         sageSelect.innerHTML = `<option value="">Failed to load sages</option>`;
+
+        showError(
+          document.getElementById('assign-result'),
+          "Could not load sages",
+          "The sage list could not be loaded. Refresh the page and try again.",
+          err.message
+        );
       }
     }
 
@@ -418,17 +619,29 @@
       const resultEl = document.getElementById('assign-result');
 
       if (!classId || !targetSagePerson) {
-        resultEl.textContent = 'Please enter a class ID and choose a sage.';
+        showError(
+          resultEl,
+          "Missing information",
+          "Please enter a class ID and choose a mystery sage before creating the assignment."
+        );
         return;
       }
 
-      resultEl.textContent = 'Creating assignment…';
+      showLoading(resultEl, "Creating the assignment for this class…");
 
       try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
         if (sessionError) throw sessionError;
-        if (!session?.access_token) throw new Error('No logged-in teacher session found.');
+
+        if (!session?.access_token) {
+          showError(
+            resultEl,
+            "Not signed in",
+            "No logged-in teacher session was found. Please sign in again and retry."
+          );
+          return;
+        }
 
         const res = await fetch('/api/create_assignment', {
           method: 'POST',
@@ -443,18 +656,43 @@
           })
         });
 
-        const data = await res.json();
+        const data = await readJsonSafely(res);
 
-        if (!res.ok || !data.success) {
-          resultEl.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok || data?.success === false) {
+          showError(
+            resultEl,
+            "Assignment was not created",
+            friendlyApiError(
+              data,
+              "The assignment could not be created. Please check the class ID and try again."
+            ),
+            data?.rawText ? data.rawText : JSON.stringify(data, null, 2)
+          );
           return;
         }
 
-        resultEl.textContent =
-          `Assignment created!\n\nClass: ${data.assignment.className}\nActivity: ${data.assignment.title}`;
+        const assignment = data?.assignment || data?.data?.assignment || {};
+
+        showSuccess(
+          resultEl,
+          "Assignment created successfully",
+          [
+            { label: "Class", value: assignment.className || assignment.class_name || `Class ${classId}` },
+            { label: "Activity", value: assignment.title || "Mystery Sage" },
+            { label: "Mystery sage", value: assignment.targetSagePerson || assignment.target_sage_person || targetSagePerson },
+            { label: "Assignment ID", value: assignment.id || assignment.assignment_id || "Created" }
+          ],
+          "Students in this class can now complete the assignment."
+        );
+
       } catch (err) {
         console.error(err);
-        resultEl.textContent = `Error: ${err.message}`;
+        showError(
+          resultEl,
+          "Assignment was not created",
+          "Something went wrong while creating the assignment. Please check your connection and try again.",
+          err.message
+        );
       }
     }
 
