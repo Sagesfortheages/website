@@ -1,85 +1,468 @@
-<link rel="stylesheet" href="all_styles.css" />
-<link rel="stylesheet" href="create_student.css" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<div class="header-section">
-  <div class="header">
-    <h1>
-      <span class="emoji">🧑‍🎓</span>
-      <span class="gradient-text">Create Student</span>
-    </h1>
-    <p class="subtitle">Create a student login for your class.</p>
-    <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+  <title>Teacher Tools – Sages For The Ages</title>
+
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    body {
+      overflow-y: auto;
+    }
+
+    main {
+      width: min(92vw, 900px);
+      margin: 2vmin auto 6vmin;
+    }
+
+    .teacher-card {
+      overflow: hidden;
+    }
+
+    .teacher-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--rule-faint);
+      position: relative;
+      z-index: 1;
+    }
+
+    .teacher-tab {
+      background: transparent;
+      border: 0;
+      padding: 1.4vmin 1vmin;
+      cursor: pointer;
+
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.7vmin, 16px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      color: var(--ink-soft);
+      opacity: 0.75;
+
+      transition: background 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+    }
+
+    .teacher-tab:hover {
+      background: rgba(255,255,255,0.30);
+      opacity: 1;
+    }
+
+    .teacher-tab.active {
+      color: var(--classy-blue-ink);
+      opacity: 1;
+      background: rgba(47,79,79,0.06);
+      border-bottom: 3px solid var(--classy-blue-ink);
+    }
+
+    .teacher-panel {
+      display: none;
+      padding: 3vmin;
+      position: relative;
+      z-index: 1;
+    }
+
+    .teacher-panel.active {
+      display: block;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 2vmin;
+      margin-bottom: 2.5vmin;
+    }
+
+    .section-head .rule {
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: var(--font-ui);
+      font-size: clamp(13px, 1.8vmin, 18px);
+      color: var(--heading-ink);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .field-group {
+      margin-bottom: 2vmin;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 0.7vmin;
+
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.5vmin, 15px);
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+
+      color: var(--heading-ink);
+    }
+
+    .teacher-input,
+    .teacher-select {
+      width: 100%;
+      padding: 1.1vmin 1.3vmin;
+
+      border: 1px solid rgba(139,115,85,0.35);
+      border-radius: var(--radius-sm);
+      outline: none;
+
+      font-family: var(--font-body);
+      font-size: var(--fs-input);
+      font-weight: 500;
+
+      background: rgba(255,255,255,0.7);
+      color: var(--input-ink);
+
+      box-shadow: inset 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    .teacher-input:focus,
+    .teacher-select:focus {
+      border-color: var(--rule-strong);
+      box-shadow:
+        inset 0 1px 6px rgba(0,0,0,0.08),
+        0 0 0 3px rgba(47,79,79,0.12);
+      background: rgba(255,255,255,0.84);
+    }
+
+    .teacher-select {
+      cursor: pointer;
+    }
+
+    .helper-text {
+      margin-top: 0.5vmin;
+      font-family: var(--font-body);
+      font-size: clamp(13px, 1.7vmin, 16px);
+      font-style: italic;
+      color: var(--ink-soft);
+      opacity: 0.75;
+    }
+
+    .teacher-actions {
+      margin-top: 3vmin;
+      display: flex;
+      justify-content: center;
+    }
+
+    .result-wrap {
+      margin-top: 3vmin;
+      padding-top: 2vmin;
+      border-top: 1px solid var(--rule-faint);
+    }
+
+    .result-label {
+      margin-bottom: 0.8vmin;
+
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.4vmin, 14px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      color: var(--ink-soft);
+    }
+
+    .teacher-result {
+      min-height: 8vmin;
+      margin: 0;
+      padding: 1.4vmin;
+
+      background: rgba(255,255,255,0.45);
+      border: 1px dashed var(--rule);
+      border-radius: var(--radius-sm);
+
+      font-family: var(--font-body);
+      font-size: clamp(14px, 1.8vmin, 17px);
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .teacher-result:empty::before {
+      content: "Response will appear here…";
+      color: var(--ink-soft);
+      opacity: 0.7;
+      font-style: italic;
+    }
+
+    @media (max-width: 700px) {
+      main {
+        width: 94vw;
+        margin-top: 1vmin;
+      }
+
+      .teacher-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .teacher-panel {
+        padding: 4vmin;
+      }
+
+      .section-head {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .section-head .rule {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header-section">
+    <div class="header">
+      <h1>
+        <span class="emoji">🧑‍🎓</span>
+        <span class="gradient-text">Teacher Tools</span>
+      </h1>
+
+      <p class="subtitle">Manage students and assignments for your class.</p>
+
+      <button
+        class="modern-button"
+        id="home-button"
+        onclick="window.location.href='index.html'"
+        title="Home"
+      >
+        🏠
+      </button>
+    </div>
   </div>
-</div>
 
-<main class="create-student-wrap">
-  <section class="create-student-card">
-    <div class="create-student-head">
-      <div class="rule"></div>
-      <h2>Teacher Tools</h2>
-      <div class="rule"></div>
-    </div>
+  <main>
+    <div class="panel teacher-card">
 
-    <div class="create-student-form">
-      <div class="field-group">
-        <label class="field-label" for="class-id">Class ID</label>
-        <input id="class-id" class="search-input" type="number" />
-      </div>
+      <div class="teacher-tabs" role="tablist">
+        <button class="teacher-tab active" data-panel="create" role="tab" aria-selected="true">
+          ✦ Create Student
+        </button>
 
-      <div class="field-group">
-        <label class="field-label" for="student-name">Student Display Name</label>
-        <input id="student-name" class="search-input" type="text" />
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="student-username">Student Username</label>
-        <input id="student-username" class="search-input" type="text" />
-        <div class="helper-text">Use lowercase letters, numbers, or underscores.</div>
-      </div>
-
-      <div class="actions">
-        <button type="button" id="create-student-btn" class="cta-button sweep">
-          Create Student
+        <button class="teacher-tab" data-panel="assign" role="tab" aria-selected="false">
+          ✦ Assign Game
         </button>
       </div>
 
-      <div class="assignment-divider"></div>
+      <div class="teacher-panel active" id="panel-create">
+        <div class="section-head">
+          <span class="rule"></span>
+          <h2>New Student Account</h2>
+          <span class="rule"></span>
+        </div>
 
+        <div class="field-group">
+          <label class="field-label" for="class-id">Class ID</label>
+          <input id="class-id" class="teacher-input" type="number" placeholder="e.g. 1" />
+        </div>
 
+        <div class="field-group">
+          <label class="field-label" for="student-name">Student Display Name</label>
+          <input id="student-name" class="teacher-input" type="text" placeholder="e.g. Miriam Cohen" />
+        </div>
 
-      <div class="result-wrap">
-        <div class="result-title">Result</div>
-        <pre id="result"></pre>
+        <div class="field-group">
+          <label class="field-label" for="student-username">Student Username</label>
+          <input id="student-username" class="teacher-input" type="text" placeholder="e.g. miriam_c" />
+          <div class="helper-text">Use lowercase letters, numbers, or underscores.</div>
+        </div>
+
+        <div class="teacher-actions">
+          <button type="button" id="create-student-btn" class="cta-button">
+            Create Student
+          </button>
+        </div>
+
+        <div class="result-wrap">
+          <div class="result-label">Result</div>
+          <pre id="result" class="teacher-result"></pre>
+        </div>
       </div>
 
+      <div class="teacher-panel" id="panel-assign">
+        <div class="section-head">
+          <span class="rule"></span>
+          <h2>Mystery Sage Assignment</h2>
+          <span class="rule"></span>
+        </div>
 
+        <div class="field-group">
+          <label class="field-label" for="assignment-class-id">Class ID</label>
+          <input id="assignment-class-id" class="teacher-input" type="number" placeholder="e.g. 1" />
+        </div>
 
-      <div class="create-student-head mini-head">
-        <div class="rule"></div>
-        <h2>Assign Game</h2>
-        <div class="rule"></div>
-      </div>
+        <div class="field-group">
+          <label class="field-label" for="sage-select">Choose the Mystery Sage</label>
+          <select id="sage-select" class="teacher-select">
+            <option value="">Loading sages…</option>
+          </select>
+          <div class="helper-text">Students in this class will play with this sage as the correct answer.</div>
+        </div>
 
-      <div class="field-group">
-        <label class="field-label" for="assignment-class-id">Class ID</label>
-        <input id="assignment-class-id" class="search-input" type="number" />
-      </div>
+        <div class="teacher-actions">
+          <button type="button" id="assign-sage-btn" class="cta-button">
+            Assign Sage
+          </button>
+        </div>
 
-      <div class="field-group">
-        <label class="field-label" for="sage-select">Choose the Mystery Sage</label>
-        <select id="sage-select" class="search-input">
-          <option value="">Loading sages...</option>
-        </select>
-        <div class="helper-text">Students in this class will play with this sage as the correct answer.</div>
-      </div>
-
-      <div class="actions">
-        <button type="button" id="assign-sage-btn" class="cta-button sweep">
-          Assign Sage
-        </button>
+        <div class="result-wrap">
+          <div class="result-label">Result</div>
+          <pre id="assign-result" class="teacher-result"></pre>
+        </div>
       </div>
 
     </div>
-  </section>
-</main>
-<script type="module" src="teacher_tools.js"></script>
+  </main>
+
+  <script>
+    document.querySelectorAll('.teacher-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.teacher-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+
+        document.querySelectorAll('.teacher-panel').forEach(p => {
+          p.classList.remove('active');
+        });
+
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      });
+    });
+  </script>
+
+  <script type="module">
+    import { supabaseClient } from './supabase/supabaseClient.js';
+    import { loadAllSages } from './supabase/sagesWithNames.js';
+
+    async function createStudent(e) {
+      e?.preventDefault();
+
+      const classId = Number(document.getElementById('class-id').value);
+      const displayName = document.getElementById('student-name').value.trim();
+      const username = document.getElementById('student-username').value.trim();
+      const resultEl = document.getElementById('result');
+
+      resultEl.textContent = 'Creating student…';
+
+      try {
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+        if (!session?.access_token) throw new Error('No logged-in teacher session found.');
+
+        const res = await fetch('/api/create_student', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ classId, displayName, username })
+        });
+
+        const text = await res.text();
+        resultEl.textContent = `Status: ${res.status}\n${text || '(empty response)'}`;
+      } catch (err) {
+        resultEl.textContent = `Error: ${err.message}`;
+        console.error(err);
+      }
+    }
+
+    async function loadSagesDropdown() {
+      const sageSelect = document.getElementById('sage-select');
+
+      try {
+        const sages = await loadAllSages();
+
+        const unique = [...new Map(sages.map(s => [s.person, s])).values()]
+          .sort((a, b) => a.person.localeCompare(b.person));
+
+        sageSelect.innerHTML = `<option value="">Select a sage…</option>`;
+
+        unique.forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.person;
+          option.textContent = s.person;
+          sageSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Error loading sages:', err);
+        sageSelect.innerHTML = `<option value="">Failed to load sages</option>`;
+      }
+    }
+
+    async function assignSage(e) {
+      e?.preventDefault();
+
+      const classId = Number(document.getElementById('assignment-class-id').value);
+      const targetSagePerson = document.getElementById('sage-select').value;
+      const resultEl = document.getElementById('assign-result');
+
+      if (!classId || !targetSagePerson) {
+        resultEl.textContent = 'Please enter a class ID and choose a sage.';
+        return;
+      }
+
+      resultEl.textContent = 'Creating assignment…';
+
+      try {
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+        if (!session?.access_token) throw new Error('No logged-in teacher session found.');
+
+        const res = await fetch('/api/create_assignment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            classId,
+            targetSagePerson,
+            activityType: 'mystery_sage'
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          resultEl.textContent = JSON.stringify(data, null, 2);
+          return;
+        }
+
+        resultEl.textContent =
+          `Assignment created!\n\nClass: ${data.assignment.className}\nActivity: ${data.assignment.title}`;
+      } catch (err) {
+        console.error(err);
+        resultEl.textContent = `Error: ${err.message}`;
+      }
+    }
+
+    document.getElementById('create-student-btn').addEventListener('click', createStudent);
+    document.getElementById('assign-sage-btn')?.addEventListener('click', assignSage);
+
+    loadSagesDropdown();
+  </script>
+
+</body>
+</html>
