@@ -7,7 +7,7 @@ const isMobile = window.innerWidth <= 768;
 // Choose zoom level
 const initialZoom = isMobile ? 2 : 3;
 
-if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback")) {
+if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback") && !window.location.pathname.includes("questions")) {
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mrosen770/cml3bh9as008l01sdeom31pcp', // Map style
