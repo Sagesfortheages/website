@@ -22,9 +22,9 @@ let lastMarginTop = 20; // matches renderChart margin.top
 async function initializeSages() {
 
     const page = await trackPageView();
-    if(page.isFirstVisit) {
-        startTour()
-    }
+    // if(page.isFirstVisit) {
+    //     startTour()
+    // }
     sages = await loadAllSages();
 
     // Filter out sages missing birth or passing

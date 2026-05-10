@@ -275,9 +275,9 @@ async function loadMarkers() {
 
     const page = await trackPageView();
     console.log(page)
-    if(page.isFirstVisit) {
-        startTour()
-    }
+    // if(page.isFirstVisit) {
+    //     startTour()
+    // }
 }
 
 function startTour() {

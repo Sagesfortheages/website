@@ -192,9 +192,9 @@ async function initializeGame() {
     }
 
     const page = await trackPageView(difficultyLevel);
-    if (page.isFirstVisit) {
-        startTour();
-    }
+    // if (page.isFirstVisit) {
+    //     startTour();
+    // }
 }
 
 function startTour() {

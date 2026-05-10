@@ -232,9 +232,9 @@ async function renderSageProfile(selected, relatedSages = { teachers: [], studen
     if (!selected) return;
 
     const page = await trackPageView(selected?.person || null);
-    if (page.isFirstVisit) {
-        startTour();
-    }
+    // if (page.isFirstVisit) {
+    //     startTour();
+    // }
 
     console.log("Rendering profile for:", selected);
 

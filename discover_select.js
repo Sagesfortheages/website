@@ -119,9 +119,9 @@ markers = await loadAllSages();
   }
 
   const page = await trackPageView();
-  if(page.isFirstVisit) {
-        startTour()
-  }
+  // if(page.isFirstVisit) {
+  //       startTour()
+  // }
 }
 
 // ---------------- Populate people suggestions ----------------

@@ -29,9 +29,9 @@ async function loadMarkersFromDB() {
         console.error("Error loading markers:", error);
     }
     const page = await trackPageView();
-    if(page.isFirstVisit) {
-        startTour();
-    }
+    // if(page.isFirstVisit) {
+    //     startTour();
+    // }
 }
 
 

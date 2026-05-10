@@ -118,9 +118,9 @@ async function loadData() {
         console.error("Error loading data:", err);
     }
     const page = await trackPageView();
-    if(page.isFirstVisit) {
-        startTour();
-    }
+    // if(page.isFirstVisit) {
+    //     startTour();
+    // }
 }
 
 // =====================
