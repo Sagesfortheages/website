@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://t.contentsquare.net/uxa/88078fff335dd.js"></script>
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
@@ -197,6 +198,16 @@
     .cta-button:active{
       transform: translateY(0) scale(0.995);
     }
+
+
+
+
+
+.Signin-short {
+  display: none;
+}
+
+
 
     /* ======================================================
        AUTH OVERLAY
@@ -507,6 +518,224 @@
       touch-action: none;
     }
 
+    .access-note {
+  width: min(74vw, 920px);
+  margin: 3.2vmin auto 0;
+  padding: 1.1vmin 2.2vmin;
+
+  margin-top: 2.6vmin;
+  padding: 1.1vmin 2.2vmin;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65vmin 1vmin;
+  flex-wrap: wrap;
+
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.25vw, 1.08rem);
+  line-height: 1.35;
+
+  color: var(--ink-soft);
+
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.45), transparent 45%),
+    linear-gradient(
+      to bottom,
+      rgba(255, 250, 238, 0.78),
+      rgba(236, 213, 177, 0.62)
+    );
+
+  border: 1px solid rgba(117, 85, 45, 0.28);
+  border-radius: 14px;
+
+  box-shadow:
+    0 8px 18px rgba(58, 37, 18, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    inset 0 -1px 8px rgba(117, 85, 45, 0.08);
+
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+}
+
+.access-note-main {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  color: var(--heading-ink);
+  font-size: clamp(0.95rem, 1.18vw, 1.08rem);
+  letter-spacing: 0.045em;
+}
+
+.access-note-sub {
+  font-style: italic;
+  color: rgba(90, 74, 58, 0.88);
+}
+
+.access-note-main::before {
+  content: "✦";
+  color: rgba(117, 85, 45, 0.58);
+  font-size: 0.9rem;
+}
+
+.access-note-main::after {
+  content: "✦";
+  color: rgba(117, 85, 45, 0.58);
+  font-size: 0.9rem;
+}
+
+.access-register-link{
+  border: none;
+  background: transparent;
+  padding: 0;
+
+  font: inherit;
+  font-style: italic;
+
+  color: var(--classy-blue-ink);
+
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+
+  cursor: pointer;
+
+  transition:
+    color 0.14s ease,
+    opacity 0.14s ease;
+}
+
+.access-register-link:hover{
+  opacity: 0.78;
+}
+.auth-close-button{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(117, 85, 45, 0.22);
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.82),
+      rgba(240,225,198,0.78)
+    );
+
+  color: var(--heading-ink);
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 10px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    background 0.14s ease;
+
+  z-index: 5;
+}
+
+.auth-close-button:hover{
+  transform: scale(1.06);
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.92),
+      rgba(245,232,208,0.88)
+    );
+}
+
+.auth-close-button:active{
+  transform: scale(0.97);
+}
+
+.account-actions{
+  position: absolute;
+  top: 2.1vmin;
+  right: 2.2vmin;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75vmin;
+
+  max-width: 46vw;
+}
+
+.signin-corner-button,
+.teacher-tools-button{
+  position: static;
+
+  width: auto;
+  min-width: unset;
+  height: auto;
+
+  padding: 0.85vmin 1.45vmin;
+  border-radius: 14px;
+
+  border: 1px solid rgba(90, 74, 58, 0.32);
+  background: rgba(255, 248, 230, 0.72);
+  backdrop-filter: blur(2px);
+
+  color: var(--classy-blue-ink);
+
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+
+  transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.signin-corner-button{
+  font-size: clamp(16px, 1.45vw, 22px);
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.teacher-tools-button{
+  font-size: clamp(14px, 1.25vw, 19px);
+  white-space: nowrap;
+}
+
+.signin-corner-button:hover,
+.teacher-tools-button:hover{
+  transform: translateY(-1px);
+  background:
+    linear-gradient(
+      rgba(255,255,255,0.44),
+      rgba(255,255,255,0.24)
+    );
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.42);
+}
+
     @media (max-width: 640px){
       html, body{
         overflow: hidden !important;
@@ -660,36 +889,89 @@
       .auth-modal{
         padding: 14px;
       }
+
+  .account-actions{
+    top: 1.6vmin;
+    right: 1.6vmin;
+    max-width: 38vw;
+    gap: 1vmin;
+  }
+
+  .signin-corner-button{
+    width: 8vmin;
+    padding: 0;
+  }
+
+  .teacher-tools-button{
+    font-size: 11px;
+    padding: 1vmin 1.2vmin;
+  }
+
+  .Signin-full{
+    display: none;
+  }
+
+  .Signin-short{
+    display: inline;
+  }
+
     }
   </style>
 </head>
 
 <body>
 
-  <div id="overlay" class="overlay" aria-modal="true" role="dialog" aria-labelledby="auth-title">
+<div class="account-actions">
+  <button
+    class="modern-button teacher-tools-button hidden"
+    id="teacher-tools-button"
+    onclick="window.location.href='teacher_home.html'"
+  >
+    Teacher Tools
+  </button>
+
+  <button
+    class="modern-button signin-corner-button"
+    id="corner-signin-button"
+    title="Sign in"
+  >
+    <span class="Signin-full" id="signin-button-text">Sign In</span>
+    <span class="Signin-short">👤</span>
+  </button>
+</div>
+
+  <div id="overlay" class="overlay" aria-modal="true" role="diaSign" aria-labelledby="auth-title">
     <div class="auth-modal">
+      <button
+        class="auth-close-button"
+        id="auth-close-button"
+        type="button"
+        aria-label="Close"
+      >
+        ✕
+      </button>
       <div class="auth-header">
         <h2 class="auth-title" id="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle" id="auth-subtitle">Log in to track your progress and continue exploring.</p>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to track your progress and continue exploring.</p>
       </div>
 
       <div class="auth-tabs" role="tablist" aria-label="Authentication">
-        <button class="auth-tab active" type="button" data-tab="login" role="tab" aria-selected="true">Login</button>
+        <button class="auth-tab active" type="button" data-tab="Signin" role="tab" aria-selected="true">Signin</button>
         <button class="auth-tab" type="button" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
         <button class="auth-tab" type="button" data-tab="reset" role="tab" aria-selected="false">Reset</button>
       </div>
 
-      <!-- LOGIN -->
-      <div class="auth-panel active" id="panel-login">
-        <div class="auth-form" id="login-form" aria-live="polite">
-          <label for="login-email" class="sr-only">Email</label>
-          <input type="email" placeholder="Email" class="auth-input" id="login-email" autocomplete="email" required>
+      <!-- SignIN -->
+      <div class="auth-panel active" id="panel-Signin">
+        <div class="auth-form" id="Signin-form" aria-live="polite">
+          <label for="Signin-email" class="sr-only">Email</label>
+          <input type="email" placeholder="Email" class="auth-input" id="Signin-email" autocomplete="email" required>
 
-          <label for="login-password" class="sr-only">Password</label>
-          <input type="password" placeholder="Password" class="auth-input" id="login-password" autocomplete="current-password" required>
+          <label for="Signin-password" class="sr-only">Password</label>
+          <input type="password" placeholder="Password" class="auth-input" id="Signin-password" autocomplete="current-password" required>
 
           <div class="auth-actions">
-            <button class="auth-button" id="login-button" type="button">Login</button>
+            <button class="auth-button" id="auth-signin-button" type="button">Signin</button>
           </div>
 
           <div class="auth-meta">
@@ -764,7 +1046,7 @@
           </div>
 
           <div class="auth-meta">
-            <button class="auth-link" id="back-to-login-link" type="button">Back to login</button>
+            <button class="auth-link" id="back-to-Signin-link" type="button">Back to Signin</button>
             <span></span>
           </div>
         </div>
@@ -881,6 +1163,16 @@
 
   </div>
 
+  <div class="access-note">
+    <span class="access-note-main">Explore freely — no account required.</span>
+    <span class="access-note-sub">
+      <button class="access-register-link" id="access-register-link">
+        Create an account
+      </button>
+      to save progress, track achievements, and access teacher tools.
+    </span>
+  </div>
+
   <script>
     document.getElementById("cta-button")?.addEventListener("click", () => {
       window.location.href = "discover.html";
@@ -899,12 +1191,13 @@
   const authTabs = Array.from(document.querySelectorAll(".auth-tab"));
   const authPanels = Array.from(document.querySelectorAll(".auth-panel"));
 
-  const loginBtn = document.getElementById("login-button");
+  const authSigninBtn = document.getElementById("auth-signin-button");
+  const cornerSigninBtn = document.getElementById("corner-signin-button");
   const signupBtn = document.getElementById("signup-button");
   const resetBtn = document.getElementById("reset-button");
 
   const toResetLink = document.getElementById("to-reset-link");
-  const backToLoginLink = document.getElementById("back-to-login-link");
+  const backToSigninLink = document.getElementById("back-to-Signin-link");
 
   const signupPasswordInput = document.getElementById("signup-password");
   const checklistItems = {
@@ -915,7 +1208,7 @@
     length: document.getElementById("check-length")
   };
 
-  let isLoggedIn = false;
+  let isSignedIn = false;
   let pendingNavigation = null;
 
   function setOverlayVisible(visible){
@@ -944,9 +1237,9 @@
       panel.classList.toggle("active", panel.id === `panel-${tabName}`);
     });
 
-    if (tabName === "login"){
+    if (tabName === "Signin"){
       authTitle.textContent = "Welcome Back";
-      authSubtitle.textContent = "Log in to track your progress and continue exploring.";
+      authSubtitle.textContent = "Sign in to track your progress and continue exploring.";
     } else if (tabName === "signup"){
       authTitle.textContent = "Create Your Account";
       authSubtitle.textContent = "Sign up to explore our sages and history in a profound, novel way.";
@@ -964,8 +1257,10 @@
     }
   }
 
-  function shouldRequireLogin(target){
-    return !!target.closest(".cta-button, .explore-item, a");
+  function shouldRequireSignin(target){
+      return !!target.closest(
+    ".requires-auth"
+  );
   }
 
   authTabs.forEach(tab => {
@@ -973,7 +1268,7 @@
   });
 
   toResetLink?.addEventListener("click", () => switchAuthTab("reset"));
-  backToLoginLink?.addEventListener("click", () => switchAuthTab("login"));
+  backToSigninLink?.addEventListener("click", () => switchAuthTab("Signin"));
 
   signupPasswordInput?.addEventListener("input", (e) => {
     updatePasswordChecklist(e.target.value);
@@ -981,9 +1276,73 @@
 
   updatePasswordChecklist("");
 
-  async function handleLogin(){
-    const email = document.getElementById("login-email")?.value?.trim();
-    const password = document.getElementById("login-password")?.value ?? "";
+  function updateSigninButton(session){
+  const buttonText = document.getElementById("signin-button-text");
+  if (!buttonText) return;
+
+  if (!session?.user){
+    buttonText.textContent = "Sign In";
+    return;
+  }
+
+  const user = session.user;
+
+  const email =
+    user.user_metadata?.email ||
+    user.email ||
+    "";
+
+  let name =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.user_metadata?.display_name;
+
+  if (!name && email){
+    name = email.split("@")[0];
+  }
+
+  if (!name){
+    name = "User";
+  }
+
+  buttonText.textContent = `Welcome, ${name}`;
+}
+
+async function updateTeacherToolsButton(session){
+  const teacherButton = document.getElementById("teacher-tools-button");
+
+  if (!teacherButton){
+    return;
+  }
+
+  teacherButton.classList.add("hidden");
+
+  if (!session?.user){
+    return;
+  }
+
+  const userId = session.user.id;
+
+  // Example using a profiles table
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("auth_user_id", userId)
+    .single();
+
+  if (error){
+    console.error("Could not determine user role:", error);
+    return;
+  }
+
+  if (data?.role === "teacher"){
+    teacherButton.classList.remove("hidden");
+  }
+}
+
+  async function handleSignin(){
+    const email = document.getElementById("Signin-email")?.value?.trim();
+    const password = document.getElementById("Signin-password")?.value ?? "";
 
     if (!email || !password){
       showStatus("Enter email and password.", "error");
@@ -997,8 +1356,8 @@
       return;
     }
 
-    isLoggedIn = true;
-    showStatus("Login successful!");
+    isSignedIn = true;
+    showStatus("Signin successful!");
     setOverlayVisible(false);
     continuePendingNavigation();
   }
@@ -1077,7 +1436,7 @@ if (error){
 }
 
     if (data?.session){
-      isLoggedIn = true;
+      isSignedIn = true;
       showStatus("Account created!");
       setOverlayVisible(false);
       continuePendingNavigation();
@@ -1085,7 +1444,7 @@ if (error){
     }
 
     showStatus("Account created. Check your email to confirm.");
-    switchAuthTab("login");
+    switchAuthTab("Signin");
   }
 
   async function handlePasswordReset(){
@@ -1106,11 +1465,11 @@ if (error){
     }
 
     showStatus("Password reset email sent.");
-    switchAuthTab("login");
+    switchAuthTab("Signin");
   }
 
-  if (loginBtn){
-    loginBtn.addEventListener("click", handleLogin);
+  if (authSigninBtn){
+    authSigninBtn.addEventListener("click", handleSignin);
   }
 
   if (signupBtn){
@@ -1128,8 +1487,8 @@ if (error){
     const activePanel = document.querySelector(".auth-panel.active");
     if (!activePanel || !activePanel.contains(document.activeElement)) return;
 
-    if (activePanel.id === "panel-login"){
-      await handleLogin();
+    if (activePanel.id === "panel-Signin"){
+      await handleSignin();
     } else if (activePanel.id === "panel-signup"){
       await handleSignup();
     } else if (activePanel.id === "panel-reset"){
@@ -1138,14 +1497,14 @@ if (error){
   });
 
   document.addEventListener("click", (e) => {
-    if (isLoggedIn) return;
+    if (isSignedIn) return;
     if (e.target.closest("#overlay")) return;
 
     const ctaButton = e.target.closest("#cta-button");
     const exploreItem = e.target.closest(".explore-item");
     const link = e.target.closest("a");
 
-    if (!shouldRequireLogin(e.target)) return;
+    if (!shouldRequireSignin(e.target)) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -1177,24 +1536,55 @@ if (error){
       pendingNavigation = null;
     }
 
-    switchAuthTab("login");
+    switchAuthTab("Signin");
     setOverlayVisible(true);
   }, true);
+
+  cornerSigninBtn?.addEventListener("click", () => {
+    switchAuthTab("Signin");
+    setOverlayVisible(true);
+  });
+
+  document
+  .getElementById("access-register-link")
+  ?.addEventListener("click", () => {
+    switchAuthTab("signup");
+    setOverlayVisible(true);
+  });
+
+  document
+  .getElementById("auth-close-button")
+  ?.addEventListener("click", () => {
+    setOverlayVisible(false);
+  });
+
+  document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape"){
+    setOverlayVisible(false);
+  }
+});
 
   const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
   if (sessionError) console.error("getSession error:", sessionError);
 
-  isLoggedIn = !!sessionData?.session;
+  isSignedIn = !!sessionData?.session;
   setOverlayVisible(false);
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    isLoggedIn = !!session;
+  updateSigninButton(sessionData?.session);
 
-    if (isLoggedIn){
-      setOverlayVisible(false);
-      continuePendingNavigation();
-    }
-  });
+  await updateTeacherToolsButton(sessionData?.session);
+
+supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+  isSignedIn = !!session;
+
+  updateSigninButton(session);
+  await updateTeacherToolsButton(session);
+
+  if (isSignedIn){
+    setOverlayVisible(false);
+    continuePendingNavigation();
+  }
+});
 
   try{
     await trackPageView();

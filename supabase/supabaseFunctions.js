@@ -5,35 +5,37 @@ export async function trackPageView(pageDetail = null) {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
 
     if (error) {
-      console.error("Supabase getUser error:", error);
-      return { isFirstVisit: false };
+      console.warn("Supabase getUser warning:", error);
     }
 
-    if (!user) return { isFirstVisit: false };
+    let visitorId = localStorage.getItem("sfta_visitor_id");
 
-    // Check if this is the first visit to this page
+    if (!visitorId) {
+      visitorId = crypto.randomUUID();
+      localStorage.setItem("sfta_visitor_id", visitorId);
+    }
+
+    const userId = user?.id ?? null;
+
     const { data: existingViews, error: queryError } = await supabaseClient
-      .from('page_views')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('page_title', document.title)
+      .from("page_views")
+      .select("id")
+      .eq(userId ? "user_id" : "visitor_id", userId || visitorId)
+      .eq("page_title", document.title)
       .limit(1);
 
     const isFirstVisit = !queryError && existingViews.length === 0;
 
-
-    // Track the current page view
     await supabaseClient
-      .from('page_views')
+      .from("page_views")
       .insert({
-        user_id: user.id,
+        user_id: userId,
+        visitor_id: visitorId,
         page_title: document.title,
+        path: window.location.pathname,
         referrer: document.referrer,
         page_detail: pageDetail,
       });
-    
-    console.log("Page view tracked successfully");
-    console.log(user.id, pageDetail, window.location.pathname, document.title, document.referrer);
 
     return { isFirstVisit };
 
@@ -42,8 +44,6 @@ export async function trackPageView(pageDetail = null) {
     return { isFirstVisit: false };
   }
 }
-
-
 
 //insert games into database
 

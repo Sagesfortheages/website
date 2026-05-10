@@ -74,26 +74,17 @@ async function loadMarkers() {
     console.log("User:", session?.user);
     console.log("====================");
 
-    if (sessionError) {
-      console.error("Session error:", sessionError);
-      //   window.location.href = "/index.html";
-      return;
-    }
+   if (sessionError) {
+  console.error("Session error:", sessionError);
+}
 
-    if (!session) {
-      // User not logged in → redirect to home/login page
-      console.log("No session found, redirecting to login");
-      //   window.location.href = "/index.html";
-      return;
-    }
+if (session) {
+  console.log("User is authenticated:", session.user.email || session.user.id);
+} else {
+  console.log("Anonymous visitor");
+}
 
-    console.log(
-      "✅ User is authenticated:",
-      session.user.email || session.user.id
-    );
-
-    // NOW fetch the data (only runs if user is logged in)
-    markers = await loadAllSages();
+markers = await loadAllSages();
 
     console.log("✅ Data loaded successfully, markers count:", markers.length);
 
