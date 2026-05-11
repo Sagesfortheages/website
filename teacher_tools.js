@@ -384,31 +384,64 @@ async function showAssignmentDetail(assignmentId, title) {
 
   assignmentDetailTbody.innerHTML = statusRow('Loading student results…');
 
-  const { data: students, error } = await supabaseClient
-    .from('students')
-    .select('id, username, profile:profiles(display_name)')
-    .eq('class_id', currentClassId)
-    .order('username');
+  // Fetch students and their progress for this assignment in parallel
+  const [studentsRes, progressRes] = await Promise.all([
+    supabaseClient
+      .from('students')
+      .select('id, username, profile:profiles(display_name)')
+      .eq('class_id', currentClassId)
+      .order('username'),
+    supabaseClient
+      .from('assignment_progress')
+      .select('student_id, game_score, status')
+      .eq('assignment_id', assignmentId)
+  ]);
 
-  if (error) {
-    console.error(error);
-    assignmentDetailTbody.innerHTML = statusRow('Error loading student results.');
+  if (studentsRes.error) {
+    console.error(studentsRes.error);
+    assignmentDetailTbody.innerHTML = statusRow('Error loading students.');
     return;
   }
 
-  if (!students?.length) {
+  if (progressRes.error) {
+    console.error(progressRes.error);
+    assignmentDetailTbody.innerHTML = statusRow('Error loading progress data.');
+    return;
+  }
+
+  const students = studentsRes.data || [];
+  const progress = progressRes.data || [];
+
+  if (!students.length) {
     assignmentDetailTbody.innerHTML = statusRow('No students found.');
     return;
   }
 
+  // Build a lookup map: student_id → progress row
+  const progressByStudent = Object.fromEntries(
+    progress.map(p => [p.student_id, p])
+  );
+
   assignmentDetailTbody.innerHTML = students.map(s => {
     const name = s.profile?.display_name || 'Student';
+    const p = progressByStudent[s.id];
+
+    let chipHtml;
+    if (!p) {
+      chipHtml = `<span class="chip notstarted">○ Not Started</span>`;
+    } else if (p.status === 'completed') {
+      chipHtml = `<span class="chip completed">✓ Completed</span>`;
+    } else {
+      chipHtml = `<span class="chip progress">↻ In Progress</span>`;
+    }
+
+    const score = p?.game_score != null ? `${p.game_score}%` : '—';
 
     return `
       <tr>
         <td><span class="student-name-cell">${avatarEl(name)}${esc(name)}</span></td>
-        <td><span class="chip notstarted">○ Not Started</span></td>
-        <td class="num">—</td>
+        <td>${chipHtml}</td>
+        <td class="num">${esc(score)}</td>
         <td class="num">—</td>
         <td class="num">—</td>
       </tr>
