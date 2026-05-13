@@ -422,6 +422,61 @@ async function showAssignmentDetail(assignmentId, title) {
     progress.map(p => [p.student_id, p])
   );
 
+    // ===== Calculate stats =====
+
+  let completedCount = 0;
+  let inProgressCount = 0;
+  let notStartedCount = 0;
+
+  let totalScore = 0;
+  let scoredStudents = 0;
+
+  students.forEach(s => {
+    const p = progressByStudent[s.id];
+
+    if (!p) {
+      notStartedCount++;
+      return;
+    }
+
+    if (p.status === 'completed') {
+      completedCount++;
+    } else {
+      inProgressCount++;
+    }
+
+    if (
+      p.correct_count != null &&
+      p.total_questions != null &&
+      p.total_questions > 0
+    ) {
+      const percent = Math.round(
+        (100 * p.correct_count) / p.total_questions
+      );
+
+      totalScore += percent;
+      scoredStudents++;
+    }
+  });
+
+  const avgScore = scoredStudents
+    ? `${Math.round(totalScore / scoredStudents)}%`
+    : '—';
+
+  // ===== Update UI =====
+
+  document.getElementById('stat-completed').textContent =
+    completedCount;
+
+  document.getElementById('stat-progress').textContent =
+    inProgressCount;
+
+  document.getElementById('stat-not-started').textContent =
+    notStartedCount;
+
+  document.getElementById('stat-avg-score').textContent =
+    avgScore;
+
   assignmentDetailTbody.innerHTML = students.map(s => {
     const name = s.profile?.display_name || 'Student';
     const p = progressByStudent[s.id];
@@ -435,7 +490,7 @@ async function showAssignmentDetail(assignmentId, title) {
       chipHtml = `<span class="chip progress">↻ In Progress</span>`;
     }
 
-    const score = p?.correct_count!= null ? `${p.correct_count/p.total_questions}%` : '—';
+    const score = p?.correct_count!= null ? `${Math.round(100*p.correct_count/p.total_questions)}%` : '—';
 
     return `
       <tr>
