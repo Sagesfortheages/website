@@ -428,6 +428,8 @@
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
 
+        console.log(assignmentId, student.id, score, questions.length, new Date().toISOString())
+
 
 
         const { error } = await supabaseClient
