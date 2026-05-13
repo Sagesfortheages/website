@@ -56,6 +56,7 @@ async function initPage() {
   wireTabs();
   wireModals();
   wireSubToggle();
+  wireBackButtons();
   wireCreateStudent();
   wireAssignSage();
 
@@ -80,6 +81,16 @@ function wireTabs() {
 }
 
 /* Modals */
+
+function wireBackButtons() {
+  document.getElementById('back-to-assignments-top')?.addEventListener('click', () => {
+    showAssignmentOverview();
+  });
+
+  document.getElementById('back-to-assignments-bottom')?.addEventListener('click', () => {
+    showAssignmentOverview();
+  });
+}
 
 function openModal(id) {
   document.getElementById(id)?.classList.add('open');
@@ -382,7 +393,7 @@ async function showAssignmentDetail(assignmentId, title) {
 
   const titleEl = document.querySelector('.assign-detail-title');
   if (titleEl) {
-    titleEl.innerHTML = `<span class="assign-icon">📜</span>${esc(title)} - {}`;
+    titleEl.innerHTML = `<span class="assign-icon">📜</span>${esc(title)}`;
   }
 
   assignmentDetailTbody.innerHTML = statusRow('Loading student results…');
@@ -481,7 +492,7 @@ async function showAssignmentDetail(assignmentId, title) {
     avgScore;
 
   assignmentDetailTbody.innerHTML = students.map(s => {
-    const name = s.profile?.display_name || 'Student';
+    const name = s.profile?.display_name || s.username || 'Unknown';
     const p = progressByStudent[s.id];
 
     let chipHtml;
