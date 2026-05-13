@@ -319,6 +319,7 @@ async function loadAssignments(classId) {
     .select('id, title, target_sage_person, created_at')
     .eq('class_id', classId)
     .order('created_at', { ascending: false });
+    
 
   if (error) {
     console.error(error);
@@ -339,6 +340,8 @@ async function loadAssignments(classId) {
           year: 'numeric'
         })
       : '—';
+
+    console.log(a)
 
     const title = a.title || a.target_sage_person || 'Mystery Sage';
 
@@ -379,7 +382,7 @@ async function showAssignmentDetail(assignmentId, title) {
 
   const titleEl = document.querySelector('.assign-detail-title');
   if (titleEl) {
-    titleEl.innerHTML = `<span class="assign-icon">📜</span>${esc(title)}`;
+    titleEl.innerHTML = `<span class="assign-icon">📜</span>${esc(title)} - {}`;
   }
 
   assignmentDetailTbody.innerHTML = statusRow('Loading student results…');
