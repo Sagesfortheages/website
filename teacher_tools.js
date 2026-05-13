@@ -343,7 +343,7 @@ async function loadAssignments(classId) {
 
     console.log(a)
 
-    const title = a.title || a.target_sage_person || 'Mystery Sage';
+    const title = `${a.title} - ${a.target_sage_person}` || a.target_sage_person || 'Mystery Sage';
 
     return `
       <tr>
