@@ -428,7 +428,11 @@
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
 
-        console.log(assignmentId, student.id, score, gradedCount, new Date().toISOString())
+        console.log(assignmentId)
+        console.log(student.id)
+        console.log(score)
+        console.log(questions.length)
+        console.log(new Date().toISOString())
 
 
 
@@ -439,7 +443,7 @@
             student_id: student.id,
             correct_count: score,
             quiz_completed: true,
-            total_questions: gradedCount,
+            total_questions: questions.length,
             status:"completed",
             completed_at: new Date().toISOString()
             
