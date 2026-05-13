@@ -393,7 +393,7 @@ async function showAssignmentDetail(assignmentId, title) {
       .order('username'),
     supabaseClient
       .from('assignment_progress')
-      .select('student_id, game_score, status')
+      .select('student_id, correct_count, total_questions, status')
       .eq('assignment_id', assignmentId)
   ]);
 
@@ -435,7 +435,7 @@ async function showAssignmentDetail(assignmentId, title) {
       chipHtml = `<span class="chip progress">↻ In Progress</span>`;
     }
 
-    const score = p?.game_score != null ? `${p.game_score}%` : '—';
+    const score = p?.correct_count!= null ? `${p.correct_count/p.total_questions}%` : '—';
 
     return `
       <tr>
