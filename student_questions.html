@@ -435,8 +435,12 @@
         .insert({
             assignment_id: assignmentId,
             student_id: student.id,
-            game_score: score,
-            game_completed: true
+            correct_count: score,
+            quiz_completed: true,
+            total_questions: questions.length,
+            status:"completed",
+            completed_at: Date()
+            
         });
 
         if (error) {
