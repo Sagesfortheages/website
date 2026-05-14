@@ -717,7 +717,8 @@ async function resetStudentPin(studentId, displayName) {
         });
         return;
       }
-
+      console.log("dn", displayName )
+      console.log("un", username )
       bodyEl.innerHTML = `
         <div class="result-card success">
           <div class="result-title">✅ PIN reset successfully</div>
