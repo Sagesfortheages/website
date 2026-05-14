@@ -64,44 +64,65 @@ export default async function handler(req, res) {
       .from('students')
       .select(`
         id,
-        auth_user_id,
-        class:classes(
+        class_id,
+        profile:profiles(
           id,
-          teacher_profile_id
+          auth_user_id
         )
       `)
       .eq('id', studentId)
       .single();
 
     if (studentError || !student) {
+      console.error('Student lookup error:', studentError);
+
       return res.status(404).json({
         success: false,
         message: 'Student not found'
       });
     }
 
-    if (student.class?.teacher_profile_id !== teacherProfile.id) {
+    const { data: classRow, error: classError } = await supabaseAdmin
+      .from('classes')
+      .select('id, teacher_profile_id')
+      .eq('id', student.class_id)
+      .single();
+
+    if (classError || !classRow) {
+      console.error('Class lookup error:', classError);
+
+      return res.status(404).json({
+        success: false,
+        message: 'Class not found for this student'
+      });
+    }
+
+    if (classRow.teacher_profile_id !== teacherProfile.id) {
       return res.status(403).json({
         success: false,
         message: 'You are not allowed to reset this student’s PIN'
       });
     }
 
-    if (!student.auth_user_id) {
+    const studentAuthUserId = student.profile?.auth_user_id;
+
+    if (!studentAuthUserId) {
       return res.status(400).json({
         success: false,
-        message: 'This student does not have an auth_user_id'
+        message: 'This student profile does not have an auth_user_id'
       });
     }
 
     const newPin = makePin();
 
     const { error: updateError } =
-      await supabaseAdmin.auth.admin.updateUserById(student.auth_user_id, {
+      await supabaseAdmin.auth.admin.updateUserById(studentAuthUserId, {
         password: newPin
       });
 
     if (updateError) {
+      console.error('PIN reset error:', updateError);
+
       return res.status(500).json({
         success: false,
         message: updateError.message
@@ -114,6 +135,8 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
+    console.error('Unexpected reset PIN error:', err);
+
     return res.status(500).json({
       success: false,
       message: err.message || 'Unexpected error'
