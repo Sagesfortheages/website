@@ -300,7 +300,7 @@ async function loadStudents(classId) {
   }
 
   studentsTbody.innerHTML = students.map(s => {
-    const name = s.profile?.display_name || 'Student';
+    const name = s.profile?.display_name || s.username
 
     return `
     <tr>
@@ -717,8 +717,6 @@ async function resetStudentPin(studentId, displayName) {
         });
         return;
       }
-      console.log("dn", displayName )
-      console.log("un", username )
       bodyEl.innerHTML = `
         <div class="result-card success">
           <div class="result-title">✅ PIN reset successfully</div>
