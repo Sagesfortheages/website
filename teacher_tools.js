@@ -315,9 +315,9 @@ async function loadStudents(classId) {
 
   studentsTbody.querySelectorAll('[data-reset-pin]').forEach(btn => {
     btn.addEventListener('click', () => {
-      alert('Reset PIN endpoint not connected yet.');
+      resetStudentPin(btn.dataset.resetPin);
     });
-  });
+});
 }
 
 /* Assignments */
@@ -652,6 +652,36 @@ function wireCreateStudent() {
       resultEl.innerHTML = errorCard('Error', err.message);
     }
   });
+}
+
+async function resetStudentPin(studentId) {
+  if (!confirm('Reset this student’s PIN? The old PIN will stop working.')) {
+    return;
+  }
+
+  try {
+    const token = await getAccessToken();
+
+    const res = await fetch('/api/reset_student_pin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ studentId })
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || data?.success === false) {
+      alert(data?.message || 'Could not reset PIN.');
+      return;
+    }
+
+    alert(`New PIN: ${data.pin}`);
+  } catch (err) {
+    alert(`Error: ${err.message}`);
+  }
 }
 
 /* Assign sage */
