@@ -303,19 +303,19 @@ async function loadStudents(classId) {
     const name = s.profile?.display_name || 'Student';
 
     return `
-      <tr>
-        <td><span class="student-name-cell">${avatarEl(name)}${esc(name)}</span></td>
-        <td>${esc(s.username)}</td>
-        <td>
-          <button class="cta-button sm" data-reset-pin="${esc(s.id)}">Reset PIN</button>
-        </td>
-      </tr>
-    `;
+    <tr>
+      <td><span class="student-name-cell">${avatarEl(name)}${esc(name)}</span></td>
+      <td>${esc(s.username)}</td>
+      <td>
+        <button class="cta-button sm" data-reset-pin="${esc(s.id)}" data-reset-name="${esc(name)}">Reset PIN</button>
+      </td>
+    </tr>
+`;
   }).join('');
 
   studentsTbody.querySelectorAll('[data-reset-pin]').forEach(btn => {
     btn.addEventListener('click', () => {
-      resetStudentPin(btn.dataset.resetPin);
+      resetStudentPin(btn.dataset.resetPin, btn.dataset.resetName);
     });
 });
 }
@@ -654,34 +654,105 @@ function wireCreateStudent() {
   });
 }
 
-async function resetStudentPin(studentId) {
-  if (!confirm('Reset this student’s PIN? The old PIN will stop working.')) {
-    return;
-  }
+async function resetStudentPin(studentId, displayName) {
+  const bodyEl = document.getElementById('reset-pin-body');
+  const actionsEl = document.getElementById('reset-pin-actions');
 
-  try {
-    const token = await getAccessToken();
+  // Confirmation state
+  bodyEl.innerHTML = `
+    <p style="font-family:var(--font-body);font-size:clamp(14px,1.8vmin,17px);color:var(--ink);">
+      Reset the PIN for <b style="font-family:var(--font-ui)">${esc(displayName)}</b>? 
+      The old PIN will stop working immediately.
+    </p>
+  `;
 
-    const res = await fetch('/api/reset_student_pin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ studentId })
-    });
+  actionsEl.innerHTML = `
+    <button class="cta-button" data-close="modal-reset-pin">Cancel</button>
+    <button class="cta-button filled" id="confirm-reset-pin-btn">Reset PIN</button>
+  `;
 
-    const data = await res.json().catch(() => null);
+  openModal('modal-reset-pin');
 
-    if (!res.ok || data?.success === false) {
-      alert(data?.message || 'Could not reset PIN.');
-      return;
+  // Re-wire close button
+  actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+    closeModal('modal-reset-pin');
+  });
+
+  // Confirm button
+  actionsEl.querySelector('#confirm-reset-pin-btn').addEventListener('click', async () => {
+    bodyEl.innerHTML = `
+      <div class="result-card loading">
+        <div class="result-title">⏳ Working…</div>
+        Generating a new PIN…
+      </div>
+    `;
+    actionsEl.innerHTML = '';
+
+    try {
+      const token = await getAccessToken();
+
+      const res = await fetch('/api/reset_student_pin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ studentId })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || data?.success === false) {
+        bodyEl.innerHTML = `
+          <div class="result-card error">
+            <div class="result-title">⚠️ Could not reset PIN</div>
+            ${esc(data?.message || 'An unexpected error occurred.')}
+          </div>
+        `;
+        actionsEl.innerHTML = `
+          <button class="cta-button filled" data-close="modal-reset-pin">Close</button>
+        `;
+        actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+          closeModal('modal-reset-pin');
+        });
+        return;
+      }
+
+      bodyEl.innerHTML = `
+        <div class="result-card success">
+          <div class="result-title">✅ PIN reset successfully</div>
+          <div class="result-row-pair">
+            <span>Student</span>
+            <b>${esc(displayName)}</b>
+          </div>
+          <div class="result-row-pair">
+            <span>New PIN</span>
+            <b>${esc(data.pin)}</b>
+          </div>
+        </div>
+      `;
+      actionsEl.innerHTML = `
+        <button class="cta-button filled" data-close="modal-reset-pin">Done</button>
+      `;
+      actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+        closeModal('modal-reset-pin');
+      });
+
+    } catch (err) {
+      bodyEl.innerHTML = `
+        <div class="result-card error">
+          <div class="result-title">⚠️ Error</div>
+          ${esc(err.message || 'Unexpected error.')}
+        </div>
+      `;
+      actionsEl.innerHTML = `
+        <button class="cta-button filled" data-close="modal-reset-pin">Close</button>
+      `;
+      actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+        closeModal('modal-reset-pin');
+      });
     }
-
-    alert(`New PIN: ${data.pin}`);
-  } catch (err) {
-    alert(`Error: ${err.message}`);
-  }
+  });
 }
 
 /* Assign sage */
