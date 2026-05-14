@@ -330,7 +330,6 @@ async function loadAssignments(classId) {
     .select('id, title, target_sage_person, created_at')
     .eq('class_id', classId)
     .order('created_at', { ascending: false });
-    
 
   if (error) {
     console.error(error);
@@ -343,7 +342,48 @@ async function loadAssignments(classId) {
     return;
   }
 
+  const assignmentIds = assignments.map(a => a.id);
+
+  const { data: progressRows, error: progressError } = await supabaseClient
+    .from('assignment_progress')
+    .select('assignment_id, student_id, correct_count, total_questions, status')
+    .in('assignment_id', assignmentIds);
+
+  if (progressError) {
+    console.error(progressError);
+    assignmentsTbody.innerHTML = statusRow('Error loading assignment progress.');
+    return;
+  }
+
+  const progressByAssignment = {};
+
+  for (const row of progressRows || []) {
+    if (!progressByAssignment[row.assignment_id]) {
+      progressByAssignment[row.assignment_id] = [];
+    }
+
+    progressByAssignment[row.assignment_id].push(row);
+  }
+
   assignmentsTbody.innerHTML = assignments.map(a => {
+    const rows = progressByAssignment[a.id] || [];
+
+    const completedCount = rows.filter(r => r.status === 'completed').length;
+
+    const scoredRows = rows.filter(r =>
+      r.correct_count != null &&
+      r.total_questions != null &&
+      r.total_questions > 0
+    );
+
+    const avgScore = scoredRows.length
+      ? `${Math.round(
+          scoredRows.reduce((sum, r) => {
+            return sum + (100 * r.correct_count / r.total_questions);
+          }, 0) / scoredRows.length
+        )}%`
+      : '—';
+
     const dateText = a.created_at
       ? new Date(a.created_at).toLocaleDateString('en-US', {
           month: 'short',
@@ -352,9 +392,10 @@ async function loadAssignments(classId) {
         })
       : '—';
 
-    console.log(a)
-
-    const title = `${a.title} - ${a.target_sage_person}` || a.target_sage_person || 'Mystery Sage';
+    const title =
+      a.title && a.target_sage_person
+        ? `${a.title} - ${a.target_sage_person}`
+        : a.title || a.target_sage_person || 'Mystery Sage';
 
     return `
       <tr>
@@ -363,8 +404,8 @@ async function loadAssignments(classId) {
             <span class="assign-icon">📜</span>${esc(title)}
           </span>
         </td>
-        <td class="num">—</td>
-        <td class="num">—</td>
+        <td class="num">${esc(completedCount)}</td>
+        <td class="num">${esc(avgScore)}</td>
         <td class="num">${esc(dateText)}</td>
         <td>
           <button 
