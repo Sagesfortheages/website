@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     // 2. Sign in with placeholder email + PIN
     const { data: signInData, error: signInError } = await supabaseAuth.auth.signInWithPassword({
       email: studentRow.placeholder_email,
-      password: cleanPin
+      password: `Sfta${cleanPin}!`
     });
 
     if (signInError || !signInData?.session || !signInData?.user) {

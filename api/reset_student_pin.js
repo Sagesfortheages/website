@@ -8,13 +8,12 @@ const supabaseAdmin = createClient(
 
 function makePin() {
   const bytes = crypto.randomBytes(6);
-  let pin = '';
+  let digits = '';
   for (let i = 0; i < 6; i++) {
-    pin += (bytes[i] % 10).toString();
+    digits += (bytes[i] % 10).toString();
   }
-  return pin;
+  return { digits, password: `Sfta${digits}!` };
 }
-
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -107,7 +106,7 @@ export default async function handler(req, res) {
     if (classRow.teacher_profile_id !== teacherProfile.id) {
       return res.status(403).json({
         success: false,
-        message: 'You are not allowed to reset this student’s PIN'
+        message: "You are not allowed to reset this student's PIN"
       });
     }
 
@@ -120,11 +119,11 @@ export default async function handler(req, res) {
       });
     }
 
-    const newPin = makePin();
+    const { digits, password } = makePin();
 
     const { error: updateError } =
       await supabaseAdmin.auth.admin.updateUserById(studentAuthUserId, {
-        password: newPin
+        password
       });
 
     if (updateError) {
@@ -138,7 +137,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      pin: newPin
+      pin: digits
     });
 
   } catch (err) {

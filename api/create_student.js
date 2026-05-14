@@ -201,7 +201,7 @@ export default async function handler(req, res) {
     const { data: authResult, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
         email: tempEmail,
-        password: pin,
+        password: `Sfta${pin}!`,
         email_confirm: true,
         user_metadata: {
           role: 'student',
