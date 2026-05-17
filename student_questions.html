@@ -824,9 +824,7 @@ function buildQuestion({ key, prompt, correct, choices, preference = false, text
     profileBtnFinal.addEventListener('click', () => linkToProfile(sageName, 'discover.html', assignmentId));
 
     finishBtn.addEventListener('click', () => {
-      if (selectedExploreNext) {
-        goToProfile(selectedExploreNext);
-      } else {
+      {
         window.location.href = 'student_home.html';
       }
     });

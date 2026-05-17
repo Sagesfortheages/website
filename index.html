@@ -213,6 +213,9 @@
 .Signin-short {
   display: none;
 }
+.TeacherTools-short {
+  display: none;
+}
 
 
 
@@ -922,6 +925,14 @@
     display: inline;
   }
 
+  .TeacherTools-full{
+    display: none;
+  }
+
+  .TeacherTools-short{
+    display: inline;
+  }
+
     }
   </style>
 </head>
@@ -932,9 +943,10 @@
   <button
     class="modern-button teacher-tools-button hidden"
     id="teacher-tools-button"
-    onclick="window.location.href='teacher_home.html'"
+    type="button"
   >
-    Teacher Tools
+    <span class="TeacherTools-full" id="teacher-tools-button-text">Teacher Tools</span>
+    <span class="TeacherTools-short" id="teacher-tools-button-icon">🧑‍🏫</span>
   </button>
 
   <button data-hj-suppress
@@ -1316,13 +1328,16 @@
 }
 
 async function updateTeacherToolsButton(session){
-  const teacherButton = document.getElementById("teacher-tools-button");
+  const homeButton = document.getElementById("teacher-tools-button");
+  const homeButtonText = document.getElementById("teacher-tools-button-text");
+  const homeButtonIcon = document.getElementById("teacher-tools-button-icon");
 
-  if (!teacherButton){
+  if (!homeButton){
     return;
   }
 
-  teacherButton.classList.add("hidden");
+  homeButton.classList.add("hidden");
+  homeButton.onclick = null;
 
   if (!session?.user){
     return;
@@ -1330,7 +1345,6 @@ async function updateTeacherToolsButton(session){
 
   const userId = session.user.id;
 
-  // Example using a profiles table
   const { data, error } = await supabaseClient
     .from("profiles")
     .select("role")
@@ -1343,7 +1357,24 @@ async function updateTeacherToolsButton(session){
   }
 
   if (data?.role === "teacher"){
-    teacherButton.classList.remove("hidden");
+    homeButtonText.textContent = "Teacher Tools";
+    homeButtonIcon.textContent = "🧑‍🏫";
+    homeButton.title = "Teacher Tools";
+    homeButton.onclick = () => {
+      window.location.href = "teacher_home.html";
+    };
+    homeButton.classList.remove("hidden");
+    return;
+  }
+
+  if (data?.role === "student"){
+    homeButtonText.textContent = "Student Home";
+    homeButtonIcon.textContent = "🎓";
+    homeButton.title = "Student Home";
+    homeButton.onclick = () => {
+      window.location.href = "student_home.html";
+    };
+    homeButton.classList.remove("hidden");
   }
 }
 
