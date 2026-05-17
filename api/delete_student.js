@@ -11,7 +11,6 @@ const supabaseAuth = createClient(
 );
 
 export default async function handler(req, res) {
-
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
@@ -20,11 +19,6 @@ export default async function handler(req, res) {
   }
 
   try {
-
-    // =========================
-    // 1. Get auth token
-    // =========================
-
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '');
 
@@ -34,10 +28,6 @@ export default async function handler(req, res) {
         message: 'Not logged in.'
       });
     }
-
-    // =========================
-    // 2. Verify logged-in user
-    // =========================
 
     const { data: userData, error: userError } =
       await supabaseAuth.auth.getUser(token);
@@ -50,12 +40,7 @@ export default async function handler(req, res) {
     }
 
     const userId = userData.user.id;
-
-    // =========================
-    // 3. Get student id
-    // =========================
-
-    const { studentId } = req.body;
+    const { studentId } = req.body ?? {};
 
     if (!studentId) {
       return res.status(400).json({
@@ -64,36 +49,37 @@ export default async function handler(req, res) {
       });
     }
 
-    // =========================
-    // 4. Find teacher record
-    // =========================
-
-    const { data: teacher, error: teacherError } =
+    // 1. Confirm logged-in user is a teacher profile
+    const { data: teacherProfile, error: teacherError } =
       await supabaseAdmin
-        .from('teachers')
-        .select('id')
-        .eq('user_id', userId)
+        .from('profiles')
+        .select('id, role')
+        .eq('auth_user_id', userId)
+        .eq('role', 'teacher')
         .single();
 
-    if (teacherError || !teacher) {
+    if (teacherError || !teacherProfile) {
       return res.status(403).json({
         success: false,
         message: 'Only teachers can delete students.'
       });
     }
 
-    const teacherId = teacher.id;
+    const teacherProfileId = teacherProfile.id;
 
-    // =========================
-    // 5. Verify ownership
-    // =========================
-
+    // 2. Confirm this student belongs to one of this teacher's classes
     const { data: student, error: studentError } =
       await supabaseAdmin
         .from('students')
-        .select('id')
+        .select(`
+          id,
+          class:classes!inner (
+            id,
+            teacher_profile_id
+          )
+        `)
         .eq('id', studentId)
-        .eq('teacher_id', teacherId)
+        .eq('classes.teacher_profile_id', teacherProfileId)
         .single();
 
     if (studentError || !student) {
@@ -103,18 +89,12 @@ export default async function handler(req, res) {
       });
     }
 
-    // =========================
-    // 6. Soft delete student
-    // =========================
-
+    // 3. Soft delete student
     const { error: deleteError } =
       await supabaseAdmin
         .from('students')
-        .update({
-          active: false
-        })
-        .eq('id', studentId)
-        .eq('teacher_id', teacherId);
+        .update({ active: false })
+        .eq('id', studentId);
 
     if (deleteError) {
       return res.status(500).json({
@@ -123,21 +103,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // =========================
-    // 7. Success
-    // =========================
-
     return res.status(200).json({
       success: true,
       message: 'Student deleted.'
     });
 
   } catch (err) {
-
     return res.status(500).json({
       success: false,
       message: err.message || 'Server error.'
     });
-
   }
 }
