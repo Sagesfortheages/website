@@ -1,869 +1,887 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sage Challenge</title>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
-  <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
-  <link rel="icon" href="icon3.png" type="image/x-icon" />
-  <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sage Challenge</title>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="icon" href="icon3.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
 
-  <link rel="stylesheet" href="all_styles.css" />
+    <link rel="stylesheet" href="all_styles.css" />
 
-  <style>
-    body { overflow: hidden; }
+    <style>
+      body { overflow: hidden; }
 
-    .quiz-wrap{
-      min-height: calc(100vh - var(--header-height) - 2vh);
-      display:flex;
-      justify-content:center;
-      padding:2.5vh 2vw;
-    }
+      .quiz-wrap{
+        min-height: calc(100vh - var(--header-height) - 2vh);
+        display:flex;
+        justify-content:center;
+        padding:2.5vh 2vw;
+      }
 
-    .quiz-card{
-      width:min(860px,94vw);
-      max-height:78vh;
-      overflow-y:auto;
-      background:var(--paper-strong);
-      border:1px solid var(--rule);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-soft);
-      padding:2vmin;
-      position:relative;
-    }
+      .quiz-card{
+        width:min(860px,94vw);
+        max-height:78vh;
+        overflow-y:auto;
+        background:var(--paper-strong);
+        border:1px solid var(--rule);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow-soft);
+        padding:2vmin;
+        position:relative;
+      }
 
-    .quiz-head{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:center;
-      gap:1.2vmin;
-      margin-bottom:1rem;
-    }
+      .quiz-head{
+        display:grid;
+        grid-template-columns:1fr auto 1fr;
+        align-items:center;
+        gap:1.2vmin;
+        margin-bottom:1rem;
+      }
 
-    .quiz-head .rule{
-      height:1px;
-      background:rgba(110,85,55,0.30);
-    }
+      .quiz-head .rule{
+        height:1px;
+        background:rgba(110,85,55,0.30);
+      }
 
-    .quiz-head h2{
-      font-family:var(--font-ui);
-      color:var(--heading-ink);
-      font-size:clamp(16px,2.6vmin,23px);
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      text-align:center;
-      white-space:nowrap;
-    }
+      .quiz-head h2{
+        font-family:var(--font-ui);
+        color:var(--heading-ink);
+        font-size:clamp(16px,2.6vmin,23px);
+        text-transform:uppercase;
+        letter-spacing:.06em;
+        text-align:center;
+        white-space:nowrap;
+      }
 
-    .quiz-intro{
-      text-align:center;
-      font-family:var(--font-display);
-      font-size:clamp(18px,2.7vmin,25px);
-      color:var(--ink-soft);
-      font-style:italic;
-      margin-bottom:1.2rem;
-    }
+      .quiz-intro{
+        text-align:center;
+        font-family:var(--font-display);
+        font-size:clamp(18px,2.7vmin,25px);
+        color:var(--ink-soft);
+        font-style:italic;
+        margin-bottom:1.2rem;
+      }
 
-    .progress-meta{
-      display:flex;
-      justify-content:space-between;
-      gap:1rem;
-      font-family:var(--font-ui);
-      color:var(--heading-ink);
-      font-size:clamp(12px,1.9vmin,15px);
-      letter-spacing:.04em;
-      margin-bottom:.45rem;
-    }
+      .progress-meta{
+        display:flex;
+        justify-content:space-between;
+        gap:1rem;
+        font-family:var(--font-ui);
+        color:var(--heading-ink);
+        font-size:clamp(12px,1.9vmin,15px);
+        letter-spacing:.04em;
+        margin-bottom:.45rem;
+      }
 
-    .progress-line{
-      height:10px;
-      background:var(--rule-faint);
-      border-radius:99px;
-      overflow:hidden;
-      margin-bottom:1.2rem;
-    }
+      .progress-line{
+        height:10px;
+        background:var(--rule-faint);
+        border-radius:99px;
+        overflow:hidden;
+        margin-bottom:1.2rem;
+      }
 
-    .progress-fill{
-      width:0%;
-      height:100%;
-      background:var(--accent);
-      transition:width .35s ease;
-    }
+      .progress-fill{
+        width:0%;
+        height:100%;
+        background:var(--accent);
+        transition:width .35s ease;
+      }
 
-    .question-card{
-      background:rgba(255,255,255,.38);
-      border:1px solid var(--rule-faint);
-      border-radius:var(--radius-sm);
-      padding:1.2rem;
-      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
-      animation: fadeSlide .22s ease;
-    }
+      .question-card{
+        background:rgba(255,255,255,.38);
+        border:1px solid var(--rule-faint);
+        border-radius:var(--radius-sm);
+        padding:1.2rem;
+        box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+        animation: fadeSlide .22s ease;
+      }
 
-    @keyframes fadeSlide{
-      from{ opacity:0; transform:translateY(8px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
+      @keyframes fadeSlide{
+        from{ opacity:0; transform:translateY(8px); }
+        to{ opacity:1; transform:translateY(0); }
+      }
 
-    .question-title{
-      font-family:var(--font-ui);
-      color:var(--heading-ink);
-      font-size:clamp(17px,2.55vmin,23px);
-      margin-bottom:1rem;
-      letter-spacing:.03em;
-      line-height:1.35;
-      text-align:center;
-    }
+      .question-title{
+        font-family:var(--font-ui);
+        color:var(--heading-ink);
+        font-size:clamp(17px,2.55vmin,23px);
+        margin-bottom:1rem;
+        letter-spacing:.03em;
+        line-height:1.35;
+        text-align:center;
+      }
 
-    .choice-grid{
-      display:flex;
-      flex-wrap:wrap;
-      gap:.7rem;
-    }
+      .choice-grid{
+        display:flex;
+        flex-wrap:wrap;
+        gap:.7rem;
+      }
 
-    .choice{
-      flex:1 1 calc(50% - .7rem);
-      min-width:150px;
-      text-align:center;
-      cursor:pointer;
-      border:1px solid rgba(139,115,85,.35);
-      border-radius:var(--radius-sm);
-      background:rgba(255,255,255,.62);
-      color:var(--input-ink);
-      font-family:var(--font-body);
-      font-size:clamp(15px,2.15vmin,18px);
-      padding:.8rem .95rem;
-      transition:transform .12s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
-    }
-
-    .choice:hover:not(:disabled){
-      transform:translateY(-1px);
-      box-shadow:var(--shadow-tight);
-      background:rgba(255,255,255,.78);
-    }
-
-    .choice:active:not(:disabled){
-      transform:scale(.98);
-    }
-
-    .choice:disabled{
-      cursor:default;
-    }
-
-    .choice.selected{
-      border:2px solid #76411c;
-      background:linear-gradient(#d8c1a2,#c8a884);
-      font-weight:700;
-      animation: selectPop .18s ease;
-    }
-
-    @keyframes selectPop{
-      0%{ transform:scale(1); }
-      50%{ transform:scale(1.035); }
-      100%{ transform:scale(1); }
-    }
-
-    .choice.correct{
-      border-color:var(--correct-color);
-      background:rgba(47,79,79,.18);
-      animation: correctGlow .4s ease;
-      font-weight:700;
-    }
-
-    .choice.wrong{
-      border-color:var(--incorrect-color);
-      background:rgba(140,40,40,.13);
-      opacity:.86;
-    }
-
-    @keyframes correctGlow{
-      0%{ transform:scale(1); box-shadow:none; }
-      50%{ transform:scale(1.025); box-shadow:0 0 14px rgba(47,79,79,.35); }
-      100%{ transform:scale(1); box-shadow:none; }
-    }
-
-    .feedback{
-      margin-top:1rem;
-      padding:.85rem 1rem;
-      border-radius:var(--radius-sm);
-      border:1px solid var(--rule-faint);
-      background:rgba(255,255,255,.42);
-      font-family:var(--font-display);
-      color:var(--ink-soft);
-      font-size:clamp(16px,2.2vmin,20px);
-      line-height:1.35;
-      min-height:3.2rem;
-      opacity:0;
-      transform:translateY(5px);
-      transition:opacity .2s ease, transform .2s ease;
-    }
-
-    .feedback.show{
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    .feedback.good{
-      color:rgba(47,79,79,.95);
-    }
-
-    .feedback.review{
-      color:rgba(140,40,40,.95);
-    }
-
-    .actions{
-      display:flex;
-      justify-content:center;
-      gap:1rem;
-      margin-top:1.1rem;
-      flex-wrap:wrap;
-    }
-
-    .score-box{
-      text-align:center;
-      font-family:var(--font-display);
-      color:var(--title-ink);
-      font-size:clamp(20px,3.2vmin,30px);
-      margin-top:1rem;
-      min-height:1.5em;
-    }
-
-    .completion-card{
-      display:none;
-      text-align:center;
-      background:rgba(255,255,255,.38);
-      border:1px solid var(--rule-faint);
-      border-radius:var(--radius-sm);
-      padding:1.4rem;
-      box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
-      animation: fadeSlide .25s ease;
-    }
-
-    .completion-card.show{
-      display:block;
-    }
-
-    .completion-title{
-      font-family:var(--font-ui);
-      color:var(--heading-ink);
-      font-size:clamp(18px,2.8vmin,26px);
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      margin-bottom:.6rem;
-    }
-
-    .completion-text{
-      font-family:var(--font-display);
-      color:var(--ink-soft);
-      font-size:clamp(17px,2.4vmin,22px);
-      line-height:1.35;
-      margin-bottom:1rem;
-    }
-
-    .lottie-wrap{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 1vmin;
-    }
-    
-
-    .text-input{
-        width:100%;
-        margin-top:.8rem;
-        padding:.75rem 1rem;
-
-        font-family:var(--font-body);
-        font-size:clamp(15px,2.2vmin,18px);
-        color:var(--input-ink);
-
-        background:rgba(255,255,255,.75);
+      .choice{
+        flex:1 1 calc(50% - .7rem);
+        min-width:150px;
+        text-align:center;
+        cursor:pointer;
         border:1px solid rgba(139,115,85,.35);
         border-radius:var(--radius-sm);
+        background:rgba(255,255,255,.62);
+        color:var(--input-ink);
+        font-family:var(--font-body);
+        font-size:clamp(15px,2.15vmin,18px);
+        padding:.8rem .95rem;
+        transition:transform .12s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+      }
 
-        box-shadow:
-            inset 0 1px 6px rgba(0,0,0,.06);
+      .choice:hover:not(:disabled){
+        transform:translateY(-1px);
+        box-shadow:var(--shadow-tight);
+        background:rgba(255,255,255,.78);
+      }
 
-        transition:
-            border-color .15s ease,
-            box-shadow .15s ease,
-            background .15s ease;
-        }
+      .choice:active:not(:disabled){
+        transform:scale(.98);
+      }
 
-        /* Hover (very subtle) */
-        .text-input:hover{
-        background:rgba(255,255,255,.85);
-        }
+      .choice:disabled{
+        cursor:default;
+      }
 
-        /* Focus (important — makes it feel premium) */
-        .text-input:focus{
-        outline:none;
+      .choice.selected{
+        border:2px solid #76411c;
+        background:linear-gradient(#d8c1a2,#c8a884);
+        font-weight:700;
+        animation: selectPop .18s ease;
+      }
 
-        border-color:rgba(106,47,82,.45);
+      @keyframes selectPop{
+        0%{ transform:scale(1); }
+        50%{ transform:scale(1.035); }
+        100%{ transform:scale(1); }
+      }
 
-        box-shadow:
-            inset 0 1px 6px rgba(0,0,0,.08),
-            0 0 0 3px rgba(106,47,82,.12);
-        }
+      .choice.correct{
+        border-color:var(--correct-color);
+        background:rgba(47,79,79,.18);
+        animation: correctGlow .4s ease;
+        font-weight:700;
+      }
 
-        /* Placeholder styling */
-        .text-input::placeholder{
-        color:rgba(80,60,40,.55);
-        font-style:italic;
-        }
+      .choice.wrong{
+        border-color:var(--incorrect-color);
+        background:rgba(140,40,40,.13);
+        opacity:.86;
+      }
 
-        .text-input:focus{
-  transform:translateY(-1px);
-}
+      @keyframes correctGlow{
+        0%{ transform:scale(1); box-shadow:none; }
+        50%{ transform:scale(1.025); box-shadow:0 0 14px rgba(47,79,79,.35); }
+        100%{ transform:scale(1); box-shadow:none; }
+      }
 
-    @media(max-width:700px){
-      .quiz-wrap{padding:1.5vh 3vw;}
-      .quiz-card{max-height:82vh;padding:1rem;}
-      .quiz-head h2{white-space:normal;}
-      .choice{flex:1 1 100%;}
-      .actions .cta-button{width:100%;}
-      .progress-meta{flex-direction:column; align-items:center; gap:.2rem;}
-    }
-  </style>
-</head>
+      .feedback{
+        margin-top:1rem;
+        padding:.85rem 1rem;
+        border-radius:var(--radius-sm);
+        border:1px solid var(--rule-faint);
+        background:rgba(255,255,255,.42);
+        font-family:var(--font-display);
+        color:var(--ink-soft);
+        font-size:clamp(16px,2.2vmin,20px);
+        line-height:1.35;
+        min-height:3.2rem;
+        opacity:0;
+        transform:translateY(5px);
+        transition:opacity .2s ease, transform .2s ease;
+      }
 
-<body>
-  <div class="header-section">
-    <div class="header">
-      <h1>
-        <span class="emoji">📜</span>
-        <span class="gradient-text">Sage Challenge</span>
-      </h1>
-      <p class="subtitle">Test what you discovered from the profile.</p>
-      <button class="modern-button" id="home-button" onclick="window.location.href='student_home.html'">🏠</button>
+      .feedback.show{
+        opacity:1;
+        transform:translateY(0);
+      }
+
+      .feedback.good{
+        color:rgba(47,79,79,.95);
+      }
+
+      .feedback.review{
+        color:rgba(140,40,40,.95);
+      }
+
+      .actions{
+        display:flex;
+        justify-content:center;
+        gap:1rem;
+        margin-top:1.1rem;
+        flex-wrap:wrap;
+      }
+
+      .score-box{
+        text-align:center;
+        font-family:var(--font-display);
+        color:var(--title-ink);
+        font-size:clamp(20px,3.2vmin,30px);
+        margin-top:1rem;
+        min-height:1.5em;
+      }
+
+      .completion-card{
+        display:none;
+        text-align:center;
+        background:rgba(255,255,255,.38);
+        border:1px solid var(--rule-faint);
+        border-radius:var(--radius-sm);
+        padding:1.4rem;
+        box-shadow:inset 0 1px 6px rgba(0,0,0,.04);
+        animation: fadeSlide .25s ease;
+      }
+
+      .completion-card.show{
+        display:block;
+      }
+
+      .completion-title{
+        font-family:var(--font-ui);
+        color:var(--heading-ink);
+        font-size:clamp(18px,2.8vmin,26px);
+        text-transform:uppercase;
+        letter-spacing:.06em;
+        margin-bottom:.6rem;
+      }
+
+      .completion-text{
+        font-family:var(--font-display);
+        color:var(--ink-soft);
+        font-size:clamp(17px,2.4vmin,22px);
+        line-height:1.35;
+        margin-bottom:1rem;
+      }
+
+      .lottie-wrap{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1vmin;
+      }
+      
+
+      .text-input{
+          width:100%;
+          margin-top:.8rem;
+          padding:.75rem 1rem;
+
+          font-family:var(--font-body);
+          font-size:clamp(15px,2.2vmin,18px);
+          color:var(--input-ink);
+
+          background:rgba(255,255,255,.75);
+          border:1px solid rgba(139,115,85,.35);
+          border-radius:var(--radius-sm);
+
+          box-shadow:
+              inset 0 1px 6px rgba(0,0,0,.06);
+
+          transition:
+              border-color .15s ease,
+              box-shadow .15s ease,
+              background .15s ease;
+          }
+
+          /* Hover (very subtle) */
+          .text-input:hover{
+          background:rgba(255,255,255,.85);
+          }
+
+          /* Focus (important — makes it feel premium) */
+          .text-input:focus{
+          outline:none;
+
+          border-color:rgba(106,47,82,.45);
+
+          box-shadow:
+              inset 0 1px 6px rgba(0,0,0,.08),
+              0 0 0 3px rgba(106,47,82,.12);
+          }
+
+          /* Placeholder styling */
+          .text-input::placeholder{
+          color:rgba(80,60,40,.55);
+          font-style:italic;
+          }
+
+          .text-input:focus{
+    transform:translateY(-1px);
+  }
+
+      @media(max-width:700px){
+        .quiz-wrap{padding:1.5vh 3vw;}
+        .quiz-card{max-height:82vh;padding:1rem;}
+        .quiz-head h2{white-space:normal;}
+        .choice{flex:1 1 100%;}
+        .actions .cta-button{width:100%;}
+        .progress-meta{flex-direction:column; align-items:center; gap:.2rem;}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header-section">
+      <div class="header">
+        <h1>
+          <span class="emoji">📜</span>
+          <span class="gradient-text">Sage Challenge</span>
+        </h1>
+        <p class="subtitle">Test what you discovered from the profile.</p>
+        <button class="modern-button" id="home-button" onclick="window.location.href='student_home.html'">🏠</button>
+      </div>
     </div>
-  </div>
 
-  <main class="quiz-wrap">
-    <section class="quiz-card">
-      <div class="quiz-head">
-        <div class="rule"></div>
-        <h2 id="sage-title">Loading...</h2>
-        <div class="rule"></div>
-      </div>
-
-      <p class="quiz-intro">Test your knowledge.</p>
-
-      <div class="progress-meta">
-        <div id="question-counter">Question 1</div>
-        <div id="score-counter">Score: 0</div>
-      </div>
-
-      <div class="progress-line">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-
-      <div id="question-area"></div>
-
-      <div class="lottie-wrap" id="lottie"></div>
-
-      <div class="completion-card" id="completion-card">
-        <div class="completion-title">Challenge Complete</div>
-        <div class="completion-text" id="completion-text"></div>
-
-        <div class="actions">
-          <button type="button" class="cta-button sweep" id="finish-btn">Finish Assignment</button>
-          <button type="button" class="cta-button" id="profile-btn-final">Review Profile</button>
+    <main class="quiz-wrap">
+      <section class="quiz-card">
+        <div class="quiz-head">
+          <div class="rule"></div>
+          <h2 id="sage-title">Loading...</h2>
+          <div class="rule"></div>
         </div>
-      </div>
 
-      <div class="actions" id="question-actions">
-        <button type="button" class="cta-button sweep" id="next-btn" disabled>Next Question</button>
-        <button type="button" class="cta-button" id="profile-btn">Back to Profile</button>
-      </div>
+        <p class="quiz-intro">Test your knowledge.</p>
 
-      <div class="score-box" id="score-box"></div>
-    </section>
-  </main>
+        <div class="progress-meta">
+          <div id="question-counter">Question 1</div>
+          <div id="score-counter">Score: 0</div>
+        </div>
 
-  <script type="module">
-    import { loadAllSages } from './supabase/sagesWithNames.js';
-    import { supabaseClient } from './supabase/supabaseClient.js';
+        <div class="progress-line">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
 
-    const params = new URLSearchParams(window.location.search);
+        <div id="question-area"></div>
 
-    const sageName = params.get('sage') || params.get('selected') || '';
+        <div class="lottie-wrap" id="lottie"></div>
 
-    const assignmentId = params.get('assignmentId');
+        <div class="completion-card" id="completion-card">
+          <div class="completion-title">Challenge Complete</div>
+          <div class="completion-text" id="completion-text"></div>
 
-    const sageTitle = document.getElementById('sage-title');
-    const questionArea = document.getElementById('question-area');
-    const progressFill = document.getElementById('progress-fill');
-    const questionCounter = document.getElementById('question-counter');
-    const scoreCounter = document.getElementById('score-counter');
-    const scoreBox = document.getElementById('score-box');
-    const nextBtn = document.getElementById('next-btn');
-    const profileBtn = document.getElementById('profile-btn');
-    const questionActions = document.getElementById('question-actions');
-    const completionCard = document.getElementById('completion-card');
-    const completionText = document.getElementById('completion-text');
-    const finishBtn = document.getElementById('finish-btn');
-    const profileBtnFinal = document.getElementById('profile-btn-final');
+          <div class="actions">
+            <button type="button" class="cta-button sweep" id="finish-btn">Finish Assignment</button>
+            <button type="button" class="cta-button" id="profile-btn-final">Review Profile</button>
+          </div>
+        </div>
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
+        <div class="actions" id="question-actions">
+          <button type="button" class="cta-button sweep" id="next-btn" disabled>Next Question</button>
+          <button type="button" class="cta-button" id="profile-btn">Back to Profile</button>
+        </div>
 
-    const { data: profile } = await supabaseClient
-    .from('profiles')
-    .select('id')
-    .eq('auth_user_id', user.id)
-    .single();
+        <div class="score-box" id="score-box"></div>
+      </section>
+    </main>
 
-    const { data: student } = await supabaseClient
-    .from('students')
-    .select('id')
-    .eq('profile_id', profile.id)
-    .single();
+    <script type="module">
+      import { loadAllSages } from './supabase/sagesWithNames.js';
+      import { supabaseClient } from './supabase/supabaseClient.js';
 
-    let questions = [];
-    let currentIndex = 0;
-    let score = 0;
-    let answered = false;
-    let selectedExploreNext = null;
+      const params = new URLSearchParams(window.location.search);
 
-    async function saveProgress() {
-    try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+      const sageName = params.get('sage') || params.get('selected') || '';
 
-        console.log(assignmentId)
-        console.log(student.id)
-        console.log(score)
-        console.log(questions.length)
-        console.log(new Date().toISOString())
+      const assignmentId = params.get('assignmentId');
+
+      const sageTitle = document.getElementById('sage-title');
+      const questionArea = document.getElementById('question-area');
+      const progressFill = document.getElementById('progress-fill');
+      const questionCounter = document.getElementById('question-counter');
+      const scoreCounter = document.getElementById('score-counter');
+      const scoreBox = document.getElementById('score-box');
+      const nextBtn = document.getElementById('next-btn');
+      const profileBtn = document.getElementById('profile-btn');
+      const questionActions = document.getElementById('question-actions');
+      const completionCard = document.getElementById('completion-card');
+      const completionText = document.getElementById('completion-text');
+      const finishBtn = document.getElementById('finish-btn');
+      const profileBtnFinal = document.getElementById('profile-btn-final');
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+      const { data: student } = await supabaseClient
+      .from('students')
+      .select('id')
+      .eq('profile_id', profile.id)
+      .single();
+
+      let questions = [];
+      let currentIndex = 0;
+      let score = 0;
+      let answered = false;
+      let selectedExploreNext = null;
+
+      async function saveProgress() {
+      try {
+          const { data: { user } } = await supabaseClient.auth.getUser();
+
+          console.log(assignmentId)
+          console.log(student.id)
+          console.log(score)
+          console.log(questions.length)
+          console.log(new Date().toISOString())
 
 
 
-        const { error } = await supabaseClient
-        .from('assignment_progress')
-        .insert({
-            assignment_id: assignmentId,
-            student_id: student.id,
-            correct_count: score,
-            quiz_completed: true,
-            total_questions: questions.length,
-            status:"completed",
-            completed_at: new Date().toISOString()
-            
-        });
+          const { error } = await supabaseClient
+          .from('assignment_progress')
+          .insert({
+              assignment_id: assignmentId,
+              student_id: student.id,
+              correct_count: score,
+              quiz_completed: true,
+              total_questions: questions.length,
+              status:"completed",
+              completed_at: new Date().toISOString()
+              
+          });
 
-        if (error) {
-        console.error('SAVE ERROR:', error);
-        } else {
-        console.log('Progress saved');
-        }
+          if (error) {
+          console.error('SAVE ERROR:', error);
+          } else {
+          console.log('Progress saved');
+          }
 
-    } catch (err) {
-        console.error(err);
+      } catch (err) {
+          console.error(err);
+      }
+      }
+
+      function cleanValue(value){
+        if (value === null || value === undefined) return '';
+        return String(value).trim();
+      }
+
+      function firstValue(value){
+        const cleaned = cleanValue(value);
+        if (!cleaned || cleaned === '0') return '';
+        return cleaned.split(',')[0].trim();
+      }
+
+      function shuffle(array){
+        return [...array].sort(() => Math.random() - 0.5);
+      }
+
+      function unique(values){
+        return [...new Set(
+          values
+            .map(cleanValue)
+            .filter(Boolean)
+            .filter(v => v !== '0')
+        )];
+      }
+
+      function pickWrongChoices(allSages, getter, correct, count = 3){
+        const correctClean = cleanValue(correct).toLowerCase();
+
+        const pool = unique(
+          allSages
+            .map(getter)
+            .filter(v => cleanValue(v).toLowerCase() !== correctClean)
+        );
+
+        return shuffle(pool).slice(0, count);
+      }
+
+      function buildChoices(allSages, getter, correct){
+        const correctClean = cleanValue(correct);
+        const wrong = pickWrongChoices(allSages, getter, correctClean, 3);
+        return shuffle([correctClean, ...wrong]);
+      }
+
+      function birthDwelling(sage){
+        if (!Array.isArray(sage.dwellings)) return null;
+
+        return sage.dwellings.find(d =>
+          Number(d.dwelling_number) === 1
+        );
+      }
+
+      function cityOfBirth(sage){
+        const birthDwellingRecord = birthDwelling(sage);
+
+        return (
+          birthDwellingRecord?.city?.city ||
+          birthDwellingRecord?.city ||
+          ''
+        );
+      }
+
+      function countryOfPassing(sage){
+        return (
+          sage.city_of_passing?.country ||
+          sage.country_of_passing ||
+          ''
+        );
+      }
+
+      function workOf(sage){
+        return firstValue(sage.major_works);
+      }
+
+      function backgroundOf(sage){
+        return sage.background || '';
+      }
+
+      function birthdayOf(sage){
+        return sage.birthday || '';
+      }
+
+      function yahrtzeitOf(sage){
+        return sage.yahrtzeit || '';
+      }
+
+      function teacherOf(sage){
+        return firstValue(sage.teacher || sage.teachers || sage.rav || '');
+      }
+
+      function studentOf(sage){
+        return firstValue(sage.student || sage.students || sage.talmid || '');
+      }
+
+  function buildQuestion({ key, prompt, correct, choices, preference = false, textInput = false }){
+    if (textInput) {
+      return {
+        key,
+        prompt,
+        correct: '',
+        choices: [],
+        preference: false,
+        textInput: true
+      };
     }
+
+    if (!preference) {
+      if (!cleanValue(correct)) return null;
+
+      const validChoices = unique(choices || []);
+      if (validChoices.length < 3) return null;
+
+      return {
+        key,
+        prompt,
+        correct: cleanValue(correct),
+        choices: validChoices,
+        preference: false,
+        textInput: false
+      };
     }
 
-    function cleanValue(value){
-      if (value === null || value === undefined) return '';
-      return String(value).trim();
-    }
+    const validPreferenceChoices = unique(choices || []);
+    if (validPreferenceChoices.length < 2) return null;
 
-    function firstValue(value){
-      const cleaned = cleanValue(value);
-      if (!cleaned || cleaned === '0') return '';
-      return cleaned.split(',')[0].trim();
-    }
-
-    function shuffle(array){
-      return [...array].sort(() => Math.random() - 0.5);
-    }
-
-    function unique(values){
-      return [...new Set(
-        values
-          .map(cleanValue)
-          .filter(Boolean)
-          .filter(v => v !== '0')
-      )];
-    }
-
-    function pickWrongChoices(allSages, getter, correct, count = 3){
-      const correctClean = cleanValue(correct).toLowerCase();
-
-      const pool = unique(
-        allSages
-          .map(getter)
-          .filter(v => cleanValue(v).toLowerCase() !== correctClean)
-      );
-
-      return shuffle(pool).slice(0, count);
-    }
-
-    function buildChoices(allSages, getter, correct){
-      const correctClean = cleanValue(correct);
-      const wrong = pickWrongChoices(allSages, getter, correctClean, 3);
-      return shuffle([correctClean, ...wrong]);
-    }
-
-    function cityOf(sage){
-      return sage.city_of_passing?.city || sage.city || sage.city_of_passing || '';
-    }
-
-    function countryOf(sage){
-      return sage.city_of_passing?.country || sage.country_of_passing || sage.country || '';
-    }
-
-    function workOf(sage){
-      return firstValue(sage.major_works);
-    }
-
-    function backgroundOf(sage){
-      return sage.background || '';
-    }
-
-    function birthdayOf(sage){
-      return sage.birthday || '';
-    }
-
-    function yahrtzeitOf(sage){
-      return sage.yahrtzeit || '';
-    }
-
-    function teacherOf(sage){
-      return firstValue(sage.teacher || sage.teachers || sage.rav || '');
-    }
-
-    function studentOf(sage){
-      return firstValue(sage.student || sage.students || sage.talmid || '');
-    }
-
-function buildQuestion({ key, prompt, correct, choices, preference = false, textInput = false }){
-  if (textInput) {
     return {
       key,
       prompt,
       correct: '',
-      choices: [],
-      preference: false,
-      textInput: true
-    };
-  }
-
-  if (!preference) {
-    if (!cleanValue(correct)) return null;
-
-    const validChoices = unique(choices || []);
-    if (validChoices.length < 3) return null;
-
-    return {
-      key,
-      prompt,
-      correct: cleanValue(correct),
-      choices: validChoices,
-      preference: false,
+      choices: validPreferenceChoices,
+      preference: true,
       textInput: false
     };
   }
 
-  const validPreferenceChoices = unique(choices || []);
-  if (validPreferenceChoices.length < 2) return null;
+      function buildQuestions(target, allSages){
+        const otherNames = unique(allSages.map(s => s.person).filter(p => p !== target.person));
 
-  return {
-    key,
-    prompt,
-    correct: '',
-    choices: validPreferenceChoices,
-    preference: true,
-    textInput: false
-  };
-}
-
-    function buildQuestions(target, allSages){
-      const otherNames = unique(allSages.map(s => s.person).filter(p => p !== target.person));
-
-      return [
-        buildQuestion({
-        key: 'name',
-        prompt: `What is this sage's name?`,
-        correct: target.name,
-        choices: buildChoices(allSages, s => s.name, target.name)
-        }),
-        buildQuestion({
-          key: 'city',
-          prompt: `Which of these cities did ${target.person} live in?`,
-          correct: cityOf(target),
-          choices: buildChoices(allSages, cityOf, cityOf(target))
-        }),
-        buildQuestion({
-          key: 'country',
-          prompt: `Which of these countries did ${target.person} live in?`,
-          correct: countryOf(target),
-          choices: buildChoices(allSages, countryOf, countryOf(target))
-        }),
-        buildQuestion({
-          key: 'birth',
-          prompt: `What year was ${target.person} born?`,
-          correct: target.birth,
-          choices: buildChoices(allSages, s => String(s.birth || ''), target.birth)
-        }),
-        buildQuestion({
-          key: 'passing',
-          prompt: `What year did ${target.person} pass away?`,
-          correct: target.passing,
-          choices: buildChoices(allSages, s => String(s.passing || ''), target.passing)
-        }),
-        buildQuestion({
-          key: 'birthday',
-          prompt: `What is ${target.person}'s birthday?`,
-          correct: birthdayOf(target),
-          choices: buildChoices(allSages, birthdayOf, birthdayOf(target))
-        }),
-        buildQuestion({
-          key: 'yahrtzeit',
-          prompt: `What is ${target.person}'s yahrtzeit?`,
-          correct: yahrtzeitOf(target),
-          choices: buildChoices(allSages, yahrtzeitOf, yahrtzeitOf(target))
-        }),
-        buildQuestion({
-          key: 'background',
-          prompt: `What is his background?`,
-          correct: backgroundOf(target),
-          choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
-        }),
-        buildQuestion({
-          key: 'teacher',
-          prompt: `Which of these was his teacher?`,
-          correct: teacherOf(target),
-          choices: buildChoices(allSages, teacherOf, teacherOf(target))
-        }),
-        buildQuestion({
-          key: 'student',
-          prompt: `Which of these was his student?`,
-          correct: studentOf(target),
-          choices: buildChoices(allSages, studentOf, studentOf(target))
-        }),
-        buildQuestion({
-          key: 'work',
-          prompt: `Which of these did he write?`,
-          correct: workOf(target),
-          choices: buildChoices(allSages, workOf, workOf(target))
-        }),
-        buildQuestion({
-          key: 'explore_next',
-          prompt: `Which sage would you like to explore next?`,
-          textInput: true
-        })
-      ].filter(Boolean);
-    }
-
-    function updateHeader(){
-      const total = questions.length;
-      const currentNumber = Math.min(currentIndex + 1, total);
-      questionCounter.textContent = `Question ${currentNumber} of ${total}`;
-      scoreCounter.textContent = `Score: ${score}`;
-      progressFill.style.width = `${(currentIndex / total) * 100}%`;
-    }
-
-    function renderCurrentQuestion(){
-      document.getElementById('lottie').innerHTML = '';
-      answered = false;
-      nextBtn.disabled = true;
-      scoreBox.textContent = '';
-
-      if (currentIndex >= questions.length) {
-        showCompletion();
-        return;
+        return [
+          buildQuestion({
+          key: 'name',
+          prompt: `What is this sage's name?`,
+          correct: target.name,
+          choices: buildChoices(allSages, s => s.name, target.name)
+          }),
+          buildQuestion({
+            key: 'birth_city',
+            prompt: `In which city was ${target.person} born?`,
+            correct: cityOfBirth(target),
+            choices: buildChoices(allSages, cityOfBirth, cityOfBirth(target))
+          }),
+          buildQuestion({
+            key: 'passing_country',
+            prompt: `In which country did ${target.person} pass away?`,
+            correct: countryOfPassing(target),
+            choices: buildChoices(allSages, countryOfPassing, countryOfPassing(target))
+          }),
+          buildQuestion({
+            key: 'birth',
+            prompt: `What year was ${target.person} born?`,
+            correct: target.birth,
+            choices: buildChoices(allSages, s => String(s.birth || ''), target.birth)
+          }),
+          buildQuestion({
+            key: 'passing',
+            prompt: `What year did ${target.person} pass away?`,
+            correct: target.passing,
+            choices: buildChoices(allSages, s => String(s.passing || ''), target.passing)
+          }),
+          buildQuestion({
+            key: 'birthday',
+            prompt: `What is ${target.person}'s birthday?`,
+            correct: birthdayOf(target),
+            choices: buildChoices(allSages, birthdayOf, birthdayOf(target))
+          }),
+          buildQuestion({
+            key: 'yahrtzeit',
+            prompt: `What is ${target.person}'s yahrtzeit?`,
+            correct: yahrtzeitOf(target),
+            choices: buildChoices(allSages, yahrtzeitOf, yahrtzeitOf(target))
+          }),
+          buildQuestion({
+            key: 'background',
+            prompt: `What is his background?`,
+            correct: backgroundOf(target),
+            choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
+          }),
+          buildQuestion({
+            key: 'teacher',
+            prompt: `Which of these was his teacher?`,
+            correct: teacherOf(target),
+            choices: buildChoices(allSages, teacherOf, teacherOf(target))
+          }),
+          buildQuestion({
+            key: 'student',
+            prompt: `Which of these was his student?`,
+            correct: studentOf(target),
+            choices: buildChoices(allSages, studentOf, studentOf(target))
+          }),
+          buildQuestion({
+            key: 'work',
+            prompt: `Which of these did he write?`,
+            correct: workOf(target),
+            choices: buildChoices(allSages, workOf, workOf(target))
+          }),
+          buildQuestion({
+            key: 'explore_next',
+            prompt: `Which sage would you like to explore next?`,
+            textInput: true
+          })
+        ].filter(Boolean);
       }
 
-      updateHeader();
+      function updateHeader(){
+        const total = questions.length;
+        const currentNumber = Math.min(currentIndex + 1, total);
+        questionCounter.textContent = `Question ${currentNumber} of ${total}`;
+        scoreCounter.textContent = `Score: ${score}`;
+        progressFill.style.width = `${(currentIndex / total) * 100}%`;
+      }
 
-      const q = questions[currentIndex];
+      function renderCurrentQuestion(){
+        document.getElementById('lottie').innerHTML = '';
+        answered = false;
+        nextBtn.disabled = true;
+        scoreBox.textContent = '';
 
-      questionArea.innerHTML = '';
+        if (currentIndex >= questions.length) {
+          showCompletion();
+          return;
+        }
 
-      const card = document.createElement('div');
-      card.className = 'question-card';
+        updateHeader();
 
-      const title = document.createElement('div');
-      title.className = 'question-title';
-      title.textContent = q.prompt;
+        const q = questions[currentIndex];
 
-      const grid = document.createElement('div');
-      grid.className = 'choice-grid';
+        questionArea.innerHTML = '';
 
-      if (q.textInput) {
-        const input = document.createElement('input');
-        input.className = 'text-input';
-        input.placeholder = 'Type a sage...';
+        const card = document.createElement('div');
+        card.className = 'question-card';
 
-        input.addEventListener('input', () => {
-            selectedExploreNext = input.value.trim();
-            nextBtn.disabled = !selectedExploreNext;
+        const title = document.createElement('div');
+        title.className = 'question-title';
+        title.textContent = q.prompt;
+
+        const grid = document.createElement('div');
+        grid.className = 'choice-grid';
+
+        if (q.textInput) {
+          const input = document.createElement('input');
+          input.className = 'text-input';
+          input.placeholder = 'Type a sage...';
+
+          input.addEventListener('input', () => {
+              selectedExploreNext = input.value.trim();
+              nextBtn.disabled = !selectedExploreNext;
+          });
+
+          card.appendChild(title);
+          card.appendChild(input);
+          questionArea.appendChild(card);
+          return;
+          }
+
+        q.choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'choice';
+          btn.textContent = choice;
+          btn.dataset.choice = choice;
+
+          btn.addEventListener('click', () => handleChoice(q, btn, grid));
+
+          grid.appendChild(btn);
         });
 
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.id = 'feedback';
+
         card.appendChild(title);
-        card.appendChild(input);
+        card.appendChild(grid);
+        card.appendChild(feedback);
         questionArea.appendChild(card);
-        return;
+      }
+
+      function handleChoice(q, selectedBtn, grid){
+        if (answered) return;
+        answered = true;
+
+        const selected = selectedBtn.dataset.choice;
+        const feedback = document.getElementById('feedback');
+
+        grid.querySelectorAll('.choice').forEach(btn => {
+          btn.disabled = true;
+          btn.classList.remove('selected');
+        });
+
+        selectedBtn.classList.add('selected');
+
+        if (q.preference) {
+          const lottie = document.getElementById('lottie');
+          lottie.innerHTML = `
+          <lottie-player
+          src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
+          background="transparent"
+          speed="1"
+          style="width:120px;height:120px;"
+          autoplay>
+          </lottie-player>
+          `;
+          selectedExploreNext = selected;
+          feedback.textContent = `Good choice. You can explore ${selected} next.`;
+          feedback.classList.add('show', 'good');
+          nextBtn.disabled = false;
+          return;
         }
 
-      q.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'choice';
-        btn.textContent = choice;
-        btn.dataset.choice = choice;
+        const isCorrect = selected === q.correct;
 
-        btn.addEventListener('click', () => handleChoice(q, btn, grid));
+        grid.querySelectorAll('.choice').forEach(btn => {
+          if (btn.dataset.choice === q.correct) {
+            btn.classList.add('correct');
+          }
+        });
 
-        grid.appendChild(btn);
-      });
+        if (isCorrect) {
+          score += 1;
+          selectedBtn.classList.add('correct');
 
-      const feedback = document.createElement('div');
-      feedback.className = 'feedback';
-      feedback.id = 'feedback';
+          const lottie = document.getElementById('lottie');
+          lottie.innerHTML = `
+              <lottie-player
+              src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
+              background="transparent"
+              speed="1"
+              style="width:90px;height:120px;"
+              autoplay>
+              </lottie-player>
+          `;
 
-      card.appendChild(title);
-      card.appendChild(grid);
-      card.appendChild(feedback);
-      questionArea.appendChild(card);
-    }
+          feedback.textContent = 'Correct — Well done';
+          feedback.classList.add('show', 'good');
+          } else {
+          selectedBtn.classList.add('wrong');
+          feedback.textContent = `The correct answer is: ${q.correct}`;
+          feedback.classList.add('show', 'review');
+        }
 
-    function handleChoice(q, selectedBtn, grid){
-      if (answered) return;
-      answered = true;
-
-      const selected = selectedBtn.dataset.choice;
-      const feedback = document.getElementById('feedback');
-
-      grid.querySelectorAll('.choice').forEach(btn => {
-        btn.disabled = true;
-        btn.classList.remove('selected');
-      });
-
-      selectedBtn.classList.add('selected');
-
-      if (q.preference) {
-        const lottie = document.getElementById('lottie');
-        lottie.innerHTML = `
-        <lottie-player
-        src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
-        background="transparent"
-        speed="1"
-        style="width:120px;height:120px;"
-        autoplay>
-        </lottie-player>
-        `;
-        selectedExploreNext = selected;
-        feedback.textContent = `Good choice. You can explore ${selected} next.`;
-        feedback.classList.add('show', 'good');
+        scoreCounter.textContent = `Score: ${score}`;
         nextBtn.disabled = false;
-        return;
       }
 
-      const isCorrect = selected === q.correct;
+      function showCompletion(){
+        questionArea.innerHTML = '';
+        questionActions.style.display = 'none';
+        completionCard.classList.add('show');
+        progressFill.style.width = '100%';
+        questionCounter.textContent = 'Complete';
 
-      grid.querySelectorAll('.choice').forEach(btn => {
-        if (btn.dataset.choice === q.correct) {
-          btn.classList.add('correct');
+        const gradedCount = questions.filter(q => !q.preference).length;
+        completionText.innerHTML =
+          `You completed the challenge.<br>` +
+          `Score: ${score} / ${gradedCount}` +
+          (selectedExploreNext ? `<br>Next sage to explore: ${selectedExploreNext}` : '');
+
+        scoreBox.textContent = '';
+        saveProgress(); // 👈 add this
+      }
+
+      nextBtn.addEventListener('click', () => {
+        currentIndex += 1;
+        renderCurrentQuestion();
+      });
+
+      function goToProfile(name = sageName){
+        window.location.href =
+          `discover.html?selected=${encodeURIComponent(name)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
+      }
+
+      profileBtn.addEventListener('click', () => linkToProfile(sageName, 'discover.html', assignmentId));
+      profileBtnFinal.addEventListener('click', () => linkToProfile(sageName, 'discover.html', assignmentId));
+
+      finishBtn.addEventListener('click', () => {
+        {
+          window.location.href = 'student_home.html';
         }
       });
 
-      if (isCorrect) {
-        score += 1;
-        selectedBtn.classList.add('correct');
+      async function init(){
+        const allSagesRaw = await loadAllSages();
 
-        const lottie = document.getElementById('lottie');
-        lottie.innerHTML = `
-            <lottie-player
-            src="https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json"
-            background="transparent"
-            speed="1"
-            style="width:90px;height:120px;"
-            autoplay>
-            </lottie-player>
-        `;
+        const allSages = [
+          ...new Map(allSagesRaw.map(item => [item.person, item])).values()
+        ];
 
-        feedback.textContent = 'Correct — Well done';
-        feedback.classList.add('show', 'good');
-        } else {
-        selectedBtn.classList.add('wrong');
-        feedback.textContent = `The correct answer is: ${q.correct}`;
-        feedback.classList.add('show', 'review');
+        const target = allSages.find(s =>
+          s.person?.trim().toLowerCase() === sageName.trim().toLowerCase()
+        );
+
+        if (!target) {
+          sageTitle.textContent = 'Sage Not Found';
+          questionArea.innerHTML = `<div class="question-card">Could not find this sage.</div>`;
+          nextBtn.disabled = true;
+          return;
+        }
+
+        sageTitle.textContent = target.person;
+        console.log(target)
+        questions = buildQuestions(target, allSages);
+
+        if (!questions.length) {
+          questionArea.innerHTML = `<div class="question-card">No questions are available for this sage yet.</div>`;
+          nextBtn.disabled = true;
+          return;
+        }
+
+        renderCurrentQuestion();
       }
 
-      scoreCounter.textContent = `Score: ${score}`;
-      nextBtn.disabled = false;
-    }
-
-    function showCompletion(){
-      questionArea.innerHTML = '';
-      questionActions.style.display = 'none';
-      completionCard.classList.add('show');
-      progressFill.style.width = '100%';
-      questionCounter.textContent = 'Complete';
-
-      const gradedCount = questions.filter(q => !q.preference).length;
-      completionText.innerHTML =
-        `You completed the challenge.<br>` +
-        `Score: ${score} / ${gradedCount}` +
-        (selectedExploreNext ? `<br>Next sage to explore: ${selectedExploreNext}` : '');
-
-      scoreBox.textContent = '';
-      saveProgress(); // 👈 add this
-    }
-
-    nextBtn.addEventListener('click', () => {
-      currentIndex += 1;
-      renderCurrentQuestion();
-    });
-
-    function goToProfile(name = sageName){
-      window.location.href =
-        `discover.html?selected=${encodeURIComponent(name)}${assignmentId ? `&assignment_id=${assignmentId}` : ''}`;
-    }
-
-    profileBtn.addEventListener('click', () => linkToProfile(sageName, 'discover.html', assignmentId));
-    profileBtnFinal.addEventListener('click', () => linkToProfile(sageName, 'discover.html', assignmentId));
-
-    finishBtn.addEventListener('click', () => {
-      {
-        window.location.href = 'student_home.html';
-      }
-    });
-
-    async function init(){
-      const allSagesRaw = await loadAllSages();
-
-      const allSages = [
-        ...new Map(allSagesRaw.map(item => [item.person, item])).values()
-      ];
-
-      const target = allSages.find(s =>
-        s.person?.trim().toLowerCase() === sageName.trim().toLowerCase()
-      );
-
-      if (!target) {
-        sageTitle.textContent = 'Sage Not Found';
-        questionArea.innerHTML = `<div class="question-card">Could not find this sage.</div>`;
-        nextBtn.disabled = true;
-        return;
-      }
-
-      sageTitle.textContent = target.person;
-      console.log(target)
-      questions = buildQuestions(target, allSages);
-
-      if (!questions.length) {
-        questionArea.innerHTML = `<div class="question-card">No questions are available for this sage yet.</div>`;
-        nextBtn.disabled = true;
-        return;
-      }
-
-      renderCurrentQuestion();
-    }
-
-    init();
-  </script>
-  <script src="global.js"></script>
-</body>
-</html>
+      init();
+    </script>
+    <script src="global.js"></script>
+  </body>
+  </html>
