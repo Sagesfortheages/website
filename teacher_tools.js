@@ -331,45 +331,6 @@ async function loadStudents(classId) {
       resetStudentPin(btn.dataset.resetPin, btn.dataset.resetName);
     });
 });
-}
-
-
-async function deleteStudent(studentId, displayName) {
-
-  const confirmed = confirm(
-    `Delete ${displayName}?\n\nThe student will become inactive.`
-  );
-
-  if (!confirmed) return;
-
-  try {
-
-    const token = await getAccessToken();
-
-    const res = await fetch('/api/delete_student', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token
-          ? { Authorization: `Bearer ${token}` }
-          : {})
-      },
-      body: JSON.stringify({ studentId })
-    });
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok || data?.success === false) {
-      alert(data?.message || 'Could not delete student.');
-      return;
-    }
-
-    await loadStudents(currentClassId);
-
-  } catch (err) {
-    alert(err.message);
-  }
-}
 
 studentsTbody.querySelectorAll('[data-delete-student]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -379,6 +340,114 @@ studentsTbody.querySelectorAll('[data-delete-student]').forEach(btn => {
     );
   });
 });
+}
+
+
+async function deleteStudent(studentId, displayName) {
+  const bodyEl = document.getElementById('delete-student-body');
+  const actionsEl = document.getElementById('delete-student-actions');
+
+  bodyEl.innerHTML = `
+    <p style="font-family:var(--font-body);font-size:clamp(14px,1.8vmin,17px);color:var(--ink);">
+      Delete <b style="font-family:var(--font-ui)">${esc(displayName)}</b>?
+      <br><br>
+      This student will become inactive and will no longer appear in your roster.
+    </p>
+  `;
+
+  actionsEl.innerHTML = `
+    <button class="cta-button" data-close="modal-delete-student">Cancel</button>
+    <button class="cta-button filled" id="confirm-delete-student-btn">Delete Student</button>
+  `;
+
+  openModal('modal-delete-student');
+
+  actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+    closeModal('modal-delete-student');
+  });
+
+  actionsEl.querySelector('#confirm-delete-student-btn').addEventListener('click', async () => {
+    bodyEl.innerHTML = `
+      <div class="result-card loading">
+        <div class="result-title">⏳ Working…</div>
+        Deleting student…
+      </div>
+    `;
+
+    actionsEl.innerHTML = '';
+
+    try {
+      const token = await getAccessToken();
+
+      const res = await fetch('/api/delete_student', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ studentId })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || data?.success === false) {
+        bodyEl.innerHTML = `
+          <div class="result-card error">
+            <div class="result-title">⚠️ Could not delete student</div>
+            ${esc(data?.message || 'An unexpected error occurred.')}
+          </div>
+        `;
+
+        actionsEl.innerHTML = `
+          <button class="cta-button filled" data-close="modal-delete-student">Close</button>
+        `;
+
+        actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+          closeModal('modal-delete-student');
+        });
+
+        return;
+      }
+
+      bodyEl.innerHTML = `
+        <div class="result-card success">
+          <div class="result-title">✅ Student deleted</div>
+          <div class="result-row-pair">
+            <span>Student</span>
+            <b>${esc(displayName)}</b>
+          </div>
+        </div>
+      `;
+
+      actionsEl.innerHTML = `
+        <button class="cta-button filled" data-close="modal-delete-student">Done</button>
+      `;
+
+      actionsEl.querySelector('[data-close]').addEventListener('click', async () => {
+        closeModal('modal-delete-student');
+        await loadStudents(currentClassId);
+      });
+
+    } catch (err) {
+      bodyEl.innerHTML = `
+        <div class="result-card error">
+          <div class="result-title">⚠️ Error</div>
+          ${esc(err.message || 'Unexpected error.')}
+        </div>
+      `;
+
+      actionsEl.innerHTML = `
+        <button class="cta-button filled" data-close="modal-delete-student">Close</button>
+      `;
+
+      actionsEl.querySelector('[data-close]').addEventListener('click', () => {
+        closeModal('modal-delete-student');
+      });
+    }
+  });
+}
+
+
 
 /* Assignments */
 
