@@ -284,6 +284,7 @@ async function loadStudents(classId) {
       profile:profiles(display_name)
     `)
     .eq('class_id', classId)
+    .eq('active', true)
     .order('username');
 
   if (error) {
@@ -574,6 +575,7 @@ async function showAssignmentDetail(assignmentId, title) {
       .from('students')
       .select('id, username, profile:profiles(display_name)')
       .eq('class_id', currentClassId)
+      .eq('active', true)
       .order('username'),
     supabaseClient
       .from('assignment_progress')
