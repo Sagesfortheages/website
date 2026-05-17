@@ -306,8 +306,21 @@ async function loadStudents(classId) {
     <tr>
       <td><span class="student-name-cell">${avatarEl(name)}${esc(name)}</span></td>
       <td>${esc(s.username)}</td>
-      <td>
-        <button class="cta-button sm" data-reset-pin="${esc(s.id)}" data-reset-name="${esc(name)}">Reset PIN</button>
+      <td class="student-actions">
+        <button
+          class="cta-button sm"
+          data-reset-pin="${esc(s.id)}"
+          data-reset-name="${esc(name)}">
+          Reset PIN
+        </button>
+
+        <button
+          class="trash-btn"
+          data-delete-student="${esc(s.id)}"
+          data-delete-name="${esc(name)}"
+          title="Delete student">
+          🗑
+        </button>
       </td>
     </tr>
 `;
@@ -319,6 +332,53 @@ async function loadStudents(classId) {
     });
 });
 }
+
+
+async function deleteStudent(studentId, displayName) {
+
+  const confirmed = confirm(
+    `Delete ${displayName}?\n\nThe student will become inactive.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+
+    const token = await getAccessToken();
+
+    const res = await fetch('/api/delete_student', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token
+          ? { Authorization: `Bearer ${token}` }
+          : {})
+      },
+      body: JSON.stringify({ studentId })
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || data?.success === false) {
+      alert(data?.message || 'Could not delete student.');
+      return;
+    }
+
+    await loadStudents(currentClassId);
+
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+studentsTbody.querySelectorAll('[data-delete-student]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    deleteStudent(
+      btn.dataset.deleteStudent,
+      btn.dataset.deleteName
+    );
+  });
+});
 
 /* Assignments */
 
