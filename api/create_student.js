@@ -171,6 +171,27 @@ export default async function handler(req, res) {
       });
     }
 
+        // 7. Enforce max 20 active students per class
+    const { count: activeStudentCount, error: countError } = await supabaseAdmin
+      .from('students')
+      .select('id', { count: 'exact', head: true })
+      .eq('class_id', parsedClassId)
+      .eq('active', true);
+
+    if (countError) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to check class size'
+      });
+    }
+
+    if ((activeStudentCount || 0) >= 20) {
+      return res.status(403).json({
+        success: false,
+        message: 'This class already has the maximum of 20 active students'
+      });
+    }
+
     // 7. Ensure username is unique within class
     const { data: existingStudent, error: existingStudentError } = await supabaseAdmin
       .from('students')
