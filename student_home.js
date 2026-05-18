@@ -89,7 +89,7 @@ async function loadStudentHome() {
     startActivityBtn.disabled = true;
 
     const { error } = await supabaseClient
-      .from('student_assignments')
+      .from('assignment_progress')
       .upsert({
         student_id: studentRow.id,
         assignment_id: assignment.id,
