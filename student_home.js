@@ -84,29 +84,51 @@ async function loadStudentHome() {
     studentStatusEl.textContent = `Today’s activity: ${assignment.title}`;
     startActivityBtn.disabled = false;
 
-    startActivityBtn.onclick = () => startActivityBtn.onclick = async () => {
-  try {
-    startActivityBtn.disabled = true;
+    const { data: existingProgress, error: progressError } = await supabaseClient
+    .from('assignment_progress')
+    .select('id, status')
+    .eq('assignment_id', assignment.id)
+    .eq('student_id', studentRow.id)
+    .maybeSingle();
 
-    const { error } = await supabaseClient
-      .from('assignment_progress')
-      .insert({
-        student_id: studentRow.id,
-        assignment_id: assignment.id,
-        status: 'in_progress',
-        started_at: new Date().toISOString()
-      });
-
-    if (error) throw error;
-
-    window.location.href = `play.html?assignment_id=${assignment.id}`;
-
-  } catch (err) {
-    console.error(err);
-    alert('Could not start assignment.');
-    startActivityBtn.disabled = false;
+  if (progressError) {
+    throw progressError;
   }
-};
+
+  if (existingProgress) {
+    startActivityBtn.textContent = 'Continue Activity';
+
+    startActivityBtn.onclick = () => {
+      window.location.href = `play.html?assignment_id=${assignment.id}`;
+    };
+  } else {
+    startActivityBtn.textContent = 'Start Activity';
+
+    startActivityBtn.onclick = async () => {
+      try {
+        startActivityBtn.disabled = true;
+
+        const { error } = await supabaseClient
+          .from('assignment_progress')
+          .insert({
+            student_id: studentRow.id,
+            assignment_id: assignment.id,
+            status: 'in_progress',
+            started_at: new Date().toISOString(),
+            last_activity_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+
+        window.location.href = `play.html?assignment_id=${assignment.id}`;
+      } catch (err) {
+        console.error('START ASSIGNMENT ERROR:', err);
+        alert(err.message || 'Could not start assignment.');
+        startActivityBtn.disabled = false;
+      }
+    };
+  }
+
   } catch (err) {
     console.error('LOAD STUDENT HOME ERROR:', err);
 
