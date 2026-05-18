@@ -385,6 +385,7 @@
     <script type="module">
       import { loadAllSages } from './supabase/sagesWithNames.js';
       import { supabaseClient } from './supabase/supabaseClient.js';
+      import { loadExtraQuizDataForSage } from './supabase/quiz_queries.js';
 
       const params = new URLSearchParams(window.location.search);
 
@@ -405,6 +406,20 @@
       const completionText = document.getElementById('completion-text');
       const finishBtn = document.getElementById('finish-btn');
       const profileBtnFinal = document.getElementById('profile-btn-final');
+
+      const EXPERTISE_CHOICES = [
+        'Tanach',
+        'Talmud',
+        'Halacha',
+        'Responsa',
+        'Kabbalah',
+        'Chassidus',
+        'Mussar',
+        'Philosophy',
+        'Linguistics',
+        'Poetry',
+        'History',
+      ];
 
       const { data: { user } } = await supabaseClient.auth.getUser();
 
@@ -508,7 +523,7 @@
         if (!Array.isArray(sage.dwellings)) return null;
 
         return sage.dwellings.find(d =>
-          Number(d.dwelling_number) === 1
+          Number(d.number) === 1
         );
       }
 
@@ -547,12 +562,28 @@
       }
 
       function teacherOf(sage){
-        return firstValue(sage.teacher || sage.teachers || sage.rav || '');
+        if (Array.isArray(sage.teachers)) {
+          return sage.teachers[0] || '';
+        }
+
+        return firstValue(sage.teacher || sage.rav || '');
       }
 
       function studentOf(sage){
-        return firstValue(sage.student || sage.students || sage.talmid || '');
+        if (Array.isArray(sage.students)) {
+          return sage.students[0] || '';
+        }
+
+        return firstValue(sage.student || sage.talmid || '');
       }
+
+      function expertiseOf(sage){
+        if (Array.isArray(sage.expertises)) {
+          return sage.expertises[0]?.expertise || '';
+        }
+
+  return firstValue(sage.expertise || '');
+}
 
   function buildQuestion({ key, prompt, correct, choices, preference = false, textInput = false }){
     if (textInput) {
@@ -609,7 +640,7 @@
             key: 'birth_city',
             prompt: `In which city was ${target.person} born?`,
             correct: cityOfBirth(target),
-            choices: buildChoices(allSages, cityOfBirth, cityOfBirth(target))
+            choices: buildChoices(allSages, s => s.city_of_passing || s.city || '', cityOfBirth(target))
           }),
           buildQuestion({
             key: 'passing_country',
@@ -648,23 +679,29 @@
             choices: buildChoices(allSages, backgroundOf, backgroundOf(target))
           }),
           buildQuestion({
+            key: 'expertise',
+            prompt: `Which area of Torah is ${target.person} especially associated with?`,
+            correct: expertiseOf(target),
+            choices: EXPERTISE_CHOICES
+          }),
+          buildQuestion({
             key: 'teacher',
             prompt: `Which of these was his teacher?`,
             correct: teacherOf(target),
-            choices: buildChoices(allSages, teacherOf, teacherOf(target))
+            choices: buildChoices(allSages, s => s.person, teacherOf(target))
           }),
           buildQuestion({
             key: 'student',
             prompt: `Which of these was his student?`,
             correct: studentOf(target),
-            choices: buildChoices(allSages, studentOf, studentOf(target))
+            choices: buildChoices(allSages, s => s.person, studentOf(target))
           }),
-          buildQuestion({
-            key: 'work',
-            prompt: `Which of these did he write?`,
-            correct: workOf(target),
-            choices: buildChoices(allSages, workOf, workOf(target))
-          }),
+          // buildQuestion({
+          //   key: 'work',
+          //   prompt: `Which of these did he write?`,
+          //   correct: workOf(target),
+          //   choices: buildChoices(allSages, workOf, workOf(target))
+          // }),
           buildQuestion({
             key: 'explore_next',
             prompt: `Which sage would you like to explore next?`,
@@ -856,7 +893,7 @@
           ...new Map(allSagesRaw.map(item => [item.person, item])).values()
         ];
 
-        const target = allSages.find(s =>
+        let target = allSages.find(s =>
           s.person?.trim().toLowerCase() === sageName.trim().toLowerCase()
         );
 
@@ -866,6 +903,16 @@
           nextBtn.disabled = true;
           return;
         }
+
+        const extraQuizData = await loadExtraQuizDataForSage(target.person);
+
+        target = {
+          ...target,
+          dwellings: extraQuizData.dwellings || [],
+          expertises: extraQuizData.expertises || [],
+          teachers: extraQuizData.teachers || [],
+          students: extraQuizData.students || []
+        };
 
         sageTitle.textContent = target.person;
         console.log(target)
