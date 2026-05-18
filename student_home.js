@@ -90,7 +90,7 @@ async function loadStudentHome() {
 
     const { error } = await supabaseClient
       .from('assignment_progress')
-      .upsert({
+      .insert({
         student_id: studentRow.id,
         assignment_id: assignment.id,
         status: 'in_progress',

@@ -440,7 +440,7 @@
 
           const { error } = await supabaseClient
           .from('assignment_progress')
-          .upsert({
+          .update({
               assignment_id: assignmentId,
               student_id: student.id,
               correct_count: score,
