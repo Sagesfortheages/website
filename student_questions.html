@@ -577,13 +577,17 @@
         return firstValue(sage.student || sage.talmid || '');
       }
 
-      function expertiseOf(sage){
+      function expertisesOf(sage){
         if (Array.isArray(sage.expertises)) {
-          return sage.expertises[0]?.expertise || '';
+          return sage.expertises
+            .map(e => e.expertise)
+            .filter(Boolean);
         }
 
-  return firstValue(sage.expertise || '');
-}
+        return cleanValue(sage.expertise)
+          ? sage.expertise.split(',').map(e => e.trim()).filter(Boolean)
+          : [];
+      }
 
   function buildQuestion({ key, prompt, correct, choices, preference = false, textInput = false }){
     if (textInput) {
@@ -598,7 +602,11 @@
     }
 
     if (!preference) {
-      if (!cleanValue(correct)) return null;
+      const correctAnswers = Array.isArray(correct)
+        ? correct.map(cleanValue).filter(Boolean)
+        : [cleanValue(correct)].filter(Boolean);
+
+      if (!correctAnswers.length) return null;
 
       const validChoices = unique(choices || []);
       if (validChoices.length < 3) return null;
@@ -606,7 +614,7 @@
       return {
         key,
         prompt,
-        correct: cleanValue(correct),
+        correct: Array.isArray(correct) ? correctAnswers : correctAnswers[0],
         choices: validChoices,
         preference: false,
         textInput: false
@@ -640,7 +648,11 @@
             key: 'birth_city',
             prompt: `In which city was ${target.person} born?`,
             correct: cityOfBirth(target),
-            choices: buildChoices(allSages, s => s.city_of_passing || s.city || '', cityOfBirth(target))
+            choices: buildChoices(
+  allSages,
+  s => s.city_of_passing?.city || s.city_of_passing || s.city || '',
+  cityOfBirth(target)
+)
           }),
           buildQuestion({
             key: 'passing_country',
@@ -681,7 +693,7 @@
           buildQuestion({
             key: 'expertise',
             prompt: `Which area of Torah is ${target.person} especially associated with?`,
-            correct: expertiseOf(target),
+            correct: expertisesOf(target),
             choices: EXPERTISE_CHOICES
           }),
           buildQuestion({
@@ -815,10 +827,11 @@
           return;
         }
 
-        const isCorrect = selected === q.correct;
+        const correctAnswers = Array.isArray(q.correct) ? q.correct : [q.correct];
+        const isCorrect = correctAnswers.includes(selected);
 
         grid.querySelectorAll('.choice').forEach(btn => {
-          if (btn.dataset.choice === q.correct) {
+          if (correctAnswers.includes(btn.dataset.choice)) {
             btn.classList.add('correct');
           }
         });
@@ -842,7 +855,7 @@
           feedback.classList.add('show', 'good');
           } else {
           selectedBtn.classList.add('wrong');
-          feedback.textContent = `The correct answer is: ${q.correct}`;
+          feedback.textContent = `Correct answer: ${correctAnswers.join(', ')}`;
           feedback.classList.add('show', 'review');
         }
 
