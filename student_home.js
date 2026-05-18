@@ -84,9 +84,29 @@ async function loadStudentHome() {
     studentStatusEl.textContent = `Today’s activity: ${assignment.title}`;
     startActivityBtn.disabled = false;
 
-    startActivityBtn.onclick = () => {
-      window.location.href = `play.html?assignment_id=${assignment.id}`;
-    };
+    startActivityBtn.onclick = () => startActivityBtn.onclick = async () => {
+  try {
+    startActivityBtn.disabled = true;
+
+    const { error } = await supabaseClient
+      .from('student_assignments')
+      .upsert({
+        student_id: studentRow.id,
+        assignment_id: assignment.id,
+        status: 'in_progress',
+        started_at: new Date().toISOString()
+      });
+
+    if (error) throw error;
+
+    window.location.href = `play.html?assignment_id=${assignment.id}`;
+
+  } catch (err) {
+    console.error(err);
+    alert('Could not start assignment.');
+    startActivityBtn.disabled = false;
+  }
+};
   } catch (err) {
     console.error('LOAD STUDENT HOME ERROR:', err);
 
