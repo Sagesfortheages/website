@@ -243,6 +243,35 @@
       -webkit-backdrop-filter: blur(6px);
     }
 
+    .teacher-code-wrap{
+      display: grid;
+      gap: 6px;
+      padding: 10px 12px;
+
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(3,43,125,0.16);
+      background: rgba(47,79,79,0.07);
+
+      animation: teacherCodeReveal 0.18s ease-out;
+    }
+
+    .teacher-code-note{
+      margin-top: 0;
+      font-size: 0.86rem;
+    }
+
+    @keyframes teacherCodeReveal{
+      from{
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to{
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .auth-modal{
       position: relative;
       z-index: 1;
@@ -333,6 +362,39 @@
     .auth-form{
       display: grid;
       gap: 10px;
+    }
+
+    .auth-checkbox-row{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      width: 100%;
+      padding: 10px 12px;
+
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(139,115,85,0.28);
+      background: rgba(255,255,255,0.44);
+
+      color: var(--heading-ink);
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      line-height: 1.25;
+
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .auth-checkbox-row:hover{
+      background: rgba(255,255,255,0.58);
+    }
+
+    .auth-checkbox{
+      width: 18px;
+      height: 18px;
+      accent-color: var(--classy-blue-ink);
+      cursor: pointer;
+      flex: 0 0 auto;
     }
 
     .auth-input{
@@ -1012,6 +1074,32 @@
           <label for="signup-password-confirm" class="sr-only">Confirm password</label>
           <input type="password" placeholder="Confirm password" class="auth-input" id="signup-password-confirm" autocomplete="new-password" required>
 
+          <label class="auth-checkbox-row" for="signup-is-teacher">
+            <input
+              type="checkbox"
+              id="signup-is-teacher"
+              class="auth-checkbox"
+            >
+            <span>
+              I am a teacher and I would like a teacher account.
+            </span>
+          </label>
+
+          <div class="teacher-code-wrap hidden" id="teacher-code-wrap">
+            <label for="teacher-join-code" class="sr-only">Teacher join code</label>
+            <input
+              type="text"
+              placeholder="Teacher join code"
+              class="auth-input"
+              id="teacher-join-code"
+              autocomplete="off"
+            >
+
+            <div class="auth-note teacher-code-note">
+              Enter the teacher join code provided by Sages For The Ages.
+            </div>
+          </div>
+
           <div class="password-checklist" id="password-checklist" aria-live="polite">
             <div class="password-checklist__title">Password must include:</div>
 
@@ -1219,6 +1307,9 @@
   const backToSigninLink = document.getElementById("back-to-Signin-link");
 
   const signupPasswordInput = document.getElementById("signup-password");
+  const signupIsTeacherCheckbox = document.getElementById("signup-is-teacher");
+  const teacherCodeWrap = document.getElementById("teacher-code-wrap");
+  const teacherJoinCodeInput = document.getElementById("teacher-join-code");
   const checklistItems = {
     lowercase: document.getElementById("check-lowercase"),
     uppercase: document.getElementById("check-uppercase"),
@@ -1437,6 +1528,8 @@ async function updateTeacherToolsButton(session){
     const email = document.getElementById("signup-email")?.value?.trim();
     const password = document.getElementById("signup-password")?.value ?? "";
     const confirmPassword = document.getElementById("signup-password-confirm")?.value ?? "";
+    const isTeacher = document.getElementById("signup-is-teacher")?.checked === true;
+    const teacherJoinCode = document.getElementById("teacher-join-code")?.value?.trim() ?? "";
 
     if (!email || !password || !confirmPassword){
       showStatus("Fill out all sign up fields.", "error");
@@ -1456,15 +1549,49 @@ async function updateTeacherToolsButton(session){
       return;
     }
 
-    const { data, error } = await supabaseClient.auth.signUp({
+    if (isTeacher && !teacherJoinCode){
+      showStatus("Enter your teacher join code.", "error");
+      return;
+    }
+
+   if (isTeacher){
+
+  const res = await fetch('/api/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
       email,
-      password
-    });
+      password,
+      isTeacher,
+      teacherJoinCode
+    })
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok || data?.success === false){
+    showStatus(data?.message || 'Could not create teacher account.', 'error');
+    return;
+  }
+
+  showStatus("Teacher account created!");
+
+  switchAuthTab("Signin");
+  return;
+}
+
+/* NON-TEACHER SIGNUP */
+
+const { data, error } = await supabaseClient.auth.signUp({
+  email,
+  password
+});
 
 if (error){
   let message = error.message;
 
-  // Override password validation message
   if (message.toLowerCase().includes("password")) {
     message = "Please include an uppercase letter, a lowercase letter, a number and a special character.";
   }
@@ -1473,16 +1600,8 @@ if (error){
   return;
 }
 
-    if (data?.session){
-      isSignedIn = true;
-      showStatus("Account created!");
-      setOverlayVisible(false);
-      continuePendingNavigation();
-      return;
-    }
-
-    showStatus("Account created. Check your email to confirm.");
-    switchAuthTab("Signin");
+showStatus("Account created. Check your email to confirm.");
+switchAuthTab("Signin");
   }
 
   async function handlePasswordReset(){
@@ -1601,6 +1720,20 @@ if (error){
     setOverlayVisible(false);
   }
 });
+
+  signupIsTeacherCheckbox?.addEventListener("change", () => {
+    const wantsTeacher = signupIsTeacherCheckbox.checked === true;
+
+    teacherCodeWrap?.classList.toggle("hidden", !wantsTeacher);
+
+    if (!wantsTeacher && teacherJoinCodeInput){
+      teacherJoinCodeInput.value = "";
+    }
+
+    if (wantsTeacher){
+      teacherJoinCodeInput?.focus();
+    }
+  });
 
   const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
   if (sessionError) console.error("getSession error:", sessionError);
