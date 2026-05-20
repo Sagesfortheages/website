@@ -12,113 +12,58 @@
   <link rel="stylesheet" href="all_styles.css" />
 
   <style>
-    body {
-      overflow: auto;
-    }
+    body { overflow: auto; }
 
     .guess-page {
       min-height: 100vh;
       padding: 1.5vmin;
     }
 
-    /* ================================
-       HEADER
-       ================================ */
-
+    /* HEADER */
     .guess-header {
       position: relative;
       margin: var(--header-margin);
       min-height: var(--header-height);
       margin-bottom: 2vmin;
     }
+    .guess-header .header { text-align: center; }
+    .guess-header .subtitle { max-width: 70ch; margin: 0 auto; }
+    #home-button { left: 1vmin; }
+    #info-button  { right: 10vmin; }
+    #leave-button { right: 1vmin; }
 
-    .guess-header .header {
-      text-align: center;
-    }
-
-    .guess-header .subtitle {
-      max-width: 70ch;
-      margin: 0 auto;
-    }
-
-    #home-button {
-      left: 1vmin;
-    }
-
-    #info-button {
-      right: 10vmin;
-    }
-
-    #leave-button {
-      right: 1vmin;
-    }
-
-    /* ================================
-       LAYOUT
-       ================================ */
-
+    /* LAYOUT */
     .guess-layout {
       display: grid;
       grid-template-columns: minmax(220px, 0.9fr) minmax(0, 3.2fr) minmax(220px, 0.9fr);
       gap: 1.6vmin;
       align-items: start;
     }
+    .guess-stack { display: flex; flex-direction: column; gap: 1.6vmin; }
+    .guess-main  { min-width: 0; }
 
-    .guess-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 1.6vmin;
-    }
-
-    .guess-main {
-      min-width: 0;
-    }
-
-    /* ================================
-       PANELS
-       ================================ */
-
-    .guess-panel {
-      min-height: auto;
-    }
-
-    .guess-panel .panel-content {
-      position: relative;
-      z-index: 1;
-      padding: 1.6vmin;
-    }
-
+    /* PANELS */
+    .guess-panel { min-height: auto; }
+    .guess-panel .panel-content { position: relative; z-index: 1; padding: 1.6vmin; }
     .guess-panel-heading {
       margin: 0;
       padding: 1.1vmin 1.3vmin;
       font-size: clamp(14px, 2.1vmin, 20px);
-      background: rgba(255, 255, 255, 0.22);
+      background: rgba(255,255,255,0.22);
     }
 
-    .opponent-heading {
-      color: var(--incorrect-color);
-    }
-
-    /* ================================
-       PLAYER BOXES
-       ================================ */
-
+    /* PLAYER BOXES */
     .player-avatar {
-      width: clamp(72px, 11vmin, 110px);
-      height: clamp(72px, 11vmin, 110px);
+      width: clamp(72px,11vmin,110px);
+      height: clamp(72px,11vmin,110px);
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.35);
+      background: rgba(255,255,255,0.35);
       margin: 0 auto;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: clamp(36px, 6vmin, 62px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(36px,6vmin,62px);
       border: 1px solid var(--rule-strong);
       box-shadow: inset 0 1px 8px rgba(0,0,0,0.08);
     }
-
     .secret-box {
       margin-top: 1.5vmin;
       border: 1px solid var(--rule-faint);
@@ -129,597 +74,250 @@
       color: var(--ink-soft);
       box-shadow: inset 0 1px 6px rgba(0,0,0,0.05);
     }
-
     .secret-box strong {
       display: block;
       margin-bottom: 0.4vmin;
       color: var(--heading-ink);
       font-family: var(--font-ui);
-      font-size: clamp(12px, 1.7vmin, 16px);
+      font-size: clamp(12px,1.7vmin,16px);
       letter-spacing: 0.04em;
     }
 
-    /* ================================
-       INFO / LEGEND / HISTORY
-       ================================ */
-
-    .info-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2vmin;
-      font-size: clamp(14px, 2vmin, 18px);
-    }
-
+    /* INFO / LEGEND / HISTORY */
+    .info-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: clamp(14px,2vmin,18px); }
     .info-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 1vmin;
-      padding-bottom: 0.8vmin;
-      border-bottom: 1px solid var(--rule-faint);
+      display: flex; justify-content: space-between; gap: 1vmin;
+      padding-bottom: 0.8vmin; border-bottom: 1px solid var(--rule-faint);
     }
+    .info-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .info-row strong { font-family: var(--font-ui); color: var(--classy-blue-ink); }
 
-    .info-row:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .info-row strong {
-      font-family: var(--font-ui);
-      color: var(--classy-blue-ink);
-    }
-
-    .legend {
-      display: flex;
-      flex-direction: column;
-      gap: 1vmin;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 1vmin;
-      font-size: clamp(14px, 1.9vmin, 18px);
-    }
-
+    .legend { display: flex; flex-direction: column; gap: 1vmin; }
+    .legend-item { display: flex; align-items: center; gap: 1vmin; font-size: clamp(14px,1.9vmin,18px); }
     .legend-box {
-      width: 2.8vmin;
-      min-width: 26px;
-      height: 2.8vmin;
-      min-height: 26px;
+      width: 2.8vmin; min-width: 26px; height: 2.8vmin; min-height: 26px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--rule-strong);
       background: var(--paper-strong);
       box-shadow: var(--shadow-tight);
     }
-
-    .legend-box.elim {
-      opacity: 0.45;
-      position: relative;
-      filter: grayscale(1);
-    }
-
+    .legend-box.elim { opacity: 0.45; position: relative; filter: grayscale(1); }
     .legend-box.elim::after {
-      content: "✕";
-      position: absolute;
-      inset: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      color: var(--ink-soft);
-      font-family: var(--font-ui);
+      content: "✕"; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); font-family: var(--font-ui);
     }
+    .legend-box.sel { border: 3px solid #8b1a1a; box-shadow: 0 0 0 3px rgba(139,26,26,0.22); }
 
-    .legend-box.sel {
-      border: 3px solid var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-wash);
-    }
-
-    .history {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2vmin;
-    }
-
+    .history { display: flex; flex-direction: column; gap: 1.2vmin; }
     .history-item {
-      border-bottom: 1px solid var(--rule-faint);
-      padding-bottom: 1vmin;
-      font-size: clamp(14px, 1.9vmin, 18px);
-      color: var(--ink);
-      line-height: 1.35;
+      border-bottom: 1px solid var(--rule-faint); padding-bottom: 1vmin;
+      font-size: clamp(14px,1.9vmin,18px); color: var(--ink); line-height: 1.35;
     }
+    .history-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .history-answer { font-family: var(--font-ui); font-weight: 700; margin-top: 0.35vmin; }
+    .history-answer.y { color: var(--correct-color); }
+    .history-answer.n { color: var(--incorrect-color); }
 
-    .history-item:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .history-answer {
-      font-family: var(--font-ui);
-      font-weight: 700;
-      margin-top: 0.35vmin;
-    }
-
-    .history-answer.y {
-      color: var(--correct-color);
-    }
-
-    .history-answer.n {
-      color: var(--incorrect-color);
-    }
-
-    /* ================================
-       TURN BANNER
-       ================================ */
-
+    /* TURN BANNER */
     .turn-banner {
-      background: var(--paper-strong);
+      background: linear-gradient(90deg, transparent, rgba(196,128,58,0.15), transparent);
       border: 1px solid var(--rule);
       border-radius: var(--radius);
       box-shadow: var(--shadow-soft);
-
-      padding: 1.4vmin;
+      padding: 1vmin;
       text-align: center;
-
       font-family: var(--font-ui);
       color: var(--heading-ink);
       font-weight: 700;
-      letter-spacing: 0.06em;
-      font-size: clamp(15px, 2.3vmin, 22px);
-
-      margin-bottom: 1.6vmin;
+      letter-spacing: 0.1em;
+      font-size: clamp(13px, 1.9vmin, 19px);
+      text-transform: uppercase;
+      margin-bottom: 1.4vmin;
     }
 
     /* ================================
-       BOARD
+       BOARD — SLIM CARDS
        ================================ */
 
     .board {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 1.3vmin;
+      gap: clamp(5px, 1vmin, 10px);
     }
 
     .sage-card {
       position: relative;
       overflow: hidden;
-
-      background: var(--paper-strong);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-
-      padding: 1.1vmin;
+      background: linear-gradient(160deg, #f8f0de 0%, #ede0c4 60%, #e0cda8 100%);
+      border: 1.5px solid #c4a06a;
+      border-radius: var(--radius-sm, 5px);
+      padding: clamp(6px,1vmin,10px) clamp(4px,0.7vmin,8px) clamp(5px,0.9vmin,9px);
       text-align: center;
       cursor: pointer;
-
-      transition:
-        transform 0.15s ease,
-        box-shadow 0.18s ease,
-        opacity 0.2s ease,
-        filter 0.2s ease;
-
-      box-shadow: var(--shadow-tight);
+      transition: transform 0.15s ease, box-shadow 0.18s ease, opacity 0.2s ease, filter 0.2s ease;
+      box-shadow: 0 2px 6px rgba(80,50,10,0.13), inset 0 1px 0 rgba(255,255,255,0.55);
     }
 
-    .sage-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.12);
-      pointer-events: none;
-      z-index: 0;
+    /* Parchment grain */
+    .sage-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg, transparent, transparent 14px,
+        rgba(160,110,50,0.04) 14px, rgba(160,110,50,0.04) 15px
+      );
+      pointer-events: none; z-index: 0;
     }
 
-    .sage-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-soft);
+    .sage-card:hover:not(.eliminated) {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 8px 22px rgba(80,50,10,0.22), 0 0 0 2px #c4803a, inset 0 1px 0 rgba(255,255,255,0.5);
+      z-index: 2;
     }
 
-    .sage-image {
-      position: relative;
-      z-index: 1;
-
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: var(--radius-sm);
-
-      background:
-        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.55), transparent 55%),
-        linear-gradient(135deg, rgba(216,193,162,0.9), rgba(255,248,230,0.88));
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: clamp(30px, 5vmin, 54px);
-      margin-bottom: 0.8vmin;
-
-      border: 1px solid var(--rule-faint);
+    .sage-avatar {
+      position: relative; z-index: 1;
+      width: clamp(32px,5vmin,48px);
+      height: clamp(32px,5vmin,48px);
+      border-radius: 50%;
+      border: 1.5px solid #b8914c;
+      background: radial-gradient(circle at 35% 30%, #f5e9d0, #d4b87a);
+      margin: 0 auto clamp(4px,0.6vmin,7px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(15px,2.6vmin,26px);
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.12);
     }
 
     .sage-name {
-      position: relative;
-      z-index: 1;
-
-      font-family: var(--font-ui);
-      font-size: clamp(12px, 1.7vmin, 17px);
+      position: relative; z-index: 1;
+      font-family: var(--font-ui, 'Cinzel', serif);
+      font-size: clamp(10px,1.4vmin,13px);
       font-weight: 700;
-      color: var(--heading-ink);
+      color: #3a2008;
       line-height: 1.2;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.65);
     }
 
+    /* Eliminated */
     .sage-card.eliminated {
-      opacity: 0.36;
-      filter: grayscale(1);
+      opacity: 0.28;
+      filter: grayscale(1) sepia(0.3);
     }
-
-    .sage-card.eliminated::before {
+    .sage-card.eliminated::after {
       content: "✕";
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: clamp(48px, 8vmin, 88px);
-      color: rgba(90,74,58,0.55);
-      font-family: var(--font-ui);
+      position: absolute; inset: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(28px,5vmin,48px);
+      color: rgba(90,60,30,0.65);
+      font-family: var(--font-ui, serif);
+      pointer-events: none;
     }
 
+    /* Selected — crimson */
     .sage-card.selected {
-      border: 3px solid var(--accent);
-      box-shadow:
-        0 0 0 3px var(--accent-wash),
-        var(--shadow-soft);
+      border: 2.5px solid #8b1a1a;
+      box-shadow: 0 0 0 3px rgba(139,26,26,0.22), 0 4px 16px rgba(139,26,26,0.18);
+    }
+    .sage-card.selected .sage-avatar {
+      border-color: #8b1a1a;
+      background: radial-gradient(circle at 35% 30%, #fde8e8, #d4a0a0);
     }
 
-    /* ================================
-       QUESTION AREA
-       ================================ */
-
-    .question-box {
-      margin-top: 1.6vmin;
-    }
-
-    .question-box .panel-content {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2vmin;
-    }
-
-    .question-title {
-      margin: 0;
-      padding-bottom: 0.8vmin;
-    }
-
-    .question-row {
-      display: flex;
-      gap: 1vmin;
-    }
-
-    .question-input {
-      flex: 1;
-      margin: 0;
-      width: auto;
-    }
-
-    .ask-btn {
-      min-width: 16vmin;
-      min-height: auto;
-      padding: 1.2vmin 2.2vmin;
-    }
-
+    /* QUESTION AREA */
+    .question-box { margin-top: 1.4vmin; }
+    .question-box .panel-content { display: flex; flex-direction: column; gap: 1.2vmin; }
+    .question-title { margin: 0; padding-bottom: 0.8vmin; }
+    .question-row { display: flex; gap: 1vmin; }
+    .question-input { flex: 1; margin: 0; width: auto; }
+    .ask-btn { min-width: 16vmin; min-height: auto; padding: 1.2vmin 2.2vmin; }
     .current-question {
-      font-size: clamp(16px, 2.2vmin, 21px);
-      text-align: center;
-      line-height: 1.45;
-      color: var(--ink-soft);
-      font-style: italic;
+      font-size: clamp(16px,2.2vmin,21px); text-align: center;
+      line-height: 1.45; color: var(--ink-soft); font-style: italic;
     }
+    .answer-buttons { display: flex; gap: 1vmin; margin-top: 1.4vmin; }
+    .answer-btn { flex: 1; min-width: 0; min-height: auto; padding: 1.2vmin 1.5vmin; }
+    .answer-btn.yes { color: var(--correct-color); }
+    .answer-btn.no  { color: var(--incorrect-color); }
+    .question-row-centered { justify-content: center; }
+    .ask-question-btn { min-width: clamp(220px, 32vmin, 340px); }
 
-    .answer-buttons {
-      display: flex;
-      gap: 1vmin;
-      margin-top: 1.4vmin;
+    /* QUESTION MODAL */
+    .question-modal-backdrop {
+      position: fixed; inset: 0; z-index: 100000;
+      display: flex; align-items: center; justify-content: center; padding: 2vmin;
+      background: rgba(47,36,27,0.48); backdrop-filter: blur(3px);
     }
-
-    .answer-btn {
-      flex: 1;
-      min-width: 0;
-      min-height: auto;
-      padding: 1.2vmin 1.5vmin;
+    .question-modal-backdrop[hidden] { display: none; }
+    .question-modal {
+      width: min(720px, 94vw); max-height: 88vh; overflow-y: auto;
+      position: relative; background: var(--paper-strong);
+      border: 1px solid var(--rule); border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.28), var(--shadow-soft);
     }
-
-    .answer-btn.yes {
-      color: var(--correct-color);
+    .question-modal-title { margin: 0; padding: 1.4vmin 5vmin 1.4vmin 5vmin; }
+    .question-modal-content { position: relative; z-index: 1; padding: 2vmin; display: flex; flex-direction: column; gap: 1.6vmin; }
+    .modal-close-btn {
+      position: absolute; top: 1vmin; right: 1vmin; z-index: 2;
+      width: 4vmin; min-width: 36px; height: 4vmin; min-height: 36px;
+      border-radius: 50%; border: 1px solid var(--rule-strong);
+      background: rgba(255,248,230,0.9); color: var(--heading-ink);
+      font-family: var(--font-ui); font-size: clamp(20px,3vmin,30px); line-height: 1;
+      cursor: pointer; box-shadow: var(--shadow-tight);
+      display: flex; align-items: center; justify-content: center;
     }
-
-    .answer-btn.no {
-      color: var(--incorrect-color);
+    .modal-close-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+    .question-modal-intro { text-align: center; color: var(--ink-soft); font-family: var(--font-display); font-style: italic; font-size: clamp(17px,2.4vmin,22px); }
+    .question-type-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1vmin; }
+    .question-type-btn { min-width: 0; width: 100%; min-height: auto; padding: 1.3vmin 1vmin; font-size: clamp(13px,1.8vmin,17px); }
+    .question-type-btn.active {
+      border: 3px solid #76411c; color: #76411c;
+      background: linear-gradient(#d8c1a2,#c8a884);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.20); transform: translateY(1px);
     }
+    .question-builder {
+      border: 1px solid var(--rule-faint); border-radius: var(--radius); padding: 1.5vmin;
+      background: rgba(255,255,255,0.28); box-shadow: inset 0 1px 8px rgba(0,0,0,0.05);
+      display: flex; flex-direction: column; gap: 1.4vmin;
+    }
+    .question-builder[hidden] { display: none; }
+    .built-question-text { text-align: center; font-family: var(--font-ui); color: var(--heading-ink); font-weight: 700; letter-spacing: 0.04em; font-size: clamp(15px,2.1vmin,20px); }
+    .option-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0.9vmin; }
+    .question-option {
+      border: 1px solid var(--rule); border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.55); color: var(--input-ink);
+      padding: 1vmin 0.8vmin; font-family: var(--font-ui); font-size: clamp(12px,1.7vmin,16px); font-weight: 700;
+      cursor: pointer; box-shadow: var(--shadow-tight);
+      transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .question-option:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); background: rgba(255,255,255,0.75); }
+    .question-option.selected { border: 3px solid #76411c; color: #76411c; background: linear-gradient(#d8c1a2,#c8a884); box-shadow: inset 0 2px 6px rgba(0,0,0,0.20); }
+    .submit-question-btn { align-self: center; min-width: clamp(210px,30vmin,320px); }
+    .submit-question-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-    
-      .question-row-centered {
-  justify-content: center;
-}
-
-.ask-question-btn {
-  min-width: clamp(220px, 32vmin, 340px);
-}
-
-/* ================================
-   QUESTION MODAL
-   ================================ */
-
-.question-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 2vmin;
-
-  background: rgba(47, 36, 27, 0.48);
-  backdrop-filter: blur(3px);
-}
-
-.question-modal-backdrop[hidden] {
-  display: none;
-}
-
-.question-modal {
-  width: min(720px, 94vw);
-  max-height: 88vh;
-  overflow-y: auto;
-
-  position: relative;
-  background: var(--paper-strong);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  box-shadow:
-    0 18px 50px rgba(0,0,0,0.28),
-    var(--shadow-soft);
-}
-
-.question-modal-title {
-  margin: 0;
-  padding: 1.4vmin 5vmin 1.4vmin 5vmin;
-}
-
-.question-modal-content {
-  position: relative;
-  z-index: 1;
-
-  padding: 2vmin;
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.6vmin;
-}
-
-.modal-close-btn {
-  position: absolute;
-  top: 1vmin;
-  right: 1vmin;
-  z-index: 2;
-
-  width: 4vmin;
-  min-width: 36px;
-  height: 4vmin;
-  min-height: 36px;
-
-  border-radius: 50%;
-  border: 1px solid var(--rule-strong);
-
-  background: rgba(255,248,230,0.9);
-  color: var(--heading-ink);
-
-  font-family: var(--font-ui);
-  font-size: clamp(20px, 3vmin, 30px);
-  line-height: 1;
-
-  cursor: pointer;
-  box-shadow: var(--shadow-tight);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-close-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
-}
-
-.question-modal-intro {
-  text-align: center;
-  color: var(--ink-soft);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(17px, 2.4vmin, 22px);
-}
-
-.question-type-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1vmin;
-}
-
-.question-type-btn {
-  min-width: 0;
-  width: 100%;
-  min-height: auto;
-  padding: 1.3vmin 1vmin;
-  font-size: clamp(13px, 1.8vmin, 17px);
-}
-
-.question-type-btn.active {
-  border: 3px solid #76411c;
-  color: #76411c;
-  background: linear-gradient(#d8c1a2, #c8a884);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.20);
-  transform: translateY(1px);
-}
-
-.question-builder {
-  border: 1px solid var(--rule-faint);
-  border-radius: var(--radius);
-  padding: 1.5vmin;
-  background: rgba(255,255,255,0.28);
-  box-shadow: inset 0 1px 8px rgba(0,0,0,0.05);
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.4vmin;
-}
-
-.question-builder[hidden] {
-  display: none;
-}
-
-.built-question-text {
-  text-align: center;
-  font-family: var(--font-ui);
-  color: var(--heading-ink);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: clamp(15px, 2.1vmin, 20px);
-}
-
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9vmin;
-}
-
-.question-option {
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.55);
-  color: var(--input-ink);
-
-  padding: 1vmin 0.8vmin;
-
-  font-family: var(--font-ui);
-  font-size: clamp(12px, 1.7vmin, 16px);
-  font-weight: 700;
-
-  cursor: pointer;
-  box-shadow: var(--shadow-tight);
-
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease;
-}
-
-.question-option:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
-  background: rgba(255,255,255,0.75);
-}
-
-.question-option.selected {
-  border: 3px solid #76411c;
-  color: #76411c;
-  background: linear-gradient(#d8c1a2, #c8a884);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.20);
-}
-
-.submit-question-btn {
-  align-self: center;
-  min-width: clamp(210px, 30vmin, 320px);
-}
-
-.submit-question-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-}
-
-
-    /* ================================
-       RESPONSIVE
-       ================================ */
-
+    /* RESPONSIVE */
     @media (max-width: 1200px) {
-      body {
-        overflow: auto;
-      }
-
-        .question-type-row {
-    grid-template-columns: 1fr;
-  }
-
-  .option-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .question-modal-title {
-    padding-right: 7vmin;
-  }
-
-      .guess-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .board {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .guess-stack {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+      body { overflow: auto; }
+      .question-type-row { grid-template-columns: 1fr; }
+      .option-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .question-modal-title { padding-right: 7vmin; }
+      .guess-layout { grid-template-columns: 1fr; }
+      .board { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .guess-stack { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
     }
 
     @media (max-width: 700px) {
-      .guess-page {
-        padding: 1vmin 2vmin 3vmin;
-      }
-
-      .guess-header {
-        padding-top: 9vmin;
-      }
-
-      .guess-layout {
-        gap: 2vmin;
-      }
-
-      .guess-stack {
-        display: flex;
-      }
-
-      .board {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .question-row {
-        flex-direction: column;
-      }
-
-      .ask-btn {
-        width: 100%;
-      }
-
-      .answer-buttons {
-        flex-direction: column;
-      }
-
-
-      #info-button {
-        right: 10vmin;
-      }
-
-      #leave-button {
-        right: 1vmin;
-      }
+      .guess-page { padding: 1vmin 2vmin 3vmin; }
+      .guess-header { padding-top: 9vmin; }
+      .guess-layout { gap: 2vmin; }
+      .guess-stack { display: flex; }
+      .board { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .question-row { flex-direction: column; }
+      .ask-btn { width: 100%; }
+      .answer-buttons { flex-direction: column; }
+      #info-button { right: 10vmin; }
+      #leave-button { right: 1vmin; }
     }
   </style>
 </head>
@@ -729,207 +327,98 @@
 
     <div class="header-section guess-header">
       <div class="header">
-        <button
-          class="modern-button"
-          id="home-button"
-          type="button"
-          onclick="window.location.href='index.html'"
-          aria-label="Home"
-        >
-          🏠
-        </button>
-
-        <button
-          class="modern-button"
-          id="info-button"
-          type="button"
-          aria-label="How to play"
-        >
-          ?
-        </button>
-
-        <button
-          class="modern-button"
-          id="leave-button"
-          type="button"
-          aria-label="Leave game"
-        >
-          ↩
-        </button>
-
+        <button class="modern-button" id="home-button" type="button" onclick="window.location.href='index.html'" aria-label="Home">🏠</button>
+        <button class="modern-button" id="info-button" type="button" aria-label="How to play">?</button>
+        <button class="modern-button" id="leave-button" type="button" aria-label="Leave game">↩</button>
         <h1>
           <span class="emoji">📖</span>
           <span class="gradient-text">Sages Guess Who?</span>
         </h1>
-
-        <p class="subtitle">
-          Ask questions. Eliminate sages. Guess your opponent’s sage!
-        </p>
+        <p class="subtitle">Ask questions. Eliminate sages. Guess your opponent's sage!</p>
       </div>
     </div>
 
     <div class="guess-layout">
 
-      <!-- LEFT SIDE -->
+      <!-- LEFT -->
       <aside class="guess-stack">
-
         <section class="panel guess-panel">
           <h2 class="panel-heading guess-panel-heading">GAME INFO</h2>
-
           <div class="panel-content info-list">
-            <div class="info-row">
-              <span>Room Code</span>
-              <strong>A7B3K9</strong>
-            </div>
-
-            <div class="info-row">
-              <span>Players</span>
-              <strong>2 / 2</strong>
-            </div>
-
-            <div class="info-row">
-              <span>Turn</span>
-              <strong>You</strong>
-            </div>
-
-            <div class="info-row">
-              <span>Questions</span>
-              <strong>6</strong>
-            </div>
+            <div class="info-row"><span>Room Code</span><strong>A7B3K9</strong></div>
+            <div class="info-row"><span>Players</span><strong>2 / 2</strong></div>
+            <div class="info-row"><span>Turn</span><strong>You</strong></div>
+            <div class="info-row"><span>Questions</span><strong>6</strong></div>
           </div>
         </section>
 
         <section class="panel guess-panel">
           <h2 class="panel-heading guess-panel-heading">LEGEND</h2>
-
           <div class="panel-content legend">
-            <div class="legend-item">
-              <div class="legend-box"></div>
-              <span>Available</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-box elim"></div>
-              <span>Eliminated</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-box sel"></div>
-              <span>Your Guess</span>
-            </div>
+            <div class="legend-item"><div class="legend-box"></div><span>Available</span></div>
+            <div class="legend-item"><div class="legend-box elim"></div><span>Eliminated</span></div>
+            <div class="legend-item"><div class="legend-box sel"></div><span>Your Guess</span></div>
           </div>
         </section>
-
       </aside>
 
       <!-- CENTER -->
       <main class="guess-main">
-
-        <div class="turn-banner">
-          It's your turn to ask a question
-        </div>
-
+        <div class="turn-banner">⟡ Your Turn — Ask a Question ⟡</div>
         <section class="board" id="board" aria-label="Sage board"></section>
-
-      <section class="panel guess-panel question-box">
-        <div class="panel-content">
-          <h2 class="panel-heading question-title">
-            Ask a yes or no question about the opponent's sage
-          </h2>
-
-          <div class="question-row question-row-centered">
-            <button class="cta-button sweep ask-question-btn" id="open-question-modal" type="button">
-              Ask a Question
-            </button>
+        <section class="panel guess-panel question-box">
+          <div class="panel-content">
+            <h2 class="panel-heading question-title">Ask a yes or no question about the opponent's sage</h2>
+            <div class="question-row question-row-centered">
+              <button class="cta-button sweep ask-question-btn" id="open-question-modal" type="button">
+                Ask a Question
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
-
+        </section>
       </main>
 
-      <!-- RIGHT SIDE -->
+      <!-- RIGHT -->
       <aside class="guess-stack">
-
         <section class="panel guess-panel">
           <h2 class="panel-heading guess-panel-heading">CURRENT QUESTION</h2>
-
           <div class="panel-content">
-            <div class="current-question">
-              Was your sage born in Israel?
-            </div>
-
+            <div class="current-question">Was your sage born in Israel?</div>
             <div class="answer-buttons">
-              <button class="cta-button answer-btn yes" type="button">
-                ✔ Yes
-              </button>
-
-              <button class="cta-button answer-btn no" type="button">
-                ✖ No
-              </button>
+              <button class="cta-button answer-btn yes" type="button">✔ Yes</button>
+              <button class="cta-button answer-btn no"  type="button">✖ No</button>
             </div>
           </div>
         </section>
 
         <section class="panel guess-panel">
           <h2 class="panel-heading guess-panel-heading">QUESTION HISTORY</h2>
-
           <div class="panel-content history">
-            <div class="history-item">
-              Was your sage born in Israel?
-              <div class="history-answer y">Yes</div>
-            </div>
-
-            <div class="history-item">
-              Is your sage known for Kabbalah?
-              <div class="history-answer n">No</div>
-            </div>
-
-            <div class="history-item">
-              Was your sage a Talmudist?
-              <div class="history-answer y">Yes</div>
-            </div>
+            <div class="history-item">Was your sage born in Israel?<div class="history-answer y">Yes</div></div>
+            <div class="history-item">Is your sage known for Kabbalah?<div class="history-answer n">No</div></div>
+            <div class="history-item">Was your sage a Talmudist?<div class="history-answer y">Yes</div></div>
           </div>
         </section>
-
       </aside>
 
     </div>
-    </div>
+  </div>
 
-    <div class="question-modal-backdrop" id="question-modal-backdrop" hidden>
+  <!-- MODAL -->
+  <div class="question-modal-backdrop" id="question-modal-backdrop" hidden>
     <div class="question-modal panel" role="dialog" aria-modal="true" aria-labelledby="question-modal-title">
-      <button class="modal-close-btn" id="close-question-modal" type="button" aria-label="Close question builder">
-        ×
-      </button>
-
-      <h2 class="panel-heading question-modal-title" id="question-modal-title">
-        Build Your Question
-      </h2>
-
+      <button class="modal-close-btn" id="close-question-modal" type="button" aria-label="Close">×</button>
+      <h2 class="panel-heading question-modal-title" id="question-modal-title">Build Your Question</h2>
       <div class="question-modal-content">
-        <p class="question-modal-intro">
-          Choose what kind of question you want to ask.
-        </p>
-
+        <p class="question-modal-intro">Choose what kind of question you want to ask.</p>
         <div class="question-type-row">
-          <button class="cta-button question-type-btn" type="button" data-question-type="background">
-            Background
-          </button>
-
-          <button class="cta-button question-type-btn" type="button" data-question-type="era">
-            Era
-          </button>
-
-          <button class="cta-button question-type-btn" type="button" data-question-type="focus">
-            Focus
-          </button>
+          <button class="cta-button question-type-btn" type="button" data-question-type="background">Background</button>
+          <button class="cta-button question-type-btn" type="button" data-question-type="era">Era</button>
+          <button class="cta-button question-type-btn" type="button" data-question-type="focus">Focus</button>
         </div>
-
         <div class="question-builder" id="question-builder" hidden>
           <div class="built-question-text" id="built-question-text"></div>
-
           <div class="option-grid" id="question-option-grid"></div>
-
           <button class="cta-button sweep submit-question-btn" id="submit-question-btn" type="button" disabled>
             Submit Question
           </button>
@@ -939,196 +428,117 @@
   </div>
 
   <script>
-    const sages = [
-      "Rashi",
-      "Rambam",
-      "Ramban",
-      "Rabbeinu Yona",
-      "Raavad",
-      "Maharal",
-      "Beis Yosef",
-      "Shulchan Aruch",
-      "Arizal",
-      "Baal Shem Tov",
-      "Vilna Gaon",
-      "Chafetz Chaim",
-      "Rav Kook",
-      "Ben Ish Chai",
-      "Rav Soloveitchik",
-      "Alter Rebbe",
-      "Rav Yosef Chaim",
-      "Rav Ovadia Yosef",
-      "Lubavitcher Rebbe",
-      "Rav Dessler"
+    const SAGE_DATA = [
+      { name: "Rashi",             emoji: "📜" },
+      { name: "Rambam",            emoji: "🏛" },
+      { name: "Ramban",            emoji: "⭐" },
+      { name: "Rabbeinu Yona",     emoji: "🕊" },
+      { name: "Raavad",            emoji: "🔥" },
+      { name: "Maharal",           emoji: "🌙" },
+      { name: "Beis Yosef",        emoji: "📖" },
+      { name: "Shulchan Aruch",    emoji: "⚖" },
+      { name: "Arizal",            emoji: "✨" },
+      { name: "Baal Shem Tov",     emoji: "🌟" },
+      { name: "Vilna Gaon",        emoji: "🌿" },
+      { name: "Chafetz Chaim",     emoji: "🕯" },
+      { name: "Rav Kook",          emoji: "🌅" },
+      { name: "Ben Ish Chai",      emoji: "☀" },
+      { name: "Rav Soloveitchik",  emoji: "🦅" },
+      { name: "Alter Rebbe",       emoji: "🎶" },
+      { name: "Rav Yosef Chaim",   emoji: "🌺" },
+      { name: "Rav Ovadia Yosef",  emoji: "🏔" },
+      { name: "Lubavitcher Rebbe", emoji: "♾" },
+      { name: "Rav Dessler",       emoji: "💎" },
     ];
 
     const board = document.getElementById("board");
 
-    sages.forEach((sage, index) => {
+    SAGE_DATA.forEach((sage, index) => {
       const card = document.createElement("button");
       card.type = "button";
       card.className = "sage-card";
-
-      if ([4, 8, 10, 13, 19].includes(index)) {
-        card.classList.add("eliminated");
-      }
-
-      if (index === 17) {
-        card.classList.add("selected");
-      }
+      if ([4,8,10,13,19].includes(index)) card.classList.add("eliminated");
+      if (index === 17) card.classList.add("selected");
 
       card.innerHTML = `
-        <div class="sage-image">🧔</div>
-        <div class="sage-name">${sage}</div>
+        <div class="sage-avatar">${sage.emoji}</div>
+        <div class="sage-name">${sage.name}</div>
       `;
 
       card.addEventListener("click", () => {
-        card.classList.toggle("eliminated");
+        if (!card.classList.contains("selected")) {
+          card.classList.toggle("eliminated");
+        }
       });
 
       board.appendChild(card);
     });
 
-  
+    // MODAL LOGIC
     const questionData = {
-  background: {
-    text: 'Did the sage have a background of...',
-    options: [
-      'Ashkenaz',
-      'Sefarad',
-      'Provence'
-    ]
-  },
+      background: {
+        text: 'Did the sage have a background of...',
+        options: ['Ashkenaz','Sefarad','Provence']
+      },
+      era: {
+        text: 'Did the sage live in the...',
+        options: ['900s','1000s','1100s','1200s','1300s','1400s','1500s','1600s','1700s','1800s','1900s']
+      },
+      focus: {
+        text: 'Was the sage especially known for...',
+        options: ['Tanach','Talmud','Halacha','Responsa','Kabbalah','Chassidus','Mussar','Philosophy','Linguistics','Poetry','History']
+      }
+    };
 
-  era: {
-    text: 'Did the sage live in the...',
-    options: [
-      '900s',
-      '1000s',
-      '1100s',
-      '1200s',
-      '1300s',
-      '1400s',
-      '1500s',
-      '1600s',
-      '1700s',
-      '1800s',
-      '1900s'
-    ]
-  },
+    const openBtn     = document.getElementById('open-question-modal');
+    const backdrop    = document.getElementById('question-modal-backdrop');
+    const closeBtn    = document.getElementById('close-question-modal');
+    const typeBtns    = document.querySelectorAll('.question-type-btn');
+    const builder     = document.getElementById('question-builder');
+    const questionTxt = document.getElementById('built-question-text');
+    const optionGrid  = document.getElementById('question-option-grid');
+    const submitBtn   = document.getElementById('submit-question-btn');
 
-  focus: {
-    text: 'Was the sage especially known for...',
-    options: [
-      'Tanach',
-      'Talmud',
-      'Halacha',
-      'Responsa',
-      'Kabbalah',
-      'Chassidus',
-      'Mussar',
-      'Philosophy',
-      'Linguistics',
-      'Poetry',
-      'History'
-    ]
-  }
-};
+    let selectedType = null, selectedValue = null;
 
-const openQuestionModalBtn = document.getElementById('open-question-modal');
-const questionModalBackdrop = document.getElementById('question-modal-backdrop');
-const closeQuestionModalBtn = document.getElementById('close-question-modal');
-const questionTypeButtons = document.querySelectorAll('.question-type-btn');
-const questionBuilder = document.getElementById('question-builder');
-const builtQuestionText = document.getElementById('built-question-text');
-const questionOptionGrid = document.getElementById('question-option-grid');
-const submitQuestionBtn = document.getElementById('submit-question-btn');
+    const openModal  = () => { backdrop.hidden = false; };
+    const closeModal = () => { backdrop.hidden = true;  };
 
-let selectedQuestionType = null;
-let selectedQuestionValue = null;
+    function renderOptions(type) {
+      selectedType = type; selectedValue = null;
+      const config = questionData[type];
+      questionTxt.textContent = config.text;
+      optionGrid.innerHTML    = '';
+      submitBtn.disabled      = true;
+      builder.hidden          = false;
+      typeBtns.forEach(b => b.classList.toggle('active', b.dataset.questionType === type));
 
-function openQuestionModal() {
-  questionModalBackdrop.hidden = false;
-}
-
-function closeQuestionModal() {
-  questionModalBackdrop.hidden = true;
-}
-
-function renderQuestionOptions(type) {
-  selectedQuestionType = type;
-  selectedQuestionValue = null;
-
-  const config = questionData[type];
-
-  builtQuestionText.textContent = config.text;
-  questionOptionGrid.innerHTML = '';
-  submitQuestionBtn.disabled = true;
-  questionBuilder.hidden = false;
-
-  questionTypeButtons.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.questionType === type);
-  });
-
-  config.options.forEach(option => {
-    const optionBtn = document.createElement('button');
-    optionBtn.type = 'button';
-    optionBtn.className = 'question-option';
-    optionBtn.textContent = option;
-    optionBtn.dataset.option = option;
-
-    optionBtn.addEventListener('click', () => {
-      selectedQuestionValue = option;
-
-      questionOptionGrid.querySelectorAll('.question-option').forEach(btn => {
-        btn.classList.remove('selected');
+      config.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'question-option'; btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          selectedValue = opt;
+          optionGrid.querySelectorAll('.question-option').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          submitBtn.disabled = false;
+        });
+        optionGrid.appendChild(btn);
       });
+    }
 
-      optionBtn.classList.add('selected');
-      submitQuestionBtn.disabled = false;
-    });
+    function submitQuestion() {
+      if (!selectedType || !selectedValue) return;
+      const q = { type: selectedType, value: selectedValue, text: `${questionData[selectedType].text} ${selectedValue}?` };
+      console.log('QUESTION SUBMITTED:', q);
+      closeModal();
+    }
 
-    questionOptionGrid.appendChild(optionBtn);
-  });
-}
-
-function submitBuiltQuestion() {
-  if (!selectedQuestionType || !selectedQuestionValue) return;
-
-  const config = questionData[selectedQuestionType];
-
-  const builtQuestion = {
-    type: selectedQuestionType,
-    value: selectedQuestionValue,
-    text: `${config.text} ${selectedQuestionValue}?`
-  };
-
-  console.log('QUESTION SUBMITTED:', builtQuestion);
-
-  closeQuestionModal();
-}
-
-openQuestionModalBtn.addEventListener('click', openQuestionModal);
-closeQuestionModalBtn.addEventListener('click', closeQuestionModal);
-submitQuestionBtn.addEventListener('click', submitBuiltQuestion);
-
-questionTypeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    renderQuestionOptions(btn.dataset.questionType);
-  });
-});
-
-questionModalBackdrop.addEventListener('click', event => {
-  if (event.target === questionModalBackdrop) {
-    closeQuestionModal();
-  }
-});
-
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && !questionModalBackdrop.hidden) {
-    closeQuestionModal();
-  }
-});
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    submitBtn.addEventListener('click', submitQuestion);
+    typeBtns.forEach(b => b.addEventListener('click', () => renderOptions(b.dataset.questionType)));
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !backdrop.hidden) closeModal(); });
   </script>
 </body>
 </html>
