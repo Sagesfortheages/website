@@ -812,6 +812,12 @@ main {
   box-shadow: var(--shadow-tight);
 }
 
+.create-class-wrap{
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 /* Responsive */
 
 @media (max-width: 760px) {

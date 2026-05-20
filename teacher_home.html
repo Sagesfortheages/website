@@ -27,6 +27,18 @@
         <option value="">Loading classes…</option>
       </select>
     </div>
+
+    <div class="create-class-wrap">
+      <button
+        id="create-class-button"
+        class="cta-button hidden"
+        type="button"
+      >
+        + Create Class
+      </button>
+    </div>
+
+
   </div>
 
   <main>
@@ -190,6 +202,37 @@
       <div class="modal-actions">
         <button class="cta-button" data-close="modal-add-student">Cancel</button>
         <button class="cta-button filled" id="create-student-btn">Create Student</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-create-class">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Create Your Class</h3>
+        <button class="modal-close" data-close="modal-create-class">✕</button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="new-class-name">Class Name</label>
+        <input
+          id="new-class-name"
+          class="teacher-input"
+          type="text"
+          placeholder="e.g. Rabbi Levi's 7th Grade"
+        />
+        <div class="helper-text">
+          You can create one class with up to 20 students.
+        </div>
+      </div>
+
+      <div id="create-class-result"></div>
+
+      <div class="modal-actions">
+        <button class="cta-button" data-close="modal-create-class">Cancel</button>
+        <button class="cta-button filled" id="confirm-create-class-btn">
+          Create Class
+        </button>
       </div>
     </div>
   </div>

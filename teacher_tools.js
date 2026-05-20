@@ -50,6 +50,8 @@ const viewByAssignment = document.getElementById('view-by-assignment');
 const viewByStudent = document.getElementById('view-by-student');
 const assignmentDetail = document.getElementById('assignment-detail');
 
+const addStudentButton = document.getElementById("open-add-student");
+
 initPage();
 
 async function initPage() {
@@ -59,6 +61,7 @@ async function initPage() {
   wireBackButtons();
   wireCreateStudent();
   wireAssignSage();
+  wireCreateClassButton();
 
   await loadTeacherSession();
   await loadSageDropdown();
@@ -212,6 +215,7 @@ async function loadTeacherSession() {
   }
 
   teacherProfileId = profile.id;
+  await loadCreateClassButton();
   await loadClasses();
 }
 
@@ -260,6 +264,50 @@ async function loadClasses() {
 
     await refreshClassData();
   });
+}
+
+async function loadCreateClassButton() {
+
+  const createClassButton =
+    document.getElementById("create-class-button");
+
+  if (!createClassButton) {
+    return;
+  }
+
+  createClassButton.classList.add("hidden");
+
+  if (addStudentButton) {
+    addStudentButton.disabled = true;
+    addStudentButton.classList.add("disabled");
+  }
+
+
+  if (!teacherProfileId) {
+    return;
+  }
+
+  const { data: existingClass, error } =
+    await supabaseClient
+      .from("classes")
+      .select("id")
+      .eq("teacher_profile_id", teacherProfileId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!existingClass) {
+    createClassButton.classList.remove("hidden");
+  } else {
+    if (addStudentButton) {
+      addStudentButton.disabled = false;
+      addStudentButton.classList.remove("disabled");
+    }
+  }
 }
 
 async function refreshClassData() {
@@ -887,6 +935,8 @@ async function resetStudentPin(studentId, displayName) {
 
 /* Assign sage */
 
+
+
 function wireAssignSage() {
   document.getElementById('assign-sage-btn')?.addEventListener('click', async () => {
     const classId = currentClassId;
@@ -947,6 +997,67 @@ function wireAssignSage() {
       resultEl.innerHTML = errorCard('Error', err.message);
     }
   });
+}
+
+function wireCreateClassButton() {
+  document
+    .getElementById("create-class-button")
+    ?.addEventListener("click", () => {
+      document.getElementById("new-class-name").value = "";
+      document.getElementById("create-class-result").innerHTML = "";
+      openModal("modal-create-class");
+    });
+
+  document
+    .getElementById("confirm-create-class-btn")
+    ?.addEventListener("click", async () => {
+      const className = document.getElementById("new-class-name")?.value.trim();
+      const resultEl = document.getElementById("create-class-result");
+
+      if (!className) {
+        resultEl.innerHTML = errorCard("Missing class name", "Please enter a class name.");
+        return;
+      }
+
+      resultEl.innerHTML = loadingCard("Creating your class…");
+
+      const token = await getAccessToken();
+
+      const res = await fetch("/api/create_class", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ className })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || data?.success === false) {
+        resultEl.innerHTML = errorCard(
+          "Class not created",
+          data?.message || "Could not create class."
+        );
+        return;
+      }
+
+      resultEl.innerHTML = `
+        <div class="result-card success">
+          <div class="result-title">✅ Class created</div>
+          <div class="result-row-pair">
+            <span>Class</span>
+            <b>${esc(className)}</b>
+          </div>
+        </div>
+      `;
+
+      setTimeout(async () => {
+        closeModal("modal-create-class");
+        await loadCreateClassButton();
+        await loadClasses();
+      }, 900);
+    });
 }
 
 /* Shared helpers */

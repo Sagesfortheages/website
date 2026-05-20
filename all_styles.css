@@ -719,6 +719,13 @@ body{
     0 0 0 3px rgba(3,43,125,0.25);
 }
 
+.cta-button.disabled,
+.cta-button:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 
 
 
