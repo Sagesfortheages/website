@@ -84,7 +84,7 @@ inset 0 1px 6px rgba(0,0,0,0.07),0 0 0 3px var(--accent-wash);}
 .create-class-wrap{display: flex;justify-content: center;margin-top: 1rem;}
 .trash-btn{width: 34px;height: 34px;border-radius: 999px;border: 1px solid rgba(140,40,40,0.24);background: rgba(140,40,40,0.08);color: var(--incorrect-color);cursor: pointer;display: inline-flex;align-items: center;justify-content: center;}
 .trash-btn:hover{background: rgba(140,40,40,0.16);transform: translateY(-1px);box-shadow: var(--shadow-tight);}
-.is-hidden{display: none !important;}
+.hidden{display: none !important;}
 @media (max-width: 760px){
 main{grid-template-columns: 1fr;}
 .sidebar{flex-direction: row;flex-wrap: wrap;}
