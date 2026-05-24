@@ -787,8 +787,11 @@ async function loadSageDropdown() {
 function wireCreateStudent() {
   document.getElementById('create-student-btn')?.addEventListener('click', async () => {
     const classId = currentClassId;
-    const displayName = document.getElementById('student-name')?.value.trim();
-    const username = document.getElementById('student-username')?.value.trim();
+    const displayNameInput = document.getElementById('student-name');
+    const usernameInput = document.getElementById('student-username');
+
+    const displayName = displayNameInput?.value.trim();
+    const username = usernameInput?.value.trim();
     const resultEl = document.getElementById('add-student-result');
 
     if (!classId) {
@@ -836,6 +839,8 @@ function wireCreateStudent() {
         </div>
       `;
 
+      if (displayNameInput) displayNameInput.value = '';
+      if (usernameInput) usernameInput.value = '';
       await loadStudents(classId);
 
     } catch (err) {
