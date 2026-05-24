@@ -954,8 +954,9 @@
       }
 
       .auth-tab{
-        padding: 9px 8px;
-        font-size: 12px;
+        padding: 9px 6px;
+        font-size: 11px;
+        letter-spacing: 0.035em;
       }
 
       .auth-modal{
@@ -1038,6 +1039,7 @@
 
       <div class="auth-tabs" role="tablist" aria-label="Authentication">
         <button class="auth-tab active" type="button" data-tab="Signin" role="tab" aria-selected="true">Signin</button>
+        <button class="auth-tab" type="button" data-tab="student" role="tab" aria-selected="false">Student</button>
         <button class="auth-tab" type="button" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
         <button class="auth-tab" type="button" data-tab="reset" role="tab" aria-selected="false">Reset</button>
       </div>
@@ -1047,6 +1049,8 @@
         <div class="auth-form" id="Signin-form" aria-live="polite">
           <label for="Signin-email" class="sr-only">Email</label>
           <input type="email" placeholder="Email" class="auth-input" id="Signin-email" autocomplete="email" required>
+
+          <!-- STUDENT SIGN IN -->
 
           <label for="Signin-password" class="sr-only">Password</label>
           <input type="password" placeholder="Password" class="auth-input" id="Signin-password" autocomplete="current-password" required>
@@ -1058,6 +1062,48 @@
           <div class="auth-meta">
             <span></span>
             <button class="auth-link" id="to-reset-link" type="button">Forgot password?</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-panel" id="panel-student">
+        <div class="auth-form" id="student-login-form" aria-live="polite">
+          <label for="student-class-code" class="sr-only">Class Code</label>
+          <input
+            id="student-class-code"
+            class="auth-input"
+            type="text"
+            placeholder="Class code"
+            autocomplete="off"
+          >
+
+          <label for="student-username" class="sr-only">Username</label>
+          <input
+            id="student-username"
+            class="auth-input"
+            type="text"
+            placeholder="Username"
+            autocomplete="username"
+          >
+
+          <label for="student-pin" class="sr-only">PIN</label>
+          <input
+            id="student-pin"
+            class="auth-input"
+            type="password"
+            inputmode="numeric"
+            placeholder="PIN"
+            autocomplete="current-password"
+          >
+
+          <div class="auth-actions">
+            <button class="auth-button" id="student-login-button" type="button">
+              Enter Class
+            </button>
+          </div>
+
+          <div class="auth-note">
+            Use the class code, username, and PIN provided by your teacher.
           </div>
         </div>
       </div>
@@ -1302,6 +1348,7 @@
   const cornerSigninBtn = document.getElementById("corner-signin-button");
   const signupBtn = document.getElementById("signup-button");
   const resetBtn = document.getElementById("reset-button");
+  const studentLoginBtn = document.getElementById("student-login-button");
 
   const toResetLink = document.getElementById("to-reset-link");
   const backToSigninLink = document.getElementById("back-to-Signin-link");
@@ -1336,28 +1383,31 @@
     setTimeout(() => bar.classList.add("hidden"), 4000);
   }
 
-  function switchAuthTab(tabName){
-    authTabs.forEach(tab => {
-      const isActive = tab.dataset.tab === tabName;
-      tab.classList.toggle("active", isActive);
-      tab.setAttribute("aria-selected", String(isActive));
-    });
+function switchAuthTab(tabName){
+  authTabs.forEach(tab => {
+    const isActive = tab.dataset.tab === tabName;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
 
-    authPanels.forEach(panel => {
-      panel.classList.toggle("active", panel.id === `panel-${tabName}`);
-    });
+  authPanels.forEach(panel => {
+    panel.classList.toggle("active", panel.id === `panel-${tabName}`);
+  });
 
-    if (tabName === "Signin"){
-      authTitle.textContent = "Welcome Back";
-      authSubtitle.textContent = "Sign in to track your progress and continue exploring.";
-    } else if (tabName === "signup"){
-      authTitle.textContent = "Create Your Account";
-      authSubtitle.textContent = "Sign up to explore our sages and history in a profound, novel way.";
-    } else if (tabName === "reset"){
-      authTitle.textContent = "Reset Password";
-      authSubtitle.textContent = "Enter your email and we’ll send a reset link.";
-    }
+  if (tabName === "Signin"){
+    authTitle.textContent = "Welcome Back";
+    authSubtitle.textContent = "Sign in to track your progress and continue exploring.";
+  } else if (tabName === "student"){
+    authTitle.textContent = "Student Entrance";
+    authSubtitle.textContent = "Enter your class code, username, and PIN.";
+  } else if (tabName === "signup"){
+    authTitle.textContent = "Create Your Account";
+    authSubtitle.textContent = "Sign up to explore our sages and history in a profound, novel way.";
+  } else if (tabName === "reset"){
+    authTitle.textContent = "Reset Password";
+    authSubtitle.textContent = "Enter your email and we’ll send a reset link.";
   }
+}
 
   function continuePendingNavigation(){
     if (typeof pendingNavigation === "function"){
@@ -1489,6 +1539,66 @@ async function updateTeacherToolsButton(session){
     showStatus("Signin successful!");
     setOverlayVisible(false);
     continuePendingNavigation();
+  }
+
+  async function handleStudentLogin(){
+    const classCode = document.getElementById("student-class-code")?.value?.trim();
+    const username = document.getElementById("student-username")?.value?.trim();
+    const pin = document.getElementById("student-pin")?.value?.trim();
+
+    if (!classCode || !username || !pin){
+      showStatus("Enter class code, username, and PIN.", "error");
+      return;
+    }
+
+    if (studentLoginBtn){
+      studentLoginBtn.disabled = true;
+    }
+
+    showStatus("Signing in...");
+
+    try {
+      const res = await fetch("/api/student_login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          classCode,
+          username,
+          pin
+        })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || data?.success === false){
+        throw new Error(data?.message || "Student login failed.");
+      }
+
+      const { session } = data;
+
+      const { error: setSessionError } = await supabaseClient.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      });
+
+      if (setSessionError){
+        throw setSessionError;
+      }
+
+      showStatus("Student login successful.");
+
+      setOverlayVisible(false);
+      window.location.href = "student_home.html";
+
+    } catch (err) {
+      showStatus(err.message || "Student login failed.", "error");
+    } finally {
+      if (studentLoginBtn){
+        studentLoginBtn.disabled = false;
+      }
+    }
   }
 
   function getPasswordChecks(password){
@@ -1637,6 +1747,10 @@ switchAuthTab("Signin");
     resetBtn.addEventListener("click", handlePasswordReset);
   }
 
+  if (studentLoginBtn){
+    studentLoginBtn.addEventListener("click", handleStudentLogin);
+  }
+
   document.addEventListener("keydown", async (e) => {
     if (e.key !== "Enter") return;
     if (!overlay || overlay.style.display === "none") return;
@@ -1646,6 +1760,8 @@ switchAuthTab("Signin");
 
     if (activePanel.id === "panel-Signin"){
       await handleSignin();
+    } else if (activePanel.id === "panel-student"){
+      await handleStudentLogin();
     } else if (activePanel.id === "panel-signup"){
       await handleSignup();
     } else if (activePanel.id === "panel-reset"){
