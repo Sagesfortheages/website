@@ -840,6 +840,9 @@ function wireCreateStudent() {
           </div>
 
           <div class="result-row-pair">
+          <span>Username</span><b>${esc(student.username || username)}</b></div>
+
+          <div class="result-row-pair">
             <span>Join code</span>
             <b>${esc(student.classCode || '—')}</b>
           </div>
