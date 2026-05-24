@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>When a Gadol Is Accused — Tour Mockup</title>
+
+  <link rel="stylesheet" href="all_styles.css" />
+  <link rel="stylesheet" href="new_tour.css" />
+</head>
+<body class="tour-mockup-page">
+  <header class="site-header">
+    <div class="brand-mark">
+      <div class="scroll-icon" aria-hidden="true">▯</div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#">Home</a>
+        <a href="#">Tours</a>
+        <a href="#">Sages</a>
+        <a href="#">Themes</a>
+        <a href="#">Sources</a>
+        <a href="#">About</a>
+      </nav>
+    </div>
+
+    <h1 class="site-title">Sages For The Ages</h1>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" aria-label="Search">⌕</button>
+      <button class="profile-button" type="button">👤 &nbsp; Log In / Profile ▾</button>
+    </div>
+  </header>
+
+  <main class="tour-page">
+    <section class="tour-hero" aria-labelledby="tour-title">
+      <div class="kicker-row">
+        <span class="flourish"></span>
+        <span class="section-kicker">Tour</span>
+        <span class="flourish"></span>
+      </div>
+      <h1 id="tour-title">When a Gadol Is Accused</h1>
+      <p>The Emden–Eybeschutz Controversy (1751–1754)</p>
+    </section>
+
+    <section class="tour-shell">
+      <section class="panel map-panel" aria-label="Tour map">
+        <div class="map-canvas" id="mapCanvas">
+          <svg viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <filter id="roughen">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+              </filter>
+              <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#b8c4bc" stop-opacity="0.48" />
+                <stop offset="1" stop-color="#778c8b" stop-opacity="0.28" />
+              </linearGradient>
+              <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#eadbb9" />
+                <stop offset="1" stop-color="#d5bf92" />
+              </linearGradient>
+            </defs>
+
+            <rect width="1000" height="620" fill="#e7d5af" />
+            <path d="M0,0 L210,0 C185,80 210,130 165,190 C115,255 120,330 90,395 C70,440 82,500 32,620 L0,620 Z" fill="url(#water)" />
+            <path d="M0,0 L1000,0 L1000,620 L0,620 Z" fill="url(#land)" opacity="0.74" filter="url(#roughen)" />
+            <path d="M0,0 L205,0 C172,87 215,128 162,197 C118,254 121,321 92,387 C69,444 77,508 32,620 L0,620 Z" fill="url(#water)" opacity="0.8" />
+
+            <path d="M278 72 C372 117 498 101 626 128 C773 159 864 116 1000 150" stroke="rgba(74,92,88,0.28)" stroke-width="3" fill="none" />
+            <path d="M230 215 C360 240 420 196 546 226 C653 250 690 310 818 300" stroke="rgba(74,92,88,0.22)" stroke-width="2" fill="none" />
+            <path d="M255 385 C360 350 432 390 520 358 C628 318 735 362 870 340" stroke="rgba(74,92,88,0.22)" stroke-width="2" fill="none" />
+
+            <path id="routePath" d="M235 205 L105 332 L410 322 L735 304 L735 148" stroke="rgba(47,36,27,0.72)" stroke-width="4" stroke-dasharray="14 12" fill="none" marker-end="url(#arrow)" />
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L8,3 z" fill="rgba(47,36,27,0.72)" />
+              </marker>
+            </defs>
+          </svg>
+
+          <div class="map-label" style="left: 8%; top: 17%;">North Sea</div>
+          <div class="map-label" style="left: 45%; top: 13%;">Baltic Sea</div>
+          <div class="map-label" style="left: 29%; top: 42%;">German<br>States</div>
+          <div class="map-label" style="left: 61%; top: 38%;">Polish–Lithuanian<br>Commonwealth</div>
+          <div class="map-label" style="left: 8%; top: 69%;">France</div>
+          <div class="map-label" style="left: 42%; top: 75%;">Austrian<br>Habsburg Lands</div>
+          <div class="map-label" style="left: 77%; top: 83%;">Ottoman<br>Empire</div>
+
+          <div class="legend" aria-hidden="true">
+            <div class="legend-row"><span class="legend-dot"></span><span>Tour Stops</span></div>
+            <div class="legend-row"><span class="legend-line"></span><span>Tour Path</span></div>
+          </div>
+          <div class="compass">N</div>
+        </div>
+      </section>
+
+      <article class="panel stop-panel" aria-live="polite">
+        <div class="panel-eyebrow">Current Stop</div>
+        <div class="stop-heading">
+          <div class="stop-number" id="currentNumber">4</div>
+          <h2 class="stop-title" id="currentTitle">Noda B’Yehuda Tries to Mediate</h2>
+        </div>
+        <p class="stop-summary" id="currentSummary"></p>
+
+        <div class="quote-box">
+          <span class="quote-mark">“</span>
+          <span class="quote-text" id="currentQuote">one of the greatest rabbinic scholars of the generation</span>
+          <div class="quote-source" id="currentQuoteSource">— Noda B’Yehuda</div>
+        </div>
+
+        <div class="mini-section-title">Sages Involved</div>
+        <div class="sage-row" id="sageRow"></div>
+
+        <div class="mini-section-title">Topics</div>
+        <div class="tag-row" id="tagRow"></div>
+      </article>
+    </section>
+
+    <section class="timeline-wrap" aria-label="Tour timeline">
+      <div class="timeline-track" aria-hidden="true"></div>
+      <div class="tour-timeline" id="timeline"></div>
+    </section>
+
+    <section class="tour-controls" aria-label="Tour controls">
+      <button class="tour-button" type="button" id="prevButton">← &nbsp; Previous Stop</button>
+      <button class="cta-button sweep tour-button primary" type="button" id="playButton">▶ &nbsp; Play Tour</button>
+      <button class="tour-button" type="button" id="nextButton">Next Stop &nbsp; →</button>
+      <div class="quick-links">
+        <button class="quick-link" type="button" id="relatedButton"><span class="icon">▰</span><span>Explore<br>related sages</span></button>
+        <button class="quick-link" type="button" id="sourcesButton"><span class="icon">“</span><span>View source<br>quotes</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="sourceModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <button class="modal-close" type="button" id="modalClose" aria-label="Close modal">×</button>
+      <h2 class="modal-title" id="modalTitle">Source Quotes</h2>
+      <p id="modalIntro"></p>
+      <div class="source-list" id="sourceList"></div>
+    </div>
+  </div>
+
+  <script>
+    const tourStops = [
+      {
+        number: 1,
+        title: "Metz Amulets",
+        shortTitle: "Metz\nAmulets",
+        place: "Metz",
+        x: 10.5,
+        y: 53.5,
+        summary: "In Metz, amulets attributed to Rabbi Yonasan Eybeschutz become central evidence in the later dispute. The question is whether their mystical language is innocent Kabbalah or coded Sabbatean language.",
+        quote: "the document itself... cannot resolve the controversy",
+        quoteSource: "— Leiman and Schwarzfuchs, summarized",
+        sages: ["Rabbi Yonasan Eybeschutz", "Rabbi Yaakov Emden"],
+        topics: ["amulets", "Metz", "Sabbatean suspicion"],
+        sources: [
+          { label: "Leiman and Schwarzfuchs", text: "The Metz amulets shed light on the controversy, but do not by themselves settle every question." },
+          { label: "Tour note", text: "Use this stop to introduce the physical object at the heart of the accusation: the amulet." }
+        ]
+      },
+      {
+        number: 2,
+        title: "Emden Accuses",
+        shortTitle: "Emden\nAccuses",
+        place: "Altona/Hamburg",
+        x: 23.5,
+        y: 33,
+        summary: "Rabbi Yaakov Emden examines an amulet and publicly accuses Rabbi Yonasan Eybeschutz of hidden Sabbateanism. The charge turns a private suspicion into a public rabbinic crisis.",
+        quote: "could only have been written by a Sabbatian heretic",
+        quoteSource: "— Emden’s charge, as summarized in scholarship",
+        sages: ["Rabbi Yaakov Emden", "Rabbi Yonasan Eybeschutz"],
+        topics: ["accusation", "heresy", "public dispute"],
+        sources: [
+          { label: "Emden’s accusation", text: "Emden treated the amulet not as merely suspicious, but as proof of a dangerous Sabbatean formula." },
+          { label: "Tour note", text: "This is the dramatic inciting moment of the tour." }
+        ]
+      },
+      {
+        number: 3,
+        title: "Three Communities React",
+        shortTitle: "Three\nCommunities\nReact",
+        place: "Altona/Hamburg",
+        x: 23.5,
+        y: 33,
+        summary: "The communal leaders of Altona, Hamburg, and Wandsbek defend their chief rabbi, Rabbi Eybeschutz. The dispute now becomes institutional: is Emden exposing danger, or attacking communal authority?",
+        quote: "the honor of the sitting rav was now at stake",
+        quoteSource: "— tour summary",
+        sages: ["Rabbi Yonasan Eybeschutz", "Rabbi Yaakov Emden"],
+        topics: ["community", "rabbinic office", "authority"],
+        sources: [
+          { label: "Community reaction", text: "The local leadership’s defense of Eybeschutz gave him a strong base and made Emden’s campaign much harder." }
+        ]
+      },
+      {
+        number: 4,
+        title: "Noda B’Yehuda Tries to Mediate",
+        shortTitle: "Noda\nB’Yehuda\nMediates",
+        place: "Prague",
+        x: 41,
+        y: 52,
+        summary: "Rabbi Yechezkel Landau, the Noda B’Yehuda, seeks to calm the storm. He defends Rabbi Yonasan Eybeschutz’s public honor, while recognizing that the amulet text looks deeply suspicious. Landau urges restraint, trying to stop the scandal from tearing apart rabbinic authority and Jewish unity.",
+        quote: "one of the greatest rabbinic scholars of the generation",
+        quoteSource: "— Noda B’Yehuda, as discussed by Leiman",
+        sages: ["Rabbi Yaakov Emden", "Rabbi Yonasan Eybeschutz", "Noda B’Yehuda", "Pnei Yehoshua"],
+        topics: ["controversy", "Sabbatean suspicion", "rabbinic authority", "amulets"],
+        sources: [
+          { label: "Landau’s public defense", text: "Landau defended Eybeschutz’s standing as a major Torah scholar and tried to reduce the public scandal." },
+          { label: "Landau’s concern", text: "His position was not a simple dismissal of the evidence; he recognized the amulets as troubling." }
+        ]
+      },
+      {
+        number: 5,
+        title: "Pnei Yehoshua Escalates",
+        shortTitle: "Pnei\nYehoshua\nEscalates",
+        place: "Frankfurt / wider rabbinic world",
+        x: 34,
+        y: 45,
+        summary: "Rabbi Yaakov Yehoshua Falk, the Pnei Yehoshua, becomes one of the strongest rabbinic voices against Eybeschutz. His involvement gives Emden’s side heavyweight legitimacy.",
+        quote: "barred him from serving as rabbi, teacher, or preacher",
+        quoteSource: "— summary of Falk’s ban",
+        sages: ["Pnei Yehoshua", "Rabbi Yaakov Emden", "Rabbi Yonasan Eybeschutz"],
+        topics: ["ban", "beis din", "rabbinic legitimacy"],
+        sources: [
+          { label: "Pnei Yehoshua’s role", text: "Falk’s opposition made the controversy far more than one man’s accusation." }
+        ]
+      },
+      {
+        number: 6,
+        title: "Va’ad Arba Aratzos",
+        shortTitle: "Va’ad\nArba\nAratzos",
+        place: "Jaroslaw",
+        x: 73.5,
+        y: 49,
+        summary: "The controversy reaches the Council of Four Lands. The Va’ad has prestige, but struggles to impose a final resolution on a dispute that has already spread too far.",
+        quote: "prestige was not the same as enforcement power",
+        quoteSource: "— tour summary",
+        sages: ["Rabbi Yonasan Eybeschutz", "Rabbi Yaakov Emden", "Noda B’Yehuda"],
+        topics: ["Va’ad", "authority", "Poland"],
+        sources: [
+          { label: "Council of Four Lands", text: "This stop shows the weakening of centralized Jewish authority in early modern Europe." }
+        ]
+      },
+      {
+        number: 7,
+        title: "Secular Authorities",
+        shortTitle: "Secular\nAuthorities",
+        place: "Altona/Hamburg",
+        x: 23.5,
+        y: 33,
+        summary: "The dispute spills beyond rabbinic courts and into civic authority. Once secular governments become involved, the fight is no longer only a beis midrash controversy; it is also a public-order crisis.",
+        quote: "rabbinic conflict had crossed into civil power",
+        quoteSource: "— tour summary",
+        sages: ["Rabbi Yaakov Emden", "Rabbi Yonasan Eybeschutz"],
+        topics: ["civil courts", "public order", "communal politics"],
+        sources: [
+          { label: "Civil involvement", text: "Secular involvement damaged the sense that Jewish institutions could contain the crisis by themselves." }
+        ]
+      },
+      {
+        number: 8,
+        title: "Legacy",
+        shortTitle: "Legacy",
+        place: "Vilna / later memory",
+        x: 73.5,
+        y: 24,
+        summary: "Later rabbinic memory preserves Eybeschutz’s Torah works while the historical suspicion never fully disappears. The controversy remains a case study in evidence, zealotry, kavod haTorah, and communal breakdown.",
+        quote: "the beis midrash did not erase Eybeschutz",
+        quoteSource: "— tour summary",
+        sages: ["Vilna Gaon", "Rabbi Yonasan Eybeschutz", "Rabbi Yaakov Emden", "Noda B’Yehuda"],
+        topics: ["legacy", "memory", "accepted sefarim"],
+        sources: [
+          { label: "Later legacy", text: "Eybeschutz’s works remained part of the Torah library even as the controversy continued to be studied." }
+        ]
+      }
+    ];
+
+    let activeIndex = 3;
+    let autoplayTimer = null;
+
+    const mapCanvas = document.getElementById("mapCanvas");
+    const timeline = document.getElementById("timeline");
+    const currentNumber = document.getElementById("currentNumber");
+    const currentTitle = document.getElementById("currentTitle");
+    const currentSummary = document.getElementById("currentSummary");
+    const currentQuote = document.getElementById("currentQuote");
+    const currentQuoteSource = document.getElementById("currentQuoteSource");
+    const sageRow = document.getElementById("sageRow");
+    const tagRow = document.getElementById("tagRow");
+    const prevButton = document.getElementById("prevButton");
+    const nextButton = document.getElementById("nextButton");
+    const playButton = document.getElementById("playButton");
+    const sourcesButton = document.getElementById("sourcesButton");
+    const relatedButton = document.getElementById("relatedButton");
+    const sourceModal = document.getElementById("sourceModal");
+    const modalClose = document.getElementById("modalClose");
+    const modalIntro = document.getElementById("modalIntro");
+    const sourceList = document.getElementById("sourceList");
+
+    function lineBreaks(text) {
+      return String(text).replace(/\n/g, "<br>");
+    }
+
+    function renderMapMarkers() {
+      tourStops.forEach((stop, index) => {
+        const marker = document.createElement("button");
+        marker.className = "tour-marker";
+        marker.type = "button";
+        marker.dataset.index = index;
+        marker.style.left = stop.x + "%";
+        marker.style.top = stop.y + "%";
+        marker.textContent = stop.number;
+        marker.setAttribute("aria-label", `Go to stop ${stop.number}: ${stop.title}`);
+        marker.addEventListener("click", () => setActiveStop(index));
+
+        const label = document.createElement("div");
+        label.className = "place-label";
+        label.style.left = stop.x + "%";
+        label.style.top = stop.y + "%";
+        label.textContent = stop.place.split(" / ")[0];
+
+        mapCanvas.appendChild(label);
+        mapCanvas.appendChild(marker);
+      });
+    }
+
+    function renderTimeline() {
+      timeline.innerHTML = tourStops.map((stop, index) => `
+        <button class="tour-step-card" type="button" data-index="${index}" aria-label="Go to stop ${stop.number}: ${stop.title}">
+          <span class="tour-step-number">${stop.number}</span>
+          <span class="tour-step-title">${lineBreaks(stop.shortTitle)}</span>
+        </button>
+      `).join("");
+
+      timeline.querySelectorAll(".tour-step-card").forEach(button => {
+        button.addEventListener("click", () => {
+          setActiveStop(Number(button.dataset.index));
+        });
+      });
+    }
+
+    function renderStop() {
+      const stop = tourStops[activeIndex];
+      currentNumber.textContent = stop.number;
+      currentTitle.textContent = stop.title;
+      currentSummary.textContent = stop.summary;
+      currentQuote.textContent = stop.quote;
+      currentQuoteSource.textContent = stop.quoteSource;
+
+      sageRow.innerHTML = stop.sages.map(name => `
+        <div class="sage-card">
+          <div class="portrait" aria-hidden="true"></div>
+          <span class="sage-name">${name.replace(/ /g, "<br>")}</span>
+        </div>
+      `).join("");
+
+      tagRow.innerHTML = stop.topics.map(topic => `<span class="tag">${topic}</span>`).join("");
+
+      document.querySelectorAll(".tour-marker").forEach(marker => {
+        marker.classList.toggle("active", Number(marker.dataset.index) === activeIndex);
+      });
+
+      document.querySelectorAll(".tour-step-card").forEach(card => {
+        card.classList.toggle("active", Number(card.dataset.index) === activeIndex);
+      });
+    }
+
+    function setActiveStop(index) {
+      activeIndex = (index + tourStops.length) % tourStops.length;
+      renderStop();
+    }
+
+    function openSourcesModal() {
+      const stop = tourStops[activeIndex];
+      modalIntro.textContent = `Sources and notes for Stop ${stop.number}: ${stop.title}.`;
+      sourceList.innerHTML = stop.sources.map(source => `
+        <div class="source-item">
+          <strong>${source.label}</strong>
+          <div>${source.text}</div>
+        </div>
+      `).join("");
+      sourceModal.classList.add("open");
+    }
+
+    function closeSourcesModal() {
+      sourceModal.classList.remove("open");
+    }
+
+    function toggleAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+        playButton.innerHTML = "▶ &nbsp; Play Tour";
+        return;
+      }
+
+      playButton.innerHTML = "Ⅱ &nbsp; Pause Tour";
+      autoplayTimer = setInterval(() => {
+        setActiveStop(activeIndex + 1);
+      }, 2600);
+    }
+
+    prevButton.addEventListener("click", () => setActiveStop(activeIndex - 1));
+    nextButton.addEventListener("click", () => setActiveStop(activeIndex + 1));
+    playButton.addEventListener("click", toggleAutoplay);
+    sourcesButton.addEventListener("click", openSourcesModal);
+    relatedButton.addEventListener("click", () => {
+      alert("This can later deep-link to your existing discover/profile pages for the sages in this stop.");
+    });
+    modalClose.addEventListener("click", closeSourcesModal);
+    sourceModal.addEventListener("click", event => {
+      if (event.target === sourceModal) closeSourcesModal();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeSourcesModal();
+      if (event.key === "ArrowRight") setActiveStop(activeIndex + 1);
+      if (event.key === "ArrowLeft") setActiveStop(activeIndex - 1);
+    });
+
+    renderMapMarkers();
+    renderTimeline();
+    renderStop();
+  </script>
+</body>
+</html>

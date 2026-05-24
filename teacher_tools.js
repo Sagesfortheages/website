@@ -833,9 +833,21 @@ function wireCreateStudent() {
       resultEl.innerHTML = `
         <div class="result-card success">
           <div class="result-title">✅ Student created successfully</div>
-          <div class="result-row-pair"><span>Display name</span><b>${esc(student.display_name || displayName)}</b></div>
-          <div class="result-row-pair"><span>Username</span><b>${esc(student.username || username)}</b></div>
-          <div class="result-row-pair"><span>PIN</span><b>${esc(student.pin || student.tempPin || '—')}</b></div>
+
+          <div class="result-row-pair">
+            <span>Display name</span>
+            <b>${esc(student.displayName || student.display_name || displayName)}</b>
+          </div>
+
+          <div class="result-row-pair">
+            <span>Join code</span>
+            <b>${esc(student.classCode || '—')}</b>
+          </div>
+
+          <div class="result-row-pair">
+            <span>PIN</span>
+            <b>${esc(student.pin || student.tempPin || '—')}</b>
+          </div>
         </div>
       `;
 
@@ -1058,12 +1070,20 @@ function wireCreateClassButton() {
         return;
       }
 
+      const createdClass = data?.class || data || {};
+
       resultEl.innerHTML = `
         <div class="result-card success">
           <div class="result-title">✅ Class created</div>
+
           <div class="result-row-pair">
             <span>Class</span>
-            <b>${esc(className)}</b>
+            <b>${esc(createdClass.class_name || className)}</b>
+          </div>
+
+          <div class="result-row-pair">
+            <span>Join code</span>
+            <b>${esc(createdClass.join_code || createdClass.class_code || '—')}</b>
           </div>
         </div>
       `;
