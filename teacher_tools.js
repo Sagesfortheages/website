@@ -52,6 +52,8 @@ const assignmentDetail = document.getElementById('assignment-detail');
 
 const addStudentButton = document.getElementById("open-add-student");
 
+const studentsSubtitle = document.getElementById('students-subtitle');
+
 initPage();
 
 async function initPage() {
@@ -343,7 +345,16 @@ async function loadStudents(classId) {
 
   lastStudents = students || [];
 
+  if (studentsSubtitle) {
+    studentsSubtitle.textContent = `${lastStudents.length}/20 students`;
+  }
+
+
   if (!students?.length) {
+  if (studentsSubtitle) {
+      studentsSubtitle.textContent = '0/20 students';
+    }
+
     studentsTbody.innerHTML = statusRow('No students in this class.');
     return;
   }
