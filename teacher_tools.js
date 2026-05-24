@@ -1086,7 +1086,7 @@ function wireCreateClassButton() {
 
           <div class="result-row-pair">
             <span>Join code</span>
-            <b>${esc(createdClass.join_code || createdClass.class_code || '—')}</b>
+            <b>${esc(createdClass.joinCode || createdClass.join_code || createdClass.class_code || '—')}</b>
           </div>
         </div>
       `;
