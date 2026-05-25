@@ -420,6 +420,20 @@
         text-shadow: 0 1px 0 rgba(255,255,255,0.72);
       }
 
+      .sage-hover-info {
+        margin-top: 0.35vmin;
+        min-height: 1.2em;
+        font-size: clamp(10px, 1.5vmin, 13px);
+        color: var(--accent);
+        line-height: 1.15;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .sage-card.show-hover-info .sage-hover-info {
+        opacity: 1;
+      }
+
       .sage-card.selected .sage-card-inner {
         border-color: #8b1a1a;
         box-shadow:
