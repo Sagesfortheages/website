@@ -1,544 +1,1196 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Sages Guess Who?</title>
+    <title>Sages Guess Who?</title>
 
-  <link rel="icon" href="icon3.png" type="image/x-icon" />
-  <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
+    <link rel="icon" href="icon3.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
 
-  <link rel="stylesheet" href="all_styles.css" />
+    <link rel="stylesheet" href="all_styles.css" />
 
-  <style>
-    body { overflow: auto; }
+    <style>
+      body {
+        overflow: auto;
+      }
 
-    .guess-page {
-      min-height: 100vh;
-      padding: 1.5vmin;
-    }
+      .guess-page {
+        min-height: 100vh;
+        padding: 1.5vmin;
+      }
 
-    /* HEADER */
-    .guess-header {
-      position: relative;
-      margin: var(--header-margin);
-      min-height: var(--header-height);
-      margin-bottom: 2vmin;
-    }
-    .guess-header .header { text-align: center; }
-    .guess-header .subtitle { max-width: 70ch; margin: 0 auto; }
-    #home-button { left: 1vmin; }
-    #info-button  { right: 10vmin; }
-    #leave-button { right: 1vmin; }
+      /* HEADER */
+      .guess-header {
+        position: relative;
+        margin: var(--header-margin);
+        min-height: var(--header-height);
+        margin-bottom: 2vmin;
+      }
 
-    /* LAYOUT */
-    .guess-layout {
-      display: grid;
-      grid-template-columns: minmax(220px, 0.9fr) minmax(0, 3.2fr) minmax(220px, 0.9fr);
-      gap: 1.6vmin;
-      align-items: start;
-    }
-    .guess-stack { display: flex; flex-direction: column; gap: 1.6vmin; }
-    .guess-main  { min-width: 0; }
+      .guess-header .header {
+        text-align: center;
+      }
 
-    /* PANELS */
-    .guess-panel { min-height: auto; }
-    .guess-panel .panel-content { position: relative; z-index: 1; padding: 1.6vmin; }
-    .guess-panel-heading {
-      margin: 0;
-      padding: 1.1vmin 1.3vmin;
-      font-size: clamp(14px, 2.1vmin, 20px);
-      background: rgba(255,255,255,0.22);
-    }
+      .guess-header .subtitle {
+        max-width: 70ch;
+        margin: 0 auto;
+      }
 
-    /* PLAYER BOXES */
-    .player-avatar {
-      width: clamp(72px,11vmin,110px);
-      height: clamp(72px,11vmin,110px);
-      border-radius: 50%;
-      background: rgba(255,255,255,0.35);
-      margin: 0 auto;
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(36px,6vmin,62px);
-      border: 1px solid var(--rule-strong);
-      box-shadow: inset 0 1px 8px rgba(0,0,0,0.08);
-    }
-    .secret-box {
-      margin-top: 1.5vmin;
-      border: 1px solid var(--rule-faint);
-      border-radius: var(--radius-sm);
-      padding: 1.3vmin;
-      text-align: center;
-      background: rgba(255,255,255,0.35);
-      color: var(--ink-soft);
-      box-shadow: inset 0 1px 6px rgba(0,0,0,0.05);
-    }
-    .secret-box strong {
-      display: block;
-      margin-bottom: 0.4vmin;
-      color: var(--heading-ink);
-      font-family: var(--font-ui);
-      font-size: clamp(12px,1.7vmin,16px);
-      letter-spacing: 0.04em;
-    }
+      #home-button {
+        left: 1vmin;
+      }
 
-    /* INFO / LEGEND / HISTORY */
-    .info-list { display: flex; flex-direction: column; gap: 1.2vmin; font-size: clamp(14px,2vmin,18px); }
-    .info-row {
-      display: flex; justify-content: space-between; gap: 1vmin;
-      padding-bottom: 0.8vmin; border-bottom: 1px solid var(--rule-faint);
-    }
-    .info-row:last-child { border-bottom: 0; padding-bottom: 0; }
-    .info-row strong { font-family: var(--font-ui); color: var(--classy-blue-ink); }
+      #info-button {
+        right: 10vmin;
+      }
 
-    .legend { display: flex; flex-direction: column; gap: 1vmin; }
-    .legend-item { display: flex; align-items: center; gap: 1vmin; font-size: clamp(14px,1.9vmin,18px); }
-    .legend-box {
-      width: 2.8vmin; min-width: 26px; height: 2.8vmin; min-height: 26px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--rule-strong);
-      background: var(--paper-strong);
-      box-shadow: var(--shadow-tight);
-    }
-    .legend-box.elim { opacity: 0.45; position: relative; filter: grayscale(1); }
-    .legend-box.elim::after {
-      content: "✕"; position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--ink-soft); font-family: var(--font-ui);
-    }
-    .legend-box.sel { border: 3px solid #8b1a1a; box-shadow: 0 0 0 3px rgba(139,26,26,0.22); }
+      #leave-button {
+        right: 1vmin;
+      }
 
-    .history { display: flex; flex-direction: column; gap: 1.2vmin; }
-    .history-item {
-      border-bottom: 1px solid var(--rule-faint); padding-bottom: 1vmin;
-      font-size: clamp(14px,1.9vmin,18px); color: var(--ink); line-height: 1.35;
-    }
-    .history-item:last-child { border-bottom: 0; padding-bottom: 0; }
-    .history-answer { font-family: var(--font-ui); font-weight: 700; margin-top: 0.35vmin; }
-    .history-answer.y { color: var(--correct-color); }
-    .history-answer.n { color: var(--incorrect-color); }
+      /* LAYOUT */
+      .guess-layout {
+        display: grid;
+        grid-template-columns: minmax(210px, 0.78fr) minmax(0, 3.65fr) minmax(220px, 0.82fr);
+        gap: 1.15vmin;
+        align-items: start;
+      }
 
-    /* TURN BANNER */
-    .turn-banner {
-      background: linear-gradient(90deg, transparent, rgba(196,128,58,0.15), transparent);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-soft);
-      padding: 1vmin;
-      text-align: center;
-      font-family: var(--font-ui);
-      color: var(--heading-ink);
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      font-size: clamp(13px, 1.9vmin, 19px);
-      text-transform: uppercase;
-      margin-bottom: 1.4vmin;
-    }
+      .guess-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.6vmin;
+      }
 
-    /* ================================
-       BOARD — SLIM CARDS
-       ================================ */
+      .guess-main {
+        min-width: 0;
+      }
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: clamp(5px, 1vmin, 10px);
-    }
+      .question-sidebar,
+      .history-sidebar {
+        position: sticky;
+        top: 1.5vmin;
+      }
 
-    .sage-card {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(160deg, #f8f0de 0%, #ede0c4 60%, #e0cda8 100%);
-      border: 1.5px solid #c4a06a;
-      border-radius: var(--radius-sm, 5px);
-      padding: clamp(6px,1vmin,10px) clamp(4px,0.7vmin,8px) clamp(5px,0.9vmin,9px);
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.18s ease, opacity 0.2s ease, filter 0.2s ease;
-      box-shadow: 0 2px 6px rgba(80,50,10,0.13), inset 0 1px 0 rgba(255,255,255,0.55);
-    }
+      /* PANELS */
+      .guess-panel {
+        min-height: auto;
+      }
 
-    /* Parchment grain */
-    .sage-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        90deg, transparent, transparent 14px,
-        rgba(160,110,50,0.04) 14px, rgba(160,110,50,0.04) 15px
-      );
-      pointer-events: none; z-index: 0;
-    }
+      .guess-panel .panel-content {
+        position: relative;
+        z-index: 1;
+        padding: 1.6vmin;
+      }
 
-    .sage-card:hover:not(.eliminated) {
-      transform: translateY(-3px) scale(1.04);
-      box-shadow: 0 8px 22px rgba(80,50,10,0.22), 0 0 0 2px #c4803a, inset 0 1px 0 rgba(255,255,255,0.5);
-      z-index: 2;
-    }
+      .guess-panel-heading {
+        margin: 0;
+        padding: 1vmin 1.2vmin;
+        font-size: clamp(16px, 2vmin, 22px);
+        background: rgba(255,255,255,0.22);
+      }
 
-    .sage-avatar {
-      position: relative; z-index: 1;
-      width: clamp(32px,5vmin,48px);
-      height: clamp(32px,5vmin,48px);
-      border-radius: 50%;
-      border: 1.5px solid #b8914c;
-      background: radial-gradient(circle at 35% 30%, #f5e9d0, #d4b87a);
-      margin: 0 auto clamp(4px,0.6vmin,7px);
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(15px,2.6vmin,26px);
-      box-shadow: inset 0 1px 4px rgba(0,0,0,0.12);
-    }
+      /* QUESTION BUILDER */
+      .question-builder-panel {
+        overflow: hidden;
+      }
 
-    .sage-name {
-      position: relative; z-index: 1;
-      font-family: var(--font-ui, 'Cinzel', serif);
-      font-size: clamp(10px,1.4vmin,13px);
-      font-weight: 700;
-      color: #3a2008;
-      line-height: 1.2;
-      letter-spacing: 0.02em;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.65);
-    }
+      .question-builder-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75vmin;
+      }
 
-    /* Eliminated */
-    .sage-card.eliminated {
-      opacity: 0.28;
-      filter: grayscale(1) sepia(0.3);
-    }
-    .sage-card.eliminated::after {
-      content: "✕";
-      position: absolute; inset: 0; z-index: 5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: clamp(28px,5vmin,48px);
-      color: rgba(90,60,30,0.65);
-      font-family: var(--font-ui, serif);
-      pointer-events: none;
-    }
+      .question-helper {
+        margin: 0;
+        color: var(--ink-soft);
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(11px, 1.35vmin, 14px);
+        line-height: 1.22;
+        text-align: center;
+      }
 
-    /* Selected — crimson */
-    .sage-card.selected {
-      border: 2.5px solid #8b1a1a;
-      box-shadow: 0 0 0 3px rgba(139,26,26,0.22), 0 4px 16px rgba(139,26,26,0.18);
-    }
-    .sage-card.selected .sage-avatar {
-      border-color: #8b1a1a;
-      background: radial-gradient(circle at 35% 30%, #fde8e8, #d4a0a0);
-    }
+      .question-type-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1vmin;
+      }
 
-    /* QUESTION AREA */
-    .question-box { margin-top: 1.4vmin; }
-    .question-box .panel-content { display: flex; flex-direction: column; gap: 1.2vmin; }
-    .question-title { margin: 0; padding-bottom: 0.8vmin; }
-    .question-row { display: flex; gap: 1vmin; }
-    .question-input { flex: 1; margin: 0; width: auto; }
-    .ask-btn { min-width: 16vmin; min-height: auto; padding: 1.2vmin 2.2vmin; }
-    .current-question {
-      font-size: clamp(16px,2.2vmin,21px); text-align: center;
-      line-height: 1.45; color: var(--ink-soft); font-style: italic;
-    }
-    .answer-buttons { display: flex; gap: 1vmin; margin-top: 1.4vmin; }
-    .answer-btn { flex: 1; min-width: 0; min-height: auto; padding: 1.2vmin 1.5vmin; }
-    .answer-btn.yes { color: var(--correct-color); }
-    .answer-btn.no  { color: var(--incorrect-color); }
-    .question-row-centered { justify-content: center; }
-    .ask-question-btn { min-width: clamp(220px, 32vmin, 340px); }
+      .question-type-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+        padding: 0.82vmin 0.9vmin;
+        font-size: clamp(11px, 1.8vmin, 18px);
+        letter-spacing: 0.06em;
+      }
 
-    /* QUESTION MODAL */
-    .question-modal-backdrop {
-      position: fixed; inset: 0; z-index: 100000;
-      display: flex; align-items: center; justify-content: center; padding: 2vmin;
-      background: rgba(47,36,27,0.48); backdrop-filter: blur(3px);
-    }
-    .question-modal-backdrop[hidden] { display: none; }
-    .question-modal {
-      width: min(720px, 94vw); max-height: 88vh; overflow-y: auto;
-      position: relative; background: var(--paper-strong);
-      border: 1px solid var(--rule); border-radius: var(--radius);
-      box-shadow: 0 18px 50px rgba(0,0,0,0.28), var(--shadow-soft);
-    }
-    .question-modal-title { margin: 0; padding: 1.4vmin 5vmin 1.4vmin 5vmin; }
-    .question-modal-content { position: relative; z-index: 1; padding: 2vmin; display: flex; flex-direction: column; gap: 1.6vmin; }
-    .modal-close-btn {
-      position: absolute; top: 1vmin; right: 1vmin; z-index: 2;
-      width: 4vmin; min-width: 36px; height: 4vmin; min-height: 36px;
-      border-radius: 50%; border: 1px solid var(--rule-strong);
-      background: rgba(255,248,230,0.9); color: var(--heading-ink);
-      font-family: var(--font-ui); font-size: clamp(20px,3vmin,30px); line-height: 1;
-      cursor: pointer; box-shadow: var(--shadow-tight);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .modal-close-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
-    .question-modal-intro { text-align: center; color: var(--ink-soft); font-family: var(--font-display); font-style: italic; font-size: clamp(17px,2.4vmin,22px); }
-    .question-type-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1vmin; }
-    .question-type-btn { min-width: 0; width: 100%; min-height: auto; padding: 1.3vmin 1vmin; font-size: clamp(13px,1.8vmin,17px); }
-    .question-type-btn.active {
-      border: 3px solid #76411c; color: #76411c;
-      background: linear-gradient(#d8c1a2,#c8a884);
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.20); transform: translateY(1px);
-    }
-    .question-builder {
-      border: 1px solid var(--rule-faint); border-radius: var(--radius); padding: 1.5vmin;
-      background: rgba(255,255,255,0.28); box-shadow: inset 0 1px 8px rgba(0,0,0,0.05);
-      display: flex; flex-direction: column; gap: 1.4vmin;
-    }
-    .question-builder[hidden] { display: none; }
-    .built-question-text { text-align: center; font-family: var(--font-ui); color: var(--heading-ink); font-weight: 700; letter-spacing: 0.04em; font-size: clamp(15px,2.1vmin,20px); }
-    .option-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0.9vmin; }
-    .question-option {
-      border: 1px solid var(--rule); border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.55); color: var(--input-ink);
-      padding: 1vmin 0.8vmin; font-family: var(--font-ui); font-size: clamp(12px,1.7vmin,16px); font-weight: 700;
-      cursor: pointer; box-shadow: var(--shadow-tight);
-      transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
-    }
-    .question-option:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); background: rgba(255,255,255,0.75); }
-    .question-option.selected { border: 3px solid #76411c; color: #76411c; background: linear-gradient(#d8c1a2,#c8a884); box-shadow: inset 0 2px 6px rgba(0,0,0,0.20); }
-    .submit-question-btn { align-self: center; min-width: clamp(210px,30vmin,320px); }
-    .submit-question-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+      .question-type-btn.active {
+        border: 3px solid #76411c;
+        color: #76411c;
+        background: linear-gradient(#d8c1a2, #c8a884);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.20);
+        transform: translateY(1px);
+      }
 
-    /* RESPONSIVE */
-    @media (max-width: 1200px) {
-      body { overflow: auto; }
-      .question-type-row { grid-template-columns: 1fr; }
-      .option-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .question-modal-title { padding-right: 7vmin; }
-      .guess-layout { grid-template-columns: 1fr; }
-      .board { grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .guess-stack { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
+      .question-builder {
+        border: 1px solid var(--rule-faint);
+        border-radius: var(--radius);
+        padding: 0.8vmin;
+        background: rgba(255,255,255,0.28);
+        box-shadow: inset 0 1px 8px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 0.65vmin;
+      }
 
-    @media (max-width: 700px) {
-      .guess-page { padding: 1vmin 2vmin 3vmin; }
-      .guess-header { padding-top: 9vmin; }
-      .guess-layout { gap: 2vmin; }
-      .guess-stack { display: flex; }
-      .board { grid-template-columns: repeat(3, minmax(0,1fr)); }
-      .question-row { flex-direction: column; }
-      .ask-btn { width: 100%; }
-      .answer-buttons { flex-direction: column; }
-      #info-button { right: 10vmin; }
-      #leave-button { right: 1vmin; }
-    }
-  </style>
-</head>
+      .built-question-text {
+        text-align: center;
+        font-family: var(--font-ui);
+        color: var(--heading-ink);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        font-size: clamp(11px, 1.35vmin, 14px);
+        line-height: 1.22;
+        min-height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-<body>
-  <div class="guess-page">
+      .option-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.8vmin;
+      }
 
-    <div class="header-section guess-header">
-      <div class="header">
-        <button class="modern-button" id="home-button" type="button" onclick="window.location.href='index.html'" aria-label="Home">🏠</button>
-        <button class="modern-button" id="info-button" type="button" aria-label="How to play">?</button>
-        <button class="modern-button" id="leave-button" type="button" aria-label="Leave game">↩</button>
-        <h1>
-          <span class="emoji">📖</span>
-          <span class="gradient-text">Sages Guess Who?</span>
-        </h1>
-        <p class="subtitle">Ask questions. Eliminate sages. Guess your opponent's sage!</p>
-      </div>
-    </div>
+      .question-option {
+        border: 1px solid var(--rule);
+        border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.55);
+        color: var(--input-ink);
+        padding: 0.72vmin 0.75vmin;
+        font-family: var(--font-ui);
+        font-size: clamp(11px, 1.9vmin, 14px);
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: var(--shadow-tight);
+        line-height: 1.14;
+      }
 
-    <div class="guess-layout">
+      .question-option:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-soft);
+        background: rgba(255,255,255,0.75);
+      }
 
-      <!-- LEFT -->
-      <aside class="guess-stack">
-        <section class="panel guess-panel">
-          <h2 class="panel-heading guess-panel-heading">GAME INFO</h2>
-          <div class="panel-content info-list">
-            <div class="info-row"><span>Room Code</span><strong>A7B3K9</strong></div>
-            <div class="info-row"><span>Players</span><strong>2 / 2</strong></div>
-            <div class="info-row"><span>Turn</span><strong>You</strong></div>
-            <div class="info-row"><span>Questions</span><strong>6</strong></div>
-          </div>
-        </section>
+      .question-option.selected {
+        border: 3px solid #76411c;
+        color: #76411c;
+        background: linear-gradient(#d8c1a2, #c8a884);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.20);
+      }
 
-        <section class="panel guess-panel">
-          <h2 class="panel-heading guess-panel-heading">LEGEND</h2>
-          <div class="panel-content legend">
-            <div class="legend-item"><div class="legend-box"></div><span>Available</span></div>
-            <div class="legend-item"><div class="legend-box elim"></div><span>Eliminated</span></div>
-            <div class="legend-item"><div class="legend-box sel"></div><span>Your Guess</span></div>
-          </div>
-        </section>
-      </aside>
+      .submit-question-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+        padding: 0.65vmin 0.9vmin;
+        font-size: clamp(10px, 1.6vmin, 16px);
+      }
 
-      <!-- CENTER -->
-      <main class="guess-main">
-        <div class="turn-banner">⟡ Your Turn — Ask a Question ⟡</div>
-        <section class="board" id="board" aria-label="Sage board"></section>
-        <section class="panel guess-panel question-box">
-          <div class="panel-content">
-            <h2 class="panel-heading question-title">Ask a yes or no question about the opponent's sage</h2>
-            <div class="question-row question-row-centered">
-              <button class="cta-button sweep ask-question-btn" id="open-question-modal" type="button">
-                Ask a Question
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
+      .submit-question-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .option-grid.two-column-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
 
-      <!-- RIGHT -->
-      <aside class="guess-stack">
-        <section class="panel guess-panel">
-          <h2 class="panel-heading guess-panel-heading">CURRENT QUESTION</h2>
-          <div class="panel-content">
-            <div class="current-question">Was your sage born in Israel?</div>
-            <div class="answer-buttons">
-              <button class="cta-button answer-btn yes" type="button">✔ Yes</button>
-              <button class="cta-button answer-btn no"  type="button">✖ No</button>
-            </div>
-          </div>
-        </section>
+      /* HISTORY */
+      .history {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2vmin;
+      }
 
-        <section class="panel guess-panel">
-          <h2 class="panel-heading guess-panel-heading">QUESTION HISTORY</h2>
-          <div class="panel-content history">
-            <div class="history-item">Was your sage born in Israel?<div class="history-answer y">Yes</div></div>
-            <div class="history-item">Is your sage known for Kabbalah?<div class="history-answer n">No</div></div>
-            <div class="history-item">Was your sage a Talmudist?<div class="history-answer y">Yes</div></div>
-          </div>
-        </section>
-      </aside>
+      .history-item {
+        border-bottom: 1px solid var(--rule-faint);
+        padding-bottom: 1vmin;
+        font-size: clamp(14px, 1.9vmin, 18px);
+        color: var(--ink);
+        line-height: 1.35;
+      }
 
-    </div>
-  </div>
+      .history-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
 
-  <!-- MODAL -->
-  <div class="question-modal-backdrop" id="question-modal-backdrop" hidden>
-    <div class="question-modal panel" role="dialog" aria-modal="true" aria-labelledby="question-modal-title">
-      <button class="modal-close-btn" id="close-question-modal" type="button" aria-label="Close">×</button>
-      <h2 class="panel-heading question-modal-title" id="question-modal-title">Build Your Question</h2>
-      <div class="question-modal-content">
-        <p class="question-modal-intro">Choose what kind of question you want to ask.</p>
-        <div class="question-type-row">
-          <button class="cta-button question-type-btn" type="button" data-question-type="background">Background</button>
-          <button class="cta-button question-type-btn" type="button" data-question-type="era">Era</button>
-          <button class="cta-button question-type-btn" type="button" data-question-type="focus">Focus</button>
-        </div>
-        <div class="question-builder" id="question-builder" hidden>
-          <div class="built-question-text" id="built-question-text"></div>
-          <div class="option-grid" id="question-option-grid"></div>
-          <button class="cta-button sweep submit-question-btn" id="submit-question-btn" type="button" disabled>
-            Submit Question
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+      .history-answer {
+        font-family: var(--font-ui);
+        font-weight: 700;
+        margin-top: 0.35vmin;
+        color: var(--ink-soft);
+      }
 
-  <script>
-    const SAGE_DATA = [
-      { name: "Rashi",             emoji: "📜" },
-      { name: "Rambam",            emoji: "🏛" },
-      { name: "Ramban",            emoji: "⭐" },
-      { name: "Rabbeinu Yona",     emoji: "🕊" },
-      { name: "Raavad",            emoji: "🔥" },
-      { name: "Maharal",           emoji: "🌙" },
-      { name: "Beis Yosef",        emoji: "📖" },
-      { name: "Shulchan Aruch",    emoji: "⚖" },
-      { name: "Arizal",            emoji: "✨" },
-      { name: "Baal Shem Tov",     emoji: "🌟" },
-      { name: "Vilna Gaon",        emoji: "🌿" },
-      { name: "Chafetz Chaim",     emoji: "🕯" },
-      { name: "Rav Kook",          emoji: "🌅" },
-      { name: "Ben Ish Chai",      emoji: "☀" },
-      { name: "Rav Soloveitchik",  emoji: "🦅" },
-      { name: "Alter Rebbe",       emoji: "🎶" },
-      { name: "Rav Yosef Chaim",   emoji: "🌺" },
-      { name: "Rav Ovadia Yosef",  emoji: "🏔" },
-      { name: "Lubavitcher Rebbe", emoji: "♾" },
-      { name: "Rav Dessler",       emoji: "💎" },
-    ];
+      .history-answer.y {
+        color: var(--correct-color);
+      }
 
-    const board = document.getElementById("board");
+      .history-answer.n {
+        color: var(--incorrect-color);
+      }
 
-    SAGE_DATA.forEach((sage, index) => {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "sage-card";
-      if ([4,8,10,13,19].includes(index)) card.classList.add("eliminated");
-      if (index === 17) card.classList.add("selected");
+      .history-answer.waiting {
+        color: var(--classy-blue-ink);
+        opacity: 0.85;
+      }
 
-      card.innerHTML = `
-        <div class="sage-avatar">${sage.emoji}</div>
-        <div class="sage-name">${sage.name}</div>
-      `;
+      /* BOARD — GUESS WHO STYLE */
+      .board {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: clamp(5px, 0.85vmin, 10px);
+        padding: clamp(7px, 1.1vmin, 14px);
+        border: 2px solid var(--rule-strong);
+        border-radius: calc(var(--radius) + 0.4vmin);
+        background:
+          linear-gradient(145deg, rgba(255,255,255,0.18), rgba(90,56,24,0.08)),
+          rgba(112, 71, 34, 0.16);
+        box-shadow:
+          inset 0 0 0 2px rgba(255,255,255,0.18),
+          inset 0 0 28px rgba(74, 45, 18, 0.16),
+          var(--shadow-soft);
+      }
 
-      card.addEventListener("click", () => {
-        if (!card.classList.contains("selected")) {
-          card.classList.toggle("eliminated");
+      .board::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.035),
+            rgba(255,255,255,0.035) 1px,
+            transparent 1px,
+            transparent 18px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            rgba(65,38,15,0.035),
+            rgba(65,38,15,0.035) 1px,
+            transparent 1px,
+            transparent 18px
+          );
+        opacity: 0.65;
+      }
+
+      .sage-card {
+        position: relative;
+        z-index: 1;
+        min-height: clamp(112px, 15vmin, 168px);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        perspective: 700px;
+        text-align: center;
+      }
+
+      .sage-card-inner {
+        position: relative;
+        height: 100%;
+        min-height: inherit;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        overflow: hidden;
+        border: 2px solid #9d783f;
+        border-radius: clamp(7px, 1vmin, 12px);
+        background:
+          linear-gradient(180deg, #f7e8c6 0%, #e8c98f 54%, #c99a4b 100%);
+        box-shadow:
+          0 7px 0 #8f6530,
+          0 10px 16px rgba(53, 30, 11, 0.28),
+          inset 0 1px 0 rgba(255,255,255,0.72),
+          inset 0 -12px 18px rgba(102, 58, 18, 0.16);
+        transform-origin: bottom center;
+        transition:
+          transform 0.22s ease,
+          box-shadow 0.22s ease,
+          filter 0.22s ease,
+          opacity 0.22s ease;
+      }
+
+      .sage-card-inner::after {
+        content: "";
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        bottom: 5px;
+        height: 8px;
+        border-radius: 999px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.35), rgba(65,38,15,0.22)),
+          #a77635;
+        border: 1px solid rgba(75, 42, 15, 0.45);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.45),
+          0 1px 2px rgba(45,25,10,0.25);
+        pointer-events: none;
+      }
+
+      .sage-card-inner::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 6px;
+        height: 6px;
+        background:
+          radial-gradient(circle at left center, #7b5227 0 4px, transparent 5px),
+          radial-gradient(circle at right center, #7b5227 0 4px, transparent 5px);
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      .sage-card:hover:not(.eliminated) .sage-card-inner {
+        transform: translateY(-5px) rotateX(2deg);
+        box-shadow:
+          0 9px 0 #8f6530,
+          0 16px 25px rgba(53, 30, 11, 0.32),
+          inset 0 1px 0 rgba(255,255,255,0.72),
+          inset 0 -12px 18px rgba(102, 58, 18, 0.16);
+      }
+
+      .sage-portrait-area {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(8px, 1.3vmin, 15px) clamp(7px, 1vmin, 12px) clamp(5px, 0.8vmin, 9px);
+        background:
+          radial-gradient(circle at 50% 38%, rgba(255,255,255,0.75), transparent 36%),
+          linear-gradient(180deg, rgba(47,79,79,0.10), rgba(255,255,255,0.04));
+      }
+
+      .sage-avatar {
+        width: clamp(42px, 6.2vmin, 70px);
+        height: clamp(42px, 6.2vmin, 70px);
+        border-radius: 18% 18% 24% 24%;
+        border: 2px solid rgba(85, 53, 22, 0.5);
+        background:
+          radial-gradient(circle at 36% 26%, rgba(255,255,255,0.7), transparent 28%),
+          linear-gradient(145deg, #f3e2bd, #d5a95c 55%, #a87334);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(18px, 3.1vmin, 34px);
+        box-shadow:
+          inset 0 2px 7px rgba(255,255,255,0.45),
+          inset 0 -7px 11px rgba(68, 38, 14, 0.18),
+          0 3px 7px rgba(55, 32, 11, 0.2);
+      }
+
+      .sage-nameplate {
+        position: relative;
+        padding: clamp(4px, 0.65vmin, 8px) clamp(4px, 0.6vmin, 7px) clamp(13px, 1.5vmin, 18px);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
+          rgba(255, 244, 216, 0.72);
+        border-top: 1px solid rgba(94, 58, 21, 0.28);
+      }
+
+      .sage-name {
+        position: relative;
+        z-index: 2;
+        font-family: var(--font-ui, "Cinzel", serif);
+        font-size: clamp(8px, 1.38vmin, 12px);
+        font-weight: 800;
+        color: #3a2008;
+        line-height: 1.08;
+        letter-spacing: 0.015em;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.72);
+      }
+
+      .sage-card.selected .sage-card-inner {
+        border-color: #8b1a1a;
+        box-shadow:
+          0 7px 0 #6f221b,
+          0 0 0 4px rgba(139,26,26,0.22),
+          0 12px 24px rgba(80,20,15,0.25),
+          inset 0 1px 0 rgba(255,255,255,0.68);
+      }
+
+      .sage-card.selected .sage-avatar {
+        border-color: #8b1a1a;
+        background:
+          radial-gradient(circle at 36% 26%, rgba(255,255,255,0.72), transparent 28%),
+          linear-gradient(145deg, #f5d1c9, #d49386 55%, #994132);
+      }
+
+      .sage-card.eliminated .sage-card-inner {
+        opacity: 0.45;
+        filter: grayscale(0.85) sepia(0.25);
+        transform: rotateX(64deg) translateY(16px);
+        box-shadow:
+          0 2px 0 #7d5729,
+          0 5px 10px rgba(53, 30, 11, 0.22),
+          inset 0 1px 0 rgba(255,255,255,0.45);
+      }
+
+      .sage-card.eliminated:hover .sage-card-inner {
+        transform: rotateX(54deg) translateY(13px);
+      }
+
+      .sage-card.eliminated::after {
+        content: "✕";
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: clamp(12px, 2vmin, 24px);
+        font-family: var(--font-ui, serif);
+        font-size: clamp(34px, 6vmin, 70px);
+        font-weight: 800;
+        color: rgba(90, 42, 26, 0.52);
+        text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+        pointer-events: none;
+      }
+
+      .guess-action-panel {
+    margin-top: 1.3vmin;
+  }
+
+  .guess-action-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2vmin;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+
+  .guess-button {
+    min-width: clamp(180px, 24vmin, 280px);
+    min-height: auto;
+    padding: 1vmin 1.6vmin;
+  }
+
+  .guess-button.guess-mode-active {
+    border: 3px solid #8b1a1a;
+    color: #8b1a1a;
+    background: linear-gradient(#ead1bd, #d1ad8b);
+    box-shadow:
+      inset 0 2px 7px rgba(0,0,0,0.18),
+      0 0 0 4px rgba(139,26,26,0.14);
+  }
+
+  .guess-status {
+    max-width: 55ch;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: clamp(14px, 1.8vmin, 18px);
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  .sage-card.guess-target .sage-card-inner {
+    border-color: #8b1a1a;
+    box-shadow:
+      0 7px 0 #6f221b,
+      0 0 0 4px rgba(139,26,26,0.22),
+      0 12px 24px rgba(80,20,15,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.68);
+  }
+
+      @media (min-width: 1201px) {
+        .board {
+          grid-template-columns: repeat(5, minmax(85px, 1fr));
         }
-      });
+      }
 
-      board.appendChild(card);
-    });
+      @media (max-width: 1200px) {
+        .guess-layout {
+          grid-template-columns: 1fr;
+        }
 
-    // MODAL LOGIC
+        .question-sidebar,
+        .history-sidebar {
+          position: static;
+        }
+
+        .board {
+          grid-template-columns: repeat(4, minmax(0,1fr));
+        }
+
+        .sage-card {
+          min-height: clamp(132px, 20vmin, 190px);
+        }
+
+        .question-type-row {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .option-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 700px) {
+        .guess-page {
+          padding: 1vmin 2vmin 3vmin;
+        }
+
+        .guess-header {
+          padding-top: 9vmin;
+        }
+
+        .guess-layout {
+          gap: 2vmin;
+        }
+
+        .board {
+          grid-template-columns: repeat(3, minmax(0,1fr));
+          gap: clamp(7px, 1.8vmin, 12px);
+          padding: clamp(8px, 2.2vmin, 14px);
+        }
+
+        .sage-card {
+          min-height: clamp(118px, 29vmin, 155px);
+        }
+
+        .sage-card.eliminated .sage-card-inner {
+          transform: rotateX(58deg) translateY(12px);
+        }
+
+        .question-type-row,
+        .option-grid {
+          grid-template-columns: 1fr;
+        }
+
+        #info-button {
+          right: 10vmin;
+        }
+
+        #leave-button {
+          right: 1vmin;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="guess-page">
+
+      <div class="header-section guess-header">
+        <div class="header">
+          <button
+            class="modern-button"
+            id="home-button"
+            type="button"
+            onclick="window.location.href='index.html'"
+            aria-label="Home"
+          >
+            🏠
+          </button>
+
+          <button
+            class="modern-button"
+            id="info-button"
+            type="button"
+            aria-label="How to play"
+          >
+            ?
+          </button>
+
+          <button
+            class="modern-button"
+            id="leave-button"
+            type="button"
+            aria-label="Leave game"
+          >
+            ↩
+          </button>
+
+          <h1>
+            <span class="emoji">📖</span>
+            <span class="gradient-text">Sages Guess Who?</span>
+          </h1>
+
+          <p class="subtitle">
+            Ask questions. Eliminate sages. Guess your opponent's sage!
+          </p>
+        </div>
+      </div>
+
+      <div class="guess-layout">
+
+        <!-- LEFT: QUESTION BUILDER -->
+        <aside class="guess-stack question-sidebar">
+          <section class="panel guess-panel question-builder-panel">
+            <h2 class="panel-heading guess-panel-heading">ASK A QUESTION</h2>
+
+            <div class="panel-content question-builder-content">
+              <p class="question-helper">
+                Choose a category, then ask a yes-or-no question about your opponent's sage.
+              </p>
+
+              <div class="question-type-row">
+                <button
+                  class="cta-button question-type-btn"
+                  type="button"
+                  data-question-type="background"
+                >
+                  Background
+                </button>
+
+                <button
+                  class="cta-button question-type-btn"
+                  type="button"
+                  data-question-type="era"
+                >
+                  Era
+                </button>
+
+                <button
+                  class="cta-button question-type-btn"
+                  type="button"
+                  data-question-type="focus"
+                >
+                  Focus
+                </button>
+              </div>
+
+              <div class="question-builder" id="question-builder">
+                <div class="built-question-text" id="built-question-text">
+                  Select a question type above.
+                </div>
+
+                <div class="option-grid" id="question-option-grid"></div>
+
+                <button
+                  class="cta-button sweep submit-question-btn"
+                  id="submit-question-btn"
+                  type="button"
+                  disabled
+                >
+                  Submit Question
+                </button>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <!-- CENTER: BOARD -->
+        <main class="guess-main">
+          <section class="board" id="board" aria-label="Sage board"></section>
+        </main>
+
+        <!-- RIGHT: GUESS + QUESTION HISTORY -->
+        <aside class="guess-stack history-sidebar">
+
+          <section class="panel guess-panel guess-action-panel">
+            <h2 class="panel-heading guess-panel-heading">MAKE A GUESS</h2>
+
+            <div class="panel-content guess-action-content">
+              <button class="cta-button sweep guess-button" id="guess-button" type="button">
+                Guess the Sage
+              </button>
+
+              <div class="guess-status" id="guess-status">
+                Flip cards to eliminate them, or click “Guess the Sage” when you are ready.
+              </div>
+            </div>
+          </section>
+
+          <section class="panel guess-panel">
+            <h2 class="panel-heading guess-panel-heading">QUESTION HISTORY</h2>
+
+            <div class="panel-content history" id="question-history"></div>
+          </section>
+
+        </aside>
+
+      </div>
+    </div>
+
+    <script type="module">
+    import { loadAllSages } from './supabase/sagesWithNames.js';
+
     const questionData = {
       background: {
-        text: 'Did the sage have a background of...',
-        options: ['Ashkenaz','Sefarad','Provence']
+        text: "Did the sage have a background of",
+        options: ["Ashkenaz", "Sefarad", "Provence", "Chassidic", "Litvish", "Italian"]
       },
       era: {
-        text: 'Did the sage live in the...',
-        options: ['900s','1000s','1100s','1200s','1300s','1400s','1500s','1600s','1700s','1800s','1900s']
+        text: "Did the sage live in the",
+        options: [
+          "900s", "1000s", "1100s", "1200s", "1300s", "1400s",
+          "1500s", "1600s", "1700s", "1800s", "1900s"
+        ]
       },
       focus: {
-        text: 'Was the sage especially known for...',
-        options: ['Tanach','Talmud','Halacha','Responsa','Kabbalah','Chassidus','Mussar','Philosophy','Linguistics','Poetry','History']
+        text: "Was the sage especially known for",
+        options: [
+          "Tanach", "Talmud", "Halacha", "Responsa", "Kabbalah",
+          "Chassidus", "Mussar", "Philosophy", "Linguistics", "Poetry", "History"
+        ]
       }
     };
 
-    const openBtn     = document.getElementById('open-question-modal');
-    const backdrop    = document.getElementById('question-modal-backdrop');
-    const closeBtn    = document.getElementById('close-question-modal');
-    const typeBtns    = document.querySelectorAll('.question-type-btn');
-    const builder     = document.getElementById('question-builder');
-    const questionTxt = document.getElementById('built-question-text');
-    const optionGrid  = document.getElementById('question-option-grid');
-    const submitBtn   = document.getElementById('submit-question-btn');
+    const board = document.getElementById("board");
+    const typeBtns = document.querySelectorAll(".question-type-btn");
+    const questionTxt = document.getElementById("built-question-text");
+    const optionGrid = document.getElementById("question-option-grid");
+    const submitBtn = document.getElementById("submit-question-btn");
+    const history = document.getElementById("question-history");
 
-    let selectedType = null, selectedValue = null;
+    const guessBtn = document.getElementById("guess-button");
+  const guessStatus = document.getElementById("guess-status");
 
-    const openModal  = () => { backdrop.hidden = false; };
-    const closeModal = () => { backdrop.hidden = true;  };
+    let allSages = [];
+    let boardSages = [];
+    let correctSage = null;
+
+    let selectedType = null;
+    let selectedValue = null;
+    let hoverMode = "background";
+
+    let guessMode = false;
+    let gameOver = false;
+
+    function normalizeExpertiseArray(value) {
+      if (Array.isArray(value)) {
+        return value
+          .map(item => {
+            if (typeof item === "string") return item.trim();
+            return item?.expertise?.trim();
+          })
+          .filter(Boolean);
+      }
+
+      if (typeof value === "string") {
+        return value
+          .split(",")
+          .map(item => item.trim())
+          .filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function normalizeText(value, fallback = "Unknown") {
+      const text = String(value || "").trim();
+      return text || fallback;
+    }
+
+    function processGuessWhoSages(sages) {
+      return sages
+        .map(sage => {
+          const expertise = normalizeExpertiseArray(sage.expertise);
+
+          return {
+            ...sage,
+            person: normalizeText(sage.person || sage.name),
+            name: normalizeText(sage.name || sage.person),
+            aka: sage.aka || "",
+            background: normalizeText(sage.background),
+            birth: Number(sage.birth) || null,
+            passing: Number(sage.passing) || null,
+            expertise,
+            difficulty: Number(sage.difficulty) || 5,
+            image: sage.image || sage.picture || sage.image_url || ""
+          };
+        })
+        .filter(sage => sage.person && sage.person !== "Unknown")
+        .filter(sage => sage.expertise.length > 0);
+    }
+
+    function shuffleArray(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function pickRandomSages(sages, count = 25) {
+      return shuffleArray(sages).slice(0, count);
+    }
+
+    function pickRandomSage(sages) {
+      if (!sages.length) return null;
+      return sages[Math.floor(Math.random() * sages.length)];
+    }
+
+    function getInitials(name) {
+      return String(name || "?")
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0])
+        .join("")
+        .toUpperCase();
+    }
+
+    function getYearsText(sage) {
+      const birth = sage.birth || "?";
+      const passing = sage.passing || "?";
+      return `${birth}–${passing}`;
+    }
+
+    function getFocusText(sage) {
+      return sage.expertise.length ? sage.expertise.join(", ") : "Unknown";
+    }
+
+    function getHoverText(sage) {
+      if (hoverMode === "background") {
+        return sage.background || "Unknown";
+      }
+
+      if (hoverMode === "era") {
+        return getYearsText(sage);
+      }
+
+      if (hoverMode === "focus") {
+        return getFocusText(sage);
+      }
+
+      return "";
+    }
+
+    function showCardHoverInfo(card) {
+      const info = card.querySelector(".sage-hover-info");
+      if (!info) return;
+
+      const sageId = card.dataset.person;
+      const sage = boardSages.find(item => item.person === sageId);
+
+      if (!sage) return;
+
+      info.textContent = getHoverText(sage);
+      card.classList.add("show-hover-info");
+    }
+
+    function hideCardHoverInfo(card) {
+      const info = card.querySelector(".sage-hover-info");
+      if (!info) return;
+
+      info.textContent = "";
+      card.classList.remove("show-hover-info");
+    }
+
+    function renderBoard(sages) {
+      board.innerHTML = "";
+
+      sages.forEach(sage => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "sage-card";
+
+        card.dataset.person = sage.person;
+        card.dataset.background = sage.background;
+        card.dataset.years = getYearsText(sage);
+        card.dataset.focus = getFocusText(sage);
+
+        const avatarContent = sage.image
+          ? `<img src="${sage.image}" alt="${sage.person}" class="sage-avatar-img">`
+          : `<span>${getInitials(sage.person)}</span>`;
+
+        card.innerHTML = `
+          <div class="sage-card-inner">
+            <div class="sage-portrait-area">
+              <div class="sage-avatar">
+                ${avatarContent}
+              </div>
+            </div>
+
+            <div class="sage-nameplate">
+              <div class="sage-name">${sage.person}</div>
+              <div class="sage-hover-info"></div>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          if (gameOver) return;
+
+          if (guessMode) {
+            handleFinalGuess(sage, card);
+            return;
+          }
+
+          card.classList.toggle("eliminated");
+        });
+
+        card.addEventListener("mouseenter", () => {
+          showCardHoverInfo(card);
+        });
+
+        card.addEventListener("mouseleave", () => {
+          hideCardHoverInfo(card);
+        });
+
+        board.appendChild(card);
+      });
+    }
+
+    function setGuessMode(isActive) {
+    if (gameOver) return;
+
+    guessMode = isActive;
+
+    if (guessBtn) {
+      guessBtn.classList.toggle("guess-mode-active", guessMode);
+      guessBtn.textContent = guessMode ? "Choose a Card" : "Guess the Sage";
+    }
+
+    if (guessStatus) {
+      guessStatus.textContent = guessMode
+        ? "Now click the card you think is the hidden sage."
+        : "Flip cards to eliminate them, or click “Guess the Sage” when you are ready.";
+    }
+
+    document.querySelectorAll(".sage-card").forEach(card => {
+      card.classList.toggle("guess-target", guessMode);
+    });
+  }
+
+  function normalizeName(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function handleFinalGuess(sage, card) {
+    if (!correctSage || gameOver) return;
+
+    const isCorrect =
+      normalizeName(sage.person) === normalizeName(correctSage.person);
+
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    item.innerHTML = `
+      Final guess: ${sage.person}
+      <div class="history-answer ${isCorrect ? "y" : "n"}">
+        ${isCorrect ? "Correct!" : "Wrong"}
+      </div>
+    `;
+
+    history.prepend(item);
+
+    if (isCorrect) {
+      gameOver = true;
+      card.classList.add("selected");
+      card.classList.remove("eliminated");
+
+      if (guessStatus) {
+        guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
+      }
+
+      if (guessBtn) {
+        guessBtn.disabled = true;
+        guessBtn.textContent = "Solved";
+        guessBtn.classList.remove("guess-mode-active");
+      }
+
+      document.querySelectorAll(".sage-card").forEach(cardEl => {
+        cardEl.classList.remove("guess-target");
+      });
+
+      console.log("GAME WON:", correctSage);
+      return;
+    }
+
+    card.classList.add("eliminated");
+    setGuessMode(false);
+
+    if (guessStatus) {
+      guessStatus.textContent = `${sage.person} was not the hidden sage. Keep asking questions.`;
+    }
+
+    console.log("WRONG FINAL GUESS:", {
+      guessed: sage,
+      correctSage
+    });
+  }
+
+    function sageHasBackground(sage, background) {
+      return String(sage.background || "")
+        .toLowerCase()
+        .includes(String(background || "").toLowerCase());
+    }
+
+    function sageLivedInEra(sage, eraText) {
+      const eraStart = Number(String(eraText).replace(/\D/g, ""));
+      const eraEnd = eraStart + 99;
+
+      if (!sage.birth && !sage.passing) return false;
+
+      const birth = sage.birth || sage.passing;
+      const passing = sage.passing || sage.birth;
+
+      return birth <= eraEnd && passing >= eraStart;
+    }
+
+    function sageHasFocus(sage, focus) {
+      return sage.expertise.some(item =>
+        item.toLowerCase() === String(focus).toLowerCase()
+      );
+    }
+
+    function answerQuestion(type, value) {
+      if (!correctSage) return false;
+
+      if (type === "background") {
+        return sageHasBackground(correctSage, value);
+      }
+
+      if (type === "era") {
+        return sageLivedInEra(correctSage, value);
+      }
+
+      if (type === "focus") {
+        return sageHasFocus(correctSage, value);
+      }
+
+      return false;
+    }
 
     function renderOptions(type) {
-      selectedType = type; selectedValue = null;
-      const config = questionData[type];
-      questionTxt.textContent = config.text;
-      optionGrid.innerHTML    = '';
-      submitBtn.disabled      = true;
-      builder.hidden          = false;
-      typeBtns.forEach(b => b.classList.toggle('active', b.dataset.questionType === type));
+      selectedType = type;
+      selectedValue = null;
+      hoverMode = type;
 
-      config.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.type = 'button'; btn.className = 'question-option'; btn.textContent = opt;
-        btn.addEventListener('click', () => {
-          selectedValue = opt;
-          optionGrid.querySelectorAll('.question-option').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
+      const config = questionData[type];
+
+      questionTxt.textContent = `${config.text}...`;
+      optionGrid.innerHTML = "";
+      submitBtn.disabled = true;
+
+      optionGrid.classList.toggle(
+        "two-column-options",
+        type === "era" || type === "focus"
+      );
+
+      typeBtns.forEach(button => {
+        button.classList.toggle("active", button.dataset.questionType === type);
+      });
+
+      config.options.forEach(option => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "question-option";
+        button.textContent = option;
+
+        button.addEventListener("click", () => {
+          selectedValue = option;
+
+          optionGrid.querySelectorAll(".question-option").forEach(optionButton => {
+            optionButton.classList.remove("selected");
+          });
+
+          button.classList.add("selected");
+          questionTxt.textContent = `${config.text} ${option}?`;
           submitBtn.disabled = false;
         });
-        optionGrid.appendChild(btn);
+
+        optionGrid.appendChild(button);
       });
     }
 
     function submitQuestion() {
-      if (!selectedType || !selectedValue) return;
-      const q = { type: selectedType, value: selectedValue, text: `${questionData[selectedType].text} ${selectedValue}?` };
-      console.log('QUESTION SUBMITTED:', q);
-      closeModal();
+      if (!selectedType || !selectedValue || !correctSage) return;
+
+      const config = questionData[selectedType];
+      const questionText = `${config.text} ${selectedValue}?`;
+      const isYes = answerQuestion(selectedType, selectedValue);
+
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        ${questionText}
+        <div class="history-answer ${isYes ? "y" : "n"}">
+          ${isYes ? "Yes" : "No"}
+        </div>
+      `;
+
+      history.prepend(item);
+
+      console.log("QUESTION SUBMITTED:", {
+        type: selectedType,
+        value: selectedValue,
+        text: questionText,
+        answer: isYes ? "Yes" : "No",
+        correctSage
+      });
+
+      selectedValue = null;
+      submitBtn.disabled = true;
+
+      optionGrid.querySelectorAll(".question-option").forEach(button => {
+        button.classList.remove("selected");
+      });
     }
 
-    openBtn.addEventListener('click', openModal);
-    closeBtn.addEventListener('click', closeModal);
-    submitBtn.addEventListener('click', submitQuestion);
-    typeBtns.forEach(b => b.addEventListener('click', () => renderOptions(b.dataset.questionType)));
-    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !backdrop.hidden) closeModal(); });
-  </script>
-</body>
-</html>
+    async function initializeGuessWho() {
+      try {
+        board.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding:2vmin;">
+            Loading sages...
+          </div>
+        `;
+
+        const sagesFromDb = await loadAllSages();
+        allSages = processGuessWhoSages(sagesFromDb);
+
+        if (allSages.length < 24) {
+          throw new Error(`Only found ${allSages.length} usable sages. Need at least 24.`);
+        }
+
+        boardSages = pickRandomSages(allSages, 25);
+        correctSage = pickRandomSage(boardSages);
+
+        console.log("Correct sage:", correctSage);
+
+        renderBoard(boardSages);
+
+        questionTxt.textContent = "Select a question type above.";
+        submitBtn.disabled = true;
+
+      } catch (error) {
+        console.error("Failed to initialize Guess Who:", error);
+
+        board.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding:2vmin; color:#8b1a1a;">
+            Failed to load sages. Please refresh and try again.
+            <br>
+            <small>${error.message}</small>
+          </div>
+        `;
+      }
+    }
+
+    typeBtns.forEach(button => {
+      button.addEventListener("click", () => {
+        renderOptions(button.dataset.questionType);
+      });
+    });
+
+    submitBtn.addEventListener("click", submitQuestion);
+
+    if (guessBtn) {
+      guessBtn.addEventListener("click", () => {
+        setGuessMode(!guessMode);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeGuessWho);
+    </script>
+  </body>
+  </html>
