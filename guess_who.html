@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="all_styles.css" />
 
     <style>
-      body {
+
+      body{
         overflow: auto;
       }
 
@@ -256,8 +257,8 @@
         position: relative;
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: clamp(5px, 0.85vmin, 10px);
-        padding: clamp(7px, 1.1vmin, 14px);
+        gap: clamp(5px, 0.65vmin, 10px);
+        padding: clamp(5px, 0.6vmin, 14px);
         border: 2px solid var(--rule-strong);
         border-radius: calc(var(--radius) + 0.4vmin);
         background:
@@ -296,7 +297,7 @@
       .sage-card {
         position: relative;
         z-index: 1;
-        min-height: clamp(112px, 15vmin, 168px);
+        min-height: clamp(106px, 14.2vmin, 160px);
         padding: 0;
         border: 0;
         background: transparent;
@@ -335,7 +336,7 @@
         left: 12%;
         right: 12%;
         bottom: 5px;
-        height: 8px;
+        height: 6px;
         border-radius: 999px;
         background:
           linear-gradient(180deg, rgba(255,255,255,0.35), rgba(65,38,15,0.22)),
@@ -375,16 +376,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: clamp(8px, 1.3vmin, 15px) clamp(7px, 1vmin, 12px) clamp(5px, 0.8vmin, 9px);
+        padding: clamp(3px, 0.45vmin, 7px) clamp(4px, 0.55vmin, 8px) clamp(2px, 0.35vmin, 5px);
         background:
           radial-gradient(circle at 50% 38%, rgba(255,255,255,0.75), transparent 36%),
           linear-gradient(180deg, rgba(47,79,79,0.10), rgba(255,255,255,0.04));
       }
 
       .sage-avatar {
-        width: clamp(42px, 6.2vmin, 70px);
-        height: clamp(42px, 6.2vmin, 70px);
-        border-radius: 18% 18% 24% 24%;
+        overflow: hidden;
+        width: clamp(58px, 9.2vmin, 96px);
+        height: clamp(58px, 9.2vmin, 96px);
+        border-radius: 16% 16% 22% 22%;
         border: 2px solid rgba(85, 53, 22, 0.5);
         background:
           radial-gradient(circle at 36% 26%, rgba(255,255,255,0.7), transparent 28%),
@@ -399,9 +401,19 @@
           0 3px 7px rgba(55, 32, 11, 0.2);
       }
 
+
+      .sage-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        border-radius: inherit;
+        display: block;
+      }
+
       .sage-nameplate {
         position: relative;
-        padding: clamp(4px, 0.65vmin, 8px) clamp(4px, 0.6vmin, 7px) clamp(13px, 1.5vmin, 18px);
+        padding: clamp(3px, 0.45vmin, 6px) clamp(3px, 0.45vmin, 6px) clamp(10px, 1.15vmin, 14px);
         background:
           linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
           rgba(255, 244, 216, 0.72);
@@ -412,11 +424,11 @@
         position: relative;
         z-index: 2;
         font-family: var(--font-ui, "Cinzel", serif);
-        font-size: clamp(8px, 1.38vmin, 12px);
+        font-size: clamp(7px, 1.16vmin, 11px);
         font-weight: 800;
         color: #3a2008;
-        line-height: 1.08;
-        letter-spacing: 0.015em;
+        line-height: 1.05;
+        letter-spacing: 0.01em;
         text-shadow: 0 1px 0 rgba(255,255,255,0.72);
       }
 
@@ -481,9 +493,6 @@
         pointer-events: none;
       }
 
-      .guess-action-panel {
-    margin-top: 1.3vmin;
-  }
 
   .guess-action-content {
     display: flex;
@@ -618,24 +627,6 @@
             🏠
           </button>
 
-          <button
-            class="modern-button"
-            id="info-button"
-            type="button"
-            aria-label="How to play"
-          >
-            ?
-          </button>
-
-          <button
-            class="modern-button"
-            id="leave-button"
-            type="button"
-            aria-label="Leave game"
-          >
-            ↩
-          </button>
-
           <h1>
             <span class="emoji">📖</span>
             <span class="gradient-text">Sages Guess Who?</span>
@@ -739,7 +730,7 @@
     </div>
 
     <script type="module">
-    import { loadAllSages } from './supabase/sagesWithNames.js';
+    import { loadGuessWhoSages } from './supabase/get_guess_who_sages.js';
 
     const questionData = {
       background: {
@@ -1160,17 +1151,15 @@
           </div>
         `;
 
-        const sagesFromDb = await loadAllSages();
-        allSages = processGuessWhoSages(sagesFromDb);
+        const sagesFromDb = await loadGuessWhoSages(25);
 
-        if (allSages.length < 24) {
-          throw new Error(`Only found ${allSages.length} usable sages. Need at least 24.`);
+        boardSages = processGuessWhoSages(sagesFromDb);
+
+        if (boardSages.length < 25) {
+          throw new Error(`Only found ${boardSages.length} usable sages. Need at least 25.`);
         }
 
-        boardSages = pickRandomSages(allSages, 25);
         correctSage = pickRandomSage(boardSages);
-
-        console.log("Correct sage:", correctSage);
 
         renderBoard(boardSages);
 
