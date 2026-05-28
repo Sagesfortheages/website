@@ -527,6 +527,16 @@
     line-height: 1.3;
   }
 
+
+  .hidden {
+    display: none !important;
+  }
+
+  .profile-button {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
   .sage-card.guess-target .sage-card-inner {
     border-color: #8b1a1a;
     box-shadow:
@@ -715,6 +725,14 @@
               <div class="guess-status" id="guess-status">
                 Flip cards to eliminate them, or click “Guess the Sage” when you are ready.
               </div>
+
+              <button
+                class="cta-button sweep guess-button profile-button hidden"
+                id="profile-button"
+                type="button"
+              >
+                Explore The Sage
+              </button>
             </div>
           </section>
 
@@ -731,6 +749,7 @@
 
     <script type="module">
     import { loadGuessWhoSages } from './supabase/get_guess_who_sages.js';
+    import { supabaseClient } from './supabase/supabaseClient.js';
 
     const questionData = {
       background: {
@@ -761,11 +780,16 @@
     const history = document.getElementById("question-history");
 
     const guessBtn = document.getElementById("guess-button");
-  const guessStatus = document.getElementById("guess-status");
+    const guessStatus = document.getElementById("guess-status");
+    const profileBtn = document.getElementById("profile-button");
 
     let allSages = [];
     let boardSages = [];
     let correctSage = null;
+
+    const params = new URLSearchParams(window.location.search);
+    const assignmentId = params.get("assignment_id");
+    let currentAssignment = null;
 
     let selectedType = null;
     let selectedValue = null;
@@ -971,59 +995,6 @@
     return String(value || "").trim().toLowerCase();
   }
 
-  function handleFinalGuess(sage, card) {
-    if (!correctSage || gameOver) return;
-
-    const isCorrect =
-      normalizeName(sage.person) === normalizeName(correctSage.person);
-
-    const item = document.createElement("div");
-    item.className = "history-item";
-
-    item.innerHTML = `
-      Final guess: ${sage.person}
-      <div class="history-answer ${isCorrect ? "y" : "n"}">
-        ${isCorrect ? "Correct!" : "Wrong"}
-      </div>
-    `;
-
-    history.prepend(item);
-
-    if (isCorrect) {
-      gameOver = true;
-      card.classList.add("selected");
-      card.classList.remove("eliminated");
-
-      if (guessStatus) {
-        guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
-      }
-
-      if (guessBtn) {
-        guessBtn.disabled = true;
-        guessBtn.textContent = "Solved";
-        guessBtn.classList.remove("guess-mode-active");
-      }
-
-      document.querySelectorAll(".sage-card").forEach(cardEl => {
-        cardEl.classList.remove("guess-target");
-      });
-
-      console.log("GAME WON:", correctSage);
-      return;
-    }
-
-    card.classList.add("eliminated");
-    setGuessMode(false);
-
-    if (guessStatus) {
-      guessStatus.textContent = `${sage.person} was not the hidden sage. Keep asking questions.`;
-    }
-
-    console.log("WRONG FINAL GUESS:", {
-      guessed: sage,
-      correctSage
-    });
-  }
 
     function sageHasBackground(sage, background) {
       return String(sage.background || "")
@@ -1143,6 +1114,143 @@
       });
     }
 
+    async function loadAssignedCorrectSage() {
+      if (!assignmentId) return null;
+
+      const { data: assignment, error } = await supabaseClient
+        .from("assignments")
+        .select("id, title, activity_type, target_sage_person, status")
+        .eq("id", assignmentId)
+        .eq("status", "active")
+        .single();
+
+      if (error || !assignment) {
+        console.error("Assignment load error:", error);
+        throw new Error("Assigned Guess Who activity not found.");
+      }
+
+      currentAssignment = assignment;
+
+      const targetPerson = normalizeName(assignment.target_sage_person);
+
+      const assignedSage = allSages.find(sage =>
+        normalizeName(sage.person) === targetPerson
+      );
+
+      if (!assignedSage) {
+        throw new Error(`Assigned sage not found in game data: ${assignment.target_sage_person}`);
+      }
+
+      return assignedSage;
+    }
+
+    function pickBoardIncludingCorrectSage(sages, correct, count = 25) {
+      if (!correct) {
+        return pickRandomSages(sages, count);
+      }
+
+      const others = sages.filter(sage =>
+        normalizeName(sage.person) !== normalizeName(correct.person)
+      );
+
+      const pickedOthers = shuffleArray(others).slice(0, count - 1);
+
+      return shuffleArray([
+        correct,
+        ...pickedOthers
+      ]);
+    }
+
+    function linkToCorrectSageProfile() {
+      if (!correctSage) return;
+
+      const selectedPayload = encodeURIComponent(JSON.stringify(correctSage));
+
+      const profileParams = new URLSearchParams();
+      profileParams.set("selected", selectedPayload);
+      profileParams.set("courseModeActive", "false");
+
+      if (assignmentId) {
+        profileParams.set("assignment_id", assignmentId);
+      }
+
+      window.location.href = `discover.html?${profileParams.toString()}`;
+    }
+
+    function finishGame(winningCard = null) {
+      gameOver = true;
+      setGuessMode(false);
+
+      if (winningCard) {
+        winningCard.classList.add("selected");
+        winningCard.classList.remove("eliminated");
+      }
+
+      document.querySelectorAll(".sage-card").forEach(cardEl => {
+        cardEl.classList.remove("guess-target");
+
+        if (
+          correctSage &&
+          normalizeName(cardEl.dataset.person) === normalizeName(correctSage.person)
+        ) {
+          cardEl.classList.add("selected");
+          cardEl.classList.remove("eliminated");
+        }
+      });
+
+      if (guessBtn) {
+        guessBtn.disabled = true;
+        guessBtn.textContent = "Solved";
+        guessBtn.classList.remove("guess-mode-active");
+      }
+
+      if (profileBtn) {
+        profileBtn.classList.remove("hidden");
+      }
+    }
+
+    function handleFinalGuess(sage, card) {
+      if (!correctSage || gameOver) return;
+
+      const isCorrect =
+        normalizeName(sage.person) === normalizeName(correctSage.person);
+
+      const item = document.createElement("div");
+      item.className = "history-item";
+
+      item.innerHTML = `
+        Final guess: ${sage.person}
+        <div class="history-answer ${isCorrect ? "y" : "n"}">
+          ${isCorrect ? "Correct!" : "Wrong"}
+        </div>
+      `;
+
+      history.prepend(item);
+
+      if (isCorrect) {
+        if (guessStatus) {
+          guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
+        }
+
+        finishGame(card);
+
+        console.log("GAME WON:", correctSage);
+        return;
+      }
+
+      card.classList.add("eliminated");
+      setGuessMode(false);
+
+      if (guessStatus) {
+        guessStatus.textContent = `${sage.person} was not the hidden sage. Keep asking questions.`;
+      }
+
+      console.log("WRONG FINAL GUESS:", {
+        guessed: sage,
+        correctSage
+      });
+    }
+
     async function initializeGuessWho() {
       try {
         board.innerHTML = `
@@ -1151,20 +1259,63 @@
           </div>
         `;
 
-        const sagesFromDb = await loadGuessWhoSages(25);
-
-        boardSages = processGuessWhoSages(sagesFromDb);
-
-        if (boardSages.length < 25) {
-          throw new Error(`Only found ${boardSages.length} usable sages. Need at least 25.`);
+        if (profileBtn) {
+          profileBtn.classList.add("hidden");
         }
 
-        correctSage = pickRandomSage(boardSages);
+        gameOver = false;
+        guessMode = false;
+        history.innerHTML = "";
+
+        /*
+          This must load enough sages that the assigned sage can be found.
+          If your total Guess Who dataset is under 200, this is fine.
+          If you may have more than 200, increase this or query the assigned sage directly.
+        */
+        const sagesFromDb = await loadGuessWhoSages(251);
+
+        allSages = processGuessWhoSages(sagesFromDb);
+
+        if (allSages.length < 25) {
+          throw new Error(`Only found ${allSages.length} usable sages. Need at least 25.`);
+        }
+
+        const assignedCorrectSage = await loadAssignedCorrectSage();
+
+        correctSage = assignedCorrectSage || pickRandomSage(allSages);
+
+        if (!correctSage) {
+          throw new Error("Could not choose a correct sage.");
+        }
+
+        boardSages = pickBoardIncludingCorrectSage(allSages, correctSage, 25);
 
         renderBoard(boardSages);
 
         questionTxt.textContent = "Select a question type above.";
+        optionGrid.innerHTML = "";
         submitBtn.disabled = true;
+
+        if (guessBtn) {
+          guessBtn.disabled = false;
+          guessBtn.textContent = "Guess the Sage";
+          guessBtn.classList.remove("guess-mode-active");
+        }
+
+        if (guessStatus) {
+          guessStatus.textContent =
+            "Flip cards to eliminate them, or click “Guess the Sage” when you are ready.";
+        }
+
+        console.log("Guess Who initialized:", {
+          assignmentId,
+          assignedMode: Boolean(assignedCorrectSage),
+          correctSage,
+          boardCount: boardSages.length,
+          correctIsOnBoard: boardSages.some(sage =>
+            normalizeName(sage.person) === normalizeName(correctSage.person)
+          )
+        });
 
       } catch (error) {
         console.error("Failed to initialize Guess Who:", error);
@@ -1193,7 +1344,12 @@
       });
     }
 
+    if (profileBtn) {
+      profileBtn.addEventListener("click", linkToCorrectSageProfile);
+    }
+
     document.addEventListener("DOMContentLoaded", initializeGuessWho);
+    
     </script>
   </body>
   </html>

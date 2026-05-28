@@ -246,6 +246,30 @@
         <button class="modal-close" data-close="modal-assign-game">✕</button>
       </div>
 
+      <div class="assign-choice-wrap">
+        <label class="form-label">Choose activity</label>
+
+        <div class="assign-choice-grid">
+          <button
+            type="button"
+            class="cta-button assign-activity-btn active"
+            data-activity-type="mystery_sage"
+          >
+            🔎 SageSleuth
+            <span>Students guess the mystery sage from clues.</span>
+          </button>
+
+          <button
+            type="button"
+            class="cta-button assign-activity-btn"
+            data-activity-type="guess_who"
+          >
+            👤 Which Sage
+            <span>Students play Guess Who with this sage as the hidden answer.</span>
+          </button>
+        </div>
+      </div>
+
       <div class="field-group">
         <label class="field-label" for="sage-select">Mystery Sage</label>
         <select id="sage-select" class="teacher-select">

@@ -40,6 +40,7 @@ function avatarEl(name) {
 let teacherProfileId = null;
 let currentClassId = null;
 let lastStudents = [];
+let selectedAssignmentActivityType = 'mystery_sage';
 
 const classSelect = document.getElementById('class-global-select');
 const studentsTbody = document.getElementById('students-tbody');
@@ -62,6 +63,7 @@ async function initPage() {
   wireSubToggle();
   wireBackButtons();
   wireCreateStudent();
+  wireAssignmentActivityChoice();
   wireAssignSage();
   wireCreateClassButton();
 
@@ -103,6 +105,19 @@ function openModal(id) {
 
 function closeModal(id) {
   document.getElementById(id)?.classList.remove('open');
+}
+
+function wireAssignmentActivityChoice() {
+  document.querySelectorAll('.assign-activity-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.assign-activity-btn').forEach(b => {
+        b.classList.remove('active');
+      });
+
+      btn.classList.add('active');
+      selectedAssignmentActivityType = btn.dataset.activityType || 'mystery_sage';
+    });
+  });
 }
 
 function wireModals() {
@@ -516,7 +531,7 @@ async function loadAssignments(classId) {
 
   const { data: assignments, error } = await supabaseClient
     .from('assignments')
-    .select('id, title, target_sage_person, created_at')
+    .select('id, title, activity_type, target_sage_person, created_at')
     .eq('class_id', classId)
     .order('created_at', { ascending: false });
 
@@ -581,10 +596,15 @@ async function loadAssignments(classId) {
         })
       : '—';
 
+    const activityLabel =
+      a.activity_type === 'guess_who'
+        ? 'Which Sage'
+        : 'SageSleuth';
+
     const title =
-      a.title && a.target_sage_person
-        ? `${a.title} - ${a.target_sage_person}`
-        : a.title || a.target_sage_person || 'Mystery Sage';
+      a.target_sage_person
+        ? `${activityLabel} - ${a.target_sage_person}`
+        : a.title || activityLabel;
 
     return `
       <tr>
@@ -967,12 +987,18 @@ async function resetStudentPin(studentId, displayName) {
 /* Assign sage */
 
 
-
 function wireAssignSage() {
   document.getElementById('assign-sage-btn')?.addEventListener('click', async () => {
     const classId = currentClassId;
     const targetSagePerson = document.getElementById('sage-select')?.value;
     const resultEl = document.getElementById('assign-game-result');
+
+    const activityType = selectedAssignmentActivityType || 'mystery_sage';
+
+    const activityLabel =
+      activityType === 'guess_who'
+        ? 'Which Sage'
+        : 'SageSleuth';
 
     if (!classId) {
       resultEl.innerHTML = errorCard('No class selected', 'Please select a class from the top first.');
@@ -998,7 +1024,7 @@ function wireAssignSage() {
         body: JSON.stringify({
           classId,
           targetSagePerson,
-          activityType: 'mystery_sage'
+          activityType
         })
       });
 
@@ -1017,8 +1043,8 @@ function wireAssignSage() {
       resultEl.innerHTML = `
         <div class="result-card success">
           <div class="result-title">✅ Assignment created successfully</div>
-          <div class="result-row-pair"><span>Activity</span><b>${esc(assignment.title || 'Mystery Sage')}</b></div>
-          <div class="result-row-pair"><span>Mystery sage</span><b>${esc(targetSagePerson)}</b></div>
+          <div class="result-row-pair"><span>Activity</span><b>${esc(activityLabel)}</b></div>
+          <div class="result-row-pair"><span>Target sage</span><b>${esc(targetSagePerson)}</b></div>
         </div>
       `;
 

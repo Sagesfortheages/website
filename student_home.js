@@ -6,6 +6,22 @@ const studentStatusEl = document.getElementById('student-status');
 const startActivityBtn = document.getElementById('start-activity-btn');
 const logoutBtn = document.getElementById('logout-button');
 
+function getAssignmentUrl(assignment) {
+  if (assignment.activity_type === 'guess_who') {
+    return `guess_who.html?assignment_id=${encodeURIComponent(assignment.id)}`;
+  }
+
+  return `play.html?assignment_id=${encodeURIComponent(assignment.id)}`;
+}
+
+function getActivityLabel(assignment) {
+  if (assignment.activity_type === 'guess_who') {
+    return 'Which Sage';
+  }
+
+  return 'SageSleuth';
+}
+
 async function loadStudentHome() {
   try {
     const { data: { user }, error: userError } =
@@ -81,7 +97,12 @@ async function loadStudentHome() {
       return;
     }
 
-    studentStatusEl.textContent = `Today’s activity: ${assignment.title}`;
+    const activityLabel = getActivityLabel(assignment);
+    const targetText = assignment.target_sage_person
+      ? ` - ${assignment.target_sage_person}`
+      : '';
+
+    studentStatusEl.textContent = `Today’s activity: ${activityLabel}${targetText}`;
     startActivityBtn.disabled = false;
 
     const { data: existingProgress, error: progressError } = await supabaseClient
@@ -99,7 +120,7 @@ async function loadStudentHome() {
     startActivityBtn.textContent = 'Continue Activity';
 
     startActivityBtn.onclick = () => {
-      window.location.href = `play.html?assignment_id=${assignment.id}`;
+      window.location.href = getAssignmentUrl(assignment);
     };
   } else {
     startActivityBtn.textContent = 'Start Activity';
@@ -120,7 +141,7 @@ async function loadStudentHome() {
 
         if (error) throw error;
 
-        window.location.href = `play.html?assignment_id=${assignment.id}`;
+        window.location.href = getAssignmentUrl(assignment);
       } catch (err) {
         console.error('START ASSIGNMENT ERROR:', err);
         alert(err.message || 'Could not start assignment.');
