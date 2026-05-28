@@ -415,7 +415,7 @@ function pickBoardIncludingCorrectSage(sages, correct, count = 25) {
 function linkToCorrectSageProfile() {
     if (!correctSage) return;
 
-    linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId);
+    linkToProfile(correctSage, 'discover.html', assignmentId);
 }
 
 function finishGame(winningCard = null) {
@@ -548,15 +548,15 @@ async function initializeGuessWho() {
         "Flip cards to eliminate them, or click “Guess the Sage” when you are ready.";
     }
 
-    console.log("Guess Who initialized:", {
-        assignmentId,
-        assignedMode: Boolean(assignedCorrectSage),
-        correctSage,
-        boardCount: boardSages.length,
-        correctIsOnBoard: boardSages.some(sage =>
-        normalizeName(sage.person) === normalizeName(correctSage.person)
-        )
-    });
+    // console.log("Guess Who initialized:", {
+    //     assignmentId,
+    //     assignedMode: Boolean(assignedCorrectSage),
+    //     correctSage,
+    //     boardCount: boardSages.length,
+    //     correctIsOnBoard: boardSages.some(sage =>
+    //     normalizeName(sage.person) === normalizeName(correctSage.person)
+    //     )
+    // });
 
     } catch (error) {
     console.error("Failed to initialize Guess Who:", error);
