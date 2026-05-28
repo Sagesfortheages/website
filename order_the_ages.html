@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Order the Ages | Sages For The Ages</title>
+
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    body {
+      overflow: auto;
+    }
+
+    .order-page {
+      min-height: 100vh;
+      padding: 2vmin;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 1.5vmin;
+    }
+
+    .order-shell {
+      width: min(1200px, 96vw);
+      margin: 0 auto;
+    }
+
+    .order-header {
+      position: relative;
+      text-align: center;
+      padding: 1vmin 0 0.5vmin;
+    }
+
+    .order-header .header h1 {
+      font-size: clamp(42px, 7vmin, 82px);
+      line-height: 0.95;
+    }
+
+    .order-header .subtitle {
+      font-size: clamp(18px, 2.8vmin, 30px);
+      margin-top: 0.2vmin;
+    }
+
+    .top-actions {
+      position: absolute;
+      top: 1vmin;
+      right: 1vmin;
+      display: flex;
+      gap: 0.8vmin;
+      align-items: center;
+    }
+
+    .small-nav-btn {
+      appearance: none;
+      border: 1px solid var(--rule-strong);
+      background: rgba(255,248,230,0.84);
+      color: var(--ink);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(12px, 1.6vmin, 15px);
+      letter-spacing: 0.04em;
+      padding: 0.7vmin 1.2vmin;
+      cursor: pointer;
+      box-shadow: var(--shadow-tight);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .small-nav-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1vmin;
+      margin-top: 1vmin;
+    }
+
+    .status-pill {
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: rgba(255,248,230,0.72);
+      box-shadow: var(--shadow-tight);
+      padding: 0.55vmin 1.35vmin;
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(12px, 1.8vmin, 16px);
+      letter-spacing: 0.04em;
+    }
+
+    .status-pill strong {
+      font-family: var(--font-ui);
+      color: var(--classy-blue-ink);
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 330px);
+      gap: 1.4vmin;
+      align-items: stretch;
+    }
+
+    .game-panel {
+      padding: 1.6vmin;
+      min-height: 64vh;
+    }
+
+    .panel-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1.5vmin;
+      margin-bottom: 1vmin;
+    }
+
+    .section-title .rule {
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .section-title h2 {
+      font-family: var(--font-ui);
+      font-size: clamp(18px, 2.4vmin, 28px);
+      color: var(--heading-ink);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .timeline-card {
+      background: rgba(255,248,230,0.54);
+      border: 1px solid var(--rule-faint);
+      border-radius: var(--radius);
+      padding: 1.6vmin;
+      box-shadow: inset 0 1px 8px rgba(0,0,0,0.06);
+    }
+
+    .timeline-help {
+      text-align: center;
+      font-family: var(--font-display);
+      font-style: italic;
+      color: var(--ink-soft);
+      font-size: clamp(16px, 2.1vmin, 22px);
+      margin-bottom: 1.4vmin;
+    }
+
+    .timeline-track {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1vmin;
+      padding: 1.2vmin 0 0.8vmin;
+    }
+
+    .timeline-track::before {
+      content: "";
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 50%;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--rule-strong),
+        transparent
+      );
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    .drop-wrap {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 0.6vmin;
+      justify-items: center;
+    }
+
+    .drop-zone {
+      width: 100%;
+      min-height: 126px;
+      border: 2px dashed rgba(110,85,55,0.36);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75vmin;
+      transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .drop-zone.drag-over {
+      background: var(--accent-wash);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .drop-zone.empty::after {
+      content: "Drop here";
+      color: rgba(47,36,27,0.5);
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.6vmin, 15px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .slot-label {
+      font-family: var(--font-ui);
+      color: var(--ink-soft);
+      font-size: clamp(11px, 1.45vmin, 14px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tray {
+      margin-top: 1.5vmin;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(125px, 1fr));
+      gap: 1vmin;
+      min-height: 142px;
+      padding: 1vmin;
+      border: 1px solid var(--rule-faint);
+      border-radius: var(--radius);
+      background: rgba(245,230,211,0.42);
+    }
+
+    .sage-card {
+      position: relative;
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius-sm);
+      background:
+        radial-gradient(circle at 30% 10%, rgba(255,255,255,0.5), transparent 48%),
+        linear-gradient(to bottom, rgba(255,252,244,0.94), rgba(245,230,211,0.86));
+      box-shadow: var(--shadow-tight);
+      padding: 1vmin;
+      min-height: 116px;
+      cursor: grab;
+      user-select: none;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    .sage-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .sage-card:active {
+      cursor: grabbing;
+    }
+
+    .sage-card.dragging {
+      opacity: 0.42;
+      transform: scale(0.97);
+    }
+
+    .card-handle {
+      position: absolute;
+      top: 0.55vmin;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-ui);
+      color: rgba(90,74,58,0.55);
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .sage-name {
+      font-family: var(--font-display);
+      color: var(--title-ink);
+      font-size: clamp(19px, 2.2vmin, 26px);
+      line-height: 1.05;
+      margin-top: 1vmin;
+    }
+
+    .sage-years {
+      margin-top: 0.45vmin;
+      font-family: var(--font-ui);
+      color: var(--classy-blue-ink);
+      font-size: clamp(12px, 1.6vmin, 15px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .sage-tag {
+      margin-top: 0.55vmin;
+      font-size: clamp(12px, 1.55vmin, 15px);
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .sage-image {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--rule-strong);
+      box-shadow: var(--shadow-tight);
+      margin-top: 0.8vmin;
+      background: var(--paper);
+    }
+
+    .feedback-strip {
+      margin-top: 1.3vmin;
+      min-height: 52px;
+      border: 1px solid var(--rule-faint);
+      border-radius: var(--radius);
+      background: rgba(255,248,230,0.64);
+      display: flex;
+      align-items: center;
+      gap: 1vmin;
+      padding: 0.9vmin 1.2vmin;
+      color: var(--ink);
+      font-size: clamp(16px, 2vmin, 22px);
+      box-shadow: inset 0 1px 6px rgba(0,0,0,0.05);
+    }
+
+    .feedback-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-wash);
+      color: var(--accent);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .feedback-strip.good {
+      background: rgba(47,79,79,0.12);
+      border-color: rgba(47,79,79,0.25);
+    }
+
+    .feedback-strip.bad {
+      background: rgba(140,40,40,0.10);
+      border-color: rgba(140,40,40,0.22);
+    }
+
+    .side-panel {
+      padding: 1.4vmin;
+    }
+
+    .side-block {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 1.2vmin;
+      margin-bottom: 1.2vmin;
+      border-bottom: 1px solid var(--rule-faint);
+    }
+
+    .side-block:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .side-title {
+      font-family: var(--font-ui);
+      color: var(--heading-ink);
+      font-size: clamp(16px, 2.2vmin, 22px);
+      text-align: center;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.8vmin;
+    }
+
+    .instructions {
+      list-style: none;
+      display: grid;
+      gap: 0.8vmin;
+    }
+
+    .instructions li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 0.8vmin;
+      align-items: start;
+      color: var(--ink);
+      font-size: clamp(15px, 1.9vmin, 19px);
+      line-height: 1.25;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-wash);
+      color: var(--accent);
+      border: 1px solid rgba(47,79,79,0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .hint-box {
+      border: 1px solid rgba(47,79,79,0.22);
+      background: rgba(47,79,79,0.10);
+      border-radius: var(--radius-sm);
+      padding: 1vmin;
+      color: var(--ink);
+      font-size: clamp(15px, 1.9vmin, 19px);
+      line-height: 1.28;
+    }
+
+    .side-actions {
+      display: grid;
+      gap: 0.9vmin;
+    }
+
+    .side-actions .cta-button {
+      width: 100%;
+      min-width: 0;
+      min-height: 6.2vmin;
+      padding: 1.2vmin;
+      font-size: clamp(13px, 1.7vmin, 17px);
+    }
+
+    .plain-button {
+      width: 100%;
+      appearance: none;
+      border: 1px solid var(--rule-strong);
+      border-radius: calc(var(--radius) + 4px);
+      background: rgba(255,248,230,0.78);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 1.25vmin;
+      cursor: pointer;
+      box-shadow: var(--shadow-tight);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .plain-button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8vmin;
+    }
+
+    .score-box {
+      border: 1px solid var(--rule-faint);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.22);
+      padding: 0.9vmin;
+      text-align: center;
+    }
+
+    .score-value {
+      font-family: var(--font-ui);
+      color: var(--classy-blue-ink);
+      font-size: clamp(18px, 2.6vmin, 28px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-label {
+      margin-top: 0.35vmin;
+      font-size: clamp(12px, 1.55vmin, 15px);
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .correct {
+      border-color: rgba(47,79,79,0.55);
+      box-shadow:
+        0 0 0 3px rgba(47,79,79,0.10),
+        var(--shadow-tight);
+    }
+
+    .incorrect {
+      border-color: rgba(140,40,40,0.55);
+      box-shadow:
+        0 0 0 3px rgba(140,40,40,0.10),
+        var(--shadow-tight);
+    }
+
+    .shake {
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    .loading-card {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-family: var(--font-display);
+      font-style: italic;
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2.4vmin, 26px);
+      padding: 3vmin;
+    }
+
+    @media (max-width: 900px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .tray {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .timeline-track {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-track::before {
+        left: 50%;
+        right: auto;
+        top: 3%;
+        bottom: 3%;
+        width: 2px;
+        height: auto;
+        transform: translateX(-50%);
+      }
+
+      .drop-zone {
+        min-height: 96px;
+      }
+
+      .top-actions {
+        position: static;
+        justify-content: center;
+        margin-top: 1vmin;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .order-page {
+        padding: 2vmin 1.4vmin;
+      }
+
+      .tray {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title .rule {
+        display: none;
+      }
+
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="order-page">
+    <section class="order-shell order-header">
+      <div class="header">
+        <h1 class="gradient-text">Order the Ages</h1>
+        <div class="subtitle">Drag the sages into chronological order.</div>
+      </div>
+
+      <div class="top-actions" aria-label="Page navigation">
+        <button class="small-nav-btn" type="button" onclick="window.location.href='index.html'">Home</button>
+        <button class="small-nav-btn" type="button" onclick="window.location.href='play_select.html'">Play</button>
+        <button class="small-nav-btn" type="button" onclick="window.location.href='progress.html'">Progress</button>
+      </div>
+
+      <div class="status-row">
+        <div class="status-pill">Round <strong id="roundText">1</strong></div>
+        <div class="status-pill">Score: <strong id="scoreText">0</strong></div>
+        <div class="status-pill">Mode: <strong>Birth Year</strong></div>
+      </div>
+    </section>
+
+    <section class="order-shell game-layout">
+      <section class="panel game-panel" aria-label="Order the Ages game board">
+        <div class="panel-inner">
+          <div class="section-title">
+            <div class="rule"></div>
+            <h2>Sort by birth year</h2>
+            <div class="rule"></div>
+          </div>
+
+          <div class="timeline-card">
+            <p class="timeline-help">
+              Earliest sage on the left. Latest sage on the right.
+            </p>
+
+            <div id="timelineTrack" class="timeline-track" aria-label="Timeline drop zones">
+              <div class="drop-wrap">
+                <div class="drop-zone empty" data-slot="0"></div>
+                <div class="slot-label">1st</div>
+              </div>
+
+              <div class="drop-wrap">
+                <div class="drop-zone empty" data-slot="1"></div>
+                <div class="slot-label">2nd</div>
+              </div>
+
+              <div class="drop-wrap">
+                <div class="drop-zone empty" data-slot="2"></div>
+                <div class="slot-label">3rd</div>
+              </div>
+
+              <div class="drop-wrap">
+                <div class="drop-zone empty" data-slot="3"></div>
+                <div class="slot-label">4th</div>
+              </div>
+
+              <div class="drop-wrap">
+                <div class="drop-zone empty" data-slot="4"></div>
+                <div class="slot-label">5th</div>
+              </div>
+            </div>
+
+            <div id="cardTray" class="tray" aria-label="Sages to place">
+              <div class="loading-card">Loading sages...</div>
+            </div>
+          </div>
+
+          <div id="feedback" class="feedback-strip">
+            <span class="feedback-icon">?</span>
+            <span>Loading your first round...</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel side-panel" aria-label="Game instructions and controls">
+        <div class="panel-inner">
+          <div class="side-block">
+            <h2 class="side-title">How to Play</h2>
+            <ol class="instructions">
+              <li>
+                <span class="step-num">1</span>
+                <span>Drag each sage onto the parchment timeline.</span>
+              </li>
+              <li>
+                <span class="step-num">2</span>
+                <span>Arrange them from earliest birth year to latest.</span>
+              </li>
+              <li>
+                <span class="step-num">3</span>
+                <span>Submit your order and learn from the correction.</span>
+              </li>
+            </ol>
+          </div>
+
+          <div class="side-block">
+            <h2 class="side-title">Historical Hint</h2>
+            <div id="hintBox" class="hint-box">
+              Loading hint...
+            </div>
+          </div>
+
+          <div class="side-block">
+            <h2 class="side-title">Round Stats</h2>
+            <div class="score-grid">
+              <div class="score-box">
+                <div id="correctText" class="score-value">0</div>
+                <div class="score-label">Correct</div>
+              </div>
+              <div class="score-box">
+                <div id="attemptText" class="score-value">0</div>
+                <div class="score-label">Attempts</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-block">
+            <div class="side-actions">
+              <button id="checkButton" class="cta-button" type="button">
+                Check Order
+              </button>
+
+              <button id="hintButton" class="plain-button" type="button">
+                Give Hint
+              </button>
+
+              <button id="resetButton" class="plain-button" type="button">
+                Reset Round
+              </button>
+
+              <button id="newRoundButton" class="plain-button" type="button">
+                New Round
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabaseClient } from './supabase/supabaseClient.js';
+
+    const ROUND_SIZE = 5;
+
+    /*
+      Adjust this if you want only easier sages in the first version.
+
+      Examples:
+      const MAX_DIFFICULTY = 3;
+      const MAX_DIFFICULTY = 5;
+      const MAX_DIFFICULTY = null;
+    */
+    const MAX_DIFFICULTY = 5;
+
+    const state = {
+      allSages: [],
+      currentRoundSages: [],
+      roundNumber: 1,
+      score: 0,
+      attempts: 0,
+      draggedId: null,
+      selectedForTap: null
+    };
+
+    const tray = document.getElementById("cardTray");
+    const dropZones = Array.from(document.querySelectorAll(".drop-zone"));
+    const feedback = document.getElementById("feedback");
+
+    const scoreText = document.getElementById("scoreText");
+    const roundText = document.getElementById("roundText");
+    const correctText = document.getElementById("correctText");
+    const attemptText = document.getElementById("attemptText");
+    const hintBox = document.getElementById("hintBox");
+
+    const checkButton = document.getElementById("checkButton");
+    const resetButton = document.getElementById("resetButton");
+    const hintButton = document.getElementById("hintButton");
+    const newRoundButton = document.getElementById("newRoundButton");
+
+    function getSageImageUrl(picture) {
+      if (!picture) {
+        return "";
+      }
+
+      const imageToUse = `sages/${picture}`;
+
+      const { data } = supabaseClient.storage
+        .from('public_images')
+        .getPublicUrl(`${imageToUse}.webp`);
+
+      return data?.publicUrl || "";
+    }
+
+    function normalizeYear(value) {
+      if (value === null || value === undefined || value === "") {
+        return null;
+      }
+
+      const num = Number(value);
+
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function formatYear(year) {
+      if (year === null || year === undefined) {
+        return "?";
+      }
+
+      if (year < 0) {
+        return `${Math.abs(year)} BCE`;
+      }
+
+      return String(year);
+    }
+
+
+    function normalizeSage(row) {
+        const birth = normalizeYear(row.birth);
+        const passing = normalizeYear(row.passing);
+
+        return {
+            id: String(row.person)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, ""),
+            person: row.person,
+            birth,
+            passing,
+            years: `${formatYear(birth)}–${formatYear(passing)}`,
+            background: row.background || "",
+            difficulty: row.difficulty ?? null,
+            picture: row.picture || "",
+            imageUrl: getSageImageUrl(row.picture)
+        };
+        }
+
+    async function loadRealSages() {
+      /*
+        If your columns differ, adjust this select.
+
+        Common columns from your project:
+        person, birth, passing, background, expertise, difficulty, picture
+      */
+      let query = supabaseClient
+        .from('sage')
+        .select('person, birth, passing, background, difficulty, picture')
+        .not('person', 'is', null)
+        .not('birth', 'is', null)
+        .not('passing', 'is', null);
+
+      if (MAX_DIFFICULTY !== null) {
+        query = query.lte('difficulty', MAX_DIFFICULTY);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error loading sages:", error);
+        throw error;
+      }
+
+      const sages = (data || [])
+        .map(normalizeSage)
+        .filter(sage => {
+          return sage.person &&
+            Number.isFinite(sage.birth) &&
+            Number.isFinite(sage.passing);
+        });
+
+      if (sages.length < ROUND_SIZE) {
+        throw new Error(`Need at least ${ROUND_SIZE} sages with birth and passing years.`);
+      }
+
+      return sages;
+    }
+
+    function shuffle(items) {
+      const copy = [...items];
+
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+      }
+
+      return copy;
+    }
+
+    function sampleRoundSages() {
+      const shuffled = shuffle(state.allSages);
+
+      /*
+        This tries to avoid rounds that are impossible/annoying because
+        multiple sages have the exact same birth year.
+      */
+      for (let i = 0; i < 30; i++) {
+        const candidate = shuffle(state.allSages).slice(0, ROUND_SIZE);
+        const birthYears = candidate.map(sage => sage.birth);
+        const uniqueBirthYears = new Set(birthYears);
+
+        if (uniqueBirthYears.size === ROUND_SIZE) {
+          return candidate;
+        }
+      }
+
+      return shuffled.slice(0, ROUND_SIZE);
+    }
+
+    function getCorrectOrder() {
+      return [...state.currentRoundSages]
+        .sort((a, b) => a.birth - b.birth)
+        .map(sage => sage.id);
+    }
+
+    function createCard(sage) {
+      const card = document.createElement("article");
+
+      card.className = "sage-card";
+      card.draggable = true;
+      card.dataset.id = sage.id;
+      card.dataset.birth = sage.birth;
+
+      const tag = sage.background || "Sage";
+
+      card.innerHTML = `
+        <div class="card-handle">•••</div>
+        ${sage.imageUrl ? `<img class="sage-image" src="${sage.imageUrl}" alt="${sage.person}" />` : ""}
+        <div class="sage-name">${sage.person}</div>
+        <div class="sage-years">${sage.years}</div>
+        <div class="sage-tag">${tag}</div>
+      `;
+
+      card.addEventListener("dragstart", handleDragStart);
+      card.addEventListener("dragend", handleDragEnd);
+      card.addEventListener("click", handleCardTap);
+
+      return card;
+    }
+
+    function renderRound() {
+      const mixedSages = shuffle(state.currentRoundSages);
+
+      tray.innerHTML = "";
+
+      dropZones.forEach(zone => {
+        zone.innerHTML = "";
+        zone.classList.add("empty");
+        zone.classList.remove("drag-over");
+      });
+
+      mixedSages.forEach(sage => {
+        tray.appendChild(createCard(sage));
+      });
+
+      roundText.textContent = state.roundNumber;
+      attemptText.textContent = state.attempts;
+      correctText.textContent = "0";
+
+      hintBox.textContent = buildRoundHint();
+      setFeedback("?", "Place all five sages, then check your order.", "");
+    }
+
+    function buildRoundHint() {
+      const sorted = [...state.currentRoundSages].sort((a, b) => a.birth - b.birth);
+      const earliest = sorted[0];
+      const latest = sorted[sorted.length - 1];
+
+      const backgrounds = state.currentRoundSages
+        .map(sage => sage.background)
+        .filter(Boolean);
+
+      const uniqueBackgrounds = [...new Set(backgrounds)];
+
+      if (uniqueBackgrounds.length >= 2) {
+        return `This round includes sages from ${uniqueBackgrounds.slice(0, 2).join(" and ")} backgrounds.`;
+      }
+
+      return `The earliest sage in this round was born before ${latest.person}.`;
+    }
+
+    function handleDragStart(event) {
+      state.draggedId = event.currentTarget.dataset.id;
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.setData("text/plain", state.draggedId);
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function handleDragEnd(event) {
+      event.currentTarget.classList.remove("dragging");
+      state.draggedId = null;
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add("drag-over");
+    }
+
+    function leaveDrop(event) {
+      event.currentTarget.classList.remove("drag-over");
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+
+      const zone = event.currentTarget;
+      zone.classList.remove("drag-over");
+
+      const id = event.dataTransfer.getData("text/plain") || state.draggedId;
+      const card = document.querySelector(`.sage-card[data-id="${id}"]`);
+
+      if (!card) {
+        return;
+      }
+
+      placeCard(card, zone);
+    }
+
+    function placeCard(card, zone) {
+      const existingCard = zone.querySelector(".sage-card");
+
+      if (existingCard) {
+        tray.appendChild(existingCard);
+      }
+
+      zone.innerHTML = "";
+      zone.appendChild(card);
+      zone.classList.remove("empty");
+
+      clearJudgement();
+      setFeedback("↔", "Keep arranging the sages. Then check your order.", "");
+    }
+
+    function handleCardTap(event) {
+      const card = event.currentTarget;
+
+      if (!state.selectedForTap) {
+        state.selectedForTap = card;
+        card.classList.add("correct");
+        setFeedback("↧", "Now tap a timeline slot to place this sage.", "");
+        return;
+      }
+
+      if (state.selectedForTap === card) {
+        card.classList.remove("correct");
+        state.selectedForTap = null;
+        setFeedback("?", "Selection cleared. Choose a sage to place.", "");
+      }
+    }
+
+    function handleZoneTap(event) {
+      const zone = event.currentTarget;
+
+      if (!state.selectedForTap) {
+        const cardInZone = zone.querySelector(".sage-card");
+
+        if (cardInZone) {
+          tray.appendChild(cardInZone);
+          zone.innerHTML = "";
+          zone.classList.add("empty");
+          clearJudgement();
+          setFeedback("↩", "Returned that sage to the tray.", "");
+        }
+
+        return;
+      }
+
+      state.selectedForTap.classList.remove("correct");
+      placeCard(state.selectedForTap, zone);
+      state.selectedForTap = null;
+    }
+
+    function clearJudgement() {
+      document.querySelectorAll(".sage-card").forEach(card => {
+        card.classList.remove("correct", "incorrect", "shake");
+      });
+    }
+
+    function getPlacedCards() {
+      return dropZones.map(zone => zone.querySelector(".sage-card"));
+    }
+
+    function checkOrder() {
+      const placedCards = getPlacedCards();
+
+      if (placedCards.some(card => !card)) {
+        setFeedback("!", "Place all five sages before checking your answer.", "bad");
+        return;
+      }
+
+      state.attempts += 1;
+      attemptText.textContent = state.attempts;
+
+      const correctOrder = getCorrectOrder();
+
+      let correctCount = 0;
+
+      placedCards.forEach((card, index) => {
+        const isCorrect = card.dataset.id === correctOrder[index];
+
+        card.classList.toggle("correct", isCorrect);
+        card.classList.toggle("incorrect", !isCorrect);
+
+        if (!isCorrect) {
+          card.classList.add("shake");
+        } else {
+          correctCount += 1;
+        }
+      });
+
+      correctText.textContent = correctCount;
+
+      if (correctCount === placedCards.length) {
+        const points = Math.max(40, 120 - ((state.attempts - 1) * 20));
+
+        state.score += points;
+        scoreText.textContent = state.score;
+
+        setFeedback(
+          "✓",
+          `Perfect order. You earned ${points} points.`,
+          "good"
+        );
+      } else {
+        const orderedNames = [...state.currentRoundSages]
+          .sort((a, b) => a.birth - b.birth)
+          .map(sage => sage.person)
+          .join(" → ");
+
+        setFeedback(
+          "↻",
+          `${correctCount} out of 5 are correct. Correct order: ${orderedNames}`,
+          "bad"
+        );
+      }
+    }
+
+    function resetRound() {
+      state.selectedForTap = null;
+      state.attempts = 0;
+      renderRound();
+    }
+
+    function showHint() {
+      const sorted = [...state.currentRoundSages].sort((a, b) => a.birth - b.birth);
+      const earliest = sorted[0];
+      const latest = sorted[sorted.length - 1];
+
+      setFeedback(
+        "✦",
+        `Hint: ${earliest.person} was born in ${formatYear(earliest.birth)}. ${latest.person} was born in ${formatYear(latest.birth)}.`,
+        ""
+      );
+    }
+
+    function newRound() {
+      state.currentRoundSages = sampleRoundSages();
+      state.roundNumber += 1;
+      state.attempts = 0;
+      state.selectedForTap = null;
+      renderRound();
+    }
+
+    function setFeedback(icon, message, type) {
+      feedback.classList.remove("good", "bad");
+
+      if (type) {
+        feedback.classList.add(type);
+      }
+
+      feedback.innerHTML = `
+        <span class="feedback-icon">${icon}</span>
+        <span>${message}</span>
+      `;
+    }
+
+    function setupDropZones() {
+      dropZones.forEach(zone => {
+        zone.addEventListener("dragover", allowDrop);
+        zone.addEventListener("dragleave", leaveDrop);
+        zone.addEventListener("drop", handleDrop);
+        zone.addEventListener("click", handleZoneTap);
+      });
+
+      tray.addEventListener("dragover", event => {
+        event.preventDefault();
+      });
+
+      tray.addEventListener("drop", event => {
+        event.preventDefault();
+
+        const id = event.dataTransfer.getData("text/plain") || state.draggedId;
+        const card = document.querySelector(`.sage-card[data-id="${id}"]`);
+
+        if (card) {
+          tray.appendChild(card);
+
+          dropZones.forEach(zone => {
+            if (!zone.querySelector(".sage-card")) {
+              zone.classList.add("empty");
+            }
+          });
+
+          clearJudgement();
+          setFeedback("↩", "Returned the sage to the tray.", "");
+        }
+      });
+    }
+
+    async function init() {
+      setupDropZones();
+
+      try {
+        setFeedback("…", "Loading real sages from your database...", "");
+
+        state.allSages = await loadRealSages();
+        state.currentRoundSages = sampleRoundSages();
+
+        renderRound();
+      } catch (error) {
+        console.error(error);
+
+        tray.innerHTML = `
+          <div class="loading-card">
+            Could not load sages. Check the console and your Supabase column names.
+          </div>
+        `;
+
+        hintBox.textContent = "Data could not be loaded.";
+        setFeedback("!", error.message || "Could not load sages.", "bad");
+      }
+    }
+
+    checkButton.addEventListener("click", checkOrder);
+    resetButton.addEventListener("click", resetRound);
+    hintButton.addEventListener("click", showHint);
+    newRoundButton.addEventListener("click", newRound);
+
+    init();
+  </script>
+</body>
+</html>

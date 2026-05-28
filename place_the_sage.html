@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Place the Sage</title>
+
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+
+  <link rel="icon" href="icon3.png" type="image/x-icon" />
+  <link rel="shortcut icon" href="icon3.png" type="image/x-icon" />
+  <link rel="stylesheet" href="all_styles.css" />
+
+  <style>
+    /* ─── page shell ───────────────────────────────── */
+    body { overflow: hidden; }
+
+    .place-page {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      padding: 1.5vmin;
+      gap: 1vmin;
+    }
+
+    /* ─── header ────────────────────────────────────── */
+    .place-header {
+      position: relative;
+      margin: var(--header-margin);
+      min-height: var(--header-height);
+      display: grid;
+      align-items: center;
+      padding: 0 11vmin;
+    }
+
+    .place-header .header { text-align: center; }
+    .place-header .subtitle {
+      max-width: 70ch;
+      margin: 0 auto;
+    }
+
+    /* Subtle shimmer on the gradient title */
+    .place-header h1 .gradient-text {
+      background-size: 200% auto;
+      animation: shimmer 4s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    #home-button { left: 1vmin; }
+    #info-button { right: 1vmin; }
+
+    /* ─── status line ───────────────────────────────── */
+    .status-line {
+      margin: 0.55vmin auto 0;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.4vmin;
+      color: var(--ink-soft);
+      font-family: var(--font-ui);
+      font-size: clamp(11px, 1.5vmin, 15px);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      /* pill container */
+      background: rgba(255,255,255,0.35);
+      border: 1px solid var(--rule);
+      border-radius: 100px;
+      padding: 0.35vmin 1.4vmin;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 4px rgba(47,36,27,0.08);
+    }
+
+    .status-line strong {
+      color: var(--heading-ink);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      /* animate score changes */
+      display: inline-block;
+      transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), color 0.22s ease;
+    }
+
+    .status-line strong.pop {
+      transform: scale(1.35);
+      color: var(--accent);
+    }
+
+    .status-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--rule-strong);
+      opacity: 0.6;
+    }
+
+    /* ─── main layout ───────────────────────────────── */
+    .place-layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(260px, 24vw) minmax(0, 1fr);
+      gap: 1vmin;
+      align-items: stretch;
+    }
+
+    .place-panel { min-height: 0; }
+
+    .place-panel .panel-content {
+      position: relative;
+      z-index: 1;
+      padding: 1.1vmin;
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* ─── sidebar ───────────────────────────────────── */
+    .sage-sidebar .panel-content {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: 0.9vmin;
+    }
+
+    .panel-note {
+      color: var(--ink-soft);
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(12px, 1.6vmin, 17px);
+      line-height: 1.2;
+      text-align: center;
+      margin-top: 0.4vmin;
+      opacity: 0.82;
+    }
+
+    /* improved search input */
+    .search-input {
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .search-input:focus {
+      background: rgba(255,255,255,0.55);
+      box-shadow: 0 0 0 3px rgba(47,79,79,0.12), var(--shadow-tight);
+    }
+
+    /* ─── sage list & cards ─────────────────────────── */
+    .sage-list {
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      align-content: start;
+      gap: 0.65vmin;
+      padding: 0.25vmin 0.3vmin 0.25vmin 0;
+      /* subtle inner scroll fade */
+      mask-image: linear-gradient(to bottom, transparent 0, black 2%, black 94%, transparent 100%);
+    }
+
+    /* staggered card entry */
+    .sage-card {
+      appearance: none;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.24);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 1px 3px rgba(47,36,27,0.06);
+      color: var(--ink);
+      cursor: grab;
+      display: grid;
+      grid-template-columns: 4.6vmin minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.85vmin;
+      padding: 0.7vmin 0.85vmin;
+      text-align: left;
+      user-select: none;
+      touch-action: none;
+      transition:
+        background 0.16s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        opacity 0.2s ease,
+        transform 0.16s ease;
+      width: 100%;
+      animation: cardIn 0.28s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .sage-card:hover {
+      background: rgba(255,255,255,0.42);
+      border-color: rgba(47,79,79,0.28);
+      box-shadow: var(--shadow-tight), 0 2px 8px rgba(47,36,27,0.10);
+      transform: translateX(2px);
+    }
+
+    .sage-card:active { cursor: grabbing; }
+
+    .sage-card.selected {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.50);
+      box-shadow: var(--shadow-tight), 0 0 0 2.5px rgba(47,79,79,0.18), 0 3px 12px rgba(47,36,27,0.12);
+      transform: translateX(3px);
+    }
+
+    .sage-card.placed {
+      opacity: 0.52;
+      filter: grayscale(0.3);
+    }
+
+    /* avatar ring glow on selected */
+    .sage-card.selected .sage-thumb {
+      box-shadow: 0 0 0 2px var(--accent), var(--shadow-tight);
+    }
+
+    .sage-thumb {
+      width: 4.6vmin;
+      height: 4.6vmin;
+      min-width: 38px;
+      min-height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--rule-strong);
+      background:
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,0.45), transparent 36%),
+        linear-gradient(135deg, rgba(245,230,211,0.92), rgba(200,168,132,0.72));
+      box-shadow: var(--shadow-tight);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: var(--heading-ink);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(13px, 1.7vmin, 18px);
+      transition: box-shadow 0.18s ease;
+    }
+
+    .sage-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    .sage-name {
+      min-width: 0;
+      color: var(--heading-ink);
+      font-family: var(--font-display);
+      font-size: clamp(17px, 2.2vmin, 25px);
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sage-meta {
+      margin-top: 0.15vmin;
+      color: var(--ink-soft);
+      font-size: clamp(11px, 1.4vmin, 14px);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.82;
+    }
+
+    .sage-grip {
+      color: var(--ink-soft);
+      opacity: 0.35;
+      font-size: clamp(14px, 1.8vmin, 19px);
+      letter-spacing: -0.35em;
+      padding-right: 0.25em;
+      transition: opacity 0.14s ease;
+    }
+
+    .sage-card:hover .sage-grip { opacity: 0.65; }
+
+    /* ─── map panel ─────────────────────────────────── */
+    .map-panel .panel-content {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 0.9vmin;
+    }
+
+    .map-heading-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      column-gap: 1.4vmin;
+      color: var(--heading-ink);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      font-size: clamp(11px, 1.5vmin, 15px);
+      text-align: center;
+      opacity: 0.75;
+    }
+
+    .map-heading-row::before,
+    .map-heading-row::after {
+      content: "";
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--rule-strong), transparent);
+    }
+
+    /* ─── map container ─────────────────────────────── */
+    .map-wrap {
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius);
+      background: var(--paper);
+      /* layered shadow for depth */
+      box-shadow:
+        var(--shadow-soft),
+        0 0 0 1px rgba(255,248,230,0.4) inset,
+        0 8px 32px rgba(47,36,27,0.14);
+    }
+
+    /* subtle decorative corner accents */
+    .map-wrap::before,
+    .map-wrap::after {
+      content: "";
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      width: 28px;
+      height: 28px;
+      opacity: 0.35;
+    }
+
+    .map-wrap::before {
+      top: 8px;
+      left: 8px;
+      border-top: 2px solid var(--rule-strong);
+      border-left: 2px solid var(--rule-strong);
+      border-radius: 3px 0 0 0;
+    }
+
+    .map-wrap::after {
+      bottom: 8px;
+      right: 8px;
+      border-bottom: 2px solid var(--rule-strong);
+      border-right: 2px solid var(--rule-strong);
+      border-radius: 0 0 3px 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 50vh;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .mapboxgl-ctrl-logo,
+    .mapboxgl-ctrl-attrib { opacity: 0.5; }
+
+    .map-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 2vmin;
+      background: rgba(47,36,27,0.52);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      color: var(--paper);
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: clamp(18px, 2.4vmin, 28px);
+      pointer-events: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .map-overlay.hidden { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* ─── map markers ───────────────────────────────── */
+    .place-marker {
+      --marker-state: var(--accent);
+      display: grid;
+      justify-items: center;
+      gap: 0.32vmin;
+      transform: translateY(-8px);
+      cursor: pointer;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.22));
+      transition: filter 0.18s ease;
+    }
+
+    .place-marker:hover {
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+    }
+
+    .place-marker.over .drop-ring {
+      transform: scale(1.15);
+      border-color: var(--accent);
+      background: rgba(255,248,230,0.92);
+      box-shadow: 0 0 0 4px rgba(47,79,79,0.18), inset 0 1px 8px rgba(47,36,27,0.12);
+    }
+
+    .place-marker.correct { --marker-state: var(--correct-color, #3a7d44); }
+    .place-marker.wrong   { --marker-state: var(--incorrect-color, #b84040); }
+
+    .pin-dot {
+      width: 2.4vmin;
+      height: 2.4vmin;
+      min-width: 22px;
+      min-height: 22px;
+      border-radius: 50%;
+      background: var(--marker-state);
+      border: 1px solid rgba(0,0,0,0.22);
+      box-shadow: inset 0 0.25vmin 0.55vmin rgba(255,255,255,0.22), 0 0.35vmin 1vmin rgba(0,0,0,0.3);
+      display: grid;
+      place-items: center;
+      transition: background 0.22s ease;
+    }
+
+    .pin-dot::after {
+      content: "";
+      width: 38%;
+      height: 38%;
+      border-radius: 50%;
+      background: rgba(255,248,230,0.88);
+    }
+
+    .place-label {
+      min-width: 10vmin;
+      max-width: 18vmin;
+      padding: 0.35vmin 0.75vmin;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-sm);
+      background: rgba(255,248,230,0.92);
+      box-shadow: 0 1px 6px rgba(47,36,27,0.14), inset 0 1px 0 rgba(255,255,255,0.6);
+      color: var(--heading-ink);
+      font-family: var(--font-display);
+      font-size: clamp(12px, 1.5vmin, 16px);
+      font-weight: 600;
+      line-height: 1.05;
+      text-align: center;
+      pointer-events: none;
+      letter-spacing: 0.01em;
+    }
+
+    .place-label span {
+      display: block;
+      margin-top: 0.12vmin;
+      color: var(--ink-soft);
+      font-family: var(--font-body);
+      font-size: clamp(9px, 1.05vmin, 12px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .drop-ring {
+      width: 5.2vmin;
+      height: 5.2vmin;
+      min-width: 42px;
+      min-height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 2px dashed rgba(70,50,30,0.38);
+      background: rgba(255,255,255,0.28);
+      box-shadow: inset 0 1px 8px rgba(47,36,27,0.12);
+      transition: transform 0.16s cubic-bezier(.34,1.56,.64,1), background 0.18s ease, border-color 0.18s ease, box-shadow 0.22s ease;
+      pointer-events: auto;
+    }
+
+    .place-marker.correct .drop-ring,
+    .place-marker.wrong .drop-ring {
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--marker-state);
+      background: rgba(255,248,230,0.92);
+    }
+
+    /* pop-in animation for correct placement */
+    .place-marker.correct .drop-ring {
+      animation: correctPop 0.36s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    @keyframes correctPop {
+      0%  { transform: scale(0.7); }
+      60% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
+    .placed-chip {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 0.3vmin;
+      border-radius: 50%;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      color: var(--heading-ink);
+      box-shadow: var(--shadow-tight);
+      font-family: var(--font-ui);
+      font-size: clamp(7px, 0.95vmin, 10px);
+      font-weight: 700;
+      line-height: 1.05;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    /* ─── board bottom bar ──────────────────────────── */
+    .board-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1vmin;
+      align-items: center;
+      border-top: 1px solid var(--rule-faint);
+      padding-top: 0.9vmin;
+    }
+
+    /* ─── feedback card ─────────────────────────────── */
+    .feedback-card {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 0.85vmin;
+    }
+
+    .feedback-seal {
+      width: 5.2vmin;
+      height: 5.2vmin;
+      min-width: 42px;
+      min-height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--rule-strong);
+      background:
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,0.55), transparent 40%),
+        linear-gradient(135deg, rgba(245,230,211,0.96), rgba(200,168,132,0.78));
+      color: var(--heading-ink);
+      box-shadow: var(--shadow-tight), 0 2px 8px rgba(47,36,27,0.1);
+      font-family: var(--font-ui);
+      font-size: clamp(18px, 2.3vmin, 25px);
+      font-weight: 700;
+      transition: transform 0.22s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    /* animate seal on feedback updates */
+    .feedback-seal.bounce {
+      animation: sealBounce 0.38s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    @keyframes sealBounce {
+      0%  { transform: scale(0.8) rotate(-8deg); }
+      60% { transform: scale(1.15) rotate(4deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    .feedback-title {
+      color: var(--heading-ink);
+      font-family: var(--font-display);
+      font-size: clamp(17px, 2.2vmin, 25px);
+      line-height: 1;
+      margin-bottom: 0.15vmin;
+      transition: opacity 0.16s ease;
+    }
+
+    .feedback-text {
+      color: var(--ink-soft);
+      font-size: clamp(12px, 1.55vmin, 16px);
+      line-height: 1.18;
+      transition: opacity 0.16s ease;
+    }
+
+    /* ─── action buttons ────────────────────────────── */
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.65vmin;
+      flex-wrap: wrap;
+    }
+
+    .action-row .cta-button {
+      min-width: 10vmin;
+      min-height: 4.8vmin;
+      padding: 0.9vmin 1.5vmin;
+      font-size: clamp(11px, 1.45vmin, 14px);
+      letter-spacing: 0.05em;
+      transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.14s ease,
+        opacity 0.18s ease;
+    }
+
+    .action-row .cta-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(47,36,27,0.18);
+    }
+
+    .action-row .cta-button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    /* ─── drag ghost ────────────────────────────────── */
+    .drag-ghost {
+      position: fixed;
+      z-index: 10000080;
+      width: min(220px, 42vw);
+      pointer-events: none;
+      transform: translate(-50%, -50%) rotate(2deg);
+      opacity: 0.96;
+      filter: drop-shadow(0 1.5vmin 3vmin rgba(0,0,0,0.32));
+      transition: transform 0.08s ease; /* slight lag for realism */
+    }
+
+    .drag-ghost .sage-card {
+      cursor: grabbing;
+      background: rgba(255,248,230,0.97);
+      box-shadow: var(--shadow-soft), 0 8px 28px rgba(47,36,27,0.2);
+      border-color: var(--accent);
+    }
+
+    /* ─── popup toast ───────────────────────────────── */
+    #popup {
+      position: fixed;
+      left: 50%;
+      bottom: 4vh;
+      transform: translate(-50%, 1.5vmin) scale(0.92);
+      transition: transform 0.24s cubic-bezier(.34,1.56,.64,1), opacity 0.24s ease;
+      opacity: 0;
+    }
+
+    #popup.visible {
+      transform: translate(-50%, 0) scale(1);
+      opacity: 1;
+    }
+
+    /* enhanced popup pill */
+    #popup .popup-message {
+      font-family: var(--font-ui);
+      font-size: clamp(13px, 1.7vmin, 17px);
+      letter-spacing: 0.04em;
+      padding: 0.8vmin 2vmin;
+      border-radius: 100px;
+      background: rgba(47,36,27,0.9);
+      color: rgba(255,248,230,0.96);
+      border: 1px solid rgba(255,248,230,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* ─── responsive ────────────────────────────────── */
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+
+      .place-page {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .place-header {
+        padding: 9vmin 1vmin 1.2vmin;
+      }
+
+      #home-button,
+      #info-button { top: 1vmin; }
+
+      .place-layout { grid-template-columns: 1fr; }
+      #map { min-height: 58vh; }
+      .board-bottom { grid-template-columns: 1fr; }
+      .action-row { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="place-page">
+    <section class="header-section place-header">
+      <button class="modern-button" id="home-button" type="button" onclick="window.location.href='index.html'" aria-label="Home">🏠</button>
+      <button class="modern-button" id="info-button" type="button" aria-label="Info">ℹ️</button>
+
+      <div class="header">
+        <h1><span class="gradient-text">Place the Sage</span></h1>
+        <p class="subtitle">Drag each sage to the real city marker where he belongs.</p>
+        <div class="status-line" aria-live="polite">
+          <span>Score <strong id="score-value">0</strong></span>
+          <span class="status-dot"></span>
+          <span>Placed <strong><span id="placed-count">0</span>/<span id="total-count">5</span></strong></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="place-layout">
+      <aside class="panel place-panel sage-sidebar">
+        <div class="panel-content">
+          <div>
+            <h2 class="panel-heading">Sages to Place</h2>
+            <div class="panel-note" id="sidebar-note">Loading real sage data…</div>
+          </div>
+
+          <input class="search-input" id="sage-search" type="text" placeholder="Search sages…" />
+          <div class="sage-list" id="sage-list"></div>
+
+          <div class="panel-note" id="round-note">Drop onto the marker circle, or click a sage and then a marker.</div>
+        </div>
+      </aside>
+
+      <section class="panel place-panel map-panel">
+        <div class="panel-content">
+          <div class="map-heading-row">Real Map · Real Coordinates</div>
+
+          <div class="map-wrap">
+            <div id="map"></div>
+            <div class="map-overlay" id="map-overlay">Loading map and locations…</div>
+          </div>
+
+          <div class="board-bottom">
+            <div class="feedback-card">
+              <div class="feedback-seal" id="feedback-seal">✦</div>
+              <div>
+                <div class="feedback-title" id="feedback-title">Loading…</div>
+                <div class="feedback-text" id="feedback-text">Getting a playable set from Supabase.</div>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="cta-button" id="hint-button" type="button">Hint</button>
+              <button class="cta-button disabled" id="check-button" type="button" disabled>Check</button>
+              <button class="cta-button" id="new-round-button" type="button">New Round</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="popup" id="popup">
+    <div class="popup-message" id="popup-message"></div>
+  </div>
+
+  <script src="global.js"></script>
+
+  <script type="module">
+    import { supabaseClient } from './supabase/supabaseClient.js';
+    import { loadGuessWhoSages } from './supabase/get_guess_who_sages.js';
+
+    const DEFAULT_GAME_SIZE = 5;
+    const queryParams = new URLSearchParams(window.location.search);
+    const GAME_SIZE = Math.max(3, Math.min(8, Number(queryParams.get('count')) || DEFAULT_GAME_SIZE));
+
+    const sageList = document.getElementById('sage-list');
+    const searchInput = document.getElementById('sage-search');
+    const scoreValue = document.getElementById('score-value');
+    const placedCount = document.getElementById('placed-count');
+    const totalCount = document.getElementById('total-count');
+    const sidebarNote = document.getElementById('sidebar-note');
+    const feedbackTitle = document.getElementById('feedback-title');
+    const feedbackText = document.getElementById('feedback-text');
+    const feedbackSeal = document.getElementById('feedback-seal');
+    const hintButton = document.getElementById('hint-button');
+    const checkButton = document.getElementById('check-button');
+    const newRoundButton = document.getElementById('new-round-button');
+    const popup = document.getElementById('popup');
+    const popupMessage = document.getElementById('popup-message');
+    const mapOverlay = document.getElementById('map-overlay');
+
+    let map;
+    let markers = [];
+    let allPlayableSages = [];
+    let sages = [];
+    let cityTargets = [];
+    let placements = {};
+    let score = 0;
+    let filteredQuery = '';
+    let selectedSageId = null;
+    let dragState = null;
+    let hintIndex = 0;
+
+    totalCount.textContent = GAME_SIZE;
+
+    // ── feedback helper with seal bounce ────────────────────
+    function setFeedback(title, text, emoji) {
+      feedbackTitle.textContent = title;
+      feedbackText.textContent = text;
+      if (emoji) {
+        feedbackSeal.textContent = emoji;
+        feedbackSeal.classList.remove('bounce');
+        requestAnimationFrame(() => feedbackSeal.classList.add('bounce'));
+        feedbackSeal.addEventListener('animationend', () => feedbackSeal.classList.remove('bounce'), { once: true });
+      }
+    }
+
+    // ── score pop animation ──────────────────────────────────
+    function animateScore(newScore) {
+      scoreValue.textContent = newScore;
+      scoreValue.classList.remove('pop');
+      requestAnimationFrame(() => scoreValue.classList.add('pop'));
+      scoreValue.addEventListener('transitionend', () => scoreValue.classList.remove('pop'), { once: true });
+    }
+
+    function showPopup(message) {
+      popupMessage.textContent = message;
+      popup.classList.add('visible');
+      clearTimeout(showPopup._timer);
+      showPopup._timer = setTimeout(() => popup.classList.remove('visible'), 1700);
+    }
+
+    function normalizeText(value, fallback = '') {
+      const text = String(value ?? '').trim();
+      return text || fallback;
+    }
+
+    function normalizeNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function makeKey(city, country) {
+      return `${normalizeText(city)}|${normalizeText(country)}`;
+    }
+
+    function getYearsText(sage) {
+      const birth = sage.birth || '?';
+      const passing = sage.passing || '?';
+      return `${birth}–${passing}`;
+    }
+
+    function getInitials(name) {
+      return String(name || '?')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0])
+        .join('')
+        .toUpperCase();
+    }
+
+    function getImageUrl(picture) {
+      if (!picture || String(picture).toLowerCase() === 'nan') return '';
+      const clean = String(picture).replace(/\.webp$/i, '');
+      const imageToUse = clean.startsWith('sages/') ? clean : `sages/${clean}`;
+      const { data } = supabaseClient.storage
+        .from('public_images')
+        .getPublicUrl(`${imageToUse}.webp`);
+      return data?.publicUrl || '';
+    }
+
+    function shuffleArray(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function pickTargetLocation(rows) {
+      const usable = rows
+        .filter(row => row.city && row.country && row.latitude != null && row.longitude != null)
+        .sort((a, b) => {
+          const aNumber = normalizeNumber(a.number ?? a.dwelling_number ?? a.location_number) ?? 9999;
+          const bNumber = normalizeNumber(b.number ?? b.dwelling_number ?? b.location_number) ?? 9999;
+          const aFrom = normalizeNumber(a.from ?? a.start_year) ?? 9999;
+          const bFrom = normalizeNumber(b.from ?? b.start_year) ?? 9999;
+          return aNumber - bNumber || aFrom - bFrom;
+        });
+      return usable[0] || null;
+    }
+
+    function rowsToPlayableSages(rows) {
+      const grouped = new Map();
+
+      rows.forEach(row => {
+        const person = normalizeText(row.person || row.name);
+        const lat = normalizeNumber(row.latitude);
+        const lon = normalizeNumber(row.longitude);
+        const city = normalizeText(row.city);
+        const country = normalizeText(row.country);
+        if (!person || !city || !country || lat == null || lon == null) return;
+        if (!grouped.has(person)) grouped.set(person, []);
+        grouped.get(person).push({ ...row, latitude: lat, longitude: lon, city, country, person });
+      });
+
+      const playable = [];
+      grouped.forEach((personRows, person) => {
+        const target = pickTargetLocation(personRows);
+        if (!target) return;
+        playable.push({
+          id: person,
+          person,
+          name: normalizeText(target.person || target.name, person),
+          meta: [target.background, getYearsText(target)].filter(Boolean).join(' · '),
+          background: normalizeText(target.background, 'Unknown'),
+          birth: normalizeNumber(target.birth),
+          passing: normalizeNumber(target.passing),
+          picture: normalizeText(target.picture),
+          imageUrl: getImageUrl(target.picture),
+          targetCity: target.city,
+          targetCountry: target.country,
+          targetKey: makeKey(target.city, target.country),
+          latitude: target.latitude,
+          longitude: target.longitude,
+          hint: `${normalizeText(target.name || target.person, person)} belongs at ${target.city}, ${target.country}.`,
+          rows: personRows
+        });
+      });
+
+      return playable;
+    }
+
+    function chooseRound(source, count) {
+      const shuffled = shuffleArray(source);
+      const chosen = [];
+      const usedCityKeys = new Set();
+      for (const sage of shuffled) {
+        if (chosen.length >= count) break;
+        if (usedCityKeys.has(sage.targetKey)) continue;
+        chosen.push(sage);
+        usedCityKeys.add(sage.targetKey);
+      }
+      return chosen;
+    }
+
+    async function queryLocationRowsFromSupabase() {
+      const tableNames = ['sages_with_dwellings', 'sages_with_dwellings_names'];
+      let lastError = null;
+      for (const tableName of tableNames) {
+        const { data, error } = await supabaseClient
+          .from(tableName)
+          .select('*')
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .limit(700);
+        if (!error && Array.isArray(data) && data.length) {
+          console.log(`Loaded ${data.length} location rows from ${tableName}`);
+          return data;
+        }
+        lastError = error;
+        console.warn(`Could not load ${tableName}`, error);
+      }
+      throw lastError || new Error('No location rows returned from Supabase.');
+    }
+
+    async function loadPlayableSages() {
+      try {
+        const rows = await queryLocationRowsFromSupabase();
+        const playable = rowsToPlayableSages(rows);
+        if (playable.length >= GAME_SIZE) return playable;
+        throw new Error(`Only ${playable.length} playable sages had coordinates.`);
+      } catch (locationError) {
+        console.warn('Location-row loading failed. Trying Guess Who loader fallback.', locationError);
+        const fallback = await loadGuessWhoSages(60);
+        const fallbackRows = Array.isArray(fallback) ? fallback : [];
+        const playable = rowsToPlayableSages(fallbackRows);
+        if (playable.length >= GAME_SIZE) return playable;
+        throw locationError;
+      }
+    }
+
+    function initMap() {
+      if (window.map && typeof window.map.addControl === 'function') {
+        map = window.map;
+        map.resize();
+        return map;
+      }
+      if (!mapboxgl?.accessToken) {
+        mapboxgl.accessToken = window.MAPBOX_TOKEN || 'YOUR_MAPBOX_PUBLIC_TOKEN_HERE';
+      }
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [18, 38],
+        zoom: 2.2,
+        projection: 'mercator'
+      });
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+      window.map = map;
+      return map;
+    }
+
+    function clearMarkers() {
+      markers.forEach(item => item.marker.remove());
+      markers = [];
+      cityTargets = [];
+    }
+
+    function fitMapToRound() {
+      if (!sages.length || !map) return;
+      const bounds = new mapboxgl.LngLatBounds();
+      sages.forEach(sage => bounds.extend([sage.longitude, sage.latitude]));
+      map.fitBounds(bounds, {
+        padding: { top: 70, bottom: 70, left: 70, right: 70 },
+        maxZoom: 5.5,
+        duration: 900
+      });
+    }
+
+    function buildMarkerElement(target) {
+      const el = document.createElement('div');
+      el.className = 'place-marker';
+      el.dataset.cityKey = target.key;
+      el.dataset.city = target.city;
+      el.dataset.country = target.country;
+
+      el.innerHTML = `
+        <div class="pin-dot"></div>
+        <div class="place-label">${target.city}<span>${target.country}</span></div>
+        <div class="drop-ring"></div>
+      `;
+
+      el.addEventListener('click', () => {
+        if (!selectedSageId) {
+          setFeedback(target.city, `Choose a sage, then place him in ${target.city}, ${target.country}.`, '📍');
+          return;
+        }
+        placeSage(selectedSageId, target.key);
+      });
+
+      return el;
+    }
+
+    function renderMarkers() {
+      clearMarkers();
+      cityTargets = sages.map(sage => ({
+        key: sage.targetKey,
+        city: sage.targetCity,
+        country: sage.targetCountry,
+        latitude: sage.latitude,
+        longitude: sage.longitude
+      }));
+
+      cityTargets.forEach(target => {
+        const el = buildMarkerElement(target);
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([target.longitude, target.latitude])
+          .addTo(map);
+        markers.push({ marker, el, target });
+      });
+    }
+
+    function getMarkerByKey(key) {
+      return markers.find(item => item.target.key === key);
+    }
+
+    function markerAtPoint(x, y) {
+      const elements = document.elementsFromPoint(x, y);
+      const markerEl = elements.find(el => el.classList?.contains('place-marker') || el.closest?.('.place-marker'));
+      const finalEl = markerEl?.classList?.contains('place-marker') ? markerEl : markerEl?.closest?.('.place-marker');
+      if (!finalEl) return null;
+      return markers.find(item => item.el === finalEl) || null;
+    }
+
+    function setMarkerHover(activeMarker) {
+      markers.forEach(item => item.el.classList.toggle('over', item === activeMarker));
+    }
+
+    function renderSages() {
+      const query = filteredQuery.trim().toLowerCase();
+      sageList.innerHTML = '';
+
+      sages
+        .filter(sage =>
+          sage.name.toLowerCase().includes(query) ||
+          sage.meta.toLowerCase().includes(query) ||
+          sage.targetCity.toLowerCase().includes(query) ||
+          sage.targetCountry.toLowerCase().includes(query)
+        )
+        .forEach((sage, i) => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'sage-card';
+          card.dataset.sageId = sage.id;
+          card.style.animationDelay = `${i * 45}ms`;
+
+          if (Object.values(placements).includes(sage.id)) card.classList.add('placed');
+          if (selectedSageId === sage.id) card.classList.add('selected');
+
+          const thumbContent = sage.imageUrl
+            ? `<img src="${sage.imageUrl}" alt="${sage.name}" draggable="false" />`
+            : getInitials(sage.name);
+
+          card.innerHTML = `
+            <div class="sage-thumb">${thumbContent}</div>
+            <div>
+              <div class="sage-name">${sage.name}</div>
+              <div class="sage-meta">${sage.meta || 'Real location data'}</div>
+            </div>
+            <div class="sage-grip">⋮⋮</div>
+          `;
+
+          card.addEventListener('click', () => selectSage(sage.id));
+          card.addEventListener('pointerdown', event => beginDrag(event, sage.id, card));
+          sageList.appendChild(card);
+        });
+    }
+
+    function selectSage(sageId) {
+      selectedSageId = sageId;
+      const sage = sages.find(item => item.id === sageId);
+
+      document.querySelectorAll('.sage-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.sageId === sageId);
+      });
+
+      if (sage) {
+        setFeedback(`Selected: ${sage.name}`, 'Now click a marker, or drag the card onto one.', '✦');
+      }
+    }
+
+    function makeGhost(sage) {
+      const ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      const thumbContent = sage.imageUrl
+        ? `<img src="${sage.imageUrl}" alt="" draggable="false" />`
+        : getInitials(sage.name);
+
+      ghost.innerHTML = `
+        <div class="sage-card selected">
+          <div class="sage-thumb">${thumbContent}</div>
+          <div>
+            <div class="sage-name">${sage.name}</div>
+            <div class="sage-meta">${sage.targetCity}, ${sage.targetCountry}</div>
+          </div>
+          <div class="sage-grip">⋮⋮</div>
+        </div>
+      `;
+
+      document.body.appendChild(ghost);
+      return ghost;
+    }
+
+    function moveGhost(ghost, x, y) {
+      ghost.style.left = `${x}px`;
+      ghost.style.top = `${y}px`;
+    }
+
+    function beginDrag(event, sageId, sourceEl) {
+      if (event.button != null && event.button !== 0) return;
+      if (event.target.closest('input, button.cta-button')) return;
+
+      const sage = sages.find(item => item.id === sageId);
+      if (!sage) return;
+
+      event.preventDefault();
+      sourceEl.setPointerCapture?.(event.pointerId);
+      selectSage(sageId);
+
+      const ghost = makeGhost(sage);
+      moveGhost(ghost, event.clientX, event.clientY);
+
+      dragState = {
+        sageId,
+        pointerId: event.pointerId,
+        sourceEl,
+        ghost,
+        startX: event.clientX,
+        startY: event.clientY,
+        didMove: false,
+        activeMarker: null
+      };
+
+      map?.dragPan?.disable();
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp, { once: true });
+      window.addEventListener('pointercancel', cancelDrag, { once: true });
+    }
+
+    function handlePointerMove(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) return;
+      const distance = Math.hypot(event.clientX - dragState.startX, event.clientY - dragState.startY);
+      if (distance > 3) dragState.didMove = true;
+
+      moveGhost(dragState.ghost, event.clientX, event.clientY);
+      const activeMarker = markerAtPoint(event.clientX, event.clientY);
+      dragState.activeMarker = activeMarker;
+      setMarkerHover(activeMarker);
+    }
+
+    function handlePointerUp(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) return;
+      const { sageId, ghost, activeMarker } = dragState;
+      cleanupDrag();
+      if (activeMarker) {
+        placeSage(sageId, activeMarker.target.key);
+      } else if (event.target.closest?.('.sage-card')) {
+        selectSage(sageId);
+      }
+      ghost.remove();
+    }
+
+    function cancelDrag() {
+      if (!dragState) return;
+      dragState.ghost.remove();
+      cleanupDrag();
+    }
+
+    function cleanupDrag() {
+      setMarkerHover(null);
+      map?.dragPan?.enable();
+      window.removeEventListener('pointermove', handlePointerMove);
+      dragState = null;
+    }
+
+    function placeSage(sageId, cityKey) {
+      const sage = sages.find(item => item.id === sageId);
+      const target = cityTargets.find(item => item.key === cityKey);
+      if (!sage || !target) return;
+
+      for (const placedKey in placements) {
+        if (placements[placedKey] === sageId) delete placements[placedKey];
+      }
+
+      placements[cityKey] = sageId;
+      selectedSageId = null;
+
+      const correct = sage.targetKey === cityKey;
+      score = correct ? score + 120 : Math.max(0, score - 25);
+
+      if (correct) {
+        setFeedback('Great job!', `${sage.name} belongs in ${target.city}, ${target.country}.`, '✓');
+        showPopup('Correct placement!');
+      } else {
+        setFeedback('Not quite.', `${sage.name} probably belongs in a different city.`, '✗');
+        showPopup('Try a different marker.');
+      }
+
+      animateScore(score);
+      renderSages();
+      renderPlacementsOnMarkers();
+      updateUI();
+    }
+
+    function renderPlacementsOnMarkers() {
+      markers.forEach(item => {
+        const sageId = placements[item.target.key];
+        const sage = sages.find(s => s.id === sageId);
+        const dropRing = item.el.querySelector('.drop-ring');
+
+        item.el.classList.remove('correct', 'wrong');
+        dropRing.innerHTML = '';
+
+        if (!sage) return;
+
+        item.el.classList.add(sage.targetKey === item.target.key ? 'correct' : 'wrong');
+        const chip = document.createElement('div');
+        chip.className = 'placed-chip';
+        chip.textContent = sage.name;
+        chip.title = 'Drag to move';
+        chip.addEventListener('click', event => {
+          event.stopPropagation();
+          selectSage(sage.id);
+        });
+        chip.addEventListener('pointerdown', event => beginDrag(event, sage.id, chip));
+        dropRing.appendChild(chip);
+      });
+    }
+
+    function updateUI() {
+      const placed = Object.keys(placements).length;
+      placedCount.textContent = placed;
+
+      const allPlaced = placed === sages.length;
+      checkButton.disabled = !allPlaced;
+      checkButton.classList.toggle('disabled', !allPlaced);
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+      Object.entries(placements).forEach(([cityKey, sageId]) => {
+        const sage = sages.find(item => item.id === sageId);
+        if (sage?.targetKey === cityKey) correctCount++;
+      });
+
+      if (correctCount === sages.length) {
+        score += 250;
+        animateScore(score);
+        setFeedback('Perfect!', 'Every sage is on the correct real-world location.', '🏆');
+        showPopup('Perfect round!');
+      } else {
+        setFeedback(`${correctCount} of ${sages.length} correct`, 'Green markers are correct. Red markers need another try.', '📜');
+        showPopup(`${correctCount} correct`);
+      }
+
+      updateUI();
+    }
+
+    function giveHint() {
+      const remaining = sages.filter(sage => {
+        const placedCity = Object.keys(placements).find(key => placements[key] === sage.id);
+        return placedCity !== sage.targetKey;
+      });
+
+      if (!remaining.length) {
+        setFeedback('No hint needed.', 'Everything is already correct.', '✦');
+        showPopup('Everything is correct.');
+        return;
+      }
+
+      const sage = remaining[hintIndex % remaining.length];
+      hintIndex++;
+      score = Math.max(0, score - 15);
+      animateScore(score);
+      setFeedback(`Hint: ${sage.name}`, sage.hint, '💡');
+      showPopup('Hint used (−15 pts).');
+    }
+
+    function startRound() {
+      if (!allPlayableSages.length) return;
+
+      sages = chooseRound(allPlayableSages, GAME_SIZE);
+      placements = {};
+      selectedSageId = null;
+      score = 0;
+      hintIndex = 0;
+      filteredQuery = '';
+      searchInput.value = '';
+
+      totalCount.textContent = sages.length;
+      sidebarNote.textContent = `${sages.length} sages loaded from real location rows.`;
+      setFeedback('Ready to play?', 'Drag a sage onto the matching real city marker.', '✦');
+      animateScore(0);
+
+      renderSages();
+      renderMarkers();
+      renderPlacementsOnMarkers();
+      updateUI();
+      fitMapToRound();
+      mapOverlay.classList.add('hidden');
+    }
+
+    async function boot() {
+      try {
+        initMap();
+        mapOverlay.textContent = 'Loading real sage locations…';
+        allPlayableSages = await loadPlayableSages();
+
+        if (allPlayableSages.length < GAME_SIZE) {
+          throw new Error(`Only ${allPlayableSages.length} playable sages with coordinates were found.`);
+        }
+
+        if (map.loaded()) {
+          startRound();
+        } else {
+          map.on('load', startRound);
+        }
+      } catch (error) {
+        console.error(error);
+        mapOverlay.classList.remove('hidden');
+        mapOverlay.textContent = 'Could not load enough sages with real coordinates. Check the Supabase view/table name, RLS, and Mapbox token.';
+        sidebarNote.textContent = 'Data loading failed.';
+        setFeedback('Could not start', error.message || 'Check the console for details.', '✗');
+      }
+    }
+
+    searchInput.addEventListener('input', () => {
+      filteredQuery = searchInput.value;
+      renderSages();
+    });
+
+    hintButton.addEventListener('click', giveHint);
+    checkButton.addEventListener('click', checkAnswers);
+    newRoundButton.addEventListener('click', startRound);
+
+    document.getElementById('info-button').addEventListener('click', () => {
+      setFeedback('How to play', 'The cities come from real latitude/longitude rows. Drag each sage card onto his matching marker.', 'ℹ️');
+      showPopup('Real map mode');
+    });
+
+    boot();
+  </script>
+</body>
+</html>
