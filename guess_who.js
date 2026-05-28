@@ -5,7 +5,7 @@ import { supabaseClient } from './supabase/supabaseClient.js';
 const questionData = {
     background: {
     text: "Did the sage have a background of",
-    options: ["Ashkenaz", "Sefarad", "Provence", "Chassidic", "Litvish", "Italian"]
+    options: ["Ashkenaz", "Sefarad", "Provence", "Chassidic", "Litvish", "Italian", "Gaon"]
     },
     era: {
     text: "Did the sage live in the",
@@ -247,6 +247,45 @@ return String(value || "").trim().toLowerCase();
 }
 
 
+function hashStringToSeed(value) {
+  const text = String(value || "guess-who-free-play");
+  let hash = 2166136261;
+
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function seededRandom(seedText) {
+  let state = hashStringToSeed(seedText);
+
+  return function () {
+    state += 0x6D2B79F5;
+
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function seededShuffleArray(array, seedText) {
+  const result = [...array];
+  const random = seededRandom(seedText);
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
+
 function sageHasBackground(sage, background) {
     return String(sage.background || "")
     .toLowerCase()
@@ -396,20 +435,36 @@ async function loadAssignedCorrectSage() {
 }
 
 function pickBoardIncludingCorrectSage(sages, correct, count = 25) {
-    if (!correct) {
-    return pickRandomSages(sages, count);
-    }
+  const stableSages = [...sages].sort((a, b) =>
+    a.person.localeCompare(b.person)
+  );
 
-    const others = sages.filter(sage =>
+  if (!correct) {
+    const seedText = assignmentId
+      ? `guess-who-assignment-${assignmentId}`
+      : `guess-who-free-play-${Date.now()}`;
+
+    return seededShuffleArray(stableSages, seedText).slice(0, count);
+  }
+
+  const others = stableSages.filter(sage =>
     normalizeName(sage.person) !== normalizeName(correct.person)
-    );
+  );
 
-    const pickedOthers = shuffleArray(others).slice(0, count - 1);
+  const seedText = assignmentId
+    ? `guess-who-assignment-${assignmentId}`
+    : `guess-who-free-play-${correct.person}-${Date.now()}`;
 
-    return shuffleArray([
-    correct,
-    ...pickedOthers
-    ]);
+  const pickedOthers = seededShuffleArray(others, `${seedText}-others`)
+    .slice(0, count - 1);
+
+  return seededShuffleArray(
+    [
+      correct,
+      ...pickedOthers
+    ],
+    `${seedText}-final-order`
+  );
 }
 
 function linkToCorrectSageProfile() {
@@ -513,7 +568,7 @@ async function initializeGuessWho() {
         If your total Guess Who dataset is under 200, this is fine.
         If you may have more than 200, increase this or query the assigned sage directly.
     */
-    const sagesFromDb = await loadGuessWhoSages(251);
+    const sagesFromDb = await loadGuessWhoSages();
 
     allSages = processGuessWhoSages(sagesFromDb);
 
