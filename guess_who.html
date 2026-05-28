@@ -1164,17 +1164,7 @@
     function linkToCorrectSageProfile() {
       if (!correctSage) return;
 
-      const selectedPayload = encodeURIComponent(JSON.stringify(correctSage));
-
-      const profileParams = new URLSearchParams();
-      profileParams.set("selected", selectedPayload);
-      profileParams.set("courseModeActive", "false");
-
-      if (assignmentId) {
-        profileParams.set("assignment_id", assignmentId);
-      }
-
-      window.location.href = `discover.html?${profileParams.toString()}`;
+      linkToProfile(finalCorrectAnswer, 'discover.html', assignmentId);
     }
 
     function finishGame(winningCard = null) {

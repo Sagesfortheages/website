@@ -102,7 +102,7 @@ async function loadStudentHome() {
       ? ` - ${assignment.target_sage_person}`
       : '';
 
-    studentStatusEl.textContent = `Today’s activity: ${activityLabel}${targetText}`;
+    studentStatusEl.textContent = `Today’s activity: ${activityLabel}`;
     startActivityBtn.disabled = false;
 
     const { data: existingProgress, error: progressError } = await supabaseClient
