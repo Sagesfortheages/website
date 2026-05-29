@@ -379,18 +379,21 @@ function wireSubToggle() {
 }
 
 function showAssignmentOverview() {
-  if (viewByAssignment) viewByAssignment.style.display = '';
-  if (viewByStudent) viewByStudent.style.display = 'none';
-  if (assignmentDetail) assignmentDetail.style.display = 'none';
+  viewByAssignment?.classList.remove('hidden');
+  viewByStudent?.classList.add('hidden');
+  assignmentDetail?.classList.add('hidden');
 }
 
 function showStudentOverview() {
-  if (viewByAssignment) viewByAssignment.style.display = 'none';
-  if (assignmentDetail) assignmentDetail.style.display = 'none';
+  viewByAssignment?.classList.add('hidden');
+  assignmentDetail?.classList.add('hidden');
 
   if (!viewByStudent) return;
 
-  viewByStudent.style.display = 'block';
+  viewByStudent.classList.remove('hidden');
+
+  const tbody = document.getElementById('student-results-tbody');
+  if (!tbody) return;
 
   const tbody = document.getElementById('student-results-tbody');
   if (!tbody) return;
@@ -875,9 +878,9 @@ async function loadAssignments(classId) {
 }
 
 async function showAssignmentDetail(assignmentId, title) {
-  if (viewByAssignment) viewByAssignment.style.display = 'none';
-  if (viewByStudent) viewByStudent.style.display = 'none';
-  if (assignmentDetail) assignmentDetail.style.display = 'block';
+  viewByAssignment?.classList.add('hidden');
+  viewByStudent?.classList.add('hidden');
+  assignmentDetail?.classList.remove('hidden');
 
   const titleEl = document.querySelector('.assign-detail-title');
   if (titleEl) {
@@ -993,7 +996,12 @@ async function showAssignmentDetail(assignmentId, title) {
       chipHtml = `<span class="chip progress">↻ In Progress</span>`;
     }
 
-    const score = p?.correct_count!= null ? `${Math.round(100*p.correct_count/p.total_questions)}%` : '—';
+    const score =
+  p?.correct_count != null &&
+  p?.total_questions != null &&
+  p.total_questions > 0
+    ? `${Math.round(100 * p.correct_count / p.total_questions)}%`
+    : '—';
 
     return `
       <tr>
