@@ -395,9 +395,6 @@ function showStudentOverview() {
   const tbody = document.getElementById('student-results-tbody');
   if (!tbody) return;
 
-  const tbody = document.getElementById('student-results-tbody');
-  if (!tbody) return;
-
   if (!lastStudents.length) {
     tbody.innerHTML = statusRow('No students loaded yet.');
     return;
