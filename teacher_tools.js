@@ -40,6 +40,8 @@ function avatarEl(name) {
 let teacherProfileId = null;
 let currentClassId = null;
 let lastStudents = [];
+let lastAssignments = [];
+let lastProgressRows = [];
 let selectedAssignmentActivityType = 'mystery_sage';
 
 const classSelect = document.getElementById('class-global-select');
@@ -66,6 +68,7 @@ async function initPage() {
   wireAssignmentActivityChoice();
   wireAssignSage();
   wireCreateClassButton();
+  wireOnboarding();
 
   await loadTeacherSession();
   await loadSageDropdown();
@@ -148,6 +151,209 @@ function wireModals() {
   });
 }
 
+function wireOnboarding() {
+  document.querySelectorAll('[data-step-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      handleOnboardingStep(btn.dataset.stepAction);
+    });
+  });
+
+  document.getElementById('toggle-onboarding-btn')?.addEventListener('click', () => {
+    const panel = document.getElementById('teacher-onboarding');
+    const btn = document.getElementById('toggle-onboarding-btn');
+
+    if (!panel || !btn) return;
+
+    panel.classList.toggle('collapsed');
+
+    const isCollapsed = panel.classList.contains('collapsed');
+    btn.textContent = isCollapsed ? 'Show Guide' : 'Hide Guide';
+
+    localStorage.setItem(
+      'teacherOnboardingCollapsed',
+      isCollapsed ? 'true' : 'false'
+    );
+  });
+
+  const shouldCollapse =
+    localStorage.getItem('teacherOnboardingCollapsed') === 'true';
+
+  if (shouldCollapse) {
+    document.getElementById('teacher-onboarding')?.classList.add('collapsed');
+
+    const btn = document.getElementById('toggle-onboarding-btn');
+    if (btn) btn.textContent = 'Show Guide';
+  }
+}
+
+function handleOnboardingStep(action) {
+  if (action === 'create-class') {
+    const createClassButton = document.getElementById('create-class-button');
+
+    if (createClassButton && !createClassButton.classList.contains('hidden')) {
+      createClassButton.click();
+      return;
+    }
+
+    const classSelect = document.getElementById('class-global-select');
+    classSelect?.focus();
+    return;
+  }
+
+  if (action === 'add-student') {
+    if (!currentClassId) return;
+
+    document.querySelector('[data-panel="students"]')?.click();
+    document.getElementById('open-add-student')?.click();
+    return;
+  }
+
+  if (action === 'assign-activity') {
+    if (!currentClassId || !lastStudents.length) return;
+
+    document.querySelector('[data-panel="assignments"]')?.click();
+    document.getElementById('open-assign-game')?.click();
+    return;
+  }
+
+  if (action === 'track-progress') {
+    if (!lastAssignments.length) return;
+
+    document.querySelector('[data-panel="assignments"]')?.click();
+    showAssignmentOverview();
+  }
+}
+
+function updateOnboardingState() {
+  const hasClass = !!currentClassId;
+  const hasStudents = lastStudents.length > 0;
+  const hasAssignments = lastAssignments.length > 0;
+
+  const hasAnyProgress = lastProgressRows.length > 0;
+  const hasCompletedProgress =
+    lastProgressRows.some(r => r.status === 'completed');
+
+  const states = [
+    {
+      action: 'create-class',
+      complete: hasClass,
+      active: !hasClass,
+      disabled: false,
+      status: hasClass ? 'Complete' : 'Next step'
+    },
+    {
+      action: 'add-student',
+      complete: hasStudents,
+      active: hasClass && !hasStudents,
+      disabled: !hasClass,
+      status: hasStudents
+        ? 'Complete'
+        : hasClass
+          ? 'Next step'
+          : 'Create class first'
+    },
+    {
+      action: 'assign-activity',
+      complete: hasAssignments,
+      active: hasClass && hasStudents && !hasAssignments,
+      disabled: !hasStudents,
+      status: hasAssignments
+        ? 'Complete'
+        : hasStudents
+          ? 'Next step'
+          : 'Add students first'
+    },
+    {
+      action: 'track-progress',
+      complete: hasCompletedProgress,
+      active: hasAssignments,
+      disabled: !hasAssignments,
+      status: hasCompletedProgress
+        ? 'Results ready'
+        : hasAnyProgress
+          ? 'In progress'
+          : hasAssignments
+            ? 'Waiting for students'
+            : 'Assign first'
+    }
+  ];
+
+  let completed = 0;
+
+  states.forEach(state => {
+    const el = document.querySelector(`[data-step-action="${state.action}"]`);
+    if (!el) return;
+
+    el.classList.toggle('complete', !!state.complete);
+    el.classList.toggle('active', !!state.active);
+    el.classList.toggle('disabled', !!state.disabled);
+
+    if (state.disabled) {
+      el.setAttribute('aria-disabled', 'true');
+    } else {
+      el.removeAttribute('aria-disabled');
+    }
+
+    const statusEl = el.querySelector('.step-status');
+    if (statusEl) statusEl.textContent = state.status;
+
+    if (state.complete) completed++;
+  });
+
+  const fill = document.getElementById('onboarding-progress-fill');
+  if (fill) {
+    fill.style.width = `${(completed / 4) * 100}%`;
+  }
+
+  const progressText = document.getElementById('onboarding-progress-text');
+  if (progressText) {
+    progressText.textContent = `${completed} of 4 steps completed`;
+  }
+
+  const nextText = document.getElementById('onboarding-next');
+  if (nextText) {
+    if (!hasClass) {
+      nextText.textContent = 'Start by creating your first class.';
+    } else if (!hasStudents) {
+      nextText.textContent = 'Next: add your first student to this class.';
+    } else if (!hasAssignments) {
+      nextText.textContent = 'Next: assign an activity to your students.';
+    } else if (!hasAnyProgress) {
+      nextText.textContent = 'Assignment is ready. Results will appear after students begin.';
+    } else if (!hasCompletedProgress) {
+      nextText.textContent = 'Students have started. Check the Assignments tab for progress.';
+    } else {
+      nextText.textContent = 'Student results are ready. Open the Assignments tab to review them.';
+    }
+  }
+
+  maybeAutoCollapseOnboarding({
+    hasClass,
+    hasStudents,
+    hasAssignments
+  });
+}
+
+function maybeAutoCollapseOnboarding({ hasClass, hasStudents, hasAssignments }) {
+  const panel = document.getElementById('teacher-onboarding');
+  const btn = document.getElementById('toggle-onboarding-btn');
+
+  if (!panel || !btn) return;
+
+  const setupComplete = hasClass && hasStudents && hasAssignments;
+
+  const hasAlreadyAutoCollapsed =
+    localStorage.getItem('teacherOnboardingAutoCollapsed') === 'true';
+
+  if (setupComplete && !hasAlreadyAutoCollapsed) {
+    panel.classList.add('collapsed');
+    btn.textContent = 'Show Guide';
+
+    localStorage.setItem('teacherOnboardingCollapsed', 'true');
+    localStorage.setItem('teacherOnboardingAutoCollapsed', 'true');
+  }
+}
+
 /* Assignment sub-toggle */
 
 function wireSubToggle() {
@@ -183,7 +389,7 @@ function showStudentOverview() {
 
   viewByStudent.style.display = 'block';
 
-  const tbody = document.getElementById('student-overview-tbody');
+  const tbody = document.getElementById('student-results-tbody');
   if (!tbody) return;
 
   if (!lastStudents.length) {
@@ -250,9 +456,16 @@ async function loadClasses() {
   }
 
   if (!classes?.length) {
+    currentClassId = null;
+    lastStudents = [];
+    lastAssignments = [];
+    lastProgressRows = [];
+
     classSelect.innerHTML = '<option value="">No classes found</option>';
     studentsTbody.innerHTML = statusRow('No classes found.');
     assignmentsTbody.innerHTML = statusRow('No classes found.');
+
+    updateOnboardingState();
     return;
   }
 
@@ -273,11 +486,17 @@ async function loadClasses() {
   classSelect.addEventListener('change', async () => {
     currentClassId = classSelect.value || null;
 
-    if (!currentClassId) {
-      studentsTbody.innerHTML = statusRow('Select a class to view students.');
-      assignmentsTbody.innerHTML = statusRow('Select a class to view assignments.');
-      return;
-    }
+  if (!currentClassId) {
+    lastStudents = [];
+    lastAssignments = [];
+    lastProgressRows = [];
+
+    studentsTbody.innerHTML = statusRow('Select a class to view students.');
+    assignmentsTbody.innerHTML = statusRow('Select a class to view assignments.');
+
+    updateOnboardingState();
+    return;
+  }
 
     await refreshClassData();
   });
@@ -366,11 +585,12 @@ async function loadStudents(classId) {
 
 
   if (!students?.length) {
-  if (studentsSubtitle) {
+    if (studentsSubtitle) {
       studentsSubtitle.textContent = '0/20 students';
     }
 
     studentsTbody.innerHTML = statusRow('No students in this class.');
+    updateOnboardingState();
     return;
   }
 
@@ -415,6 +635,9 @@ studentsTbody.querySelectorAll('[data-delete-student]').forEach(btn => {
     );
   });
 });
+
+updateOnboardingState();
+
 }
 
 
@@ -537,12 +760,19 @@ async function loadAssignments(classId) {
 
   if (error) {
     console.error(error);
+    lastAssignments = [];
+    lastProgressRows = [];
     assignmentsTbody.innerHTML = statusRow('Error loading assignments.');
+    updateOnboardingState();
     return;
   }
 
+  lastAssignments = assignments || [];
+
   if (!assignments?.length) {
+    lastProgressRows = [];
     assignmentsTbody.innerHTML = statusRow('No assignments for this class yet.');
+    updateOnboardingState();
     return;
   }
 
@@ -553,9 +783,13 @@ async function loadAssignments(classId) {
     .select('assignment_id, student_id, correct_count, total_questions, status')
     .in('assignment_id', assignmentIds);
 
+  lastProgressRows = progressRows || [];
+
   if (progressError) {
     console.error(progressError);
+    lastProgressRows = [];
     assignmentsTbody.innerHTML = statusRow('Error loading assignment progress.');
+    updateOnboardingState();
     return;
   }
 
@@ -634,6 +868,7 @@ async function loadAssignments(classId) {
       showAssignmentDetail(btn.dataset.assignmentId, btn.dataset.assignmentTitle);
     });
   });
+  updateOnboardingState();
 }
 
 async function showAssignmentDetail(assignmentId, title) {
