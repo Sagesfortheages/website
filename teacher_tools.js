@@ -306,8 +306,11 @@ function updateOnboardingState() {
   }
 
   const progressText = document.getElementById('onboarding-progress-text');
-  if (progressText) {
+  if (progressText && completed !== 3) {
     progressText.textContent = `${completed} of 4 steps completed`;
+  }
+  else if (progressText && completed === 3) {
+    progressText.textContent = `Setup ready - results will appear after students begin.`;
   }
 
   const nextText = document.getElementById('onboarding-next');
