@@ -35,17 +35,23 @@
 
         .container {
             position: relative;
-            margin-left: 0;
-            margin-right: 0;
-            margin: auto;
-            max-width: 60vw;
+            margin: 0.75vmin auto 0;
+            /*
+              Keep the image and every absolute-positioned highlight in the same
+              scaling context. The hotspots use percentages, so resizing this
+              wrapper preserves their placement relative to the image.
+            */
+            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
+            max-width: none;
         }
         .image-container {
             position: relative;
-            display: inline-block;
-
+            display: block;
+            width: 100%;
         }
         img {
+            display: block;
+            width: 100%;
             max-width: 100%;
             height: auto;
             border: 1px solid #ccc;
@@ -369,15 +375,15 @@
 
 
         .study-hint {
-            width: min(860px, 90vw);
-            margin: 2.2vmin auto 1.7vmin;
+            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
+            margin: 0.9vmin auto 0.75vmin;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1.2vmin;
+            gap: 0.85vmin;
             color: var(--dark-brown, #4b2d1a);
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(1.05rem, 2.15vw, 1.75rem);
+            font-size: clamp(0.9rem, 1.65vw, 1.28rem);
             letter-spacing: 0.02em;
             text-align: center;
             direction: ltr;
@@ -386,28 +392,28 @@
         .study-hint::before,
         .study-hint::after {
             content: "";
-            width: min(120px, 18vw);
+            width: min(92px, 14vw);
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(145, 99, 35, 0.65), transparent);
         }
 
         .study-hint-icon {
-            font-size: 1.25em;
+            font-size: 1.15em;
             line-height: 1;
             transform: translateY(-1px);
         }
 
         .commentary-key {
-            width: min(860px, 90vw);
-            margin: 0 auto 3vmin;
-            padding: 1.45rem 1.6rem;
+            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
+            margin: 0 auto 1vmin;
+            padding: 0.75rem 1rem;
             border: 1px solid rgba(145, 99, 35, 0.35);
-            border-radius: 18px;
+            border-radius: 15px;
             background:
                 linear-gradient(180deg, rgba(255, 252, 243, 0.88), rgba(243, 231, 206, 0.82)),
                 rgba(250, 242, 222, 0.9);
             box-shadow:
-                0 10px 24px rgba(70, 45, 20, 0.10),
+                0 8px 18px rgba(70, 45, 20, 0.09),
                 inset 0 0 0 1px rgba(255, 255, 255, 0.55);
             direction: ltr;
         }
@@ -416,11 +422,11 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            gap: 0.9rem;
-            margin-bottom: 1.1rem;
+            gap: 0.65rem;
+            margin-bottom: 0.55rem;
             color: var(--dark-brown, #4b2d1a);
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+            font-size: clamp(0.78rem, 1.35vw, 0.98rem);
             font-weight: 700;
             letter-spacing: 0.12em;
             text-transform: uppercase;
@@ -436,24 +442,25 @@
 
         .commentary-key-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(130px, 1fr));
-            gap: 0.9rem 1.35rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.48rem 0.85rem;
         }
 
         .commentary-key-item {
             display: flex;
             align-items: center;
-            gap: 0.7rem;
+            gap: 0.45rem;
             color: var(--dark-brown, #3f2a1c);
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(0.95rem, 1.55vw, 1.15rem);
+            font-size: clamp(0.78rem, 1.15vw, 0.95rem);
             white-space: nowrap;
+            min-width: 0;
         }
 
         .commentary-key-dot {
-            width: 1.05rem;
-            height: 1.05rem;
-            flex: 0 0 1.05rem;
+            width: 0.78rem;
+            height: 0.78rem;
+            flex: 0 0 0.78rem;
             border-radius: 50%;
             box-shadow:
                 inset 0 0 0 1px rgba(255,255,255,0.45),
@@ -474,26 +481,62 @@
         .dot-baal-haturim { background: var(--sage-baal-haturim); }
 
         @media (max-width: 760px) {
+            .container,
+            .study-hint,
             .commentary-key {
-                padding: 1.1rem 1rem;
+                width: min(92vw, calc((100vh - 230px) * 2.12));
+            }
+
+            .commentary-key {
+                padding: 0.52rem 0.62rem;
+                border-radius: 13px;
             }
 
             .commentary-key-grid {
-                grid-template-columns: repeat(2, minmax(120px, 1fr));
-                gap: 0.85rem 1rem;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.34rem 0.45rem;
+            }
+
+            .commentary-key-item {
+                gap: 0.32rem;
+                font-size: clamp(0.64rem, 2.25vw, 0.78rem);
+            }
+
+            .commentary-key-dot {
+                width: 0.58rem;
+                height: 0.58rem;
+                flex-basis: 0.58rem;
+            }
+
+            .commentary-key-title {
+                margin-bottom: 0.35rem;
+                font-size: clamp(0.68rem, 2.4vw, 0.82rem);
             }
 
             .study-hint {
-                margin-top: 1.4rem;
-                font-size: 1.15rem;
+                margin-top: 0.65vmin;
+                margin-bottom: 0.55vmin;
+                font-size: clamp(0.82rem, 3vw, 1rem);
             }
         }
 
-@media (max-width: 600px) {
-    .container {
-            max-width: 90vw;
-    }
-}
+        @media (max-height: 760px) {
+            .container,
+            .study-hint,
+            .commentary-key {
+                width: min(720px, 84vw, calc((100vh - 235px) * 2.12));
+            }
+
+            .study-hint {
+                margin-top: 0.55vmin;
+                margin-bottom: 0.45vmin;
+            }
+
+            .commentary-key {
+                padding-top: 0.48rem;
+                padding-bottom: 0.48rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -656,6 +699,7 @@
 
     </script>
 
+<script src="../markers.js"></script>
 <script src="../global.js"></script>
 </body>
 </html>
