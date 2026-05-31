@@ -33,21 +33,40 @@
         }
 
 
+        .chumash-layout {
+            width: min(1180px, 94vw);
+            margin: 0.75vmin auto 0;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: clamp(0.85rem, 2vw, 1.6rem);
+            direction: ltr;
+        }
+
         .container {
             position: relative;
-            margin: 0.75vmin auto 0;
+            margin: 0;
             /*
               Keep the image and every absolute-positioned highlight in the same
               scaling context. The hotspots use percentages, so resizing this
               wrapper preserves their placement relative to the image.
             */
-            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
+            width: min(760px, 68vw);
             max-width: none;
+            flex: 0 1 760px;
+            direction: rtl;
         }
         .image-container {
             position: relative;
             display: block;
             width: 100%;
+        }
+
+        .study-sidebar {
+            flex: 0 0 clamp(205px, 22vw, 295px);
+            margin-top: clamp(0.15rem, 1.3vw, 1rem);
+            direction: ltr;
         }
         img {
             display: block;
@@ -375,15 +394,15 @@
 
 
         .study-hint {
-            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
-            margin: 0.9vmin auto 0.75vmin;
+            width: 100%;
+            margin: 0 0 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.85vmin;
+            gap: 0.55rem;
             color: var(--dark-brown, #4b2d1a);
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(0.9rem, 1.65vw, 1.28rem);
+            font-size: clamp(0.95rem, 1.45vw, 1.18rem);
             letter-spacing: 0.02em;
             text-align: center;
             direction: ltr;
@@ -404,9 +423,9 @@
         }
 
         .commentary-key {
-            width: min(760px, 86vw, calc((100vh - 285px) * 2.12));
-            margin: 0 auto 1vmin;
-            padding: 0.75rem 1rem;
+            width: 100%;
+            margin: 0;
+            padding: 0.85rem 0.9rem;
             border: 1px solid rgba(145, 99, 35, 0.35);
             border-radius: 15px;
             background:
@@ -442,8 +461,8 @@
 
         .commentary-key-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.48rem 0.85rem;
+            grid-template-columns: 1fr;
+            gap: 0.48rem;
         }
 
         .commentary-key-item {
@@ -480,11 +499,23 @@
         .dot-daas-zekeinim { background: var(--sage-daas-zekeinim); }
         .dot-baal-haturim { background: var(--sage-baal-haturim); }
 
-        @media (max-width: 760px) {
-            .container,
-            .study-hint,
-            .commentary-key {
-                width: min(92vw, calc((100vh - 230px) * 2.12));
+        @media (max-width: 900px) {
+            .chumash-layout {
+                width: min(96vw, 760px);
+                flex-direction: column;
+                align-items: center;
+                gap: 0.7rem;
+            }
+
+            .container {
+                width: 100%;
+                flex-basis: auto;
+            }
+
+            .study-sidebar {
+                width: min(92vw, 620px);
+                flex: 0 0 auto;
+                margin-top: 0;
             }
 
             .commentary-key {
@@ -514,27 +545,31 @@
             }
 
             .study-hint {
-                margin-top: 0.65vmin;
-                margin-bottom: 0.55vmin;
+                margin-bottom: 0.55rem;
                 font-size: clamp(0.82rem, 3vw, 1rem);
             }
         }
 
-        @media (max-height: 760px) {
-            .container,
-            .study-hint,
-            .commentary-key {
-                width: min(720px, 84vw, calc((100vh - 235px) * 2.12));
+        @media (max-height: 760px) and (min-width: 901px) {
+            .chumash-layout {
+                width: min(1160px, 94vw);
             }
 
-            .study-hint {
-                margin-top: 0.55vmin;
-                margin-bottom: 0.45vmin;
+            .container {
+                width: min(740px, 68vw);
+            }
+
+            .study-sidebar {
+                flex-basis: clamp(190px, 21vw, 270px);
             }
 
             .commentary-key {
-                padding-top: 0.48rem;
-                padding-bottom: 0.48rem;
+                padding-top: 0.55rem;
+                padding-bottom: 0.55rem;
+            }
+
+            .commentary-key-grid {
+                gap: 0.38rem;
             }
         }
     </style>
@@ -553,7 +588,8 @@
         onclick="window.location.href='../feedback.html'">📩</button>
     </div>
     
-    <div class="container">
+    <main class="chumash-layout">
+        <div class="container">
         <div class="image-container">
             <!-- Replace with actual path to the PDF image -->
             <img alt="מקראות גדולות" usemap="#commentaries-map" id="chumash-image">
@@ -603,9 +639,9 @@
 
             
         </div>
-    </div>
+        </div>
 
-
+        <aside class="study-sidebar">
     <div class="study-hint" aria-label="Tap commentary to explore">
         <span class="study-hint-icon">☝</span>
         <span>Tap commentary to explore</span>
@@ -630,6 +666,8 @@
             <div class="commentary-key-item"><span class="commentary-key-dot dot-metzudos"></span><span>Metzudos</span></div>
         </div>
     </section>
+        </aside>
+    </main>
 
     <script type="module">
 
