@@ -380,11 +380,244 @@
             visibility: visible;
         }
 
-@media (max-width: 600px) {
-    .container {
-            max-width: 90vw;
-    }
-}
+
+
+        .study-layout {
+            --side-col: clamp(128px, 15vw, 205px);
+            width: min(1220px, 96vw);
+            margin: 0.75vmin auto 0;
+            display: grid;
+            grid-template-columns: var(--side-col) minmax(0, 760px) var(--side-col);
+            align-items: start;
+            justify-content: center;
+            column-gap: clamp(0.65rem, 1.4vw, 1.25rem);
+            direction: ltr;
+        }
+
+        .layout-spacer {
+            grid-column: 1;
+            width: var(--side-col);
+            min-height: 1px;
+        }
+
+        .center-study {
+            grid-column: 2;
+            width: min(760px, 100%);
+            justify-self: center;
+            direction: rtl;
+        }
+
+        .container {
+            position: relative;
+            margin: 0 auto;
+            width: 100%;
+            max-width: none;
+            direction: rtl;
+        }
+
+        .image-container {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .study-sidebar {
+            grid-column: 3;
+            width: var(--side-col);
+            margin-top: clamp(0.15rem, 1.2vw, 0.85rem);
+            justify-self: stretch;
+            direction: ltr;
+        }
+
+        .study-hint {
+            width: 100%;
+            margin: 0.7rem 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            color: var(--dark-brown, #4b2d1a);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(0.95rem, 1.45vw, 1.18rem);
+            letter-spacing: 0.02em;
+            text-align: center;
+            direction: ltr;
+        }
+
+        .study-hint::before,
+        .study-hint::after {
+            content: "";
+            width: min(92px, 14vw);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(145, 99, 35, 0.65), transparent);
+        }
+
+        .study-hint-icon {
+            font-size: 1.15em;
+            line-height: 1;
+            transform: translateY(-1px);
+        }
+
+        .commentary-key {
+            width: 100%;
+            margin: 0;
+            padding: 0.55rem 0.55rem;
+            border: 1px solid rgba(145, 99, 35, 0.35);
+            border-radius: 13px;
+            background:
+                linear-gradient(180deg, rgba(255, 252, 243, 0.88), rgba(243, 231, 206, 0.82)),
+                rgba(250, 242, 222, 0.9);
+            box-shadow:
+                0 8px 18px rgba(70, 45, 20, 0.09),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+            direction: ltr;
+        }
+
+        .commentary-key-title {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 0.38rem;
+            margin-bottom: 0.42rem;
+            color: var(--dark-brown, #4b2d1a);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(0.72rem, 1vw, 0.86rem);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .commentary-key-title::before,
+        .commentary-key-title::after {
+            content: "";
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(145, 99, 35, 0.45), transparent);
+        }
+
+        .commentary-key-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.34rem;
+        }
+
+        .commentary-key-item {
+            display: flex;
+            align-items: center;
+            gap: 0.32rem;
+            color: var(--dark-brown, #3f2a1c);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(0.62rem, 0.88vw, 0.78rem);
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .commentary-key-dot {
+            width: 0.58rem;
+            height: 0.58rem;
+            flex: 0 0 0.58rem;
+            border-radius: 50%;
+            box-shadow:
+                inset 0 0 0 1px rgba(255,255,255,0.45),
+                0 1px 3px rgba(60,35,15,0.18);
+        }
+
+        .dot-pri-megadim { background: var(--sage-pri-megadim); }
+        .dot-shulchan-aruch { background: var(--sage-shulchan-aruch); }
+        .dot-gra { background: var(--sage-gra); }
+        .dot-rema { background: var(--sage-rema); }
+        .dot-be-er-heitev { background: var(--sage-be-er-heitev); }
+        .dot-pischei-teshuva { background: var(--sage-pischei-teshuva); }
+        .dot-r-shlomo-eiger { background: var(--sage-r-shlomo-eiger); }
+        .dot-taz { background: var(--sage-taz); }
+        .dot-shach { background: var(--sage-shach); }
+        .dot-machatzis-hashekel { background: var(--sage-machatzis-hashekel); }
+        .dot-be-er-hagola { background: var(--sage-be-er-hagola); }
+        .dot-r-akiva-eiger { background: var(--sage-r-akiva-eiger); }
+        .dot-yad-efraim { background: var(--sage-yad-efraim); }
+
+        @media (max-width: 900px) {
+            .study-layout {
+                width: min(96vw, 760px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.7rem;
+            }
+
+            .layout-spacer {
+                display: none;
+            }
+
+            .center-study,
+            .container {
+                width: 100%;
+            }
+
+            .study-sidebar {
+                width: min(92vw, 620px);
+                margin-top: 0;
+            }
+
+            .commentary-key {
+                padding: 0.52rem 0.62rem;
+                border-radius: 13px;
+            }
+
+            .commentary-key-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.34rem 0.45rem;
+            }
+
+            .commentary-key-item {
+                gap: 0.32rem;
+                font-size: clamp(0.64rem, 2.25vw, 0.78rem);
+            }
+
+            .commentary-key-dot {
+                width: 0.58rem;
+                height: 0.58rem;
+                flex-basis: 0.58rem;
+            }
+
+            .commentary-key-title {
+                margin-bottom: 0.35rem;
+                font-size: clamp(0.68rem, 2.4vw, 0.82rem);
+            }
+
+            .study-hint {
+                margin-top: 0.55rem;
+                font-size: clamp(0.82rem, 3vw, 1rem);
+            }
+        }
+
+        @media (max-height: 760px) and (min-width: 901px) {
+            .study-layout {
+                --side-col: clamp(118px, 13.5vw, 178px);
+                width: min(1180px, 96vw);
+            }
+
+            .commentary-key {
+                padding-top: 0.45rem;
+                padding-bottom: 0.45rem;
+            }
+
+            .commentary-key-grid {
+                gap: 0.28rem;
+            }
+
+            .commentary-key-item {
+                font-size: clamp(0.58rem, 0.8vw, 0.72rem);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -401,35 +634,67 @@
         onclick="window.location.href='../feedback.html'">📩</button>
     </div>
     
-    <div class="container">
-        <div class="image-container">
-            <!-- Replace with actual path to the PDF image -->
-            <img alt="Shulchan Aruch" usemap="#commentaries-map" id="shulchan-aruch">
+    <main class="study-layout">
+        <div class="layout-spacer" aria-hidden="true"></div>
 
-            <a class="hotspot" id="pri-megadim" data-tooltip="Pri Megadim"></a>
-            <a class="hotspot" id="taz-1" data-tooltip="Taz"></a>
-            <a class="hotspot" id="taz-2" data-tooltip="Taz"></a>
-            <a class="hotspot" id="taz-3" data-tooltip="Taz"></a>
-            <a class="hotspot" id="shach" data-tooltip="Shach"></a>
-            <a class="hotspot" id="shulchan-aruch-1" data-tooltip="Shulchan Aruch"></a>
-            <a class="hotspot" id="shulchan-aruch-2" data-tooltip="Shulchan Aruch"></a>
-            <a class="hotspot" id="shulchan-aruch-3" data-tooltip="Shulchan Aruch"></a>
-            <a class="hotspot" id="shulchan-aruch-4" data-tooltip="Shulchan Aruch"></a>
-            <a class="hotspot" id="rema-1" data-tooltip="Rema"></a>
-            <a class="hotspot" id="rema-2" data-tooltip="Rema"></a>   
-            <a class="hotspot" id="rema-3" data-tooltip="Rema"></a>   
-            <a class="hotspot" id="r-akiva-eiger" data-tooltip="R Akiva Eiger"></a>      
-            <a class="hotspot" id="gra-1" data-tooltip="Vilna Gaon"></a>     
-            <a class="hotspot" id="gra-2" data-tooltip="Vilna Gaon"></a>      
-            <a class="hotspot" id="pischei-teshuva-1" data-tooltip="Pischei Teshuva"></a>        
-            <a class="hotspot" id="pischei-teshuva-2" data-tooltip="Pischei Teshuva"></a>      
-            <a class="hotspot" id="be-er-hagola" data-tooltip="Be-er Hagola"></a>  
-            <a class="hotspot" id="r-shlomo-eiger" data-tooltip="R Shlomo Eiger"></a>  
-            <a class="hotspot" id="be-er-heitev" data-tooltip="Be-er Heitev"></a>              
-            <a class="hotspot" id="machatzis-hashekel" data-tooltip="Machatzis Hashekel"></a> 
-            <a class="hotspot" id="yad-efraim" data-tooltip="Yad Efraim"></a> 
+        <div class="center-study">
+            <div class="container">
+                <div class="image-container">
+                    <!-- Replace with actual path to the PDF image -->
+                    <img alt="Shulchan Aruch" usemap="#commentaries-map" id="shulchan-aruch">
+
+                    <a class="hotspot" id="pri-megadim" data-tooltip="Pri Megadim"></a>
+                    <a class="hotspot" id="taz-1" data-tooltip="Taz"></a>
+                    <a class="hotspot" id="taz-2" data-tooltip="Taz"></a>
+                    <a class="hotspot" id="taz-3" data-tooltip="Taz"></a>
+                    <a class="hotspot" id="shach" data-tooltip="Shach"></a>
+                    <a class="hotspot" id="shulchan-aruch-1" data-tooltip="Shulchan Aruch"></a>
+                    <a class="hotspot" id="shulchan-aruch-2" data-tooltip="Shulchan Aruch"></a>
+                    <a class="hotspot" id="shulchan-aruch-3" data-tooltip="Shulchan Aruch"></a>
+                    <a class="hotspot" id="shulchan-aruch-4" data-tooltip="Shulchan Aruch"></a>
+                    <a class="hotspot" id="rema-1" data-tooltip="Rema"></a>
+                    <a class="hotspot" id="rema-2" data-tooltip="Rema"></a>   
+                    <a class="hotspot" id="rema-3" data-tooltip="Rema"></a>   
+                    <a class="hotspot" id="r-akiva-eiger" data-tooltip="R Akiva Eiger"></a>      
+                    <a class="hotspot" id="gra-1" data-tooltip="Vilna Gaon"></a>     
+                    <a class="hotspot" id="gra-2" data-tooltip="Vilna Gaon"></a>      
+                    <a class="hotspot" id="pischei-teshuva-1" data-tooltip="Pischei Teshuva"></a>        
+                    <a class="hotspot" id="pischei-teshuva-2" data-tooltip="Pischei Teshuva"></a>      
+                    <a class="hotspot" id="be-er-hagola" data-tooltip="Be-er Hagola"></a>  
+                    <a class="hotspot" id="r-shlomo-eiger" data-tooltip="R Shlomo Eiger"></a>  
+                    <a class="hotspot" id="be-er-heitev" data-tooltip="Be-er Heitev"></a>              
+                    <a class="hotspot" id="machatzis-hashekel" data-tooltip="Machatzis Hashekel"></a> 
+                    <a class="hotspot" id="yad-efraim" data-tooltip="Yad Efraim"></a> 
+                </div>
+            </div>
+
+            <div class="study-hint" aria-label="Tap commentary to explore">
+                <span class="study-hint-icon">☝</span>
+                <span>Tap Commentary To Explore</span>
+            </div>
         </div>
-    </div>
+
+        <aside class="study-sidebar">
+            <section class="commentary-key" aria-label="Key">
+                <div class="commentary-key-title">Key</div>
+                <div class="commentary-key-grid">
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-shulchan-aruch"></span><span>Shulchan Aruch</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-rema"></span><span>Rema</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-taz"></span><span>Taz</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-shach"></span><span>Shach</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-pri-megadim"></span><span>Pri Megadim</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-gra"></span><span>Vilna Gaon</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-r-akiva-eiger"></span><span>R Akiva Eiger</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-pischei-teshuva"></span><span>Pischei Teshuva</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-be-er-heitev"></span><span>Be-er Heitev</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-r-shlomo-eiger"></span><span>R Shlomo Eiger</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-machatzis-hashekel"></span><span>Machatzis Hashekel</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-be-er-hagola"></span><span>Be-er Hagola</span></div>
+                    <div class="commentary-key-item"><span class="commentary-key-dot dot-yad-efraim"></span><span>Yad Efraim</span></div>
+                </div>
+            </section>
+        </aside>
+    </main>
 
     <script>
 
