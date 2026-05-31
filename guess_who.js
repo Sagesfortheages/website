@@ -34,6 +34,9 @@ const guessBtn = document.getElementById("guess-button");
 const guessStatus = document.getElementById("guess-status");
 const profileBtn = document.getElementById("profile-button");
 
+const successBanner = document.getElementById("success-banner");
+const successText = document.getElementById("success-text");
+
 let allSages = [];
 let boardSages = [];
 let correctSage = null;
@@ -524,14 +527,19 @@ function handleFinalGuess(sage, card) {
     history.prepend(item);
 
     if (isCorrect) {
-    if (guessStatus) {
-        guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
-    }
+        if (guessStatus) {
+            guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
+        }
 
-    finishGame(card);
+        finishGame(card);
 
-    console.log("GAME WON:", correctSage);
-    return;
+        if (successBanner && successText) {
+            successText.textContent = `You discovered ${correctSage.person}.`;
+            successBanner.classList.remove("hidden");
+        }
+
+        console.log("GAME WON:", correctSage);
+        return;
     }
 
     card.classList.add("eliminated");
@@ -557,6 +565,14 @@ async function initializeGuessWho() {
 
     if (profileBtn) {
         profileBtn.classList.add("hidden");
+    }
+
+    if (successBanner) {
+        successBanner.classList.add("hidden");
+    }
+
+    if (successText) {
+        successText.textContent = "";
     }
 
     gameOver = false;

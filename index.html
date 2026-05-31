@@ -217,6 +217,14 @@
   display: none;
 }
 
+#todays-sage-name{
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  font-weight: inherit;
+}
+
 
 
     /* ======================================================
@@ -782,6 +790,7 @@
   transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
 }
 
+
 .signin-corner-button{
   font-size: clamp(16px, 1.45vw, 16px);
   max-width: 260px;
@@ -1230,7 +1239,9 @@
           Discover the great sages of the last thousand years.
         </div>
 
-        <button class="cta-button sweep" id="cta-button">Meet Today's Sage</button>
+        <button class="cta-button sweep" id="cta-button">
+          Meet Today's Sage: <span id="todays-sage-name">Loading...</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1326,17 +1337,52 @@
     </span>
   </div>
 
-  <script>
-    document.getElementById("cta-button")?.addEventListener("click", () => {
-      window.location.href = "discover.html";
-    });
-  </script>
 
   <script type="module">
   import { supabaseClient } from "./supabase/supabaseClient.js";
   import { trackPageView } from "./supabase/supabaseFunctions.js";
 
   window.supabaseClient = supabaseClient;
+
+  async function loadTodaysSageButton(){
+  const sageNameEl = document.getElementById("todays-sage-name");
+  const ctaButton = document.getElementById("cta-button");
+
+  if (!sageNameEl || !ctaButton) return;
+
+  const today = new Date();
+
+  const seed =
+    today.getFullYear() * 10000 +
+    (today.getMonth() + 1) * 100 +
+    today.getDate();
+
+  const { data, error } = await supabaseClient
+    .from("sage")
+    .select("person, name")
+    .not("name", "is", null)
+    .order("name", { ascending: true });
+
+  if (error || !data || data.length === 0){
+    console.error("Could not load today's sage:", error);
+    sageNameEl.textContent = "a Sage";
+    return;
+  }
+
+  const sage = data[seed % data.length];
+
+  sageNameEl.textContent = sage.person;
+
+  ctaButton.onclick = () => {
+    const encodedSelected = encodeURIComponent(
+      JSON.stringify({ person: sage.person })
+    );
+
+    window.location.href = `discover.html?selected=${encodedSelected}`;
+  };
+}
+
+loadTodaysSageButton();
 
   const overlay = document.getElementById("overlay");
   const authTitle = document.getElementById("auth-title");
