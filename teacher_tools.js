@@ -1131,18 +1131,20 @@ function wireCreateStudent() {
             <b>${esc(student.displayName || student.display_name || displayName)}</b>
           </div>
 
-          <div class="result-row-pair">
-          <span>Username</span><b>${esc(student.username || username)}</b></div>
+        <div class="result-row-pair">
+          <span>Class code</span>
+          <b>${esc(student.classCode || '—')}</b>
+        </div>
 
-          <div class="result-row-pair">
-            <span>Class code</span>
-            <b>${esc(student.classCode || '—')}</b>
-          </div>
+        <div class="result-row-pair">
+          <span>Username</span>
+          <b>${esc(student.username || username)}</b>
+        </div>
 
-          <div class="result-row-pair">
-            <span>PIN</span>
-            <b>${esc(student.pin || student.tempPin || '—')}</b>
-          </div>
+        <div class="result-row-pair">
+          <span>PIN</span>
+          <b>${esc(student.pin || student.tempPin || '—')}</b>
+        </div>
         </div>
       `;
 
