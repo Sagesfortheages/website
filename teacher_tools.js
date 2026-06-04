@@ -1183,13 +1183,13 @@ function renderLoginCards(students) {
       </div>
 
       <div class="login-card-row">
-        <span>Username</span>
-        <b>${esc(student.username)}</b>
+        <span>Class Code</span>
+        <b>${esc(student.classCode)}</b>
       </div>
 
       <div class="login-card-row">
-        <span>Class Code</span>
-        <b>${esc(student.classCode)}</b>
+        <span>Username</span>
+        <b>${esc(student.username)}</b>
       </div>
 
       <div class="login-card-row">
