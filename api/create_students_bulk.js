@@ -1,4 +1,5 @@
 let lastCreatedBulkStudents = [];
+let harry = 0
 
 function parseBulkStudentNames(rawText) {
   return String(rawText || '')
