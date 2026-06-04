@@ -817,6 +817,17 @@
     inset 0 1px 0 rgba(255,255,255,0.42);
 }
 
+.site-footer{
+  width: 100%;
+  margin: 2.5vmin auto 1.5vmin;
+  position:absolute;
+  bottom: -3px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  color: rgba(90, 74, 58, 0.82);
+}
+
     @media (max-width: 640px){
       html, body{
         overflow: hidden !important;
@@ -1236,7 +1247,7 @@
         <div class="hero-tagline">Experience Our History</div>
 
         <div class="subtitle blurb">
-          Discover the great sages of the last thousand years.
+          Interactive Jewish History For The Classroom
         </div>
 
         <button class="cta-button sweep" id="cta-button">
@@ -1337,8 +1348,12 @@
     </span>
   </div>
 
+  <footer class="site-footer">
+    All rights Reserved © Sages For The Ages 2025
+  </footer>
 
-  <script type="module">
+
+  <script type="module">  
   import { supabaseClient } from "./supabase/supabaseClient.js";
   import { trackPageView } from "./supabase/supabaseFunctions.js";
 
@@ -1925,6 +1940,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     console.error("trackPageView failed:", e);
   }
 </script>
+
 
 </body>
 </html>

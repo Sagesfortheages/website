@@ -1022,9 +1022,33 @@ async function loadSageDropdown() {
   try {
     const sages = await loadAllSages();
 
+    function hasAtLeastOneExpertise(sage) {
+      return (
+        Array.isArray(sage.expertise) &&
+        sage.expertise.length > 0
+      );
+    }
+
+    function hasCityOfPassing(sage) {
+      return !!(
+        sage.city_of_passing?.city ||
+        sage.city?.city ||
+        sage.city ||
+        sage.passing_city ||
+        sage.city_of_death
+      );
+    }
+
     const unique = [...new Map(
       sages
-        .filter(s => s?.person)
+        .filter(s =>
+          s?.person &&
+          s?.birth != null &&
+          s?.passing != null &&
+          s?.background &&
+          hasCityOfPassing(s) &&
+          hasAtLeastOneExpertise(s)
+        )
         .map(s => [s.person, s])
     ).values()].sort((a, b) => a.person.localeCompare(b.person));
 
