@@ -124,7 +124,12 @@
             <div class="panel-toolbar-title">Class Roster</div>
             <div class="panel-toolbar-sub" id="students-subtitle">Students enrolled in this class</div>
           </div>
-          <button class="cta-button" id="open-add-student">+ Add Student</button>
+          <div class="toolbar-actions">
+            <button class="cta-button" id="open-add-student">+ Add Student</button>
+            <button class="cta-button filled" id="open-add-multiple-students">
+              + Add Multiple Students
+            </button>
+          </div>
         </div>
 
         <table class="data-table">
@@ -272,6 +277,44 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="modal-add-multiple-students">
+  <div class="modal bulk-modal">
+    <div class="modal-head">
+      <h3>Add Multiple Students</h3>
+      <button class="modal-close" data-close="modal-add-multiple-students">✕</button>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="bulk-student-names">
+        Type or paste student names, one per line
+      </label>
+
+      <textarea
+        id="bulk-student-names"
+        class="teacher-input bulk-textarea"
+        placeholder="Ari Kahan&#10;Benjamin Mizrahi&#10;Dovid Hersh"
+      ></textarea>
+
+      <div class="helper-text">
+        Each line will become one student account. Usernames and one-time PINs will be generated automatically.
+      </div>
+    </div>
+
+    <div class="bulk-warning">
+      ⚠️ PINs will only be shown once. Print the login cards before leaving the results screen.
+    </div>
+
+    <div id="bulk-student-result"></div>
+
+    <div class="modal-actions">
+      <button class="cta-button" data-close="modal-add-multiple-students">Cancel</button>
+      <button class="cta-button filled" id="create-bulk-students-btn">
+        Create Student Profiles
+      </button>
+    </div>
+  </div>
+</div>
+
   <div class="modal-backdrop" id="modal-create-class">
     <div class="modal">
       <div class="modal-head">
@@ -384,6 +427,15 @@
       </div>
     </div>
   </div>
+
+  <div id="bulk-print-area" class="bulk-print-area hidden">
+  <div class="print-head">
+    <h2>Student Login Cards</h2>
+    <p>Print these now. PINs cannot be viewed again after this page is closed.</p>
+  </div>
+
+  <div id="bulk-login-cards" class="bulk-login-cards"></div>
+</div>
 
   <script type="module" src="teacher_tools.js"></script>
 </body>
