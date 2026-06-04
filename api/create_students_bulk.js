@@ -220,10 +220,10 @@ export default async function handler(req, res) {
       });
     }
 
-    if (cleanNames.length > 20) {
+    if (cleanNames.length > 30) {
       return res.status(400).json({
         success: false,
-        message: 'You can add at most 20 students at a time'
+        message: 'You can add at most 30 students at a time'
       });
     }
 
@@ -292,10 +292,10 @@ export default async function handler(req, res) {
 
     const activeStudentCount = existingStudents?.length || 0;
 
-    if (activeStudentCount + cleanNames.length > 20) {
+    if (activeStudentCount + cleanNames.length > 30) {
       return res.status(403).json({
         success: false,
-        message: `This class has ${activeStudentCount}/20 students. You can only add ${20 - activeStudentCount} more.`
+        message: `This class has ${activeStudentCount}/30 students. You can only add ${30 - activeStudentCount} more.`
       });
     }
 

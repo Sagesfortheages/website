@@ -588,13 +588,13 @@ async function loadStudents(classId) {
   lastStudents = students || [];
 
   if (studentsSubtitle) {
-    studentsSubtitle.textContent = `${lastStudents.length}/20 students`;
+    studentsSubtitle.textContent = `${lastStudents.length}/30 students`;
   }
 
 
   if (!students?.length) {
     if (studentsSubtitle) {
-      studentsSubtitle.textContent = '0/20 students';
+      studentsSubtitle.textContent = '0/30 students';
     }
 
     studentsTbody.innerHTML = statusRow('No students in this class.');
@@ -1306,12 +1306,12 @@ function wireCreateBulkStudents() {
       return;
     }
 
-    const remainingSlots = 20 - lastStudents.length;
+    const remainingSlots = 30 - lastStudents.length;
 
     if (names.length > remainingSlots) {
       resultEl.innerHTML = errorCard(
         'Too many students',
-        `This class has ${lastStudents.length}/20 students. You can only add ${remainingSlots} more.`
+        `This class has ${lastStudents.length}/30 students. You can only add ${remainingSlots} more.`
       );
       return;
     }

@@ -171,7 +171,7 @@ export default async function handler(req, res) {
       });
     }
 
-        // 7. Enforce max 20 active students per class
+        // 7. Enforce max 30 active students per class
     const { count: activeStudentCount, error: countError } = await supabaseAdmin
       .from('students')
       .select('id', { count: 'exact', head: true })
@@ -185,10 +185,10 @@ export default async function handler(req, res) {
       });
     }
 
-    if ((activeStudentCount || 0) >= 20) {
+    if ((activeStudentCount || 0) >= 30) {
       return res.status(403).json({
         success: false,
-        message: 'This class already has the maximum of 20 active students'
+        message: 'This class already has the maximum of 30 active students'
       });
     }
 
