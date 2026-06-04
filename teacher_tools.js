@@ -1200,6 +1200,76 @@ function renderLoginCards(students) {
   `).join('');
 }
 
+function renderBulkSuccessMessage(classId, textarea, resultEl) {
+  resultEl.innerHTML = `
+    <div class="result-card success">
+      <div class="result-title">✅ ${lastCreatedBulkStudents.length} student profiles created</div>
+
+      <p style="margin-top:0.8vmin;">
+        <b>Print these login cards now.</b>
+        PINs cannot be viewed again after you leave this screen.
+      </p>
+
+      <div class="bulk-created-actions">
+        <button class="cta-button filled" id="print-bulk-cards-btn" type="button">
+          🖨 Print All Login Cards
+        </button>
+
+        <button class="cta-button" id="done-bulk-students-btn" type="button">
+          Done
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('print-bulk-cards-btn')?.addEventListener('click', () => {
+    window.print();
+  });
+
+  document.getElementById('done-bulk-students-btn')?.addEventListener('click', () => {
+    resultEl.innerHTML = `
+      <div class="result-card warning">
+        <div class="result-title">⚠️ Before you close this screen</div>
+
+        <p style="margin-top:0.8vmin;">
+          Student PINs are shown only once. After you close this screen,
+          you will not be able to view these PINs again.
+        </p>
+
+        <div class="bulk-created-actions">
+          <button class="cta-button filled" id="print-bulk-cards-btn-2" type="button">
+            🖨 Print Login Cards
+          </button>
+
+          <button class="cta-button" id="cancel-close-bulk-btn" type="button">
+            Go Back
+          </button>
+
+          <button class="cta-button danger" id="confirm-close-bulk-btn" type="button">
+            Close Anyway
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('print-bulk-cards-btn-2')?.addEventListener('click', () => {
+      window.print();
+    });
+
+    document.getElementById('cancel-close-bulk-btn')?.addEventListener('click', () => {
+      renderBulkSuccessMessage(classId, textarea, resultEl);
+    });
+
+    document.getElementById('confirm-close-bulk-btn')?.addEventListener('click', async () => {
+      lastCreatedBulkStudents = [];
+      textarea.value = '';
+      resultEl.innerHTML = '';
+      closeModal('modal-add-multiple-students');
+      await loadStudents(classId);
+    });
+  });
+}
+
 function wireCreateBulkStudents() {
   const textarea = document.getElementById('bulk-student-names');
   const createBtn = document.getElementById('create-bulk-students-btn');
@@ -1276,44 +1346,8 @@ function wireCreateBulkStudents() {
 
       renderLoginCards(lastCreatedBulkStudents);
 
-      resultEl.innerHTML = `
-        <div class="result-card success">
-          <div class="result-title">✅ ${lastCreatedBulkStudents.length} student profiles created</div>
-
-          <p style="margin-top:0.8vmin;">
-            <b>Print these login cards now.</b>
-            PINs cannot be viewed again after you leave this screen.
-          </p>
-
-          <div class="bulk-created-actions">
-            <button class="cta-button filled" id="print-bulk-cards-btn" type="button">
-              🖨 Print All Login Cards
-            </button>
-
-            <button class="cta-button" id="done-bulk-students-btn" type="button">
-              Done
-            </button>
-          </div>
-        </div>
-      `;
-
-      document.getElementById('print-bulk-cards-btn')?.addEventListener('click', () => {
-        window.print();
-      });
-
-      document.getElementById('done-bulk-students-btn')?.addEventListener('click', async () => {
-        const ok = confirm(
-          'Leave this screen? Student PINs cannot be viewed again after you close it.'
-        );
-
-        if (!ok) return;
-
-        lastCreatedBulkStudents = [];
-        textarea.value = '';
-        resultEl.innerHTML = '';
-        closeModal('modal-add-multiple-students');
-        await loadStudents(classId);
-      });
+      renderBulkSuccessMessage(classId, textarea, resultEl);
+  
 
       await loadStudents(classId);
 
