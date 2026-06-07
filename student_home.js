@@ -7,15 +7,15 @@ const startActivityBtn = document.getElementById('start-activity-btn');
 const logoutBtn = document.getElementById('logout-button');
 
 function getAssignmentUrl(assignment) {
-  if (assignment.activity_type === 'guess_who') {
-    return `guess_who.html?assignment_id=${encodeURIComponent(assignment.id)}`;
+  if (assignment.activity_type === 'which_sage') {
+    return `which_sage.html?assignment_id=${encodeURIComponent(assignment.id)}`;
   }
 
-  return `play.html?assignment_id=${encodeURIComponent(assignment.id)}`;
+  return `sage_sleuth.html?assignment_id=${encodeURIComponent(assignment.id)}`;
 }
 
 function getActivityLabel(assignment) {
-  if (assignment.activity_type === 'guess_who') {
+  if (assignment.activity_type === 'which_sage') {
     return 'Which Sage';
   }
 
