@@ -196,7 +196,7 @@ window.loadMusic = async function(supabaseClient, filename) {
     try {
         const { data, error } = await supabaseClient.storage
             .from('audio')
-            .createSignedUrl(`music/${filename}`, 60); // valid for 5 minutes
+            .createSignedUrl(`music/${filename}`, 120); // valid for 5 minutes
 
         if (error) {
             console.error("Error creating signed URL for music:", error);
@@ -205,8 +205,12 @@ window.loadMusic = async function(supabaseClient, filename) {
 
         if (data?.signedUrl) {
             const audioEl = document.getElementById("song");
-            audioEl.src = data.signedUrl; // inject URL
-            audioEl.load(); // refresh the audio element
+
+            if (audioEl.src === data.signedUrl) return;
+
+            audioEl.src = data.signedUrl;
+            audioEl.load();
+
             console.log("Music loaded:", data.signedUrl);
         }
 

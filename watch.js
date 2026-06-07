@@ -182,23 +182,33 @@ noUiSlider.create(yearSlider, {
 
 
 
-// Play button
-window.playButton = document.getElementById('play-button');
-playButton.addEventListener('click', () => {
+playButton.addEventListener('click', async () => {
+    const song = document.getElementById('song');
+
     if (!playButton.checked) {
         playButton.checked = true;
         playButton.classList.add('paused');
         startPlaying(videoSpeed);
-        const song = document.getElementById('song');
-        if (song) {
-            song.play();
+
+        if (!musicReady) {
+            console.warn("Music is not ready yet.");
+            return;
+        }
+
+        try {
+            await song.play();
+        } catch (err) {
+            console.warn("Music play failed:", err);
         }
 
     } else {
         playButton.checked = false;
         playButton.classList.remove('paused');
         stopPlaying();
-        document.getElementById("song").pause();
+
+        if (song) {
+            song.pause();
+        }
     }
 });
 
@@ -220,12 +230,30 @@ document.getElementById('map').addEventListener('click', () => {
     popup.classList.remove('visible');
 });
 
-// Load markers from DB first
+let musicReady = false;
+
+async function prepareMusic() {
+    const song = document.getElementById('song');
+
+    await loadMusic(supabaseClient, "StockTune-Graduation Day Anthem_1759157249.mp3");
+
+    await new Promise((resolve, reject) => {
+        if (song.readyState >= 2) {
+            resolve();
+            return;
+        }
+
+        song.addEventListener('canplay', resolve, { once: true });
+        song.addEventListener('error', reject, { once: true });
+    });
+
+    musicReady = true;
+}
+
 loadMarkersFromDB().then(async () => {
     console.log("Markers ready, UI can now animate.");
 
-    // Wait for the music URL to load
-    await loadMusic(supabaseClient, "StockTune-Graduation Day Anthem_1759157249.mp3");
+    await prepareMusic();
 
     console.log("Music loaded and ready to play.");
 });
