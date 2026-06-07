@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Play Select</title>
+  <title>Select Difficulty</title>
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
@@ -277,7 +277,7 @@
         const difficulty = this.querySelector('.level-sub').textContent.trim();
         console.log(`Selected difficulty: ${difficulty}`);
         sessionStorage.setItem('difficulty', JSON.stringify(difficulty));
-        window.location.href = 'play.html';
+        window.location.href = 'sage_sleuth.html';
       });
     });
   </script>

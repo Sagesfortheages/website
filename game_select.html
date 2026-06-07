@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Games</title>
+
+  <link rel="icon" href="icon3.png" type="image/x-icon">
+  <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+  <link rel="stylesheet" href="all_styles.css">
+
+  <style>
+    body {
+      overflow: hidden;
+    }
+
+    .games-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .games-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2vmin;
+    }
+
+    .games-panel {
+      width: min(92vw, 980px);
+      padding: 4vmin;
+      text-align: center;
+    }
+
+    .games-intro {
+      max-width: 70ch;
+      margin: 1vmin auto 4vmin;
+      font-size: clamp(18px, 2.5vmin, 28px);
+      line-height: 1.35;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .game-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 3vmin;
+      align-items: stretch;
+    }
+
+    .game-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 34vmin;
+      padding: 3vmin;
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--rule);
+      border-radius: calc(var(--radius) + 6px);
+      background:
+        radial-gradient(circle at 30% 15%, rgba(255,255,255,0.45), transparent 45%),
+        rgba(255, 248, 230, 0.62);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      inset: 1vmin;
+      border: 1px solid var(--rule-faint);
+      border-radius: var(--radius);
+      pointer-events: none;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 34px rgba(0,0,0,0.18);
+      border-color: var(--rule-strong);
+    }
+
+    .game-icon {
+      font-size: clamp(44px, 8vmin, 82px);
+      line-height: 1;
+      margin-bottom: 1.5vmin;
+      filter: sepia(0.35);
+    }
+
+    .game-card h2 {
+      font-family: var(--font-ui);
+      font-size: clamp(24px, 4vmin, 42px);
+      color: var(--heading-ink);
+      letter-spacing: 0.6px;
+      margin-bottom: 1vmin;
+    }
+
+    .game-card p {
+      font-size: clamp(16px, 2.2vmin, 22px);
+      line-height: 1.35;
+      color: var(--ink-soft);
+      max-width: 32ch;
+      margin: 0 auto 2.5vmin;
+    }
+
+    .game-card .cta-button {
+      margin: 0 auto;
+      min-width: 20vmin;
+      min-height: 6.4vmin;
+      font-size: clamp(14px, 2.1vmin, 20px);
+      pointer-events: none;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .header-section {
+        min-height: auto;
+        padding-bottom: 1vmin;
+      }
+
+      .game-options {
+        grid-template-columns: 1fr;
+      }
+
+      .games-main {
+        align-items: start;
+      }
+
+      .games-panel {
+        padding: 3vmin;
+      }
+
+      .game-card {
+        min-height: 230px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="games-page">
+    <div class="header-section">
+      <div class="header">
+        <h1>
+          <span class="emoji">🎲</span>
+          <span class="gradient-text">Games</span>
+        </h1>
+
+        <p class="subtitle">Choose a game and begin exploring the sages.</p>
+
+        <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
+      </div>
+    </div>
+
+    <main class="games-main">
+      <section class="panel games-panel">
+        <h2 class="panel-heading">Select A Game</h2>
+
+        <p class="games-intro">
+          Test your knowledge, follow the clues, and discover the sages through play.
+        </p>
+
+        <div class="game-options">
+          <a class="game-card" href="which_sage.html">
+            <div>
+              <div class="game-icon">🧠</div>
+              <h2>Which Sage</h2>
+              <p>
+                Ask questions. Eliminate sages. Guess the sage.
+            </div>
+
+            <span class="cta-button sweep">Play Which Sage</span>
+          </a>
+
+          <a class="game-card" href="sage_sleuth_select.html">
+            <div>
+              <div class="game-icon">🕵️</div>
+              <h2>Sage Sleuth</h2>
+              <p>
+                Investigate clues, narrow the possibilities, and uncover the hidden sage.
+              </p>
+            </div>
+
+            <span class="cta-button sweep">Play Sage Sleuth</span>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="global.js"></script>
+</body>
+</html>
