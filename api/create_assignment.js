@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const title = `Mystery Sage`;
+    const title = cleanActivityType;
 
     const { data: assignment, error: assignmentError } = await supabaseAdmin
       .from('assignments')

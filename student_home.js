@@ -7,7 +7,7 @@ const startActivityBtn = document.getElementById('start-activity-btn');
 const logoutBtn = document.getElementById('logout-button');
 
 function getAssignmentUrl(assignment) {
-  if (assignment.activity_type === 'which_sage') {
+  if (assignment.activity_type === 'Which Sage') {
     return `which_sage.html?assignment_id=${encodeURIComponent(assignment.id)}`;
   }
 
@@ -15,11 +15,11 @@ function getAssignmentUrl(assignment) {
 }
 
 function getActivityLabel(assignment) {
-  if (assignment.activity_type === 'Which_sage') {
+  if (assignment.activity_type === 'Which Sage') {
     return 'Which Sage';
   }
 
-  return 'SageSleuth';
+  return 'Sage Sleuth';
 }
 
 async function loadStudentHome() {
