@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     const parsedClassId = Number(classId);
     const cleanTargetSagePerson = String(targetSagePerson || '').trim();
-    const cleanActivityType = String(activityType || 'mystery_sage').trim();
+    const cleanActivityType = String(activityType || 'Sage Sleuth').trim();
 
     if (!Number.isInteger(parsedClassId) || parsedClassId <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid classId' });

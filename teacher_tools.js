@@ -839,7 +839,7 @@ async function loadAssignments(classId) {
       : '—';
 
     const activityLabel =
-      a.activity_type === 'guess_who'
+      a.activity_type === 'Which Sage'
         ? 'Which Sage'
         : 'SageSleuth';
 
@@ -1470,12 +1470,12 @@ function wireAssignSage() {
     const targetSagePerson = document.getElementById('sage-select')?.value;
     const resultEl = document.getElementById('assign-game-result');
 
-    const activityType = selectedAssignmentActivityType || 'mystery_sage';
+    const activityType = selectedAssignmentActivityType || 'Sage Sleuth';
 
     const activityLabel =
-      activityType === 'guess_who'
+      activityType === 'Which Sage'
         ? 'Which Sage'
-        : 'SageSleuth';
+        : 'Sage Sleuth';
 
     if (!classId) {
       resultEl.innerHTML = errorCard('No class selected', 'Please select a class from the top first.');

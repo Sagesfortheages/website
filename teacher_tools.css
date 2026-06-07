@@ -64,7 +64,7 @@ main {
 .modal-head h3{font-family: var(--font-ui);font-size: clamp(14px,1.8vmin,18px);letter-spacing: 0.06em;text-transform: uppercase;color: var(--heading-ink);}
 .modal-close{background: none;border: 0;font-size: 1.4em;color: var(--ink-soft);cursor: pointer;opacity: 0.65;}
 .modal-close:hover{opacity: 1;}
-.modal-actions{justify-content: flex-end;margin-top: 1.8vmin;padding-top: 1vmin;border-top: 1px solid var(--rule-faint);}
+.modal-actions{justify-content: center;margin-top: 1.8vmin;padding-top: 1vmin;border-top: 1px solid var(--rule-faint);}
 .field-group{margin-bottom: 1.2vmin;}
 .field-label{display: block;margin-bottom: 0.5vmin;font-family: var(--font-ui);font-size: clamp(11px,1.4vmin,13px);font-weight: 700;letter-spacing: 0.07em;text-transform: uppercase;color: var(--heading-ink);}
 .teacher-input,.teacher-select{width: 100%;padding: 1vmin 1.2vmin;border: 1px solid rgba(139,115,85,0.35);border-radius: var(--radius-sm);font-size: var(--fs-input);background: rgba(255,255,255,0.72);color: var(--input-ink);box-shadow: inset 0 1px 6px rgba(0,0,0,0.07);}

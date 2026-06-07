@@ -15,7 +15,7 @@ function getAssignmentUrl(assignment) {
 }
 
 function getActivityLabel(assignment) {
-  if (assignment.activity_type === 'which_sage') {
+  if (assignment.activity_type === 'Which_sage') {
     return 'Which Sage';
   }
 
