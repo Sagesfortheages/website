@@ -92,8 +92,9 @@
 
     /* ===== LEVEL TEXT ===== */
     .level-title{
+      font-family: var(--font-ui);
       font-size:4.3vmin;
-      font-weight:800;
+      font-weight:700;
       letter-spacing:.7px;
       line-height:1.05;
       text-shadow: 0 2px 10px rgba(0,0,0,0.25);
@@ -114,6 +115,7 @@
     */
 
     #very-easy-button{
+      --glow: rgba(47, 143, 131, 0.45);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
         linear-gradient(135deg, #2f8f83, #1f5f57);
@@ -121,6 +123,7 @@
     }
 
     #easy-button{
+      --glow: rgba(79, 154, 59, 0.45);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
         linear-gradient(135deg, #4f9a3b, #2f6c26);
@@ -128,6 +131,7 @@
     }
 
     #medium-button{
+      --glow: rgba(210, 161, 41, 0.45);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
         linear-gradient(135deg, #d2a129, #8b6514);
@@ -135,6 +139,7 @@
     }
 
     #hard-button{
+      --glow: rgba(208, 107, 45, 0.45);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
         linear-gradient(135deg, #d06b2d, #8a3c16);
@@ -142,6 +147,7 @@
     }
 
     #very-hard-button{
+      --glow: rgba(181, 52, 60, 0.45);
       background:
         linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
         linear-gradient(135deg, #b5343c, #651826);
@@ -158,50 +164,7 @@
       pointer-events:none;
     }
 
-    /* ===== ALERT BOX ===== */
-    .alert-box{
-      display:none;
-      position:fixed;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      background:var(--paper);
-      border-radius:16px;
-      border:1px solid var(--rule);
-      box-shadow:0 20px 60px rgba(0,0,0,0.25);
-      padding:4vh 4vw;
-      max-width:80vw;
-      z-index:2000;
-      text-align:center;
-      color:var(--ink);
-      font-family:"Crimson Text","Segoe UI",serif;
-      animation:slideIn .25s ease;
-    }
-
-    @keyframes slideIn{
-      from{ transform:translate(-50%,-58%) scale(0.96); opacity:0; }
-      to{ transform:translate(-50%,-50%) scale(1); opacity:1; }
-    }
-
-    #exit-button{
-      position:absolute;
-      top:1vh;
-      right:1vw;
-      width:4vmin;
-      height:4vmin;
-      border-radius:50%;
-      border:none;
-      background:var(--paper-strong);
-      font-size:2vmin;
-      cursor:pointer;
-      color:var(--ink-soft);
-      transition:all .2s ease;
-    }
-
-    #exit-button:hover{
-      background:#e6d7b6;
-      color:var(--ink);
-    }
+    /* Alert box + exit button come from all_styles.css */
 
     @media (max-width:600px){
       .navigate-buttons button{ width:92%; }

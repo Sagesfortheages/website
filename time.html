@@ -121,17 +121,14 @@
 
         /* Sort buttons */
         #sort-chronological, #sort-alphabetical {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3f6868 0%, #2f4f4f 100%);
         }
 
-
-
-
-        .filter-item.filter-clicked{
-            background-color: #1d4ed8; /* Blue-700 */
-            color: rgb(69, 69, 245);
-            transform: scale(1.05);
-            background:none
+        /* Selected sort / filter chip */
+        .chart-button-item.filter-clicked{
+            border: 3px solid #76411c !important;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+            transform: translateY(1px) scale(1.03);
         }
 
 
@@ -139,47 +136,11 @@
 
 
 
-        /* Alert box styling */
+        /* Alert box + exit button come from all_styles.css */
         .alert-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             z-index: 10000;
             max-width: 500px;
             width: 90%;
-            backdrop-filter: blur(20px);
-            display: none;
-        }
-
-        .alert-box p {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        #exit-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        #exit-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(238, 90, 82, 0.4);
         }
 
 /* =========================

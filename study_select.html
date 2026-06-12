@@ -14,231 +14,61 @@
     <script src="global.js"></script>
 
     <style>
-        /* -------- PAGE WRAPPER -------- */
-        .page {
-            max-width: 900px;
-            margin: 0 auto;
-            padding-top: 2vh;
-            padding-bottom: 4vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* -------- GRID -------- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 2.5vmin;
-            width: 85vw;
-            max-width: 650px;
-        }
-
-        /* -------- TILES -------- */
-        .tile {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(10px);
-            border-radius: 22px;
-            padding: 1vmin;
-            min-height: 18vmin;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.28s ease, box-shadow 0.28s ease;
-            border: none;
-            font: inherit;
-        }
-
-        .tile:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
-        }
-
-        .tile:active {
-            transform: translateY(-3px) scale(1.01);
-        }
-
-        .tile-icon {
-            font-size: 6.2vmin;
-            margin-bottom: 1.2vmin;
-            line-height: 1;
-        }
-
-        .tile-label {
-            font-size: 2.5vmin;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            text-align: center;
-            color: #2e3b4e;
-            line-height: 1.2;
-        }
-
-        /* -------- COMING SOON -------- */
-        .coming {
-            pointer-events: none;
-            opacity: 0.9;
-        }
-
-        .coming::after {
-            content: "UNDER CONSTRUCTION";
-            position: absolute;
-            bottom: -13%;
-            font-size: 1.8vmin;
-            padding: 0.5vmin 1.2vmin;
-            border-radius: 4px;
-            font-weight: 700;
-            background: repeating-linear-gradient(
-                -45deg,
-                #f9d423 0px,
-                #f9d423 14px,
-                #000 14px,
-                #000 16px
-            );
-            color: #000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            transform: rotate(-3deg);
-            white-space: nowrap;
-        }
-
-        /* -------- ALERT BOX -------- */
-        .alert-box {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(10px);
-            border-radius: 18px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            padding: 4vh 4vw;
-            max-width: 80vw;
-            max-height: 80vh;
-            z-index: 2000;
-            text-align: center;
-            font-family: 'Segoe UI', sans-serif;
-            animation: fadeSlideIn 0.25s ease;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                transform: translate(-50%, -56%) scale(0.96);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .alert-box p {
-            font-size: 2.4vmin;
-            color: #2e3b4e;
-            line-height: 1.5;
-            margin-bottom: 2vh;
-        }
-
-        #exit-button {
-            position: absolute;
-            top: 1vh;
-            right: 1vw;
-            width: 4.2vmin;
-            height: 4.2vmin;
-            border-radius: 50%;
-            border: none;
-            background: rgba(240,240,240,0.95);
-            font-size: 2vmin;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #666;
-        }
-
-        #exit-button:hover {
-            background: #e0e0e0;
-            color: #333;
-        }
+        /* Page-specific tweaks; tiles, grid, alerts come from all_styles.css */
 
         /* -------- MOBILE -------- */
         @media (max-width: 600px) {
+          body {
+            overflow-y: auto;
+          }
 
-  /* PAGE */
-  .page {
-    padding: 2vh 4vw 4vh;
-  }
+          .page {
+            padding: 2vh 4vw 4vh;
+          }
 
-  /* HEADER */
-  .header {
-    margin-bottom: 2vh;
-  }
+          .header {
+            margin-bottom: 2vh;
+          }
 
-  .header h1 {
-    font-size: 6.5vmin;
-    text-align: center;
-  }
+          .header h1 {
+            font-size: 6.5vmin;
+            text-align: center;
+          }
 
-  .subtitle {
-    font-size: 3.2vmin;
-    line-height: 1.35;
-    text-align: center;
-    margin: 1vh 0 2vh;
-    padding: 0 2vw;
-  }
+          .subtitle {
+            font-size: 3.2vmin;
+            line-height: 1.35;
+            text-align: center;
+            margin: 1vh 0 2vh;
+            padding: 0 2vw;
+          }
 
-  /* HEADER BUTTONS (avoid crowding) */
+          .grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3.5vmin;
+            width: 100%;
+          }
 
-  /* GRID */
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3.5vmin;
-    width: 100%;
-  }
+          .tile {
+            min-height: 18vh;
+            padding: 2.5vmin;
+          }
 
-  /* TILES */
-  .tile {
-    min-height: 18vh; /* more consistent than vmin */
-    padding: 2.5vmin;
-    border-radius: 18px;
-  }
+          .tile-icon {
+            font-size: 7.5vmin;
+            margin-bottom: 1vmin;
+          }
 
-  .tile-icon {
-    font-size: 7.5vmin;
-    margin-bottom: 1vmin;
-  }
+          .tile-label {
+            font-size: 3.6vmin;
+            line-height: 1.25;
+          }
 
-  .tile-label {
-    font-size: 3.6vmin;
-    line-height: 1.25;
-  }
-
-  /* COMING TAG */
-  .coming::after {
-    font-size: 2.2vmin;
-    bottom: -8%;
-    transform: rotate(-2deg);
-  }
-
-  /* ALERT */
-  .alert-box {
-    width: 88vw;
-    padding: 3vh 5vw;
-  }
-
-  .alert-box p {
-    font-size: 3.8vmin;
-  }
-
-  #exit-button {
-    width: 8vmin;
-    height: 8vmin;
-    font-size: 3.5vmin;
-    top: 1vh;
-    right: 2vw;
-  }
-}
+          .alert-box {
+            width: 88vw;
+            padding: 3vh 5vw;
+          }
+        }
     </style>
 </head>
 <body>

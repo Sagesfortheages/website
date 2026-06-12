@@ -98,7 +98,7 @@ function showPopup(d, event) {
   if (!popup || !popupMessage) return;
 
   let content = `
-    <div class="popup-header" style="font-weight: bold; border-bottom: 1px solid #eee; margin-bottom: 1px; padding-bottom: 5px;">${d.person}</div>
+    <div class="popup-header" style="font-weight: bold; border-bottom: 1px solid rgba(110, 85, 55, 0.26); margin-bottom: 1px; padding-bottom: 5px;">${d.person}</div>
     <div class="popup-dates">${d.birth} - ${d.passing}</div>
   `;
 
@@ -107,7 +107,7 @@ function showPopup(d, event) {
   }
 
   popupMessage.innerHTML = content;
-  popup.style.background = `linear-gradient(135deg, #ffffff 60%, ${getColor(d.background)} 100%)`;
+  popup.style.background = `linear-gradient(135deg, #fff8e6 60%, ${getColor(d.background)} 100%)`;
 
   // show for measuring, but keep invisible
   popup.classList.add("visible");

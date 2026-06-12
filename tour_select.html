@@ -14,308 +14,62 @@
     <script src="global.js"></script>
 
     <style>
-        /* -------- PAGE WRAPPER -------- */
-        .page {
-            max-width: 900px;
-            margin: 0 auto;
-            padding-top: 2vh;
-            padding-bottom: 4vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* -------- GRID -------- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 2.5vmin;
-            width: 85vw;
-            max-width: 650px;
-        }
-
-        /* -------- TILES -------- */
-        .tile {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(10px);
-            border-radius: 22px;
-            padding: 1vmin;
-            min-height: 18vmin;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.28s ease, box-shadow 0.28s ease;
-            border: none;
-            font: inherit;
-        }
-
-        .tile:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
-        }
-
-        .tile:active {
-            transform: translateY(-3px) scale(1.01);
-        }
-
-        .tile-icon {
-            font-size: 6.4vmin;
-            margin-bottom: 1.2vmin;
-            line-height: 1;
-        }
-
-        .tile-label {
-            font-size: 2.45vmin;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            text-align: center;
-            color: #2e3b4e;
-            line-height: 1.2;
-            max-width: 90%;
-        }
-
-        /* -------- COMING SOON -------- */
-        .coming {
-            pointer-events: none;
-            opacity: 0.9;
-        }
-
-        .coming::after {
-            content: "UNDER CONSTRUCTION";
-            position: absolute;
-            bottom: -13%;
-            font-size: 1.8vmin;
-            padding: 0.5vmin 1.2vmin;
-            border-radius: 4px;
-            font-weight: 700;
-            background: repeating-linear-gradient(
-                -45deg,
-                #f9d423 0px,
-                #f9d423 14px,
-                #000 14px,
-                #000 16px
-            );
-            color: #000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            transform: rotate(-3deg);
-            white-space: nowrap;
-        }
-
-        /* -------- NEW -------- */
-.new {
-    position: relative;
-}
-
-.new::after {
-    content: "NEW";
-    position: absolute;
-    top: -9%;
-    right: -6%;
-    font-size: 1.7vmin;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: white;
-    background: linear-gradient(135deg, #ff4d6d, #ff9f1c);
-    padding: 0.7vmin 1.2vmin;
-    border-radius: 999px;
-    box-shadow:
-        0 6px 18px rgba(255, 90, 90, 0.38),
-        0 0 0 0.35vmin rgba(255,255,255,0.7);
-    transform: rotate(10deg);
-    white-space: nowrap;
-    animation: newPulse 1.6s ease-in-out infinite;
-    z-index: 3;
-}
-
-.new::before {
-    content: "✦";
-    position: absolute;
-    top: -2%;
-    right: 16%;
-    font-size: 1.8vmin;
-    color: #ffd166;
-    text-shadow: 0 0 10px rgba(255, 209, 102, 0.7);
-    animation: sparkleTwinkle 1.4s ease-in-out infinite alternate;
-    z-index: 3;
-}
-
-@keyframes newPulse {
-    0%, 100% {
-        transform: rotate(10deg) scale(1);
-        box-shadow:
-            0 6px 18px rgba(255, 90, 90, 0.38),
-            0 0 0 0.35vmin rgba(255,255,255,0.7);
-    }
-    50% {
-        transform: rotate(10deg) scale(1.08);
-        box-shadow:
-            0 10px 24px rgba(255, 90, 90, 0.5),
-            0 0 0 0.45vmin rgba(255,255,255,0.88);
-    }
-}
-
-@keyframes sparkleTwinkle {
-    from {
-        opacity: 0.55;
-        transform: scale(0.9) rotate(-8deg);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1.15) rotate(8deg);
-    }
-}
-
-        /* -------- ALERT BOX -------- */
-        .alert-box {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(10px);
-            border-radius: 18px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            padding: 4vh 4vw;
-            max-width: 80vw;
-            max-height: 80vh;
-            z-index: 2000;
-            text-align: center;
-            font-family: 'Segoe UI', sans-serif;
-            animation: fadeSlideIn 0.25s ease;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                transform: translate(-50%, -56%) scale(0.96);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .alert-box p {
-            font-size: 2.4vmin;
-            color: #2e3b4e;
-            line-height: 1.5;
-            margin-bottom: 2vh;
-        }
-
-        #exit-button {
-            position: absolute;
-            top: 1vh;
-            right: 1vw;
-            width: 4.2vmin;
-            height: 4.2vmin;
-            border-radius: 50%;
-            border: none;
-            background: rgba(240,240,240,0.95);
-            font-size: 2vmin;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #666;
-        }
-
-        #exit-button:hover {
-            background: #e0e0e0;
-            color: #333;
-        }
+        /* Page-specific tweaks; tiles, grid, alerts come from all_styles.css */
 
         /* -------- MOBILE -------- */
-@media (max-width: 600px) {
+        @media (max-width: 600px) {
+          body {
+            overflow-y: auto;
+          }
 
-  /* PAGE */
-  .page {
-    padding: 2vh 4vw 4vh;
-  }
+          .page {
+            padding: 2vh 4vw 4vh;
+          }
 
-  /* HEADER */
-  .header {
-    padding-top: 1vh;
-    margin-bottom: 2vh;
-  }
+          .header {
+            padding-top: 1vh;
+            margin-bottom: 2vh;
+          }
 
-  .header h1 {
-    font-size: 6.5vmin;
-    text-align: center;
-  }
+          .header h1 {
+            font-size: 6.5vmin;
+            text-align: center;
+          }
 
-  .subtitle {
-    font-size: 3.2vmin;
-    line-height: 1.35;
-    text-align: center;
-    margin: 1vh 0 2vh;
-    padding: 0 2vw;
-  }
+          .subtitle {
+            font-size: 3.2vmin;
+            line-height: 1.35;
+            text-align: center;
+            margin: 1vh 0 2vh;
+            padding: 0 2vw;
+          }
 
-  .new::after {
-    font-size: 2.2vmin;
-    top: -7%;
-    right: -4%;
-}
+          .grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3.5vmin;
+            width: 100%;
+          }
 
-.new::before {
-    font-size: 2.4vmin;
-    top: 0%;
-    right: 14%;
-}
+          .tile {
+            min-height: 20vh;
+            padding: 2.5vmin;
+          }
 
+          .tile-icon {
+            font-size: 7.5vmin;
+            margin-bottom: 1vmin;
+          }
 
-  /* GRID */
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3.5vmin;
-    width: 100%;
-  }
+          .tile-label {
+            font-size: 3.6vmin;
+            line-height: 1.25;
+          }
 
-  /* TILES */
-  .tile {
-    min-height: 20vh;
-    padding: 2.5vmin;
-    border-radius: 18px;
-  }
-
-  .tile-icon {
-    font-size: 7.5vmin;
-    margin-bottom: 1vmin;
-  }
-
-  .tile-label {
-    font-size: 3.6vmin;
-    line-height: 1.25;
-  }
-
-  /* COMING SOON TAG */
-  .coming::after {
-    font-size: 2.2vmin;
-    bottom: -8%;
-    transform: rotate(-2deg);
-  }
-
-  /* ALERT */
-  .alert-box {
-    width: 88vw;
-    padding: 3vh 5vw;
-  }
-
-  .alert-box p {
-    font-size: 3.8vmin;
-  }
-
-  #exit-button {
-    width: 8vmin;
-    height: 8vmin;
-    font-size: 3.5vmin;
-    top: 1vh;
-    right: 2vw;
-  }
-} 
+          .alert-box {
+            width: 88vw;
+            padding: 3vh 5vw;
+          }
+        }
     </style>
 </head>
 <body>

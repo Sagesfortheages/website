@@ -65,23 +65,23 @@
             z-index: 2500;
             margin-top: 8px;
             list-style: none;
-            border: 1px solid #e0e6e9;
+            border: 1px solid var(--rule);
         }
 
         .search-results li {
             padding: 1vmin 1.25vmin;
             cursor: pointer;
             transition: all 0.2s ease;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--rule-faint);
             font-size: var(--fs-sage-list);
             position: relative;
             padding-left: 1.5vmin;
         }
 
         .search-results li:hover {
-            background: linear-gradient(90deg, rgba(74, 105, 189, 0.08) 0%, transparent 100%);
+            background: linear-gradient(90deg, var(--accent-wash) 0%, transparent 100%);
             padding-left: 2vmin;
-            color: #4a69bd;
+            color: var(--classy-blue-ink);
         }
 
         .search-results li:last-child {
@@ -121,7 +121,7 @@
             min-height: 10%;
             font-size: 3vmin;
             text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--rule);
             backdrop-filter: blur(10px);
             width:22vw
         }
@@ -129,13 +129,14 @@
         .info-card:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            border-color: rgba(74, 105, 189, 0.3);
+            border-color: var(--rule-strong);
         }
 
         h3 {
             font-size: 4vmin;
             margin-bottom: 1vmin;
-            color: #2c3e50;
+            font-family: var(--font-ui);
+            color: var(--heading-ink);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -154,7 +155,7 @@
 
         .info-card li {
             padding: 0.5rem 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--rule-faint);
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -162,9 +163,9 @@
         }
 
         .info-card li:hover {
-            color: #4a69bd;
+            color: var(--classy-blue-ink);
             padding-left: 20px;
-            background: linear-gradient(90deg, rgba(74, 105, 189, 0.1) 0%, transparent 100%);
+            background: linear-gradient(90deg, var(--accent-wash) 0%, transparent 100%);
         }
 
         .info-card li:last-child {
@@ -203,7 +204,7 @@
             width: fit-content;
             
             padding: 2vmin;
-            border: 2px solid #e0e6e9;
+            border: 1px solid var(--rule-strong);
             border-radius: 12px;
             font-size: var(--fs-sage-list);
             font-weight: 500;
@@ -214,13 +215,14 @@
         }
 
         select:hover {
-            border-color: #b0bec5;
+            border-color: rgba(110, 85, 55, 0.6);
             transform: translateY(-1px);
+            box-shadow: var(--shadow-tight);
         }
 
         select:focus {
-            border-color: #4a69bd;
-            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.1);
+            border-color: var(--classy-blue-ink);
+            box-shadow: 0 0 0 3px var(--plum-wash);
             transform: translateY(-2px);
         }
 
@@ -239,14 +241,14 @@
             height: 7vmin;
             border-radius: 50%;
             border: none;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 248, 230, 0.95);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             font-size: 4vmin;
             cursor: pointer;
             transition: all 0.3s ease;
             align-items: center;
             justify-content: center;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--rule-strong);
         }
 
         .action-button:hover {
@@ -259,20 +261,11 @@
             transform: translateY(-1px) scale(1.05);
         }
 
+        /* Alert box comes from all_styles.css */
         .alert-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--paper);
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             max-width: 400px;
             width: 90%;
             z-index: 200000;
-            animation: popIn 0.3s ease-out;
-            display: none;
         }
 
         li {
@@ -311,22 +304,6 @@
         .alert-box p {
             margin-bottom: 1rem;
             line-height: 1.6;
-        }
-
-        .alert-box button {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-            transition: color 0.2s ease;
-        }
-
-        .alert-box button:hover {
-            color: #333;
         }
 
         @media (max-width: 768px) {
