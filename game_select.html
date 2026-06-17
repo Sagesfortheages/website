@@ -12,51 +12,79 @@
 
   <style>
     body {
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     .games-page {
       min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr;
+      display: flex;
+      flex-direction: column;
     }
 
     .games-main {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2vmin;
+      padding: 1vmin 2vmin 2vmin;
+    }
+
+    .games-page > .header-section {
+      min-height: auto;
+      padding-bottom: 0.5vmin;
     }
 
     .games-panel {
-      width: min(92vw, 980px);
-      padding: 4vmin;
+      width: min(92vw, 940px);
+      padding: 2.2vmin 3.2vmin 2.6vmin;
       text-align: center;
     }
 
     .games-intro {
       max-width: 70ch;
-      margin: 1vmin auto 4vmin;
-      font-size: clamp(18px, 2.5vmin, 28px);
-      line-height: 1.35;
+      margin: 0.3vmin auto 1.4vmin;
+      font-size: clamp(14px, 1.85vmin, 20px);
+      line-height: 1.3;
       color: var(--ink-soft);
       font-style: italic;
     }
 
     .game-options {
       display: grid;
-      grid-template-columns: repeat(2, minmax(260px, 1fr));
-      gap: 3vmin;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.2vmin;
       align-items: stretch;
+    }
+
+    /* Quest spans the full bottom row as a feature card */
+    .game-card.feature {
+      grid-column: 1 / -1;
+      min-height: clamp(96px, 12.5vmin, 128px);
+    }
+
+    .game-card.feature > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2vmin;
+      flex-wrap: wrap;
+    }
+
+    .game-card.feature .game-icon {
+      margin-bottom: 0;
+    }
+
+    .game-card.feature p {
+      margin: 0;
     }
 
     .game-card {
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      min-height: 34vmin;
-      padding: 3vmin;
+      justify-content: center;
+      min-height: clamp(118px, 15vmin, 150px);
+      padding: 1.6vmin 2vmin;
       text-decoration: none;
       color: var(--ink);
       border: 1px solid var(--rule);
@@ -85,60 +113,57 @@
     }
 
     .game-icon {
-      font-size: clamp(44px, 8vmin, 82px);
+      font-size: clamp(30px, 4.6vmin, 50px);
       line-height: 1;
-      margin-bottom: 1.5vmin;
+      margin-bottom: 0.6vmin;
       filter: sepia(0.35);
     }
 
     .game-card h2 {
       font-family: var(--font-ui);
-      font-size: clamp(24px, 4vmin, 42px);
+      font-size: clamp(18px, 2.7vmin, 30px);
       color: var(--heading-ink);
       letter-spacing: 0.6px;
-      margin-bottom: 1vmin;
+      margin-bottom: 0.5vmin;
     }
 
     .game-card p {
-      font-size: clamp(16px, 2.2vmin, 22px);
-      line-height: 1.35;
+      font-size: clamp(12px, 1.7vmin, 17px);
+      line-height: 1.25;
       color: var(--ink-soft);
-      max-width: 32ch;
-      margin: 0 auto 2.5vmin;
+      max-width: 34ch;
+      margin: 0 auto 1vmin;
     }
 
     .game-card .cta-button {
       margin: 0 auto;
-      min-width: 20vmin;
-      min-height: 6.4vmin;
-      font-size: clamp(14px, 2.1vmin, 20px);
+      min-width: 16vmin;
+      min-height: 4.2vmin;
+      font-size: clamp(12px, 1.7vmin, 17px);
       pointer-events: none;
     }
 
     @media (max-width: 700px) {
-      body {
-        overflow-y: auto;
-      }
-
       .header-section {
         min-height: auto;
         padding-bottom: 1vmin;
-      }
-
-      .game-options {
-        grid-template-columns: 1fr;
       }
 
       .games-main {
         align-items: start;
       }
 
-      .games-panel {
-        padding: 3vmin;
+      .game-options {
+        grid-template-columns: 1fr;
       }
 
-      .game-card {
-        min-height: 230px;
+      .game-card,
+      .game-card.feature {
+        min-height: 188px;
+      }
+
+      .game-card.feature > div {
+        flex-direction: column;
       }
     }
   </style>
@@ -168,7 +193,31 @@
         </p>
 
         <div class="game-options">
-          <a class="game-card new" href="which_sage.html">
+          <a class="game-card new" href="sealed_letter.html">
+            <div>
+              <div class="game-icon">📯</div>
+              <h2>The Sealed Letter</h2>
+              <p>
+                Play the courier — follow the clues and deliver a letter to the right sage.
+              </p>
+            </div>
+
+            <span class="cta-button sweep">Play The Sealed Letter</span>
+          </a>
+
+          <a class="game-card new" href="master_works.html">
+            <div>
+              <div class="game-icon">🖋️</div>
+              <h2>Master Works</h2>
+              <p>
+                Match each sage to the masterpiece they wrote.
+              </p>
+            </div>
+
+            <span class="cta-button sweep">Play Master Works</span>
+          </a>
+
+          <a class="game-card" href="which_sage.html">
             <div>
               <div class="game-icon">🧠</div>
               <h2>Which Sage</h2>
@@ -184,11 +233,23 @@
               <div class="game-icon">🕵️</div>
               <h2>Sage Sleuth</h2>
               <p>
-                Investigate clues, narrow the possibilities, and uncover the hidden sage.
+                Identify the unsigned manuscript — date the hand, place its provenance, name the author.
               </p>
             </div>
 
             <span class="cta-button sweep">Play Sage Sleuth</span>
+          </a>
+
+          <a class="game-card feature new" href="quest.html">
+            <div>
+              <div class="game-icon">🏹</div>
+              <h2>Quest</h2>
+              <p>
+                Race the clock — answer as many quests as you can in three minutes.
+              </p>
+            </div>
+
+            <span class="cta-button sweep">Play Quest</span>
           </a>
         </div>
       </section>

@@ -4,18 +4,18 @@ import { supabaseClient } from './supabase/supabaseClient.js';
 
 const questionData = {
     background: {
-    text: "Did the sage have a background of",
+    text: "Is your sage's background",
     options: ["Ashkenaz", "Sefarad", "Provence", "Chassidic", "Litvish", "Italian", "Gaon"]
     },
     era: {
-    text: "Did the sage live in the",
+    text: "Did your sage live in the",
     options: [
         "900s", "1000s", "1100s", "1200s", "1300s", "1400s",
         "1500s", "1600s", "1700s", "1800s", "1900s"
     ]
     },
     focus: {
-    text: "Was the sage especially known for",
+    text: "Was your sage especially known for",
     options: [
         "Tanach", "Talmud", "Halacha", "Responsa", "Kabbalah",
         "Chassidus", "Mussar", "Philosophy", "Linguistics", "Poetry", "History"
@@ -169,6 +169,18 @@ function hideCardHoverInfo(card) {
     card.classList.remove("show-hover-info");
 }
 
+function updateRemainingCount() {
+    const countEl = document.getElementById("scholars-remaining-count");
+    if (!countEl) return;
+
+    const remaining = document.querySelectorAll(".sage-card:not(.eliminated)").length;
+    countEl.textContent = remaining;
+
+    countEl.classList.remove("bump");
+    void countEl.offsetWidth;
+    countEl.classList.add("bump");
+}
+
 function renderBoard(sages) {
     board.innerHTML = "";
 
@@ -196,9 +208,9 @@ function renderBoard(sages) {
 
         <div class="sage-nameplate">
             <div class="sage-name">${sage.person}</div>
-            <div class="sage-hover-info"></div>
         </div>
         </div>
+        <div class="sage-hover-info"></div>
     `;
 
     card.addEventListener("click", () => {
@@ -210,6 +222,7 @@ function renderBoard(sages) {
         }
 
         card.classList.toggle("eliminated");
+        updateRemainingCount();
     });
 
     card.addEventListener("mouseenter", () => {
@@ -222,6 +235,8 @@ function renderBoard(sages) {
 
     board.appendChild(card);
     });
+
+    updateRemainingCount();
 }
 
 function setGuessMode(isActive) {
@@ -231,13 +246,13 @@ guessMode = isActive;
 
 if (guessBtn) {
     guessBtn.classList.toggle("guess-mode-active", guessMode);
-    guessBtn.textContent = guessMode ? "Choose a Card" : "Guess the Sage";
+    guessBtn.textContent = guessMode ? "Choose a Scholar" : "Approach a Sage";
 }
 
 if (guessStatus) {
     guessStatus.textContent = guessMode
-    ? "Now click the card you think is the hidden sage."
-    : "Flip cards to eliminate them, or click “Guess the Sage” when you are ready.";
+    ? "Now click the scholar you believe is your sage."
+    : "Dismiss the scholars who don't fit, or approach a sage when you're ready.";
 }
 
 document.querySelectorAll(".sage-card").forEach(card => {
@@ -499,7 +514,7 @@ function finishGame(winningCard = null) {
 
     if (guessBtn) {
     guessBtn.disabled = true;
-    guessBtn.textContent = "Solved";
+    guessBtn.textContent = "Found!";
     guessBtn.classList.remove("guess-mode-active");
     }
 
@@ -518,9 +533,9 @@ function handleFinalGuess(sage, card) {
     item.className = "history-item";
 
     item.innerHTML = `
-    Final guess: ${sage.person}
+    Approached ${sage.person}
     <div class="history-answer ${isCorrect ? "y" : "n"}">
-        ${isCorrect ? "Correct!" : "Wrong"}
+        ${isCorrect ? "Found!" : "Not the one"}
     </div>
     `;
 
@@ -528,13 +543,13 @@ function handleFinalGuess(sage, card) {
 
     if (isCorrect) {
         if (guessStatus) {
-            guessStatus.textContent = `Correct! The hidden sage was ${correctSage.person}.`;
+            guessStatus.textContent = `You found them! Your sage was ${correctSage.person}.`;
         }
 
         finishGame(card);
 
         if (successBanner && successText) {
-            successText.textContent = `You discovered ${correctSage.person}.`;
+            successText.textContent = `You found ${correctSage.person} among the scholars.`;
             successBanner.classList.remove("hidden");
         }
 
@@ -543,10 +558,11 @@ function handleFinalGuess(sage, card) {
     }
 
     card.classList.add("eliminated");
+    updateRemainingCount();
     setGuessMode(false);
 
     if (guessStatus) {
-    guessStatus.textContent = `${sage.person} was not the hidden sage. Keep asking questions.`;
+    guessStatus.textContent = `${sage.person} was not the one. Question the gabbai and keep searching.`;
     }
 
     console.log("WRONG FINAL GUESS:", {
@@ -559,7 +575,7 @@ async function initializeGuessWho() {
     try {
     board.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:2vmin;">
-        Loading sages...
+        The scholars are gathering in the hall...
         </div>
     `;
 
@@ -604,19 +620,19 @@ async function initializeGuessWho() {
 
     renderBoard(boardSages);
 
-    questionTxt.textContent = "Select a question type above.";
+    questionTxt.textContent = "Choose a subject to ask the gabbai.";
     optionGrid.innerHTML = "";
     submitBtn.disabled = true;
 
     if (guessBtn) {
         guessBtn.disabled = false;
-        guessBtn.textContent = "Guess the Sage";
+        guessBtn.textContent = "Approach a Sage";
         guessBtn.classList.remove("guess-mode-active");
     }
 
     if (guessStatus) {
         guessStatus.textContent =
-        "Flip cards to eliminate them, or click “Guess the Sage” when you are ready.";
+        "Dismiss the scholars who don't fit, or approach a sage when you're ready.";
     }
 
     // console.log("Guess Who initialized:", {
@@ -634,7 +650,7 @@ async function initializeGuessWho() {
 
     board.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:2vmin; color:#8b1a1a;">
-        Failed to load sages. Please refresh and try again.
+        The hall could not be assembled. Please refresh and try again.
         <br>
         <small>${error.message}</small>
         </div>
@@ -658,6 +674,25 @@ if (guessBtn) {
 
 if (profileBtn) {
     profileBtn.addEventListener("click", linkToCorrectSageProfile);
+}
+
+const infoBtn = document.getElementById("info-button");
+if (infoBtn) {
+    infoBtn.addEventListener("click", () => {
+    showCustomAlert(
+        `Welcome to the great study hall! 📖<br><br>A sage you seek sits among the scholars here — but you have never seen his face.<br><br>Ask the gabbai yes-or-no questions about your sage — his era, his background, or his focus — and dismiss the scholars who don't fit by clicking their cards.<br><br>When you are confident, click <strong>Approach a Sage</strong> and choose the one you believe is yours.<br><br>Find your sage to complete the visit!`,
+        "2.4vmin",
+        false,
+        false
+    );
+    });
+}
+
+const restartBtn = document.getElementById("restart-button-main");
+if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+    initializeGuessWho();
+    });
 }
 
 document.addEventListener("DOMContentLoaded", initializeGuessWho);

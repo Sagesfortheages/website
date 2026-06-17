@@ -212,64 +212,195 @@
 }
 
 
-/* Target Wheel */
-.target {
+/* ===== Focus Ledger (replaces the Wheel of Focus) ===== */
+.focus-ledger-wrap {
     position: absolute;
-    width: 50vmin;
-    height: 50vmin;
-    border-radius: 50%;
-    background: white;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7vmin;
+    padding: 1vmin 1.2vmin;
+}
+
+.focus-ledger-head {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
+    gap: 1vmin;
+    min-width: 0;
+}
+
+.focus-ledger-title {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: clamp(12px, 2vmin, 18px);
+    color: var(--heading-ink);
+    white-space: nowrap;
+}
+
+.focus-ledger-count {
+    font-size: clamp(10px, 1.5vmin, 14px);
+    color: var(--ink-soft);
+    white-space: nowrap;
+}
+
+.focus-ledger-guess {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: clamp(10px, 1.5vmin, 14px);
+    font-style: italic;
+    color: var(--classy-blue-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+
+.focus-ledger-reveal {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.focus-ledger-reveal button {
+    background: linear-gradient(135deg, #3f6868, #2f4f4f);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    min-width: 3.2vmin;
+    height: 3.2vmin;
+    padding: 0 1vmin;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: clamp(11px, 1.6vmin, 15px);
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.focus-ledger-reveal button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 5px 15px rgba(47, 79, 79, 0.4);
+}
+
+.focus-ledger-reveal.clickable {
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: clamp(11px, 1.7vmin, 16px);
+    color: var(--classy-blue-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+}
+
+.focus-ledger {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0.6vmin;
+}
+
+.focus-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8vmin;
+    min-width: 0;
+    padding: 0 1vmin;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: rgba(255, 248, 230, 0.55);
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+}
+
+.focus-row-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--font-ui);
+    font-size: clamp(10px, 1.55vmin, 15px);
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.focus-row-chip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.outer-ring {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    width: clamp(16px, 2.4vmin, 22px);
+    height: clamp(16px, 2.4vmin, 22px);
     border-radius: 50%;
-    background: var(--paper-strong);
-    border: 3px solid var(--shadow);
+    font-size: clamp(9px, 1.5vmin, 13px);
+    font-weight: 700;
+    line-height: 1;
 }
 
-.ring{
-    position: absolute;
-    border-radius: 50%;
-    transition: all 0.42s ease;
+.focus-row.unknown {
+    opacity: 0.5;
 }
 
-#ring1.reveal-ring {
-    animation: ringPulseOuter 520ms cubic-bezier(.22,1,.36,1);
+.focus-row.unknown .focus-row-chip {
+    background: transparent;
+    border: 1px dashed var(--rule-strong);
+    color: var(--ink-soft);
 }
 
-#ring2.reveal-ring {
-    animation: ringPulseInner 700ms cubic-bezier(.22,1,.36,1);
+.focus-row.yes {
+    border-color: var(--correct-color);
+    background: rgba(47, 79, 79, 0.10);
 }
 
-@keyframes ringPulseOuter {
-    0% { transform: scale(0.94); filter: brightness(0.96); }
-    55% { transform: scale(1.03); filter: brightness(1.06); }
-    100% { transform: scale(1); filter: brightness(1); }
+.focus-row.yes .focus-row-chip {
+    background: var(--correct-color);
+    color: #fff;
 }
 
-@keyframes ringPulseInner {
-    0% { transform: scale(0.90); filter: brightness(0.95); }
-    60% { transform: scale(1.05); filter: brightness(1.08); }
-    100% { transform: scale(1); filter: brightness(1); }
+.focus-row.no {
+    border-color: rgba(140, 40, 40, 0.5);
+    background: rgba(140, 40, 40, 0.08);
 }
 
-#ring2{
-    background:var(--paper);
-    border: 1px solid var(--accent)
+.focus-row.no .focus-row-chip {
+    background: var(--incorrect-color);
+    color: #fff;
 }
 
-#ring2{
-    background:lightgray
+.focus-row.probing {
+    box-shadow: 0 0 0 2px rgba(201, 154, 60, 0.55), 0 6px 16px rgba(0, 0, 0, 0.12);
+    background: rgba(201, 154, 60, 0.14);
+}
+
+.focus-row.probing .focus-row-chip {
+    background: rgba(201, 154, 60, 0.9);
+    color: #fff;
+    border: none;
+}
+
+.focus-row.fresh {
+    animation: focusFlip 600ms cubic-bezier(.22, 1, .36, 1);
+    box-shadow: 0 0 0 2px rgba(201, 154, 60, 0.85), 0 6px 16px rgba(0, 0, 0, 0.16);
+    border-color: rgba(201, 154, 60, 0.9) !important;
+}
+
+.focus-row.fresh .focus-row-name {
+    font-weight: 700;
+}
+
+.focus-row.fresh .focus-row-name::before {
+    content: "\2731 ";
+    color: rgba(201, 154, 60, 1);
+    font-size: 0.9em;
+}
+
+@keyframes focusFlip {
+    0% { transform: scale(0.86); }
+    55% { transform: scale(1.06); }
+    100% { transform: scale(1); }
 }
 
 .button-wide {
@@ -282,59 +413,6 @@
     align-items: center;
     justify-content: center;
     white-space: nowrap;
-}
-
-.center {
-    position: absolute;
-    width: 10vmin;
-    height: 10vmin;
-    border-radius: 50%;
-    background: var(--accent);
-    z-index: 10;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.label {
-    position: absolute;
-    font-size: 1.8vmin;
-    font-weight: 700;
-    color: var(--ink);
-    text-align: center;
-    transform-origin: center;
-    white-space: nowrap;
-    z-index: 200;
-    transition: all 0.3s ease;
-}
-
-.label button {
-    background: linear-gradient(135deg, #3f6868, #2f4f4f);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 4vmin;
-    height: 4vmin;
-    font-size: 2vmin;
-    font-weight: 770;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-.label button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(47, 79, 79, 0.4);
-}
-
-.dashed-line {
-    position: absolute;
-    width: 50%;
-    height: 2px;
-    background: linear-gradient(to right, rgba(110, 85, 55, 0.45) 50%, transparent 50%);
-    background-size: 8px 2px;
-    top: 50%;
-    left: 50%;
-    transform-origin: left center;
-    z-index: 100;
 }
 
 /* Timeline Container */
@@ -783,12 +861,13 @@ li {
             <button class="modern-button third-left-button" id="hint-button">💡</button>
             <button class="modern-button" id="info-button">ℹ️</button>
             <button class="modern-button second-right-button" id="feedback-button" onclick="window.location.href='feedback.html'">📩</button>
+            <button class="modern-button" id="reveal-answer-button" style="left: 28vmin;" title="Give up and reveal the sage">🏳️</button>
 
             <h1>
-                <span class="emoji">♟️</span>
+                <span class="emoji">📜</span>
                 <span class="gradient-text">Sage Sleuth</span>
             </h1>
-            <p class="subtitle">Discover the mystery sage through clues and deduction</p>
+            <p class="subtitle">Date the manuscript, place its provenance, and name the hand that wrote it</p>
 
             <div id="toast-overlay" class="toast hidden">
                 <span id="toast-text"></span>
@@ -796,7 +875,7 @@ li {
         </div>
 
         <div class="gradient-wrapper">
-            <span class="gradient-label colder">Colder</span>
+            <span class="gradient-label colder">Cold</span>
             <div id="mini-gradient">
                 <div class="gradient-container">
                     <div class="swatch" style="background:#2b2a58;"><span class="swatch-label">1</span></div>
@@ -812,7 +891,7 @@ li {
                     <div class="swatch" style="background:#9f4738;"><span class="swatch-label">11</span></div>
                 </div>
             </div>
-            <span class="gradient-label hotter">Hotter</span>
+            <span class="gradient-label hotter">Warm</span>
         </div>
 
         <div id="reveal-overlay" class="reveal-overlay"></div>
@@ -866,45 +945,16 @@ li {
                 </div>
             </div>
 
-            <!-- BOTTOM LEFT: Target wheel -->
+            <!-- BOTTOM LEFT: Focus ledger -->
             <div class="bottom-left-container">
-                <div class="target">
-                    <div class="label" style="transform: rotate(0deg) translateX(23vmin) rotate(90deg);">Halacha</div>
-                    <div class="label" style="transform: rotate(30deg) translateX(23vmin) rotate(-90deg);">Responsa</div>
-                    <div class="label" style="transform: rotate(60deg) translateX(23vmin) rotate(-90deg);">Kabbalah</div>
-                    <div class="label" style="transform: rotate(90deg) translateX(23vmin) rotate(-90deg);">Chassidus</div>
-                    <div class="label" style="transform: rotate(120deg) translateX(23vmin) rotate(-90deg);">Mussar</div>
-                    <div class="label" style="transform: rotate(150deg) translateX(23vmin) rotate(-90deg);">Philosophy</div>
-                    <div class="label" style="transform: rotate(180deg) translateX(23vmin) rotate(-270deg);">Linguistics</div>
-                    <div class="label" style="transform: rotate(210deg) translateX(23vmin) rotate(-270deg);">Poetry</div>
-                    <div class="label" style="transform: rotate(240deg) translateX(23vmin) rotate(-270deg);">History</div>
-                    <div class="label" style="transform: rotate(270deg) translateX(23vmin) rotate(-270deg);"></div>
-                    <div class="label" style="transform: rotate(300deg) translateX(23vmin) rotate(-270deg);">Tanach</div>
-                    <div class="label" style="transform: rotate(330deg) translateX(23vmin) rotate(-270deg);">Talmud</div>
-
-                    <div class="label" id="guessLabel" style="transform: rotate(270deg) translateX(19.5vmin) rotate(-270deg);"></div>
-                    <div class="label" id="correctLabel" style="transform: rotate(270deg) translateX(15vmin) rotate(-270deg);">
-                        <button>?</button>
+                <div class="focus-ledger-wrap">
+                    <div class="focus-ledger-head">
+                        <span class="focus-ledger-title">Subjects Discussed</span>
+                        <span class="focus-ledger-count" id="focus-count">0 / 11 revealed</span>
+                        <span class="focus-ledger-guess" id="guessLabel"></span>
+                        <span class="focus-ledger-reveal" id="correctLabel"></span>
                     </div>
-
-                    <div class="outer-ring"></div>
-                    <div class="ring" id="ring1" style="width: 85%; height: 85%;"></div>
-                    <div class="ring" id="ring2" style="width: 70%; height: 70%;"></div>
-
-                    <div class="dashed-line" style="transform: rotate(15deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(45deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(75deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(105deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(135deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(165deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(195deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(225deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(255deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(285deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(315deg);"></div>
-                    <div class="dashed-line" style="transform: rotate(345deg);"></div>
-
-                    <div class="center"></div>
+                    <div class="focus-ledger" id="focus-ledger"></div>
                 </div>
             </div>
 

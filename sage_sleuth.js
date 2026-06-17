@@ -9,7 +9,7 @@ let correctAnswer = null;
 let wrongGuessesNum = 0;
 let wrongGuesses = [];
 let hints = 0;
-const infoText = `Your goal is to guess the unknown sage. <br><br> Get more clues by guessing sages in the guess bar.<br><br>Each sage you guess will have a place of passing, areas of focus and a place in the timeline.<br><br>The closer your guess's place of passing is to the mystery sage's place of passing, the hotter it will glow.<br><br>Similarly, the closer your guess's spot in the timeline to the mystery sage's place in the timeline.<br><br> There is also a wheel of focus. Each time you guess a sage, his/her name will appear on the outside of the wheel, along with that guess's areas of focus. If an area of a focus of a guess aligns with one of the mystery sage's, the inner wheel will glow green. If it doesn't align, the inner wheel will glow red.<br><br>Click on the question mark to see the answer.<br><br>You have 12 guesses.<br><br> Good luck!`;
+const infoText = `An unsigned manuscript has surfaced in the genizah, and the head archivist has charged you with naming its author.<br><br>Propose a sage in the guess bar — the evidence will tell you how close your candidate is to the true author:<br><br>📜 <strong>The hand</strong> (timeline): the closer your candidate's lifetime is to the manuscript's, the warmer the dating glows.<br><br>🗺️ <strong>The provenance</strong> (map): the closer your candidate's home is to where the manuscript travelled, the warmer it glows.<br><br>✒️ <strong>The subjects</strong>: each candidate reveals which topics the manuscript discusses — a green ✓ means the true author shares that subject, a red ✗ means he doesn't. Areas stay dim until a candidate reveals them.<br><br>Click the white flag 🏳️ to give up and reveal the author.<br><br>You have 12 attempts. Good luck, archivist!`;
 const maxGuesses = 12;
 const difficultyLevel = JSON.parse(sessionStorage.getItem('difficulty')) || 'medium';
 const scale = { 'Very Easy': 1, 'Easy': 2, 'Medium': 3, 'Hard': 4, 'Very Hard': 5 };
@@ -225,20 +225,16 @@ function startTour() {
                 intro: `<h3>👥 Guesses</h3>You have 12 guesses. As you play, hover over a circle to see what you guessed.`
             },
             {
-                element: '.target',
-                intro: `<h3>🎯 Wheel of Focus</h3>This is called the Wheel of Focus. With each guess, you learn more about the areas of focus of the mystery sage.`
+                element: '#focus-ledger',
+                intro: `<h3>🎯 Areas of Focus</h3>With each guess, this ledger fills in. A green ✓ means the mystery sage shares that area of focus with your guess; a red ✗ means he doesn't. Areas stay dimmed until one of your guesses reveals them.`
             },
             {
-                element: '#ring1',
-                intro: `<h3>◎ Guess's Focus</h3>If your guess focused on Talmud, the outer ring will glow green in the Talmud section. This will then reveal whether the mystery sage focused on Talmud.`
-            },
-            {
-                element: '#ring2',
-                intro: `<h3>◉ Mystery Focus</h3>If he also focused on Talmud, the inner ring will glow green by Talmud. If not, it will glow pink. If it remains grey, find a guess with that area of focus to reveal another clue.`
+                element: '#focus-count',
+                intro: `<h3>📊 Progress</h3>This shows how many areas of focus you've uncovered so far. Guess sages with different specialties to reveal more.`
             },
             {
                 element: '#guessLabel',
-                intro: `<h3>🗨 Guess Label</h3>Here you can find the name of your most recent guess.`
+                intro: `<h3>🗨 Last Guess</h3>Here you can find the name of your most recent guess.`
             },
             {
                 element: '.gradient-wrapper',
@@ -253,8 +249,8 @@ function startTour() {
                 intro: `<h3>🌍 Map</h3>Your guess's last place of activity will appear here. The closer your guess's last place is to the mystery sage's last place, the more red it will appear. As you play, hover to see more details.`
             },
             {
-                element: '#correctLabel',
-                intro: `<h3>👁️ Reveal the Sage</h3>Click here to reveal the mystery sage.`
+                element: '#reveal-answer-button',
+                intro: `<h3>🏳️ Reveal the Sage</h3>Stuck? Click here to give up and reveal the mystery sage.`
             },
             {
                 element: '#hint-button',
@@ -275,8 +271,7 @@ function startTour() {
 }
 
 function setupGameUI() {
-    setRingColor('ring1', [], [], 'var(--paper)');
-    setRingColor('ring2', [], [], 'lightgray');
+    resetFocusLedger();
 
     const circleContainer = document.querySelector(".circle-container");
     createCircles(circleContainer, maxGuesses);
@@ -331,13 +326,22 @@ function setupEventListeners() {
 
     const correctLabel = document.getElementById('correctLabel');
     if (correctLabel) {
+        // After the game ends, correctLabel shows the sage's name and links to the profile.
         correctLabel.addEventListener('click', function() {
             if (isRevealRunning) return;
-            if (this.textContent.includes('?')) {
-                evaluateAnswer(correctAnswer, correctAnswer, false);
-            } else {
+            if (this.classList.contains('clickable')) {
                 linkToProfile(correctAnswer);
             }
+        });
+    }
+
+    const revealAnswerButton = document.getElementById('reveal-answer-button');
+    if (revealAnswerButton) {
+        revealAnswerButton.addEventListener('click', function() {
+            if (isRevealRunning || !correctAnswer) return;
+            // Ignore once the game is already over.
+            if (correctLabel && correctLabel.classList.contains('clickable')) return;
+            evaluateAnswer(correctAnswer, correctAnswer, false);
         });
     }
 
@@ -416,7 +420,6 @@ async function startNewGame() {
     const correctLabel = document.getElementById('correctLabel');
     if (correctLabel) {
         correctLabel.textContent = '';
-        correctLabel.innerHTML = '<button>?</button>';
         correctLabel.classList.remove('clickable');
     }
 
@@ -445,20 +448,20 @@ function handleHintClick() {
     if (!correctAnswer || isRevealRunning) return;
 
     if (hints < 1) {
-        showCustomAlert(`This sage's background was ${correctAnswer.background}.`, "5vmin", false, true);
+        showCustomAlert(`The archivist studies the hand: its author belonged to the ${correctAnswer.background} tradition.`, "5vmin", false, true);
         hints += 1;
     } else if (hints < 2) {
         if (correctAnswer.major_works !== '0') {
             const works = correctAnswer.major_works.split(',');
             if (works[0] !== correctAnswer.person && !correctAnswer.aka.split(',')[0].includes(works[0])) {
-                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[0]}.`, "5vmin", false, true);
+                showCustomAlert(`The author belonged to the ${correctAnswer.background} tradition.<br><br>His scribal hand also produced ${works[0]}.`, "5vmin", false, true);
             } else if (works.length > 1) {
-                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>One of this sage's major works was ${works[1]}.`, "5vmin", false, true);
+                showCustomAlert(`The author belonged to the ${correctAnswer.background} tradition.<br><br>His scribal hand also produced ${works[1]}.`, "5vmin", false, true);
             } else {
-                showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>No more hints are available.`, "5vmin", false, true);
+                showCustomAlert(`The author belonged to the ${correctAnswer.background} tradition.<br><br>The archivist has no further clues.`, "5vmin", false, true);
             }
         } else {
-            showCustomAlert(`This sage's background was ${correctAnswer.background}.<br><br>No more hints are available.`, "5vmin", false, true);
+            showCustomAlert(`The author belonged to the ${correctAnswer.background} tradition.<br><br>The archivist has no further clues.`, "5vmin", false, true);
         }
         hints += 1;
     }
@@ -532,8 +535,7 @@ window.restartGame = async function() {
         li.addEventListener('click', handleSearchResultClick);
     });
 
-    setRingColor('ring1', [], [], 'var(--paper)');
-    setRingColor('ring2', [], [], 'lightgray');
+    resetFocusLedger();
 
     document.querySelectorAll(".timeline-rectangle").forEach(div => div.remove());
     document.querySelectorAll(".mapboxgl-marker").forEach(div => div.remove());
@@ -564,76 +566,42 @@ function createCircles(container, numCircles) {
     }
 }
 
-function setRingColor(ringId, greens, reds, baseColor = "white") {
-    const greensSet = new Set(greens);
-    const redsSet = new Set(reds);
+/* ===== Focus Ledger (replaces the Wheel of Focus) ===== */
+const FOCUS_AREAS = ['Tanach', 'Talmud', 'Halacha', 'Responsa', 'Kabbalah', 'Chassidus', 'Mussar', 'Philosophy', 'Linguistics', 'Poetry', 'History'];
+let focusState = {};
 
-    const colorsDict = {
-        'empty': [baseColor, '0deg 15deg'],
-        'Tanach': [baseColor, '15deg 45deg'],
-        'Talmud': [baseColor, '45deg 75deg'],
-        'Halacha': [baseColor, '75deg 105deg'],
-        'Responsa': [baseColor, '105deg 135deg'],
-        'Kabbalah': [baseColor, '135deg 165deg'],
-        'Chassidus': [baseColor, '165deg 195deg'],
-        'Mussar': [baseColor, '195deg 225deg'],
-        'Philosophy': [baseColor, '225deg 255deg'],
-        'Linguistics': [baseColor, '255deg 285deg'],
-        'Poetry': [baseColor, '285deg 315deg'],
-        'History': [baseColor, '315deg 345deg'],
-        'empty-end': [baseColor, '345deg 360deg']
-    };
-
-    for (let key in colorsDict) {
-        const checkKey = key === 'empty-end' ? 'empty' : key;
-        if (greensSet.has(checkKey)) {
-            colorsDict[key][0] = '#AEF359';
-        }
-    }
-
-    for (let key in colorsDict) {
-        const checkKey = key === 'empty-end' ? 'empty' : key;
-        if (redsSet.has(checkKey)) {
-            colorsDict[key][0] = 'rgb(255, 182, 193)';
-        }
-    }
-
-    const gradientString = 'conic-gradient(' + Object.values(colorsDict).map(colorArray => {
-        const color = colorArray[0];
-        const angle = colorArray[1];
-        return `${color} ${angle}`;
-    }).join(', ') + ')';
-
-    const ring = document.getElementById(ringId);
-    if (ring) {
-        ring.style.background = gradientString;
-    }
+function canonicalFocus(area) {
+    if (!area) return null;
+    const target = area.trim().toLowerCase();
+    return FOCUS_AREAS.find(a => a.toLowerCase() === target) || null;
 }
 
-function extractRingColor(ringId, colorToFind) {
-    const list = ['empty', 'Tanach', 'Talmud', 'Halacha', 'Responsa', 'Kabbalah', 'Chassidus', 'Mussar', 'Philosophy', 'Linguistics', 'Poetry', 'History', 'empty-end'];
-    const ring = document.getElementById(ringId);
+function resetFocusLedger() {
+    focusState = {};
+    FOCUS_AREAS.forEach(area => { focusState[area] = 'unknown'; });
+    renderFocusLedger();
+}
 
-    if (!ring || !ring.style.background) {
-        return [];
-    }
+function renderFocusLedger(freshSet = new Set(), probingSet = new Set()) {
+    const ledger = document.getElementById('focus-ledger');
+    if (!ledger) return;
 
-    const gradientString = ring.style.background;
-    const colorRegex = /rgb\(\d{1,3}, \d{1,3}, \d{1,3}\)|lightgray/g;
-    const colors = gradientString.match(colorRegex);
+    const glyph = { yes: '✓', no: '✗', unknown: '' };
 
-    if (!colors) return [];
+    ledger.innerHTML = FOCUS_AREAS.map(area => {
+        const probing = probingSet.has(area);
+        const state = probing ? 'probing' : (focusState[area] || 'unknown');
+        const fresh = freshSet.has(area) ? ' fresh' : '';
+        const mark = probing ? '?' : (glyph[focusState[area]] || '');
+        return `<div class="focus-row ${state}${fresh}">
+            <span class="focus-row-name">${area}</span>
+            <span class="focus-row-chip">${mark}</span>
+        </div>`;
+    }).join('');
 
-    const filteredColors = colors.filter((_, index) => index % 2 === 0);
-    const indices = [];
-
-    filteredColors.forEach((color, index) => {
-        if (color.includes(colorToFind)) {
-            indices.push(index);
-        }
-    });
-
-    return indices.map(index => list[index]);
+    const revealed = FOCUS_AREAS.filter(a => focusState[a] && focusState[a] !== 'unknown').length;
+    const count = document.getElementById('focus-count');
+    if (count) count.textContent = `${revealed} / ${FOCUS_AREAS.length} revealed`;
 }
 
 function yearToPercentage(year) {
@@ -747,7 +715,7 @@ function getColorByPercentage(percentage) {
 }
 
 async function revealTimelineStep(currentAnswer, timelineColor, timelineHeight) {
-    updateRevealStatus(`When · ${currentAnswer.birth}–${currentAnswer.passing}`);
+    updateRevealStatus(`The hand · ${currentAnswer.birth}–${currentAnswer.passing}`);
     focusOnePanel(timelinePanel);
     createRectangle(
         currentAnswer.birth,
@@ -761,7 +729,7 @@ async function revealTimelineStep(currentAnswer, timelineColor, timelineHeight) 
 }
 
 async function revealMapStep(correctAnswer, currentAnswer) {
-    updateRevealStatus(`Where · ${currentAnswer.city_of_passing.city}, ${currentAnswer.city_of_passing.country}`);
+    updateRevealStatus(`The provenance · ${currentAnswer.city_of_passing.city}, ${currentAnswer.city_of_passing.country}`);
     focusOnePanel(mapPanel);
 
     const mapMarkers = document.querySelectorAll('.mapboxgl-marker');
@@ -797,7 +765,7 @@ async function revealMapStep(correctAnswer, currentAnswer) {
 }
 
 async function revealWheelStep(correctAnswer, currentAnswer) {
-    updateRevealStatus(`What · ${currentAnswer.expertise}`);
+    updateRevealStatus(`The subjects · ${currentAnswer.expertise}`);
     focusOnePanel(wheelPanel);
 
     const guessLabel = document.getElementById('guessLabel');
@@ -805,33 +773,37 @@ async function revealWheelStep(correctAnswer, currentAnswer) {
         guessLabel &&
         currentAnswer.person.trim().toLowerCase() !== correctAnswer.person.trim().toLowerCase()
     ) {
-        guessLabel.textContent = currentAnswer.person;
+        guessLabel.textContent = `You proposed · ${currentAnswer.person}`;
     }
 
-    const currentExpertise = normalizeExpertiseArray(currentAnswer.expertise);
-    const normalizedCorrectExpertise = normalizeExpertiseArray(correctAnswer.expertise);
+    const guessFocus = normalizeExpertiseArray(currentAnswer.expertise)
+        .map(canonicalFocus)
+        .filter(Boolean);
 
-    // Stage 1: guessed sage's outer ring
-    setRingColor('ring1', currentExpertise, [], 'white');
-    pulseRing('ring1');
+    const mysteryFocus = new Set(
+        normalizeExpertiseArray(correctAnswer.expertise)
+            .map(canonicalFocus)
+            .filter(Boolean)
+    );
+
+    const covered = new Set(guessFocus);
+
+    if (covered.size === 0) {
+        // This guess has no recorded areas of focus — nothing new to reveal.
+        await sleep(300);
+        return;
+    }
+
+    // Stage 1: spotlight the areas this guess lets us probe.
+    renderFocusLedger(new Set(), covered);
     await sleep(800);
 
-    // Stage 2: mystery ring resolves
-    let redsExisting = extractRingColor('ring2', 'rgb(255, 182, 193)');
-    let greensExisting = extractRingColor('ring2', 'rgb(174, 243, 89)');
-
-    currentExpertise.forEach(expertise => {
-        if (normalizedCorrectExpertise.includes(expertise)) {
-            greensExisting.push(expertise);
-        } else {
-            redsExisting.push(expertise);
-        }
+    // Stage 2: resolve each probed area to a ✓ (shared) or ✗ (not shared).
+    covered.forEach(area => {
+        focusState[area] = mysteryFocus.has(area) ? 'yes' : 'no';
     });
-
-    setRingColor('ring2', greensExisting, redsExisting, 'lightgray');
-    pulseRing('ring2');
-    await sleep(850);
-    await sleep(500);
+    renderFocusLedger(covered);
+    await sleep(900);
 }
 
 async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
@@ -854,7 +826,7 @@ async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
         normalizedCurrentAnswer.person.trim().toLowerCase() !== normalizedCorrectAnswer.person.trim().toLowerCase() &&
         wrongGuesses.some(guess => guess.person.trim().toLowerCase() === normalizedCurrentAnswer.person.trim().toLowerCase())
     ) {
-        showCustomAlert('You already guessed ' + normalizedCurrentAnswer.person + '. Try again.', "5vmin", false);
+        showCustomAlert('You have already proposed ' + normalizedCurrentAnswer.person + '. Try another candidate.', "5vmin", false);
         return;
     }
 
@@ -912,7 +884,7 @@ async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
                 maybeShowCongrats(solvedNumber);
 
                 showCustomAlert(
-                    `Well done! 🎉<br> The correct answer is ${normalizedCorrectAnswer.person}. <br>
+                    `Attribution confirmed! 🎉<br> The manuscript was written by ${normalizedCorrectAnswer.person}. <br>
                     (${normalizedCorrectAnswer.birth} - ${normalizedCorrectAnswer.passing})${normalizedCorrectAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${normalizedCorrectAnswer.biography}</span>` : ''}`,
                     "2.5vmin",
                     true,
@@ -920,7 +892,7 @@ async function evaluateAnswer(correctAnswerArg, currentAnswer, guess = true) {
                 );
             } else {
                 showCustomAlert(
-                    `The correct answer is ${normalizedCorrectAnswer.person}. <br>
+                    `The manuscript was written by ${normalizedCorrectAnswer.person}. <br>
                     (${normalizedCorrectAnswer.birth} - ${normalizedCorrectAnswer.passing})${normalizedCorrectAnswer.biography ? ` <br> <span style="font-size: 3vmin;">${normalizedCorrectAnswer.biography}</span>` : ''}`,
                     "2.5vmin",
                     true,

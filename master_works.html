@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Works</title>
+
+  <!-- global.js expects mapboxgl to exist, even on pages without a map -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+
+  <link rel="icon" href="icon3.png" type="image/x-icon">
+  <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+  <link rel="stylesheet" href="all_styles.css">
+
+  <style>
+    body {
+      overflow-y: auto;
+    }
+
+    .mw-page {
+      max-width: 1100px;
+      padding-top: 1vh;
+    }
+
+    /* -------- HUD -------- */
+    .mw-hud {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vmin;
+      flex-wrap: wrap;
+      margin: 0.5vmin auto 1.5vmin;
+    }
+
+    .mw-hud-item {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(13px, 2.2vmin, 18px);
+      letter-spacing: 0.05em;
+      color: var(--heading-ink);
+
+      padding: 0.7vmin 2vmin;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: rgba(255, 248, 230, 0.72);
+      box-shadow: var(--shadow-tight);
+    }
+
+    .mw-hud-item .mw-stars {
+      letter-spacing: 0.12em;
+    }
+
+    /* -------- BOARD -------- */
+    .mw-panel {
+      width: min(96vw, 1040px);
+      padding: 2.5vmin;
+      margin: 0 auto;
+    }
+
+    .mw-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5vmin;
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mw-col {
+      display: grid;
+      gap: 1.6vmin;
+    }
+
+    .mw-col-title {
+      font-family: var(--font-ui);
+      font-size: clamp(14px, 2.4vmin, 20px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--heading-ink);
+      text-align: center;
+      border-bottom: 1px solid var(--rule-faint);
+      padding-bottom: 0.6vmin;
+    }
+
+    /* -------- CARDS -------- */
+    .mw-card {
+      display: flex;
+      align-items: center;
+      gap: 1.4vmin;
+
+      width: 100%;
+      min-height: 9.5vmin;
+      padding: 1.1vmin 1.6vmin;
+
+      font: inherit;
+      text-align: left;
+      color: var(--ink);
+
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,0.4), transparent 50%),
+        rgba(255, 248, 230, 0.66);
+      box-shadow: var(--shadow-tight);
+
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.3s ease;
+    }
+
+    .mw-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+      border-color: var(--rule-strong);
+    }
+
+    .mw-card.selected {
+      border: 2px solid var(--classy-blue-ink);
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,0.4), transparent 50%),
+        var(--plum-wash);
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 3px var(--plum-wash),
+        var(--shadow-soft);
+    }
+
+    .mw-card.locked {
+      pointer-events: none;
+      opacity: 0.55;
+      border-color: rgba(47, 79, 79, 0.45);
+      background: var(--accent-wash);
+    }
+
+    .mw-card.locked::after {
+      content: "✓";
+      margin-left: auto;
+      font-size: 2.6vmin;
+      font-weight: 700;
+      color: var(--correct-color);
+    }
+
+    .mw-card.wrong {
+      animation: mwShake 0.4s ease;
+      border-color: var(--incorrect-color);
+    }
+
+    @keyframes mwShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    .mw-portrait {
+      width: 6.5vmin;
+      height: 6.5vmin;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #8b7355;
+      box-shadow: 0 2px 8px rgba(61, 40, 23, 0.3);
+      filter: sepia(0.25);
+      flex: 0 0 auto;
+    }
+
+    .mw-sage-name {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(13px, 2.1vmin, 18px);
+      line-height: 1.25;
+      color: var(--heading-ink);
+    }
+
+    .mw-work-icon {
+      font-size: clamp(20px, 3.4vmin, 30px);
+      filter: sepia(0.4);
+      flex: 0 0 auto;
+    }
+
+    .mw-work-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(14px, 2.2vmin, 19px);
+      line-height: 1.25;
+      color: var(--ink);
+    }
+
+    /* -------- INTRO / DIFFICULTY OVERLAY -------- */
+    .mw-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(47, 36, 27, 0.35);
+      backdrop-filter: blur(4px);
+    }
+
+    .mw-intro-panel {
+      width: min(520px, 94vw);
+      padding: 3.5vmin 3vmin;
+      text-align: center;
+
+      background: var(--paper-strong);
+      border: 1px solid var(--rule-strong);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    .mw-intro-panel h2 {
+      font-family: var(--font-ui);
+      font-size: clamp(20px, 3.4vmin, 30px);
+      letter-spacing: 0.06em;
+      color: var(--heading-ink);
+      margin-bottom: 1vmin;
+    }
+
+    .mw-intro-panel p {
+      font-size: clamp(15px, 2.2vmin, 19px);
+      line-height: 1.45;
+      color: var(--ink-soft);
+      margin-bottom: 2.5vmin;
+    }
+
+    .mw-difficulty-buttons {
+      display: grid;
+      gap: 1.6vmin;
+    }
+
+    .mw-difficulty {
+      border: 1px solid rgba(255, 248, 230, 0.22);
+      border-radius: 16px;
+      padding: 1.8vmin 2vmin;
+      color: var(--white-ink);
+      cursor: pointer;
+
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(15px, 2.4vmin, 20px);
+      letter-spacing: 0.06em;
+
+      box-shadow:
+        0 10px 24px rgba(0,0,0,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .mw-difficulty span {
+      display: block;
+      font-family: var(--font-body);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(12px, 1.9vmin, 15px);
+      letter-spacing: 0.02em;
+      color: rgba(255, 248, 230, 0.88);
+      margin-top: 0.3vmin;
+    }
+
+    .mw-difficulty:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.06) saturate(1.08);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.26);
+    }
+
+    #mw-easy {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #2f8f83, #1f5f57);
+    }
+
+    #mw-medium {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #d2a129, #8b6514);
+    }
+
+    #mw-hard {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #b5343c, #651826);
+    }
+
+    /* -------- ROUND TRANSITION -------- */
+    .mw-board.mw-round-enter {
+      animation: mwRoundEnter 0.45s ease;
+    }
+
+    @keyframes mwRoundEnter {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* -------- MOBILE -------- */
+    @media (max-width: 700px) {
+      .mw-board {
+        gap: 1.6vmin;
+      }
+
+      .mw-card {
+        min-height: 56px;
+        padding: 8px 10px;
+        gap: 8px;
+      }
+
+      .mw-portrait {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+      }
+
+      .mw-sage-name,
+      .mw-work-title {
+        font-size: 13px;
+      }
+
+      .header h1 {
+        font-size: 7vmin;
+      }
+
+      .subtitle {
+        font-size: 3.2vmin;
+        padding: 0 4vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="alert-box" id="customAlert">
+    <p id="message"></p>
+    <button class="cta2 round-sweep" id="restart-button" onclick="hideCustomAlert(restart=true)" style="display:none; margin: 0 auto;">&#x1F504;</button>
+    <button id="exit-button" onclick="hideCustomAlert(restart=false)">×</button>
+  </div>
+
+  <div class="page mw-page">
+    <div class="header">
+      <h1>
+        <span class="emoji">🖋️</span>
+        <span class="gradient-text">Master Works</span>
+      </h1>
+      <p class="subtitle">Match each sage to the masterpiece they wrote.</p>
+
+      <button class="modern-button" id="home-button" onclick="window.location.href='game_select.html'">🏠</button>
+
+      <button class="modern-button second-left-button" id="restart-button-main" title="Restart">&#x1F504;</button>
+
+      <button class="modern-button" id="info-button"
+        onclick="showCustomAlert(`Each round shows four sages and four of their famous works — but the works are shuffled.<br><br>Click a sage, then click the work you think they wrote (or pick the work first — either order works).<br><br>Correct matches lock in. Wrong guesses count against your star rating:<br><br>⭐⭐⭐ — a flawless game<br>⭐⭐ — three mistakes or fewer<br>⭐ — finished the manuscript<br><br>Three rounds. Twelve masterpieces. Good luck, scribe!`, '2.4vmin', false, false)">
+        ℹ️
+      </button>
+
+      <button class="modern-button second-right-button" id="feedback-button"
+        onclick="window.location.href='feedback.html'">📩</button>
+    </div>
+
+    <div class="mw-hud">
+      <div class="mw-hud-item" id="mw-round-label">Round 1 of 3</div>
+      <div class="mw-hud-item">Matched: <span id="mw-matched">0</span> / 12</div>
+      <div class="mw-hud-item">Mistakes: <span id="mw-mistakes">0</span></div>
+    </div>
+
+    <main class="panel mw-panel">
+      <div class="mw-board" id="mw-board">
+        <div class="mw-col">
+          <div class="mw-col-title">The Sages</div>
+          <div class="mw-col" id="mw-sage-col"></div>
+        </div>
+
+        <div class="mw-col">
+          <div class="mw-col-title">The Works</div>
+          <div class="mw-col" id="mw-work-col"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="mw-intro" id="mw-intro">
+    <div class="mw-intro-panel">
+      <h2>🖋️ Master Works</h2>
+      <p>
+        The library's labels have fallen off! Four sages, four masterpieces, three rounds —
+        match every work to the sage who wrote it.
+      </p>
+
+      <div class="mw-difficulty-buttons">
+        <button class="mw-difficulty" id="mw-easy">
+          Apprentice Scribe
+          <span>The most famous sages and works</span>
+        </button>
+
+        <button class="mw-difficulty" id="mw-medium">
+          Seasoned Scholar
+          <span>A broader shelf of the library</span>
+        </button>
+
+        <button class="mw-difficulty" id="mw-hard">
+          Master Librarian
+          <span>The full collection — rare works included</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="global.js"></script>
+  <script type="module" src="master_works.js"></script>
+</body>
+</html>

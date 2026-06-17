@@ -18,20 +18,23 @@
     <style>
 
       body{
-        overflow: auto;
+        overflow: hidden;
       }
 
       .guess-page {
-        min-height: 100vh;
-        padding: 1.5vmin;
+        height: 100vh;
+        padding: 1.2vmin;
+        display: flex;
+        flex-direction: column;
       }
 
       /* HEADER */
       .guess-header {
         position: relative;
+        flex: 0 0 auto;
         margin: var(--header-margin);
-        min-height: var(--header-height);
-        margin-bottom: 2vmin;
+        min-height: auto;
+        margin-bottom: 1vmin;
       }
 
       .guess-header .header {
@@ -48,35 +51,37 @@
       }
 
       #info-button {
-        right: 10vmin;
+        right: 1vmin;
       }
 
-      #leave-button {
-        right: 1vmin;
+      #feedback-button {
+        right: 10vmin;
       }
 
       /* LAYOUT */
       .guess-layout {
+        flex: 1 1 auto;
+        min-height: 0;
         display: grid;
         grid-template-columns: minmax(210px, 0.78fr) minmax(0, 3.65fr) minmax(220px, 0.82fr);
+        grid-template-rows: 1fr;
         gap: 1.15vmin;
-        align-items: start;
+        align-items: stretch;
       }
 
       .guess-stack {
         display: flex;
         flex-direction: column;
         gap: 1.6vmin;
+        min-height: 0;
+        max-height: 100%;
+        overflow-y: auto;
       }
 
       .guess-main {
         min-width: 0;
-      }
-
-      .question-sidebar,
-      .history-sidebar {
-        position: sticky;
-        top: 1.5vmin;
+        min-height: 0;
+        display: flex;
       }
 
       /* PANELS */
@@ -259,19 +264,21 @@
       /* BOARD — GUESS WHO STYLE */
       .board {
         position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: clamp(5px, 0.65vmin, 10px);
-        padding: clamp(5px, 0.6vmin, 14px);
-        border: 2px solid var(--rule-strong);
-        border-radius: calc(var(--radius) + 0.4vmin);
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+        gap: clamp(4px, 0.6vmin, 9px);
+        padding: clamp(6px, 0.9vmin, 14px);
+        border: 1px solid rgba(63, 39, 16, 0.5);
+        border-radius: 12px;
         background:
-          linear-gradient(145deg, rgba(255,255,255,0.18), rgba(90,56,24,0.08)),
-          rgba(112, 71, 34, 0.16);
+          radial-gradient(circle at 50% 16%, rgba(255, 248, 230, 0.18), transparent 60%),
+          rgba(244, 230, 205, 0.14);
         box-shadow:
-          inset 0 0 0 2px rgba(255,255,255,0.18),
-          inset 0 0 28px rgba(74, 45, 18, 0.16),
-          var(--shadow-soft);
+          inset 0 1px 0 rgba(255, 248, 230, 0.22),
+          inset 0 0 24px rgba(35, 19, 7, 0.42);
       }
 
       .board::before {
@@ -301,7 +308,7 @@
       .sage-card {
         position: relative;
         z-index: 1;
-        min-height: clamp(106px, 14.2vmin, 160px);
+        min-height: 0;
         padding: 0;
         border: 0;
         background: transparent;
@@ -332,38 +339,6 @@
           box-shadow 0.22s ease,
           filter 0.22s ease,
           opacity 0.22s ease;
-      }
-
-      .sage-card-inner::after {
-        content: "";
-        position: absolute;
-        left: 12%;
-        right: 12%;
-        bottom: 5px;
-        height: 6px;
-        border-radius: 999px;
-        background:
-          linear-gradient(180deg, rgba(255,255,255,0.35), rgba(65,38,15,0.22)),
-          #a77635;
-        border: 1px solid rgba(75, 42, 15, 0.45);
-        box-shadow:
-          inset 0 1px 0 rgba(255,255,255,0.45),
-          0 1px 2px rgba(45,25,10,0.25);
-        pointer-events: none;
-      }
-
-      .sage-card-inner::before {
-        content: "";
-        position: absolute;
-        left: 8px;
-        right: 8px;
-        bottom: 6px;
-        height: 6px;
-        background:
-          radial-gradient(circle at left center, #7b5227 0 4px, transparent 5px),
-          radial-gradient(circle at right center, #7b5227 0 4px, transparent 5px);
-        pointer-events: none;
-        z-index: 4;
       }
 
       .sage-card:hover:not(.eliminated) .sage-card-inner {
@@ -436,18 +411,52 @@
         text-shadow: 0 1px 0 rgba(255,255,255,0.72);
       }
 
+      /* Floating popover so the hover detail is never clipped by the card */
       .sage-hover-info {
-        margin-top: 0.35vmin;
-        min-height: 1.2em;
-        font-size: clamp(10px, 1.5vmin, 13px);
-        color: var(--accent);
-        line-height: 1.15;
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 5px);
+        transform: translateX(-50%) translateY(4px);
+        z-index: 50;
+
+        width: max-content;
+        max-width: 180%;
+        padding: clamp(4px, 0.6vmin, 7px) clamp(7px, 1vmin, 11px);
+
+        font-family: var(--font-ui);
+        font-size: clamp(10px, 1.45vmin, 13px);
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+        color: var(--white-ink);
+
+        background: rgba(47, 36, 27, 0.96);
+        border: 1px solid rgba(201, 154, 60, 0.6);
+        border-radius: 8px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+
         opacity: 0;
-        transition: opacity 0.15s ease;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+
+      .sage-hover-info::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: rgba(47, 36, 27, 0.96);
+      }
+
+      .sage-card.show-hover-info {
+        z-index: 40;
       }
 
       .sage-card.show-hover-info .sage-hover-info {
         opacity: 1;
+        transform: translateX(-50%) translateY(0);
       }
 
       .sage-card.selected .sage-card-inner {
@@ -531,14 +540,83 @@
     line-height: 1.3;
   }
 
+  .scholars-remaining {
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: clamp(12px, 1.5vmin, 15px);
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+  }
+
+  .scholars-remaining-count {
+    display: inline-block;
+    min-width: 1.8em;
+    padding: 0.1em 0.5em;
+    border-radius: 999px;
+    background: rgba(47, 79, 79, 0.12);
+    border: 1px solid var(--rule);
+    font-size: 1.25em;
+    font-weight: 700;
+    color: var(--heading-ink);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .scholars-remaining-count.bump {
+    transform: scale(1.18);
+    background: rgba(201, 154, 60, 0.28);
+  }
+
 
   .hidden {
     display: none !important;
   }
 
   .board-wrap {
-  position: relative;
-}
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 0.9vmin, 12px);
+
+    padding: clamp(10px, 1.4vmin, 20px);
+    border-radius: 18px;
+    border: 1px solid #3f2710;
+
+    /* carved beis-medrash woodwork */
+    background:
+      linear-gradient(180deg, #8c5c2e 0%, #74491f 46%, #5c3917 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 236, 200, 0.30),
+      inset 0 0 0 3px rgba(63, 39, 16, 0.55),
+      inset 0 0 26px rgba(35, 19, 7, 0.50),
+      0 18px 36px rgba(35, 19, 7, 0.40);
+  }
+
+  /* carved nameplate at the top of the frame */
+  .board-wrap::before {
+    content: "The Study Hall";
+    flex: 0 0 auto;
+    align-self: center;
+
+    padding: clamp(3px, 0.5vmin, 7px) clamp(14px, 2.4vmin, 30px);
+    font-family: var(--font-ui);
+    font-size: clamp(11px, 1.5vmin, 16px);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f6e3bd;
+
+    background: linear-gradient(180deg, #6e451e, #4d3014);
+    border: 1px solid #36210e;
+    border-radius: 9px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 235, 200, 0.32),
+      inset 0 -2px 4px rgba(30, 16, 6, 0.45),
+      0 3px 8px rgba(30, 16, 6, 0.45);
+    text-shadow: 0 1px 0 rgba(30, 16, 6, 0.55);
+  }
 
 .success-banner {
   position: absolute;
@@ -629,17 +707,40 @@
       }
 
       @media (max-width: 1200px) {
-        .guess-layout {
-          grid-template-columns: 1fr;
+        body {
+          overflow: auto;
         }
 
-        .question-sidebar,
-        .history-sidebar {
-          position: static;
+        .guess-page {
+          height: auto;
+          min-height: 100vh;
+          display: block;
+        }
+
+        .guess-layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto;
+          min-height: 0;
+        }
+
+        .guess-stack {
+          max-height: none;
+          overflow: visible;
+        }
+
+        .guess-main {
+          display: block;
+        }
+
+        .board-wrap {
+          flex: 0 0 auto;
         }
 
         .board {
+          flex: 0 0 auto;
           grid-template-columns: repeat(4, minmax(0,1fr));
+          grid-template-rows: none;
+          grid-auto-rows: minmax(0, 1fr);
         }
 
         .sage-card {
@@ -699,6 +800,12 @@
   </head>
 
   <body>
+    <div class="alert-box" id="customAlert">
+      <p id="message"></p>
+      <button id="exit-button" type="button"
+        onclick="document.getElementById('customAlert').style.display='none'">×</button>
+    </div>
+
     <div class="guess-page">
 
       <div class="header-section guess-header">
@@ -713,13 +820,42 @@
             🏠
           </button>
 
+          <button
+            class="modern-button second-left-button"
+            id="restart-button-main"
+            type="button"
+            title="Enter a new study hall"
+            aria-label="New game"
+          >
+            🔄
+          </button>
+
+          <button
+            class="modern-button"
+            id="feedback-button"
+            type="button"
+            onclick="window.location.href='feedback.html'"
+            aria-label="Feedback"
+          >
+            📩
+          </button>
+
+          <button
+            class="modern-button"
+            id="info-button"
+            type="button"
+            aria-label="How to play"
+          >
+            ℹ️
+          </button>
+
           <h1>
             <span class="emoji">📖</span>
             <span class="gradient-text">Which Sage</span>
           </h1>
 
           <p class="subtitle">
-            Ask questions. Eliminate sages. Guess your opponent's sage!
+            A sage you seek sits among the scholars of the study hall. Question the gabbai, dismiss those who don't fit, and find your sage.
           </p>
         </div>
       </div>
@@ -729,11 +865,11 @@
         <!-- LEFT: QUESTION BUILDER -->
         <aside class="guess-stack question-sidebar">
           <section class="panel guess-panel question-builder-panel">
-            <h2 class="panel-heading guess-panel-heading">ASK A QUESTION</h2>
+            <h2 class="panel-heading guess-panel-heading">Question the Gabbai</h2>
 
             <div class="panel-content question-builder-content">
               <p class="question-helper">
-                Choose a category, then ask a yes-or-no question about your opponent's sage.
+                Choose a subject, then ask the gabbai a yes-or-no question about the sage you seek.
               </p>
 
               <div class="question-type-row">
@@ -787,7 +923,7 @@
         <main class="guess-main">
           <section class="board-wrap">
             <div class="success-banner hidden" id="success-banner">
-            <div class="success-title">Correct!</div>
+            <div class="success-title">Found!</div>
             <div class="success-text" id="success-text"></div>
 
             <button
@@ -807,22 +943,27 @@
         <aside class="guess-stack history-sidebar">
 
           <section class="panel guess-panel guess-action-panel">
-            <h2 class="panel-heading guess-panel-heading">MAKE A GUESS</h2>
+            <h2 class="panel-heading guess-panel-heading">Find Your Sage</h2>
 
             <div class="panel-content guess-action-content">
+              <div class="scholars-remaining" id="scholars-remaining">
+                <span class="scholars-remaining-count" id="scholars-remaining-count">25</span>
+                scholars still in the hall
+              </div>
+
               <button class="cta-button sweep guess-button" id="guess-button" type="button">
-                Guess the Sage
+                Approach a Sage
               </button>
 
               <div class="guess-status" id="guess-status">
-                Flip cards to eliminate them, or click “Guess the Sage” when you are ready.
+                Dismiss the scholars who don't fit, or approach a sage when you're ready.
               </div>
 
             </div>
           </section>
 
           <section class="panel guess-panel">
-            <h2 class="panel-heading guess-panel-heading">QUESTION HISTORY</h2>
+            <h2 class="panel-heading guess-panel-heading">What You've Asked</h2>
 
             <div class="panel-content history" id="question-history"></div>
           </section>
