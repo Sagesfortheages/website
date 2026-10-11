@@ -1,6 +1,16 @@
 import { supabaseClient } from './supabase/supabaseClient.js';
 import { loadAllSages } from './supabase/sagesWithNames.js';
 
+const ACTIVITY_TYPES = {
+  SAGE_SLEUTH: 'Sage Sleuth',
+  WHICH_SAGE: 'Which Sage'
+};
+
+
+function getActivityLabel(activityType) {
+  return activityType || 'Activity';
+}
+
 function esc(v) {
   return String(v ?? '')
     .replaceAll('&', '&amp;')
@@ -42,7 +52,7 @@ let currentClassId = null;
 let lastStudents = [];
 let lastAssignments = [];
 let lastProgressRows = [];
-let selectedAssignmentActivityType = 'mystery_sage';
+let selectedAssignmentActivityType = ACTIVITY_TYPES.SAGE_SLEUTH;
 
 const classSelect = document.getElementById('class-global-select');
 const studentsTbody = document.getElementById('students-tbody');
@@ -119,7 +129,9 @@ function wireAssignmentActivityChoice() {
       });
 
       btn.classList.add('active');
-      selectedAssignmentActivityType = btn.dataset.activityType || 'mystery_sage';
+
+      selectedAssignmentActivityType =
+        btn.dataset.activityType || ACTIVITY_TYPES.SAGE_SLEUTH;
     });
   });
 }
@@ -838,10 +850,7 @@ async function loadAssignments(classId) {
         })
       : '—';
 
-    const activityLabel =
-      a.activity_type === 'guess_who'
-        ? 'Which Sage'
-        : 'SageSleuth';
+    const activityLabel = getActivityLabel(a.activity_type);
 
     const title =
       a.target_sage_person
@@ -1470,12 +1479,10 @@ function wireAssignSage() {
     const targetSagePerson = document.getElementById('sage-select')?.value;
     const resultEl = document.getElementById('assign-game-result');
 
-    const activityType = selectedAssignmentActivityType || 'mystery_sage';
+    const activityType =
+  selectedAssignmentActivityType || ACTIVITY_TYPES.SAGE_SLEUTH;
 
-    const activityLabel =
-      activityType === 'guess_who'
-        ? 'Which Sage'
-        : 'SageSleuth';
+const activityLabel = getActivityLabel(activityType);
 
     if (!classId) {
       resultEl.innerHTML = errorCard('No class selected', 'Please select a class from the top first.');

@@ -67,12 +67,12 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             cursor: pointer;
-            background: rgba(74, 105, 189, 0.05);
+            background: rgba(47, 79, 79, 0.06);
             font-size: 2.2vmin;
         }
 
         .filter-item:hover {
-            background: rgba(74, 105, 189, 0.15);
+            background: var(--accent-wash);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
@@ -97,8 +97,9 @@
         .control-title {
             font-size: 3vmin;
             font-weight: 800;
+            font-family: var(--font-ui);
             margin-bottom: 2vmin;
-            color: #333;
+            color: var(--heading-ink);
             text-align: center;
             background: var(--classy-blue-ink);
             -webkit-background-clip: text;
@@ -137,7 +138,7 @@
 
         .speed-button {
             padding: 1vmin 1.5vmin;
-            border: 2px solid #6a2f52;
+            border: 2px solid var(--classy-blue-ink);
             background: var(--paper);
             color: var(--classy-blue-ink);
             border-radius: 20px;
@@ -149,13 +150,13 @@
 
         .speed-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 5px 15px rgba(106, 47, 82, 0.20);
         }
 
         .speed-button.active {
             background: var(--classy-blue-ink);
             color: var(--paper);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(106, 47, 82, 0.30);
         }
 
 
@@ -178,59 +179,26 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: 770;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-top: 1px solid var(--rule-faint);
             font-size: var(--fs-sage-list);
         }
 
         .search-results li:hover {
-            background: rgba(74, 105, 189, 0.1);
+            background: var(--accent-wash);
         }
 
 
 
 
-        /* Alert Box */
+        /* Alert box + exit button come from all_styles.css */
         .alert-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            padding: 3vmin;
             z-index: 10000;
-            max-width: 80vw;
-            max-height: 80vh;
-            overflow-y: auto;
-            display: none;
-        }
-
-        #exit-button {
-            position: absolute;
-            top: 1.5vmin;
-            right: 1.5vmin;
-            width: 5vmin;
-            height: 5vmin;
-            border-radius: 50%;
-            font-size: 2.5vmin;
-            color: #666;
-            background: #f0f0f0;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 770;
-        }
-
-        #exit-button:hover {
-            background: #e0e0e0;
-            transform: scale(1.1);
         }
 
         #message {
             font-size: 2.5vmin;
             line-height: 1.6;
-            color: #333;
+            color: var(--ink);
             font-weight: 500;
             margin-right: 3vmin;
         }

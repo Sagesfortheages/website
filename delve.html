@@ -10,96 +10,14 @@
 <title>Delve</title>
 
 <style>
-    /* -------- BASE -------- */
-
-    /* -------- PAGE WRAPPER -------- */
-    .page {
-        max-width: 900px;
-        margin: 0 auto;
-        padding-top: 2vh;
-        padding-bottom: 4vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    /* -------- HEADER -------- */
-    /* -------- GRID -------- */
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 2.5vmin;
-        width: 85vw;
-        max-width: 650px;
-    }
-
-    /* -------- TILES -------- */
-    .tile {
-        background: rgba(255, 255, 255, 0.55);
-        backdrop-filter: blur(10px);
-        border-radius: 22px;
-        padding: 1vmin;
-        height: 18vmin;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        cursor: pointer;
-        transition: transform 0.28s ease, box-shadow 0.28s ease;
-    }
-
-    .tile:hover {
-        transform: translateY(-8px) scale(1.03);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
-    }
-
-    .tile-icon {
-        font-size: 7vmin;
-        margin-bottom: 1.5vmin;
-    }
-
-    .tile-label {
-        font-size: 2.8vmin;
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        text-align: center;
-        color: #2e3b4e;
-    }
-
-    /* -------- COMING SOON -------- */
-    .coming {
-        pointer-events: none;
-        opacity: 0.9;
-    }
-
-    .coming::after {
-        content: "UNDER CONSTRUCTION";
-        position: absolute;
-        bottom: -13%;
-        font-size: 1.8vmin;
-        padding: 0.5vmin 1.2vmin;
-        border-radius: 4px;
-        font-weight: 700;
-        background: repeating-linear-gradient(
-            -45deg,
-            #f9d423 0px,
-            #f9d423 14px,
-            #000 14px,
-            #000 16px
-        );
-        color: #000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        transform: rotate(-3deg);
-    }
+    /* Page-specific tweaks; tiles, grid come from all_styles.css */
 
     /* -------- MOBILE -------- */
     @media (max-width: 600px) {
         body {
             overflow-y: auto;
         }
-        .tile { height: 26vmin; }
+        .tile { min-height: 26vmin; }
         .tile-icon { font-size: 8vmin; }
         .tile-label { font-size: 3.4vmin; }
     }
