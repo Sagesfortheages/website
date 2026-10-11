@@ -9,6 +9,7 @@ let visibleMarkersPeople = [];
 let playInterval = 1;
 let videoSpeed = 1;
 let frameSpeed = 200;
+playButton = document.getElementbyId('play-button')
 //
 const infoText = `Click the play button to see a live visualization of which sages were alive and where they lived at each point in time.<br><br>You can pause the visualization or adjust the speed of the visualization using the buttons.<br><br>Hover over a map marker to see more about the person.<br><br>You can also jump to another year by dragging the timeline handle.<br><br>The markers are colored according to the legend on the left side of the map. <br><br> As the visualization progresses, you will see a running list of which sages are currently visible on the map. Click on any sage name to see their biography page.`
 
