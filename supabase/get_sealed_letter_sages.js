@@ -16,7 +16,8 @@ function getSageImageUrl(picture) {
  * and at least one recorded work (bookshop clue).
  *
  * Returns: [{ person, name, difficulty, birth, passing, background,
- *             biography, image, books: [string], cities: [{city, country}] }]
+ *             biography, image, books: [string],
+ *             cities: [{city, country, latitude, longitude}] }]
  */
 export async function loadSealedLetterSages(maxDifficulty = 5) {
   const { data, error } = await supabaseClient
@@ -32,7 +33,7 @@ export async function loadSealedLetterSages(maxDifficulty = 5) {
       picture,
       books:book(book),
       dwellings:dwelling(
-        city:city(city, country)
+        city:city(city, country, latitude, longitude)
       )
     `)
     .lte('difficulty', maxDifficulty)
@@ -66,7 +67,12 @@ export async function loadSealedLetterSages(maxDifficulty = 5) {
           seen.add(key);
           return true;
         })
-        .map(c => ({ city: c.city.trim(), country: c.country.trim() }));
+        .map(c => ({
+          city: c.city.trim(),
+          country: c.country.trim(),
+          latitude: c.latitude != null ? Number(c.latitude) : null,
+          longitude: c.longitude != null ? Number(c.longitude) : null
+        }));
 
       return {
         person: sage.person,

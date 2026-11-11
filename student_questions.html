@@ -386,12 +386,21 @@
       import { loadAllSages } from './supabase/sagesWithNames.js';
       import { supabaseClient } from './supabase/supabaseClient.js';
       import { loadExtraQuizDataForSage } from './supabase/quiz_queries.js';
+      import { isTeacherPreview, showPreviewBanner } from './teacher_preview.js';
 
       const params = new URLSearchParams(window.location.search);
 
       const sageName = params.get('sage') || params.get('selected') || '';
 
       const assignmentId = params.get('assignmentId');
+
+      // Teacher preview: correct answers marked, Next works without answering, nothing saved
+      const isPreview = await isTeacherPreview();
+      if (isPreview) {
+        showPreviewBanner();
+        const homeButton = document.getElementById('home-button');
+        if (homeButton) homeButton.onclick = () => { window.location.href = 'teacher_home.html'; };
+      }
 
       const sageTitle = document.getElementById('sage-title');
       const questionArea = document.getElementById('question-area');
@@ -770,6 +779,7 @@
           card.appendChild(title);
           card.appendChild(input);
           questionArea.appendChild(card);
+          if (isPreview) nextBtn.disabled = false;
           return;
           }
 
@@ -793,6 +803,18 @@
         card.appendChild(grid);
         card.appendChild(feedback);
         questionArea.appendChild(card);
+
+        if (isPreview) {
+          if (!q.preference) {
+            const correctAnswers = Array.isArray(q.correct) ? q.correct : [q.correct];
+            grid.querySelectorAll('.choice').forEach(btn => {
+              if (correctAnswers.includes(btn.dataset.choice)) btn.classList.add('correct');
+            });
+            feedback.textContent = `Correct answer: ${correctAnswers.join(', ')}`;
+            feedback.classList.add('show', 'review');
+          }
+          nextBtn.disabled = false;
+        }
       }
 
       function handleChoice(q, selectedBtn, grid){
@@ -877,6 +899,14 @@
           (selectedExploreNext ? `<br>Next sage to explore: ${selectedExploreNext}` : '');
 
         scoreBox.textContent = '';
+
+        if (isPreview) {
+          completionText.innerHTML =
+            `End of the quiz: ${gradedCount} graded question${gradedCount === 1 ? '' : 's'}.<br>` +
+            `Students see their score here. Nothing was saved in preview.`;
+          return;
+        }
+
         saveProgress(); // 👈 add this
       }
 
@@ -895,7 +925,7 @@
 
       finishBtn.addEventListener('click', () => {
         {
-          window.location.href = 'student_home.html';
+          window.location.href = isPreview ? 'teacher_home.html' : 'student_home.html';
         }
       });
 

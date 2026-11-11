@@ -7,7 +7,7 @@ const isMobile = window.innerWidth <= 768;
 // Choose zoom level
 const initialZoom = isMobile ? 2 : 3;
 
-if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback") && !window.location.pathname.includes("questions")&& !window.location.pathname.includes("which_sage") && !window.location.pathname.includes("master_works") && !window.location.pathname.includes("sealed_letter") && !window.location.pathname.includes("quest")) {
+if (!window.location.pathname.includes("_select") && !window.location.pathname.includes("time") && !window.location.pathname.includes("index") && !window.location.pathname.includes("when") && !window.location.pathname.includes("delete") && !window.location.pathname.includes("text") && !window.location.pathname.includes("feedback") && !window.location.pathname.includes("questions")&& !window.location.pathname.includes("which_sage") && !window.location.pathname.includes("master_works") && !window.location.pathname.includes("sealed_letter") && !window.location.pathname.includes("quest") && !window.location.pathname.includes("locked_study")) {
     map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mrosen770/cml3bh9as008l01sdeom31pcp', // Map style
@@ -379,6 +379,11 @@ window.linkToProfile = function(person, filePath = 'discover.html', assignmentId
 
         if (assignmentId) {
             url += `&assignmentId=${encodeURIComponent(assignmentId)}`;
+        }
+
+        // Teacher preview: carry the flag forward (no effect unless the current URL has preview=1)
+        if (new URLSearchParams(window.location.search).get('preview') === '1') {
+            url += '&preview=1';
         }
 
         window.location.href = url;

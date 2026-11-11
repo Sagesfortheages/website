@@ -1,6 +1,7 @@
 import { getSelectedSage, getDailySageByDifficulty } from './supabase/selectedSage.js';
 import { trackPageView } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
+import { isTeacherPreview, withPreview, showPreviewBanner } from './teacher_preview.js';
 
 // Detect course mode
 const params = new URLSearchParams(window.location.search);
@@ -503,10 +504,15 @@ if (expertiseList) {
         btn.style.marginTop = "1vmin";
 
         btn.onclick = () => {
-            window.location.href = `student_questions.html?sage=${encodeURIComponent(selectedPerson)}&assignmentId=${encodeURIComponent(assignmentId)}`;
+            window.location.href = withPreview(`student_questions.html?sage=${encodeURIComponent(selectedPerson)}&assignmentId=${encodeURIComponent(assignmentId)}`);
         };
 
         document.body.appendChild(btn);
+    }
+
+    // Teacher preview: banner only (the Continue button is already visible on this page)
+    if (await isTeacherPreview()) {
+        showPreviewBanner();
     }
 }
 }

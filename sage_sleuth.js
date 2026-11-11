@@ -1,6 +1,7 @@
 import { loadAllSages } from './supabase/sagesWithNames.js';
 import { trackGameStart, trackPageView, updateGameResult, trackGuess, countSolvedGames } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
+import { isTeacherPreview, showPreviewBanner } from './teacher_preview.js';
 
 // Global variables
 let markers = [];
@@ -21,6 +22,17 @@ let isRevealRunning = false;
 const params = new URLSearchParams(window.location.search);
 const assignmentId = params.get('assignment_id');
 let currentAssignment = null;
+
+// Teacher preview: banner + skip straight to the assigned sage's profile
+isTeacherPreview().then(isPreview => {
+    if (!isPreview) return;
+    showPreviewBanner({
+        skipLabel: 'Skip to the sage →',
+        onSkip: () => {
+            if (correctAnswer) linkToProfile(correctAnswer, 'discover.html', assignmentId);
+        }
+    });
+});
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 

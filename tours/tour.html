@@ -36,79 +36,9 @@
       overflow: hidden;
     }
 
-    /* ── Top bar ── */
-    .tour-topbar {
-      height: 7.2vh;
-      min-height: 58px;
-      background:
-        linear-gradient(rgba(8, 18, 27, 0.92), rgba(8, 18, 27, 0.92)),
-        url("../parchment.jpg");
-      border-bottom: 0.35vmin solid rgba(150, 121, 71, 0.65);
-      box-shadow: 0 0.5vmin 1.5vmin rgba(0,0,0,0.35);
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      padding: 0 2vw;
-      z-index: 20;
-    }
-
-    .topbar-left,
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 1.6vw;
-    }
-
-    .topbar-right { justify-content: flex-end; }
-
-    .nav-link {
-      font-family: var(--font-ui);
-      font-size: clamp(11px, 1.25vmin, 15px);
-      letter-spacing: 0.16em;
-      color: #ead8ad;
-      text-decoration: none;
-      text-transform: uppercase;
-    }
-    .nav-link:hover { color: white; }
-
-    .brand-title {
-      font-family: var(--font-ui);
-      font-size: clamp(28px, 3.8vmin, 56px);
-      letter-spacing: 0.12em;
-      color: #f2dfb5;
-      text-shadow: 0 0.25vmin 0.4vmin rgba(0,0,0,0.55);
-      white-space: nowrap;
-    }
-
-    .top-icon {
-      width: 4.8vmin;
-      height: 4.8vmin;
-      display: grid;
-      place-items: center;
-      font-size: 2.8vmin;
-      color: #ead8ad;
-    }
-
-    .login-pill,
-    .search-pill {
-      border: 1px solid rgba(234, 216, 173, 0.65);
-      color: #ead8ad;
-      background: rgba(0,0,0,0.18);
-      border-radius: 0.6vmin;
-      padding: 0.8vmin 1.3vmin;
-      font-family: var(--font-ui);
-      font-size: clamp(12px, 1.4vmin, 16px);
-      letter-spacing: 0.08em;
-      cursor: pointer;
-    }
-
-    .search-pill {
-      width: 4.5vmin;
-      height: 4.5vmin;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      font-size: 2vmin;
+    /* Header: standard site header (all_styles.css); it just must not flex-grow */
+    .header-section {
+      flex: 0 0 auto;
     }
 
     /* ── Main page area ── */
@@ -116,12 +46,12 @@
       flex: 1;
       padding: 1.5vh 1.8vw 1.4vh;
       display: grid;
-      grid-template-rows: auto 1fr auto auto;
+      grid-template-rows: 1fr auto auto;
       gap: 1.4vh;
       overflow: hidden;
       background:
         radial-gradient(circle at 30% 12%, rgba(255,255,255,0.35), transparent 30%),
-        url("../parchment.jpg");
+        var(--page-texture);
       background-size: cover;
     }
 
@@ -187,11 +117,12 @@
       color: rgba(22, 27, 36, 0.88);
     }
 
-    /* ── Map + info grid ── */
+    /* ── Map + info grid ──
+       The info panel gets nearly half the width so the sage text fits. */
     .tour-main-grid {
       min-height: 0;
       display: grid;
-      grid-template-columns: 1.55fr 1fr;
+      grid-template-columns: 1.1fr 1fr;
       gap: 1.2vw;
     }
 
@@ -202,7 +133,7 @@
       outline: 2px solid rgba(92, 64, 35, 0.14);
       background:
         linear-gradient(rgba(245, 230, 196, 0.28), rgba(245, 230, 196, 0.28)),
-        url("../parchment.jpg");
+        var(--page-texture);
       background-size: cover;
       box-shadow:
         inset 0 0 2.2vmin rgba(84, 54, 24, 0.12),
@@ -211,12 +142,18 @@
       overflow: hidden;
     }
 
-    .map-panel { padding: 1vmin; }
+    /* Map on top, timeline strip beneath it — both inside the map panel */
+    .map-panel {
+      padding: 1vmin;
+      display: flex;
+      flex-direction: column;
+    }
 
     #map {
       width: 100%;
-      height: 100%;
-      min-height: 43vh;
+      height: auto;
+      flex: 1;
+      min-height: 0;
       border: 1px solid rgba(66, 46, 24, 0.32);
       filter: sepia(0.18) saturate(0.78);
       background: #d5c49a;
@@ -225,51 +162,17 @@
       box-shadow: none;
     }
 
-    .map-legend {
-      position: absolute;
-      left: 3.2vmin;
-      bottom: 3.2vmin;
-      background: rgba(239, 222, 185, 0.9);
-      border: 1px solid rgba(92, 64, 35, 0.35);
-      box-shadow: 0 0.4vmin 1.2vmin rgba(0,0,0,0.16);
-      border-radius: 0.45vmin;
-      padding: 1.2vmin 1.5vmin;
-      font-family: var(--font-ui);
-      color: #2c2115;
-      z-index: 5;
-      display: grid;
-      gap: 0.8vmin;
-      font-size: clamp(12px, 1.35vmin, 16px);
-    }
-
-    .legend-row {
-      display: flex;
-      align-items: center;
-      gap: 0.8vmin;
-      white-space: nowrap;
-    }
-
-    .legend-dot {
-      width: 1.4vmin;
-      height: 1.4vmin;
-      border-radius: 50%;
-      background: #10283c;
-      border: 1px solid #ead8ad;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
-    }
-
-    .legend-line {
-      width: 3vmin;
-      height: 0;
-      border-top: 0.32vmin dashed #3d2d19;
-    }
-
     /* ── Info panel ── */
     .info-panel {
       padding: 1.5vmin 2vmin;
       display: grid;
-      grid-template-rows: auto auto auto auto;
+      grid-template-rows: repeat(6, auto);
+      align-content: start;
       gap: 1vmin;
+      /* override the shared `overflow: hidden` so long content scrolls
+         instead of being clipped by the fixed panel height */
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .current-stop-label {
@@ -333,6 +236,20 @@
       margin-left: 4.8vmin;
     }
 
+    /* Event text (tour.js adds .event-text while an event is on screen):
+       larger and set off with a gold rule so it reads as the main content. */
+    .stop-copy.event-text {
+      font-size: clamp(19px, 2.4vmin, 32px);
+      line-height: 1.42;
+      font-weight: 500;
+      color: #1a110b;
+      margin-left: 1.5vmin;
+      max-width: 100%;
+      padding: 1.2vmin 0 1.2vmin 2vmin;
+      border-left: 0.5vmin solid #b8913f;
+      background: linear-gradient(90deg, rgba(237, 219, 181, 0.55), transparent 85%);
+    }
+
     .quote-box {
       margin: 0.2vmin 1.5vmin;
       padding: 1.2vmin 2vmin;
@@ -355,6 +272,14 @@
       color: rgba(72, 45, 22, 0.55);
     }
 
+    /* When the box holds a sage's name caption instead of a quote,
+       drop the quotation mark and the italic styling. */
+    .quote-box.caption {
+      font-style: normal;
+      letter-spacing: 0.04em;
+    }
+    .quote-box.caption::before { content: none; }
+
     .featured-title {
       display: flex;
       align-items: center;
@@ -373,14 +298,19 @@
       background: rgba(82, 54, 29, 0.45);
     }
 
+    /* Portraits split into balanced rows and spread evenly across the panel.
+       --sage-per-row is set by tour.js (renderSageStrip) from the sage count. */
     .sage-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.3vmin;
-      align-items: end;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 1vmin;
+      align-items: flex-start;
+      padding-bottom: 0.6vmin;
     }
 
     .sage-mini {
+      flex: 0 0 calc(100% / var(--sage-per-row, 5));
       text-align: center;
       font-family: var(--font-body);
       font-size: clamp(13px, 1.45vmin, 18px);
@@ -392,6 +322,7 @@
       height: 7.5vmin;
       border-radius: 50%;
       margin: 0 auto 0.45vmin;
+      overflow: hidden;
       border: 2px solid rgba(98, 67, 36, 0.6);
       background:
         radial-gradient(circle at 42% 38%, rgba(255,255,255,0.26), transparent 22%),
@@ -400,30 +331,24 @@
       filter: sepia(0.35);
     }
 
-    .tag-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.8vmin;
-      border-top: 1px solid rgba(82, 54, 29, 0.33);
-      padding-top: 0.9vmin;
-    }
+    /* Portraits show the sage's biography on hover (see tour.js renderSageStrip).
+       The image ignores the pointer so the hover lands on .popup-button. */
+    .sage-portrait.popup-button { cursor: help; }
 
-    .topic-tag {
-      border: 1px solid rgba(82, 54, 29, 0.28);
-      background: rgba(242, 226, 190, 0.45);
-      border-radius: 0.45vmin;
-      padding: 0.55vmin 0.4vmin;
-      text-align: center;
-      font-family: var(--font-ui);
-      font-size: clamp(10px, 1.12vmin, 14px);
-      color: #2d2016;
-      white-space: nowrap;
+    .sage-portrait img {
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
 
     /* ── Chapter cards ── */
+    /* one card per sage; --chapter-count is set by tour.js to the sage total */
     .chapter-cards {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(var(--chapter-count, 6), minmax(0, 1fr));
       gap: 1vw;
     }
 
@@ -432,7 +357,7 @@
       border: 1px solid rgba(94, 65, 34, 0.42);
       background:
         linear-gradient(rgba(244, 227, 192, 0.4), rgba(244, 227, 192, 0.4)),
-        url("../parchment.jpg");
+        var(--page-texture);
       background-size: cover;
       box-shadow:
         inset 0 0 1.3vmin rgba(66, 42, 20, 0.07),
@@ -483,10 +408,10 @@
     /* ── Bottom controls ── */
     .bottom-controls {
       display: grid;
-      grid-template-columns: 1fr 1.15fr 1fr 1.6fr;
+      grid-template-columns: 1fr 1fr;
       gap: 1.8vw;
       align-items: center;
-      padding: 0 5vw;
+      padding: 0 18vw;
     }
 
     .nav-button,
@@ -503,44 +428,18 @@
       width: 100%;
     }
 
-    /*
-      #play-button: all_styles.css defines this as a circle.
-      We override it here to be a full-width bar button to match the tour layout.
-      JS checks playButton.checked and playButton.classList (no change needed).
-    */
-    #play-button {
-      width: 100% !important;
-      height: 5.7vh !important;
-      min-height: 5.7vh;
-      border-radius: 0.6vmin !important;
-      background: linear-gradient(180deg, #183047, #0d2235) !important;
-      color: #f4dfb8 !important;
-      border: 1px solid rgba(226, 196, 132, 0.65) !important;
-      font-family: var(--font-body);
-      font-size: clamp(16px, 2vmin, 24px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Next Stop is the main action, so it gets the navy treatment */
+    #next-button {
+      background: linear-gradient(180deg, #183047, #0d2235);
+      color: #f4dfb8;
+      border: 1px solid rgba(226, 196, 132, 0.65);
       box-shadow: 0 0.35vmin 1vmin rgba(44, 27, 13, 0.18);
     }
 
-    /* JS adds/removes .paused to toggle label */
-    #play-button::before {
-      content: "▶  Play Module";
-    }
-    #play-button.paused::before {
-      content: "Ⅱ  Pause Module";
-    }
-
-    /* Suppress the round-sweep ::after from all_styles.css on this element */
-    #play-button.round-sweep {
-      border-radius: 0.6vmin !important;
-    }
-    #play-button.round-sweep::after {
-      border-radius: 0.6vmin;
-      -webkit-mask-image: none;
-      mask-image: none;
+    .nav-button:disabled,
+    #next-button:disabled {
+      opacity: 0.45;
+      cursor: default;
     }
 
     .bottom-actions {
@@ -568,24 +467,45 @@
       color: #143047;
     }
 
-    /* ── Year slider: override all_styles.css position for tour layout ── */
+    /* ── Year slider: display-only timeline in its own strip beneath the map ──
+       Resets the fixed overlay positioning from all_styles.css. It is not
+       clickable: the year is driven by the Previous/Next Stop buttons. */
     #year-slider {
-      position: absolute;
-      left: 3vw;
-      right: 3vw;
-      bottom: 15.2vh;
-      z-index: 12;
-      opacity: 0.9;
-      filter: drop-shadow(0 0.35vmin 0.8vmin rgba(0,0,0,0.18));
-      /* reset all_styles.css positioning */
+      position: static;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      z-index: auto;
       width: auto;
       transform: none;
+      flex: 0 0 auto;
+      /* headroom above for the year tooltip, room below for the century labels */
+      margin: 5.5vmin 4vmin 7.5vmin;
+      pointer-events: none;
+      filter: drop-shadow(0 0.35vmin 0.8vmin rgba(0,0,0,0.18));
     }
 
     /* ── Popup: tour uses absolute positioning relative to cursor ── */
     /* all_styles.css .popup handles most of this; we only adjust z-index conflict */
     #popup.popup {
       z-index: 4000;
+      max-width: min(34vw, 460px);
+    }
+
+    /* Sage biography inside the hover popup */
+    .popup-years {
+      font-weight: 400;
+    }
+    .popup-bio {
+      margin-top: 0.6vmin;
+      font-weight: 400;
+      font-size: clamp(13px, 1.6vmin, 18px);
+      line-height: 1.4;
+      text-align: left;
+      display: -webkit-box;
+      -webkit-line-clamp: 12;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     /* ── Mobile ── */
@@ -597,19 +517,6 @@
         min-height: 100vh;
       }
 
-      .tour-topbar {
-        grid-template-columns: 1fr;
-        gap: 0.8vh;
-        height: auto;
-        padding: 1vh 2vw;
-        text-align: center;
-      }
-
-      .topbar-left,
-      .topbar-right { justify-content: center; }
-
-      .brand-title { font-size: clamp(26px, 7vw, 44px); }
-
       .tour-page {
         grid-template-rows: auto auto auto auto;
         overflow: visible;
@@ -617,7 +524,8 @@
 
       .tour-main-grid { grid-template-columns: 1fr; }
 
-      .map-panel { height: 45vh; }
+      /* tall enough for the map plus the timeline strip beneath it */
+      .map-panel { height: 62vh; }
 
       .chapter-cards { grid-template-columns: repeat(2, 1fr); }
 
@@ -626,67 +534,51 @@
         padding: 0 2vw 3vh;
       }
 
-      #year-slider {
-        position: relative;
-        left: auto;
-        right: auto;
-        bottom: auto;
-        margin: 2vh 3vw;
-        width: calc(100% - 6vw);
-      }
+      #year-slider { margin: 5.5vmin 5vw 11vmin; }
     }
   </style>
 </head>
 
 <body>
+  <div class="alert-box" id="customAlert">
+    <p id="message"></p>
+    <button id="exit-button" type="button"
+      onclick="document.getElementById('customAlert').style.display='none'">×</button>
+  </div>
+
   <div class="tour-shell">
 
-    <header class="tour-topbar">
-      <nav class="topbar-left">
-        <div class="top-icon">📖</div>
-        <a class="nav-link" href="../index.html">Home</a>
-        <a class="nav-link" href="../tours.html">Tours</a>
-        <a class="nav-link" href="../themes.html">Themes</a>
-        <a class="nav-link" href="../sources.html">Sources</a>
-        <a class="nav-link" href="../about.html">About</a>
-      </nav>
+    <div class="header-section">
+      <div class="header">
+        <h1>
+          <span class="emoji">📖</span>
+          <span class="gradient-text">Major Chumash Commentaries</span>
+        </h1>
+        <p class="subtitle">An interactive journey through the great commentators on Chumash.</p>
 
-      <div class="brand-title">Sages For The Ages</div>
+        <button class="modern-button" id="home-button" type="button"
+          onclick="window.location.href='../index.html'">🏠</button>
 
-      <div class="topbar-right">
-        <button class="search-pill" type="button">⌕</button>
-        <button class="login-pill" type="button">👤 Log In / Profile ▾</button>
+        <button class="modern-button" id="info-button" type="button"
+          onclick="showCustomAlert(`An interactive journey through the great commentators on Chumash.<br><br>Use <strong>Next Stop</strong> and <strong>Previous Stop</strong> to move along the timeline from one event to the next. Hover over a sage's portrait to read his biography.`, '2.4vmin', false, false)">ℹ️</button>
+
+        <button class="modern-button second-right-button" id="feedback-button" type="button"
+          onclick="window.location.href='../feedback.html'">📩</button>
       </div>
-    </header>
+    </div>
 
     <main class="tour-page">
-      <section class="module-head">
-        <div class="module-badge-row">
-          <div class="ornament"></div>
-          <div class="module-badge">Module</div>
-          <div class="ornament"></div>
-        </div>
-
-        <h1 class="module-title">Major Chumash Commentaries</h1>
-        <p class="module-subtitle">
-          An interactive journey through the great commentators on Chumash.
-        </p>
-      </section>
-
       <section class="tour-main-grid">
         <div class="map-panel">
           <div id="map"></div>
 
-          <div class="map-legend">
-            <div class="legend-row">
-              <span class="legend-dot"></span>
-              <span>Module Stops</span>
-            </div>
-            <div class="legend-row">
-              <span class="legend-line"></span>
-              <span>Module Path</span>
-            </div>
-          </div>
+          <!--
+            tour.js creates the noUiSlider on this element by id.
+            Display-only timeline strip beneath the map (see #year-slider
+            rule in <style> above); tour.js also disables user interaction
+            and zips it between events when Previous/Next is pressed.
+          -->
+          <div id="year-slider" class="watch"></div>
         </div>
 
         <aside class="info-panel">
@@ -694,120 +586,39 @@
 
           <div class="stop-head">
             <!-- id="icon-space" is read/written by tour.js -->
-            <button id="icon-space" type="button">1</button>
+            <button id="icon-space" type="button">❧</button>
             <!-- id="name-content" is read/written by tour.js -->
-            <div id="name-content">Rashi Opens the Door</div>
+            <div id="name-content">Begin the Journey</div>
           </div>
 
+          <!-- Populated per-sage by tour.js (goToSage). Starts as a prompt. -->
           <p class="stop-copy">
-            Rashi, the sage of Troyes, became the foundational commentator for learning Chumash.
-            His concise explanations and careful selection of midrash illuminate the simple meaning
-            of the text and open the door for generations of learners.
+            Press “Next Stop” to travel through the great commentators on Chumash, one at a time.
           </p>
 
-          <div class="quote-box">
-            The words of Rashi are like clear water — everyone can drink and understand.
-          </div>
+          <!-- Hidden until a sage is selected; filled with the sage's Hebrew name and years. -->
+          <div class="quote-box" style="display:none"></div>
 
           <div>
             <div class="featured-title">Sages Featured in This Module</div>
 
-            <div class="sage-strip">
-              <div class="sage-mini">
-                <div class="sage-portrait"></div>
-                Rashi
-              </div>
-              <div class="sage-mini">
-                <div class="sage-portrait"></div>
-                Ibn Ezra
-              </div>
-              <div class="sage-mini">
-                <div class="sage-portrait"></div>
-                Ramban
-              </div>
-              <div class="sage-mini">
-                <div class="sage-portrait"></div>
-                Sforno
-              </div>
-            </div>
-          </div>
-
-          <div class="tag-row">
-            <div class="topic-tag">📖 pshat</div>
-            <div class="topic-tag">🏛 midrash</div>
-            <div class="topic-tag">✒ language</div>
-            <div class="topic-tag">🏛 philosophy</div>
+            <!-- Filled by tour.js (renderSageStrip) from the module's sages -->
+            <div class="sage-strip"></div>
           </div>
         </aside>
       </section>
 
-      <section class="chapter-cards">
-        <div class="chapter-card active">
-          <div class="chapter-num">1</div>
-          <div class="chapter-name">Overview</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-        <div class="chapter-card">
-          <div class="chapter-num">2</div>
-          <div class="chapter-name">Rashi</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-        <div class="chapter-card">
-          <div class="chapter-num">3</div>
-          <div class="chapter-name">Ibn Ezra</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-        <div class="chapter-card">
-          <div class="chapter-num">4</div>
-          <div class="chapter-name">Ramban</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-        <div class="chapter-card">
-          <div class="chapter-num">5</div>
-          <div class="chapter-name">Sforno</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-        <div class="chapter-card">
-          <div class="chapter-num">6</div>
-          <div class="chapter-name">Compare &amp; Play</div>
-          <div class="chapter-flourish">❧</div>
-        </div>
-      </section>
+      <!-- One card per sage, filled by tour.js (renderChapterCards) from the
+           module's sages. Clicking a card jumps to that stop; the card of the
+           sage currently being discussed is highlighted with .active. -->
+      <section class="chapter-cards"></section>
 
       <section class="bottom-controls">
         <button class="nav-button" type="button">← Previous Stop</button>
 
-        <!--
-          tour.js expects:
-            id="play-button"
-            playButton.checked (boolean property, not attr)
-            playButton.classList.add/remove('paused')
-            playButton.disabled
-          The class "watch round-sweep" triggers all_styles.css sweep animation.
-          We override the shape in <style> above.
-        -->
-        <button id="play-button" class="watch round-sweep" type="button"></button>
-
         <button id="next-button" type="button">Next Stop →</button>
 
-        <div class="bottom-actions">
-          <div class="action-link">
-            <span class="big-icon">📖</span>
-            <span>Explore<br />related sages</span>
-          </div>
-          <div class="action-link">
-            <span class="big-icon">🧩</span>
-            <span>Open<br />activity</span>
-          </div>
-        </div>
       </section>
-
-      <!--
-        tour.js creates the noUiSlider on this element by id.
-        The "watch" class is used by tour.js for .watch selectors if any.
-        all_styles.css positions this absolutely; our override above repositions for tour layout.
-      -->
-      <div id="year-slider" class="watch"></div>
     </main>
 
     <!--
@@ -820,7 +631,6 @@
       <span class="popup-message"></span>
     </div>
 
-    <audio id="keyboard-sound" src="../keyboard_sound_extended.wav" preload="auto"></audio>
   </div>
 
   <script src="../global.js"></script>

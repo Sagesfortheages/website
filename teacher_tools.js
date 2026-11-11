@@ -774,7 +774,7 @@ async function loadAssignments(classId) {
 
   const { data: assignments, error } = await supabaseClient
     .from('assignments')
-    .select('id, title, activity_type, target_sage_person, created_at')
+    .select('id, title, activity_type, target_sage_person, status, created_at')
     .eq('class_id', classId)
     .order('created_at', { ascending: false });
 
@@ -852,6 +852,11 @@ async function loadAssignments(classId) {
 
     const activityLabel = getActivityLabel(a.activity_type);
 
+    // Teacher preview: same page a student starts on, plus preview=1
+    const previewPage = a.activity_type === ACTIVITY_TYPES.WHICH_SAGE ? 'which_sage.html' : 'sage_sleuth.html';
+    const previewUrl = `${previewPage}?assignment_id=${encodeURIComponent(a.id)}&preview=1`;
+    const canPreview = a.status === 'active';
+
     const title =
       a.target_sage_person
         ? `${activityLabel} - ${a.target_sage_person}`
@@ -875,6 +880,15 @@ async function loadAssignments(classId) {
           >
             View
           </button>
+          <button
+            class="cta-button sm"
+            style="margin-left:0.5em;"
+            data-preview-url="${esc(previewUrl)}"
+            title="${canPreview ? 'See exactly what students see (opens in a new tab)' : 'Only active assignments can be previewed'}"
+            ${canPreview ? '' : 'disabled'}
+          >
+            Preview
+          </button>
         </td>
       </tr>
     `;
@@ -883,6 +897,12 @@ async function loadAssignments(classId) {
   assignmentsTbody.querySelectorAll('[data-assignment-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       showAssignmentDetail(btn.dataset.assignmentId, btn.dataset.assignmentTitle);
+    });
+  });
+
+  assignmentsTbody.querySelectorAll('[data-preview-url]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.open(btn.dataset.previewUrl, '_blank', 'noopener');
     });
   });
   updateOnboardingState();

@@ -1,6 +1,7 @@
 
 import { loadGuessWhoSages } from './supabase/get_guess_who_sages.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
+import { isTeacherPreview, showPreviewBanner } from './teacher_preview.js';
 
 const questionData = {
     background: {
@@ -44,6 +45,17 @@ let correctSage = null;
 const params = new URLSearchParams(window.location.search);
 const assignmentId = params.get("assignment_id");
 let currentAssignment = null;
+
+// Teacher preview: banner + skip straight to the assigned sage's profile
+isTeacherPreview().then(isPreview => {
+    if (!isPreview) return;
+    showPreviewBanner({
+        skipLabel: 'Skip to the sage →',
+        onSkip: () => {
+            if (correctSage) linkToProfile(correctSage, 'discover.html', assignmentId);
+        }
+    });
+});
 
 let selectedType = null;
 let selectedValue = null;
