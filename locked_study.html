@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Locked Study</title>
+
+  <!-- mapbox powers the traveler's-map puzzle (global.js also expects mapboxgl to exist) -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
+
+  <link rel="icon" href="icon3.png" type="image/x-icon">
+  <link rel="shortcut icon" href="icon3.png" type="image/x-icon">
+  <link rel="stylesheet" href="all_styles.css">
+
+  <style>
+    body {
+      overflow-y: auto;
+    }
+
+    .esc-page {
+      max-width: 1020px;
+      padding-top: 1vh;
+    }
+
+    /* -------- HUD: candle timer + keys -------- */
+    .esc-hud {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vmin;
+      flex-wrap: wrap;
+      margin: 0.5vmin auto 1.5vmin;
+    }
+
+    .esc-hud-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1vmin;
+
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(13px, 2.2vmin, 18px);
+      letter-spacing: 0.05em;
+      color: var(--heading-ink);
+
+      padding: 0.7vmin 2vmin;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: rgba(255, 248, 230, 0.72);
+      box-shadow: var(--shadow-tight);
+    }
+
+    .esc-candle-track {
+      position: relative;
+      width: clamp(90px, 16vmin, 150px);
+      height: 1.4vmin;
+      min-height: 10px;
+      border-radius: 999px;
+      background: rgba(110, 85, 55, 0.22);
+      overflow: hidden;
+    }
+
+    .esc-candle-bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #d2a129, #e8c765);
+      transition: width 1s linear, background 0.4s ease;
+    }
+
+    .esc-candle-bar.low {
+      background: linear-gradient(90deg, #b5343c, #d2612a);
+      animation: escGutter 0.8s ease-in-out infinite;
+    }
+
+    @keyframes escGutter {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    #esc-flame {
+      display: inline-block;
+      transform-origin: 50% 90%;
+      animation: escFlicker 2.4s ease-in-out infinite;
+    }
+
+    @keyframes escFlicker {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-3deg) scale(1.05); }
+      55% { transform: rotate(2deg) scale(0.96); }
+      80% { transform: rotate(-2deg) scale(1.03); }
+    }
+
+    #esc-time {
+      font-variant-numeric: tabular-nums;
+      min-width: 4.2ch;
+      text-align: right;
+    }
+
+    .esc-penalty-float {
+      position: absolute;
+      top: -0.6em;
+      right: 1vmin;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      color: var(--incorrect-color);
+      pointer-events: none;
+      animation: escPenalty 1.4s ease forwards;
+    }
+
+    @keyframes escPenalty {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-2.6em); }
+    }
+
+    .esc-key-slot {
+      opacity: 0.35;
+      filter: grayscale(0.8);
+      font-size: clamp(15px, 2.6vmin, 22px);
+      transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
+    }
+
+    .esc-key-slot.won {
+      opacity: 1;
+      filter: none;
+      transform: scale(1.15) rotate(-8deg);
+    }
+
+    /* -------- LEDGER (what you've learned) -------- */
+    .esc-ledger {
+      width: min(94vw, 760px);
+      margin: 0 auto 1.8vmin;
+      padding: 1.4vmin 2.2vmin;
+
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255,255,255,0.5), transparent 45%),
+        rgba(255, 250, 238, 0.85);
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .esc-ledger-title {
+      font-family: var(--font-ui);
+      font-size: clamp(12px, 1.9vmin, 15px);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--heading-ink);
+      text-align: center;
+      border-bottom: 1px solid var(--rule-faint);
+      padding-bottom: 0.5vmin;
+      margin-bottom: 0.8vmin;
+    }
+
+    .esc-fragments {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1vmin;
+      min-height: 4vmin;
+    }
+
+    .esc-fragment {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(13px, 2vmin, 17px);
+      color: var(--ink);
+
+      padding: 0.55vmin 1.5vmin;
+      background: rgba(245, 230, 211, 0.85);
+      border: 1px dashed var(--rule-strong);
+      border-radius: 4px;
+      transform: rotate(-0.6deg);
+      animation: escFragmentIn 0.45s ease;
+    }
+
+    .esc-fragment:nth-child(even) {
+      transform: rotate(0.8deg);
+    }
+
+    .esc-fragment-empty {
+      font-family: var(--font-body);
+      font-style: italic;
+      color: var(--ink-soft);
+      opacity: 0.7;
+      font-size: clamp(13px, 2vmin, 16px);
+      align-self: center;
+    }
+
+    @keyframes escFragmentIn {
+      from { opacity: 0; transform: translateY(8px) rotate(-3deg); }
+      to { opacity: 1; }
+    }
+
+    /* -------- THE ROOM -------- */
+    .esc-panel {
+      width: min(94vw, 860px);
+      padding: 2vmin 2.4vmin;
+      margin: 0 auto 3vmin;
+    }
+
+    .esc-room {
+      position: relative;
+      border-radius: var(--radius);
+      padding: 3vmin 3vmin 2.4vmin;
+      overflow: hidden;
+
+      background:
+        radial-gradient(circle at 50% 105%, rgba(255, 176, 74, 0.30), transparent 62%),
+        radial-gradient(circle at 12% 0%, rgba(90, 120, 170, 0.16), transparent 45%),
+        linear-gradient(180deg, #4a3521 0%, #33220f 55%, #201406 100%);
+      border: 1px solid rgba(20, 12, 4, 0.6);
+      box-shadow:
+        inset 0 0 60px rgba(0, 0, 0, 0.55),
+        var(--shadow-soft);
+      animation: escSceneIn 0.5s ease;
+    }
+
+    /* breathing candlelight over the whole room */
+    .esc-room::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 88%, rgba(255, 190, 90, 0.22), transparent 55%);
+      animation: escRoomGlow 3.2s ease-in-out infinite;
+    }
+
+    @keyframes escRoomGlow {
+      0%, 100% { opacity: 1; }
+      45% { opacity: 0.55; }
+      70% { opacity: 0.85; }
+    }
+
+    @keyframes escSceneIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .esc-room-caption {
+      position: relative;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(13px, 2.1vmin, 18px);
+      color: rgba(255, 236, 200, 0.85);
+      text-align: center;
+      margin-bottom: 2.2vmin;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    .esc-objects {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2vmin;
+      margin-bottom: 2.4vmin;
+    }
+
+    .esc-obj {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8vmin;
+      padding: 1.8vmin 1vmin 1.4vmin;
+
+      font: inherit;
+      cursor: pointer;
+
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 220, 150, 0.14), transparent 60%),
+        rgba(255, 240, 210, 0.07);
+      border: 1px solid rgba(255, 220, 160, 0.22);
+      border-radius: var(--radius);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .esc-obj:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 220, 160, 0.55);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 220, 150, 0.24), transparent 60%),
+        rgba(255, 240, 210, 0.12);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+    }
+
+    .esc-obj-icon {
+      font-size: clamp(34px, 6.5vmin, 58px);
+      line-height: 1;
+      filter: sepia(0.25) drop-shadow(0 6px 10px rgba(0,0,0,0.55));
+    }
+
+    .esc-obj-label {
+      font-family: var(--font-ui);
+      font-size: clamp(11px, 1.8vmin, 14px);
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      color: rgba(255, 236, 200, 0.9);
+      text-align: center;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    }
+
+    .esc-obj.solved {
+      border-color: rgba(232, 199, 101, 0.75);
+      box-shadow: 0 0 18px rgba(232, 199, 101, 0.25), inset 0 0 16px rgba(232, 199, 101, 0.12);
+      cursor: default;
+    }
+
+    .esc-obj.solved:hover {
+      transform: none;
+    }
+
+    .esc-obj.solved::after {
+      content: "🗝️";
+      position: absolute;
+      top: -0.9vmin;
+      right: -0.6vmin;
+      font-size: clamp(18px, 3vmin, 26px);
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
+      animation: escKeyPop 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    @keyframes escKeyPop {
+      from { transform: scale(0) rotate(-90deg); }
+      to { transform: scale(1) rotate(0); }
+    }
+
+    /* -------- THE DOOR -------- */
+    .esc-door {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2vmin;
+      width: 100%;
+      padding: 1.8vmin 2vmin;
+
+      font: inherit;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(15px, 2.5vmin, 21px);
+      letter-spacing: 0.07em;
+      color: rgba(255, 236, 200, 0.92);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+
+      cursor: pointer;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.25)),
+        linear-gradient(135deg, #5d4023, #3b2410);
+      border: 1px solid rgba(255, 220, 160, 0.3);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .esc-door:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 220, 160, 0.6);
+    }
+
+    .esc-door.unlocked {
+      border-color: rgba(232, 199, 101, 0.9);
+      animation: escDoorPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes escDoorPulse {
+      0%, 100% { box-shadow: 0 8px 22px rgba(0,0,0,0.5), 0 0 12px rgba(232, 199, 101, 0.25); }
+      50% { box-shadow: 0 8px 22px rgba(0,0,0,0.5), 0 0 30px rgba(232, 199, 101, 0.55); }
+    }
+
+    .esc-door-locks {
+      display: flex;
+      gap: 0.8vmin;
+      font-size: clamp(16px, 2.8vmin, 24px);
+    }
+
+    .esc-lock {
+      opacity: 0.55;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .esc-lock.open {
+      opacity: 1;
+      transform: rotate(-14deg) scale(1.12);
+    }
+
+    /* -------- PUZZLE MODAL -------- */
+    .esc-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(24, 15, 7, 0.55);
+      backdrop-filter: blur(4px);
+      overflow-y: auto;
+    }
+
+    .esc-modal.open {
+      display: flex;
+    }
+
+    .esc-modal-panel {
+      width: min(620px, 94vw);
+      padding: 3vmin 3vmin 2.4vmin;
+
+      background: var(--paper-strong);
+      border: 1px solid var(--rule-strong);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.4);
+      animation: escSceneIn 0.35s ease;
+    }
+
+    .esc-modal-title {
+      font-family: var(--font-ui);
+      font-size: clamp(17px, 2.8vmin, 24px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--heading-ink);
+      text-align: center;
+      margin-bottom: 1.4vmin;
+    }
+
+    .esc-modal-body {
+      font-family: var(--font-body);
+      font-size: clamp(15px, 2.3vmin, 19px);
+      line-height: 1.5;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 1.8vmin;
+    }
+
+    .esc-tiles {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.4vmin;
+      margin: 1.6vmin 0;
+    }
+
+    .esc-tile-word {
+      display: flex;
+      gap: 0.45vmin;
+    }
+
+    .esc-tile {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 3.4vmin;
+      min-height: 4.2vmin;
+      padding: 0.4vmin 0.8vmin;
+
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(14px, 2.4vmin, 20px);
+      color: var(--heading-ink);
+
+      background: rgba(255, 250, 238, 0.95);
+      border: 1px solid var(--rule-strong);
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(61, 40, 23, 0.25);
+    }
+
+    .esc-cipher-key {
+      font-family: var(--font-ui);
+      font-size: clamp(11px, 1.8vmin, 14px);
+      letter-spacing: 0.12em;
+      color: var(--ink-soft);
+      background: rgba(245, 230, 211, 0.8);
+      border: 1px dashed var(--rule-strong);
+      border-radius: 6px;
+      padding: 0.8vmin 1.2vmin;
+      margin: 0 auto 1.6vmin;
+      max-width: 100%;
+      overflow-x: auto;
+      white-space: pre;
+      text-align: center;
+    }
+
+    .esc-roman {
+      font-family: var(--font-ui);
+      font-size: clamp(26px, 5vmin, 44px);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--heading-ink);
+      text-align: center;
+      margin: 1.6vmin 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .esc-choices {
+      display: grid;
+      gap: 1.3vmin;
+      margin-bottom: 1.6vmin;
+    }
+
+    .esc-choice {
+      display: flex;
+      align-items: center;
+      gap: 1.4vmin;
+      width: 100%;
+      padding: 1.2vmin 1.8vmin;
+
+      font: inherit;
+      font-size: clamp(14px, 2.2vmin, 18px);
+      text-align: left;
+      color: var(--ink);
+
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255,255,255,0.4), transparent 50%),
+        rgba(255, 248, 230, 0.66);
+      box-shadow: var(--shadow-tight);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .esc-choice:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+      border-color: var(--rule-strong);
+    }
+
+    .esc-choice .esc-choice-lead {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      color: var(--classy-blue-ink);
+      flex: 0 0 auto;
+    }
+
+    .esc-choice.wrong {
+      animation: escShake 0.4s ease;
+      border-color: var(--incorrect-color);
+    }
+
+    .esc-choice.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    @keyframes escShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    .esc-portrait {
+      width: 5.5vmin;
+      height: 5.5vmin;
+      min-width: 40px;
+      min-height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #8b7355;
+      box-shadow: 0 2px 8px rgba(61, 40, 23, 0.3);
+      filter: sepia(0.25);
+      flex: 0 0 auto;
+    }
+
+    /* -------- the traveler's map -------- */
+    .esc-modal-panel.esc-wide {
+      width: min(780px, 96vw);
+    }
+
+    .esc-map-canvas {
+      width: 100%;
+      height: clamp(260px, 44vmin, 380px);
+      margin: 0 auto 1.6vmin;
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius);
+      box-shadow: inset 0 0 24px rgba(61, 40, 23, 0.35), var(--shadow-tight);
+      overflow: hidden;
+      /* aged-chart look over the modern tiles */
+      filter: sepia(0.45) saturate(0.85);
+    }
+
+    .esc-map-pin {
+      font-size: clamp(24px, 4vmin, 34px);
+      line-height: 1;
+      padding: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.45));
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+    }
+
+    .esc-map-pin:hover {
+      transform: scale(1.25);
+    }
+
+    .esc-map-pin.disabled {
+      opacity: 0.35;
+      filter: grayscale(1);
+      cursor: default;
+    }
+
+    .esc-map-pin.wrong {
+      animation: escShake 0.4s ease;
+    }
+
+    .esc-map-pin.right {
+      transform: scale(1.35);
+      filter: drop-shadow(0 0 10px rgba(232, 199, 101, 0.95));
+    }
+
+    .esc-map-anchor {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .esc-map-anchor-star {
+      font-size: clamp(18px, 3.2vmin, 28px);
+      color: #e8c765;
+      text-shadow: 0 0 8px rgba(232, 199, 101, 0.9), 0 2px 3px rgba(0,0,0,0.6);
+      animation: escFlicker 2.4s ease-in-out infinite;
+    }
+
+    .esc-map-anchor-label {
+      font-family: var(--font-ui);
+      font-size: clamp(9px, 1.5vmin, 12px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fff4dc;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7);
+      white-space: nowrap;
+    }
+
+    .esc-answer-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.2vmin;
+      flex-wrap: wrap;
+      margin-bottom: 1.6vmin;
+    }
+
+    .esc-input {
+      font-family: var(--font-ui);
+      font-size: clamp(15px, 2.4vmin, 20px);
+      letter-spacing: 0.08em;
+      color: var(--input-ink);
+      text-align: center;
+
+      width: min(280px, 60vw);
+      padding: 1vmin 1.4vmin;
+      background: rgba(255, 250, 238, 0.95);
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius-sm);
+      box-shadow: inset 0 2px 5px rgba(61, 40, 23, 0.12);
+    }
+
+    .esc-input:focus {
+      outline: 2px solid var(--focus-ring);
+    }
+
+    .esc-input.wrong {
+      animation: escShake 0.4s ease;
+      border-color: var(--incorrect-color);
+    }
+
+    .esc-feedback {
+      min-height: 1.4em;
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: clamp(13px, 2vmin, 17px);
+      color: var(--classy-blue-ink);
+      text-align: center;
+      margin-bottom: 1vmin;
+    }
+
+    .esc-modal-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2vmin;
+      flex-wrap: wrap;
+    }
+
+    .esc-hint {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: clamp(13px, 2vmin, 17px);
+      color: var(--classy-blue-ink);
+
+      padding: 0.8vmin 2vmin;
+      background: transparent;
+      border: 1px dashed rgba(106, 47, 82, 0.45);
+      border-radius: 999px;
+
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .esc-hint:hover {
+      background: var(--plum-wash);
+      transform: translateY(-1px);
+    }
+
+    .esc-back {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: clamp(13px, 2vmin, 16px);
+      color: var(--ink-soft);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .esc-back:hover {
+      color: var(--ink);
+    }
+
+    /* -------- ENDINGS -------- */
+    .esc-ending {
+      position: relative;
+      text-align: center;
+      padding: 2vmin 1vmin;
+    }
+
+    .esc-ending-stars {
+      font-size: clamp(26px, 5vmin, 44px);
+      margin-bottom: 1vmin;
+    }
+
+    .esc-ending h3 {
+      font-family: var(--font-ui);
+      font-size: clamp(19px, 3.2vmin, 28px);
+      color: rgba(255, 236, 200, 0.95);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.4vmin;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+
+    .esc-ending p {
+      font-family: var(--font-body);
+      font-size: clamp(15px, 2.3vmin, 19px);
+      line-height: 1.55;
+      color: rgba(255, 244, 220, 0.92);
+      max-width: 58ch;
+      margin: 0 auto 2vmin;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    }
+
+    .esc-ending-portrait {
+      width: clamp(84px, 14vmin, 130px);
+      height: clamp(84px, 14vmin, 130px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e8c765;
+      box-shadow: 0 0 24px rgba(232, 199, 101, 0.45);
+      filter: sepia(0.2);
+      margin-bottom: 1.4vmin;
+    }
+
+    .esc-ending-actions {
+      display: flex;
+      justify-content: center;
+      gap: 2vmin;
+      flex-wrap: wrap;
+    }
+
+    /* -------- INTRO / DIFFICULTY OVERLAY -------- */
+    .esc-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(24, 15, 7, 0.45);
+      backdrop-filter: blur(4px);
+      overflow-y: auto;
+    }
+
+    .esc-intro-panel {
+      width: min(580px, 94vw);
+      padding: 3.5vmin 3vmin;
+      text-align: center;
+
+      background: var(--paper-strong);
+      border: 1px solid var(--rule-strong);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    .esc-intro-panel h2 {
+      font-family: var(--font-ui);
+      font-size: clamp(20px, 3.4vmin, 30px);
+      letter-spacing: 0.06em;
+      color: var(--heading-ink);
+      margin-bottom: 1vmin;
+    }
+
+    .esc-intro-panel p {
+      font-size: clamp(15px, 2.2vmin, 19px);
+      line-height: 1.5;
+      color: var(--ink-soft);
+      margin-bottom: 2.5vmin;
+    }
+
+    .esc-intro-panel p .esc-role {
+      font-family: var(--font-display);
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .esc-difficulty-buttons {
+      display: grid;
+      gap: 1.6vmin;
+    }
+
+    .esc-difficulty {
+      border: 1px solid rgba(255, 248, 230, 0.22);
+      border-radius: 16px;
+      padding: 1.8vmin 2vmin;
+      color: var(--white-ink);
+      cursor: pointer;
+
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: clamp(15px, 2.4vmin, 20px);
+      letter-spacing: 0.06em;
+
+      box-shadow:
+        0 10px 24px rgba(0,0,0,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .esc-difficulty span {
+      display: block;
+      font-family: var(--font-body);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(12px, 1.9vmin, 15px);
+      letter-spacing: 0.02em;
+      color: rgba(255, 248, 230, 0.88);
+      margin-top: 0.3vmin;
+    }
+
+    .esc-difficulty:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.06) saturate(1.08);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.26);
+    }
+
+    #esc-easy {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #2f8f83, #1f5f57);
+    }
+
+    #esc-medium {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #d2a129, #8b6514);
+    }
+
+    #esc-hard {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, #b5343c, #651826);
+    }
+
+    /* -------- MOBILE -------- */
+    @media (max-width: 700px) {
+      .header h1 {
+        font-size: 7vmin;
+      }
+
+      .subtitle {
+        font-size: 3.2vmin;
+        padding: 0 4vw;
+      }
+
+      .esc-objects {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .esc-hud {
+        gap: 1.4vmin;
+      }
+
+      .esc-hud-item {
+        padding: 0.7vmin 1.4vmin;
+        font-size: 12px;
+      }
+
+      .esc-choice {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+
+      .esc-fragment {
+        font-size: 12px;
+      }
+
+      .esc-cipher-key {
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="alert-box" id="customAlert">
+    <p id="message"></p>
+    <button class="cta2 round-sweep" id="restart-button" onclick="hideCustomAlert(restart=true)" style="display:none; margin: 0 auto;">&#x1F504;</button>
+    <button id="exit-button" onclick="hideCustomAlert(restart=false)">×</button>
+  </div>
+
+  <div class="page esc-page">
+    <div class="header">
+      <h1>
+        <span class="emoji">🗝️</span>
+        <span class="gradient-text">The Locked Study</span>
+      </h1>
+      <p class="subtitle">Escape a great sage's study before the last candle dies.</p>
+
+      <button class="modern-button" id="home-button" onclick="window.location.href='game_select.html'">🏠</button>
+
+      <button class="modern-button second-left-button" id="restart-button-main" title="Restart">&#x1F504;</button>
+
+      <button class="modern-button" id="info-button"
+        onclick="showCustomAlert(`The door of a great sage's study has swung shut behind you, and only one candle still burns. The study answers to its master alone — <strong>name him, and the door will open</strong>.<br><br>Four objects in the room each hide a puzzle and guard a small brass key: the writing desk, the stopped clock, the traveler's map, and the cipher chest. Each key you win also teaches you one fact about the master.<br><br>Turn all four keys, then face the door and name the sage from what you have learned.<br><br>Beware: every wrong answer makes the candle gutter and costs <strong>45 seconds</strong>; whispered hints cost <strong>30</strong>. When the flame dies, you are locked in until morning.`, '2.4vmin', false, false)">
+        ℹ️
+      </button>
+
+      <button class="modern-button second-right-button" id="feedback-button"
+        onclick="window.location.href='feedback.html'">📩</button>
+    </div>
+
+    <div class="esc-hud">
+      <div class="esc-hud-item" id="esc-candle-hud" title="The candle — your remaining time">
+        <span id="esc-flame">🕯️</span>
+        <span class="esc-candle-track"><span class="esc-candle-bar" id="esc-candle-bar"></span></span>
+        <span id="esc-time">10:00</span>
+      </div>
+
+      <div class="esc-hud-item" title="Keys won">
+        Keys:
+        <span class="esc-key-slot" data-key="desk">🗝️</span>
+        <span class="esc-key-slot" data-key="clock">🗝️</span>
+        <span class="esc-key-slot" data-key="map">🗝️</span>
+        <span class="esc-key-slot" data-key="chest">🗝️</span>
+      </div>
+    </div>
+
+    <div class="esc-ledger">
+      <div class="esc-ledger-title">📖 The Study's Secrets — what you know of the master</div>
+      <div class="esc-fragments" id="esc-fragments">
+        <span class="esc-fragment-empty">You know nothing yet… search the room for clues.</span>
+      </div>
+    </div>
+
+    <main class="panel esc-panel">
+      <div class="esc-room" id="esc-room">
+        <div class="esc-room-caption" id="esc-caption">
+          The candle gutters. Shadows of a thousand books lean over you. Where to begin?
+        </div>
+
+        <div class="esc-objects">
+          <button class="esc-obj" data-obj="desk">
+            <span class="esc-obj-icon">🖋️</span>
+            <span class="esc-obj-label">The Writing Desk</span>
+          </button>
+
+          <button class="esc-obj" data-obj="clock">
+            <span class="esc-obj-icon">🕰️</span>
+            <span class="esc-obj-label">The Stopped Clock</span>
+          </button>
+
+          <button class="esc-obj" data-obj="map">
+            <span class="esc-obj-icon">🗺️</span>
+            <span class="esc-obj-label">The Traveler's Map</span>
+          </button>
+
+          <button class="esc-obj" data-obj="chest">
+            <span class="esc-obj-icon">🧰</span>
+            <span class="esc-obj-label">The Cipher Chest</span>
+          </button>
+        </div>
+
+        <button class="esc-door" id="esc-door">
+          <span class="esc-door-locks">
+            <span class="esc-lock" data-lock="desk">🔒</span>
+            <span class="esc-lock" data-lock="clock">🔒</span>
+            <span class="esc-lock" data-lock="map">🔒</span>
+            <span class="esc-lock" data-lock="chest">🔒</span>
+          </span>
+          <span id="esc-door-label">The Study Door</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Puzzle modal -->
+  <div class="esc-modal" id="esc-modal">
+    <div class="esc-modal-panel" id="esc-modal-panel"></div>
+  </div>
+
+  <!-- Intro / difficulty overlay -->
+  <div class="esc-intro" id="esc-intro">
+    <div class="esc-intro-panel">
+      <h2>🗝️ The Locked Study</h2>
+      <p>
+        <span class="esc-role">Night falls in the old study hall — and the door has locked behind you.</span><br>
+        This study belonged to a great sage, and it answers to its master's name alone.
+        Four objects in the room hide puzzles: solve them to win <strong>four brass keys</strong> —
+        and with each key, learn one fact about the master. Turn all four in the door,
+        <em>name the sage</em>, and walk free. But the candle is burning: wrong answers make it
+        gutter, and when the flame dies you are locked in until morning.
+      </p>
+
+      <div class="esc-difficulty-buttons">
+        <button class="esc-difficulty" id="esc-easy">
+          Curious Student
+          <span>The most famous sages</span>
+        </button>
+
+        <button class="esc-difficulty" id="esc-medium">
+          Night Scholar
+          <span>Deeper shelves, lesser-known names</span>
+        </button>
+
+        <button class="esc-difficulty" id="esc-hard">
+          Keeper of the Geniza
+          <span>Every sage, every era</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="global.js"></script>
+  <script type="module" src="locked_study.js"></script>
+</body>
+</html>
