@@ -2,7 +2,48 @@ import { getTour, getTourSages } from '../supabase/tour.js';
 import { trackPageView } from '../supabase/supabaseFunctions.js';
 import { supabaseClient } from '../supabase/supabaseClient.js';
 
-const TOUR_NAME = 'Major Chumash Commentaries';
+// Which tour to show comes from the URL (tour.html?tour=Halacha); with no
+// parameter it is the Chumash tour. TOUR_NAME is the tour_name used to query
+// Supabase; TOUR_PAGES holds each tour's on-page wording.
+const TOUR_PAGES = {
+  'Major Chumash Commentaries': {
+    title: 'Major Chumash Commentaries',
+    subtitle: 'An interactive journey through the great commentators on Chumash.',
+    intro: 'Press “Next Stop” to travel through the great commentators on Chumash, one at a time.'
+  },
+  'Halacha': {
+    title: 'Major Halachic Works',
+    subtitle: 'An interactive journey through the great works of halacha.',
+    intro: 'Press “Next Stop” to travel through the great halachic works and their authors, one at a time.'
+  }
+};
+
+const TOUR_NAME = new URLSearchParams(window.location.search).get('tour') || 'Major Chumash Commentaries';
+
+// Fill in the header, intro and info popup for this tour
+(function applyTourText() {
+  const page = TOUR_PAGES[TOUR_NAME] || {
+    title: TOUR_NAME,
+    subtitle: `An interactive journey through ${TOUR_NAME}.`,
+    intro: 'Press “Next Stop” to begin the journey.'
+  };
+
+  document.title = page.title;
+  const heading = document.querySelector('.header .gradient-text');
+  const subtitle = document.querySelector('.header .subtitle');
+  const intro = document.querySelector('.stop-copy');
+  const infoButton = document.getElementById('info-button');
+
+  if (heading) heading.textContent = page.title;
+  if (subtitle) subtitle.textContent = page.subtitle;
+  if (intro) intro.textContent = page.intro;
+  if (infoButton) {
+    infoButton.onclick = () => showCustomAlert(
+      `${page.subtitle}<br><br>Use <strong>Next Stop</strong> and <strong>Previous Stop</strong> to move along the timeline from one event to the next. Hover over a sage's portrait to read his biography.`,
+      '2.4vmin', false, false
+    );
+  }
+})();
 
 // Per-sage descriptive text (biography, names, years), keyed by person.
 // Loaded from the `sage` table during init and read by goToSage().
