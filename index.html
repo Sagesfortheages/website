@@ -113,8 +113,8 @@
       align-items: center;
       justify-content: center;
       gap: 0.85rem;
-      padding: 1.45rem 1rem 1rem;
-      transform: translateY(12px);
+      padding: 1rem 1rem 1rem;
+      transform: translateY(-6px); /* sits a little higher to leave room for the daily question */
     }
 
     .hero-content::before{
@@ -217,12 +217,124 @@
   display: none;
 }
 
-#todays-sage-name{
-  font: inherit;
-  color: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  font-weight: inherit;
+/* ── Daily question (replaces "Meet Today's Sage") ── */
+.daily-question{
+  pointer-events: auto;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.dq-prompt{
+  font-family: var(--font-body);
+  font-size: clamp(1.02rem, 1.55vw, 1.3rem);
+  font-weight: 600;
+  color: rgba(70, 45, 20, 0.98);
+  text-shadow: 0 1px 0 rgba(255,248,232,0.6);
+}
+
+.dq-choices{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-height: 2.9rem; /* one row of choices, reserved before they load */
+}
+
+.dq-choice{
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 9.5rem;
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  border: 2px solid rgba(140, 108, 46, 0.96);
+  background: var(--classy-blue-ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.3vw, 1.12rem);
+  cursor: pointer;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+}
+.dq-choice:hover:not(.answered){ transform: translateY(-2px) scale(1.04); }
+.dq-choice.answered{ cursor: default; }
+
+.dq-years{
+  font-size: 0.78em;
+  opacity: 0.85;
+}
+
+.dq-choice.correct{
+  background: #2f6b3a;
+  border-color: #c9e3b6;
+  border-radius: 1rem;
+}
+.dq-choice.incorrect{
+  background: #8a2e2e;
+  border-color: #f0c2b4;
+}
+.dq-choice.dimmed{ opacity: 0.6; }
+
+.dq-more{
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,248,230,0.8);
+  background: rgba(255,248,230,0.95);
+  color: #23462b;
+  font-family: var(--font-body);
+  font-size: 0.85em;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dq-more:hover{ background: #fff; }
+
+/* ── Stats band under the hero: "312 SAGES · 1,140 YEARS" ──
+   Hidden until renderStatsBand() fills it from the daily-question data. */
+.stats-band{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin: 1rem auto 0.4rem;
+  width: min(1534px, 100%);
+}
+/* Keep the band's space reserved while the numbers load, so the buttons
+   below don't jump down when it appears. */
+.stats-band{ min-height: 1.6rem; }
+.stats-band[hidden]{ display: flex; visibility: hidden; }
+.stats-rule{
+  flex: 0 1 8rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(140,108,46,0.8), transparent);
+}
+.stats-text{
+  font-family: var(--font-ui);
+  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(88,58,28,0.95);
+  white-space: nowrap;
+}
+/* Pull the button sections up under the stats band
+   (all_styles.css gives .mega-strips a 6vh top margin) */
+.stats-band + .mega-strips{ margin-top: 2vh; }
+
+@media (max-width: 768px){
+  .stats-band{ gap: 0.6rem; margin-top: 0.7rem; }
+  .stats-text{ font-size: 0.78rem; letter-spacing: 0.12em; }
+  .stats-band + .mega-strips{ margin-top: 1vh; }
+}
+
+@media (max-width: 768px){
+  .dq-choices{ gap: 0.45rem; min-height: 4.5rem; } /* choices wrap to two rows here */
+  .dq-choice{ min-width: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; }
+  .dq-prompt{ font-size: 0.92rem; }
 }
 
 
@@ -600,10 +712,7 @@
 
     .access-note {
   width: min(74vw, 920px);
-  margin: 3.2vmin auto 0;
-  padding: 1.1vmin 2.2vmin;
-
-  margin-top: 2.6vmin;
+  margin: 1vmin auto 0; /* sits a little closer to the sections above */
   padding: 1.1vmin 2.2vmin;
 
   display: flex;
@@ -864,7 +973,7 @@
         width: 100%;
         max-width: 375px;
         margin: 0 auto;
-        height: 225px;
+        height: 300px; /* room for the daily question's three choices */
         margin-top: 0vh;
         border-radius: 18px;
         display: block;
@@ -897,8 +1006,8 @@
       .hero-content{
         width: min(95%, 340px);
         gap: 0.55rem;
-        padding: 0.95rem 0.65rem 0.8rem;
-        transform: translateY(14px);
+        padding: 0.7rem 0.65rem 0.8rem;
+        transform: translateY(0);
       }
 
       .hero-content::before{
@@ -1250,11 +1359,19 @@
           Interactive Jewish History For The Classroom
         </div>
 
-        <button class="cta-button sweep" id="cta-button">
-          Meet Today's Sage: <span id="todays-sage-name">Loading...</span>
-        </button>
+        <!-- Daily question: filled in by loadDailyQuestion() below -->
+        <div class="daily-question" id="daily-question">
+          <div class="dq-prompt" id="dq-prompt">Loading today's question…</div>
+          <div class="dq-choices" id="dq-choices"></div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <div class="stats-band" id="stats-band" hidden>
+    <span class="stats-rule"></span>
+    <span class="stats-text"></span>
+    <span class="stats-rule"></span>
   </div>
 
   <div class="mega-strips">
@@ -1359,45 +1476,184 @@
 
   window.supabaseClient = supabaseClient;
 
-  async function loadTodaysSageButton(){
-  const sageNameEl = document.getElementById("todays-sage-name");
-  const ctaButton = document.getElementById("cta-button");
+  // ── Daily question: "Which of these was alive in <year>?" ──
+  // Everyone gets the same question on a given day: the sage, the year and the
+  // two wrong answers all come from a random generator seeded by the date.
+  async function loadDailyQuestion(){
+    const promptEl = document.getElementById("dq-prompt");
+    const choicesEl = document.getElementById("dq-choices");
+    if (!promptEl || !choicesEl) return;
 
-  if (!sageNameEl || !ctaButton) return;
+    const today = new Date();
+    const dateKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
 
-  const today = new Date();
+    // small seeded random generator (mulberry32)
+    let state = dateKey;
+    const rand = () => {
+      state |= 0; state = (state + 0x6D2B79F5) | 0;
+      let t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
 
-  const seed =
-    today.getFullYear() * 10000 +
-    (today.getMonth() + 1) * 100 +
-    today.getDate();
+    // City count for the stats band, fetched alongside the sages
+    const cityCountPromise = loadCityCount();
 
-  const { data, error } = await supabaseClient
-    .from("sage")
-    .select("person, name")
-    .not("name", "is", null)
-    .order("name", { ascending: true });
+    // Only the three fields the question needs
+    const { data, error } = await supabaseClient
+      .from("sage")
+      .select("person, birth, passing")
+      .not("birth", "is", null)
+      .not("passing", "is", null)
+      .order("person", { ascending: true });
 
-  if (error || !data || data.length === 0){
-    console.error("Could not load today's sage:", error);
-    sageNameEl.textContent = "a Sage";
-    return;
+    const sages = (data || [])
+      .map(s => ({ person: s.person, birth: Number(s.birth), passing: Number(s.passing) }))
+      .filter(s => s.person && !isNaN(s.birth) && !isNaN(s.passing) && s.passing > s.birth);
+
+    renderStatsBand(sages, cityCountPromise);
+
+    if (error || sages.length < 3){
+      console.error("Could not load today's question:", error);
+      document.getElementById("daily-question").style.display = "none";
+      return;
+    }
+
+    // The right answer and a year in the middle of his life, rounded to a
+    // round number when that still falls inside his lifetime
+    const answer = sages[Math.floor(rand() * sages.length)];
+    const raw = Math.round(answer.birth + (answer.passing - answer.birth) * (0.3 + 0.4 * rand()));
+    const rounded = Math.round(raw / 10) * 10;
+    const year = rounded > answer.birth && rounded < answer.passing ? rounded : raw;
+
+    // Wrong answers: sages NOT alive that year, preferring ones from nearby
+    // centuries (so the question isn't trivial) but at least 10 years clear
+    // of the year, since many dates are approximate
+    const gap = s => (year < s.birth ? s.birth - year : year - s.passing);
+    const notAlive = sages.filter(s => s.person !== answer.person && (year < s.birth || year > s.passing));
+    let pool = notAlive.filter(s => gap(s) >= 10).sort((x, y) => gap(x) - gap(y)).slice(0, 15);
+    if (pool.length < 2) pool = notAlive;
+    const wrong = [];
+    while (wrong.length < 2 && pool.length){
+      wrong.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
+    }
+    if (wrong.length < 2){
+      document.getElementById("daily-question").style.display = "none";
+      return;
+    }
+
+    const choices = [answer, ...wrong];
+    for (let i = choices.length - 1; i > 0; i--){
+      const j = Math.floor(rand() * (i + 1));
+      [choices[i], choices[j]] = [choices[j], choices[i]];
+    }
+
+    promptEl.textContent = `Which of these sages was alive in ${year}?`;
+
+    const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    choicesEl.innerHTML = choices.map((c, i) => `
+      <button class="dq-choice" type="button" data-index="${i}">
+        <span class="dq-name">${esc(c.person)}</span>
+      </button>`).join("");
+
+    const buttons = [...choicesEl.querySelectorAll(".dq-choice")];
+
+    let answered = false;
+
+    function reveal(chosenIndex){
+      answered = true;
+      buttons.forEach((btn, i) => {
+        const c = choices[i];
+        // locked with a class, not `disabled`: browsers drop clicks on
+        // anything inside a disabled button, including the link below
+        btn.classList.add("answered");
+        btn.setAttribute("aria-disabled", "true");
+
+        // show each sage's lifespan once the question is answered
+        const years = document.createElement("span");
+        years.className = "dq-years";
+        years.textContent = `${c.birth}–${c.passing}`;
+        btn.appendChild(years);
+
+        if (c === answer){
+          btn.classList.add("correct");
+          btn.querySelector(".dq-name").textContent = `✓ ${c.person}`;
+
+          const more = document.createElement("span");
+          more.className = "dq-more";
+          more.setAttribute("role", "link");
+          more.tabIndex = 0;
+          more.textContent = "Find Out More About Him →";
+          const go = () => {
+            const encoded = encodeURIComponent(JSON.stringify({ person: c.person }));
+            window.location.href = `discover.html?selected=${encoded}`;
+          };
+          more.addEventListener("click", go);
+          more.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+          btn.appendChild(more);
+        } else if (i === chosenIndex){
+          btn.classList.add("incorrect");
+          btn.querySelector(".dq-name").textContent = `✗ ${c.person}`;
+        } else {
+          btn.classList.add("dimmed");
+        }
+      });
+
+      promptEl.textContent = choices[chosenIndex] === answer
+        ? `Correct! ${answer.person} was alive in ${year}.`
+        : `Not quite — ${answer.person} was alive in ${year}.`;
+    }
+
+    // Remember today's answer so a reload shows the result, not a fresh question
+    const storageKey = "sfta-daily-question";
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+      if (saved?.date === dateKey && choices[saved.chosen]) reveal(saved.chosen);
+    } catch (_) { /* storage unavailable: just ask again */ }
+
+    buttons.forEach((btn, i) => btn.addEventListener("click", () => {
+      if (answered) return;
+      try { localStorage.setItem(storageKey, JSON.stringify({ date: dateKey, chosen: i })); } catch (_) {}
+      reveal(i);
+    }));
   }
 
-  const sage = data[seed % data.length];
+  // Number of cities at least one sage lived in (city rows with a dwelling).
+  // Only the count comes back (head: true), not the rows themselves.
+  async function loadCityCount(){
+    try {
+      const { count, error } = await supabaseClient
+        .from("city")
+        .select("city, dwelling!inner(from_year)", { count: "exact", head: true });
+      if (error) throw error;
+      return count || 0;
+    } catch (e) {
+      console.error("Could not count cities:", e);
+      return 0;
+    }
+  }
 
-  sageNameEl.textContent = sage.person;
+  // "312 SAGES · 1,140 YEARS · 85 CITIES", computed from the same data as the
+  // question. Counts sages that have both a birth and a passing year.
+  async function renderStatsBand(sages, cityCountPromise){
+    const band = document.getElementById("stats-band");
+    if (!band || !sages.length) return;
+    const first = Math.min(...sages.map(s => s.birth));
+    const last = Math.max(...sages.map(s => s.passing));
+    const span = Math.round((last - first) / 10) * 10;
+    const cities = await cityCountPromise;
 
-  ctaButton.onclick = () => {
-    const encodedSelected = encodeURIComponent(
-      JSON.stringify({ person: sage.person })
-    );
+    const parts = [
+      `${sages.length.toLocaleString()} sages`,
+      `${span.toLocaleString()} years`
+    ];
+    if (cities) parts.push(`${cities.toLocaleString()} cities`);
 
-    window.location.href = `discover.html?selected=${encodedSelected}`;
-  };
-}
+    band.querySelector(".stats-text").textContent = parts.join(" · ");
+    band.hidden = false;
+  }
 
-loadTodaysSageButton();
+  loadDailyQuestion();
 
   const overlay = document.getElementById("overlay");
   const authTitle = document.getElementById("auth-title");
@@ -1941,6 +2197,103 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   }
 </script>
 
+
+<!-- ── Page previews on hover ──
+     Hovering a button in the Explore/Learn/... strips shows a screenshot of the
+     page it opens. Screenshots live in previews/<page>.webp, named after the
+     page file (time.html → previews/time.webp). A button whose screenshot is
+     missing simply shows no preview. Touch screens (no hover) are skipped. -->
+<style>
+  .page-preview {
+    position: fixed;
+    z-index: 9000;
+    width: min(30vw, 420px);
+    padding: 0.8vmin;
+    background: var(--page-texture, #f3e6c8), #f3e6c8;
+    background-size: cover;
+    border: 1px solid rgba(92, 64, 35, 0.55);
+    outline: 2px solid rgba(92, 64, 35, 0.15);
+    border-radius: 0.6vmin;
+    box-shadow: 0 1.2vmin 3vmin rgba(45, 28, 12, 0.35);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0.8vmin) scale(0.97);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .page-preview.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .page-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(66, 46, 24, 0.3);
+  }
+</style>
+
+<script>
+  (function () {
+    if (!window.matchMedia('(hover: hover)').matches) return;
+
+    const card = document.createElement('div');
+    card.className = 'page-preview';
+    const img = document.createElement('img');
+    img.alt = '';
+    card.appendChild(img);
+    document.body.appendChild(card);
+
+    let current = null;
+
+    function previewSrc(item) {
+      const match = (item.getAttribute('onclick') || '').match(/href='([^'.]+)\.html/);
+      return match ? `previews/${match[1]}.webp` : null;
+    }
+
+    // Place the card above the button (or below if there's no room), on screen
+    function position(item) {
+      const r = item.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      const gap = 12, pad = 10;
+      let left = r.left + r.width / 2 - c.width / 2;
+      let top = r.top - c.height - gap;
+      if (top < pad) top = r.bottom + gap;
+      left = Math.min(Math.max(left, pad), window.innerWidth - c.width - pad);
+      top = Math.min(Math.max(top, pad), window.innerHeight - c.height - pad);
+      card.style.left = left + 'px';
+      card.style.top = top + 'px';
+    }
+
+    function show(item) {
+      const src = previewSrc(item);
+      if (!src) return;
+      current = item;
+      img.onload = () => {
+        if (current !== item) return;
+        position(item);
+        card.classList.add('visible');
+      };
+      img.onerror = () => card.classList.remove('visible'); // no screenshot yet
+      if (img.getAttribute('src') === src && img.complete && img.naturalWidth) {
+        img.onload();
+      } else {
+        img.src = src;
+      }
+    }
+
+    function hide() {
+      current = null;
+      card.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.explore-item').forEach(item => {
+      item.addEventListener('mouseenter', () => show(item));
+      item.addEventListener('mouseleave', hide);
+      item.addEventListener('click', hide);
+    });
+    window.addEventListener('scroll', hide, { passive: true });
+  })();
+</script>
 
 </body>
 </html>

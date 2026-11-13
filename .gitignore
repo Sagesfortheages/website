@@ -1,3 +1,6 @@
 .env.localt
 .vercel
 .env*
+
+# original screenshots; only the converted .webp previews are deployed
+previews/*.png
