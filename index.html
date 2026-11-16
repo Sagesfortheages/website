@@ -112,8 +112,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.85rem;
-      padding: 1rem 1rem 1rem;
+      gap: 0.6rem;
+      padding: 0.6rem 1rem;
       transform: translateY(-6px); /* sits a little higher to leave room for the daily question */
     }
 
@@ -236,7 +236,7 @@
 
 .dq-choices{
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* all three choices stay on one line */
   justify-content: center;
   align-items: flex-start;
   gap: 0.7rem;
@@ -246,7 +246,10 @@
 .dq-choice{
   display: grid;
   justify-items: center;
+  align-content: center;
   gap: 0.15rem;
+  flex: 0 1 auto;
+  line-height: 1.15;
   min-width: 9.5rem;
   padding: 0.6rem 1.3rem;
   border-radius: 999px;
@@ -332,7 +335,7 @@
 }
 
 @media (max-width: 768px){
-  .dq-choices{ gap: 0.45rem; min-height: 4.5rem; } /* choices wrap to two rows here */
+  .dq-choices{ gap: 0.45rem; min-height: 2.9rem; } /* still one row; long names wrap inside their button */
   .dq-choice{ min-width: 0; padding: 0.45rem 0.9rem; font-size: 0.85rem; }
   .dq-prompt{ font-size: 0.92rem; }
 }
@@ -1126,6 +1129,169 @@
   }
 
     }
+
+    /* ── Tablet layout: screens 641–1024px wide, plus any portrait screen wider than 640px
+       (every iPad in portrait). Sections stack full width and sizes scale with the
+       screen (vmin) so the page fills the iPad instead of sitting small at the top. ── */
+    @media (min-width: 641px) and (max-width: 1024px),
+           (min-width: 641px) and (orientation: portrait){
+      :root{
+        --fs-strip-title: clamp(2rem, 4.2vmin, 3rem);
+        --fs-strip-icon: clamp(80px, 11vmin, 130px);
+        --fs-strip-label: clamp(1.25rem, 2.6vmin, 1.9rem);
+      }
+
+      .hero{ width: min(96vw, 1100px); }
+      .hero-image{ height: clamp(300px, 40vmin, 440px); }
+      .hero-content{ width: min(90%, 820px); gap: clamp(0.6rem, 1.4vmin, 1.1rem); }
+      .hero-content::before{ width: min(92%, 760px); height: clamp(150px, 22vmin, 240px); }
+      .hero-tagline{ font-size: clamp(2.2rem, 4.6vmin, 3.4rem); }
+      .blurb{ font-size: clamp(1.1rem, 2.1vmin, 1.5rem); width: min(80vw, 700px); max-width: none; }
+      .dq-prompt{ font-size: clamp(1.15rem, 2.3vmin, 1.6rem); }
+      .dq-choices{ gap: clamp(0.5rem, 1.2vmin, 0.9rem); }
+      .dq-choice{ font-size: clamp(1.05rem, 2vmin, 1.4rem); padding: 0.6em 1.3em; min-width: 0; }
+      .stats-text{ font-size: clamp(0.9rem, 1.6vmin, 1.2rem); }
+
+      .mega-strips{
+        grid-template-columns: min(94vw, 1100px) !important;
+        justify-content: center;
+        row-gap: clamp(1rem, 3vmin, 2.5rem) !important;
+        margin-top: clamp(1rem, 3vmin, 2.5rem);
+      }
+      .explore-strip{
+        width: 100% !important;
+        max-width: 100%;
+      }
+      .strip-title{ margin-bottom: clamp(0.4rem, 1.2vmin, 1rem); }
+      .mega-strips > section .explore-grid{
+        grid-auto-flow: row !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        justify-items: center;
+        align-items: start;
+        margin: 0 auto !important;
+      }
+      .mega-strips > section:nth-of-type(2) .explore-grid,
+      .mega-strips > section:nth-of-type(3) .explore-grid{
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      .explore-item{
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        padding: clamp(0.5rem, 1.4vmin, 1.1rem) 0.4rem;
+        gap: clamp(0.2rem, 0.6vmin, 0.5rem);
+      }
+      .explore-item .desc{
+        max-width: 22ch;
+        font-size: clamp(1rem, 1.9vmin, 1.35rem);
+      }
+
+      .access-note{
+        width: min(94vw, 1000px);
+        margin-top: clamp(1rem, 3vmin, 2.5rem);
+        padding: clamp(0.8rem, 1.6vmin, 1.3rem) 1.4rem;
+        font-size: clamp(1.05rem, 1.9vmin, 1.35rem);
+      }
+      .access-note-main{ font-size: clamp(1.1rem, 2.1vmin, 1.5rem); }
+      .signin-corner-button,
+      .teacher-tools-button{ font-size: clamp(14px, 1.7vmin, 19px); padding: 0.5rem 0.9rem; }
+
+      /* Taller than the screen: allow vertical scrolling (all_styles.css hides
+         body overflow) and put the footer after the content */
+      body:not(.overlay-open){
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+      .site-footer{
+        position: static;
+        margin: 2.5vh auto 2vh;
+      }
+    }
+
+    /* ── Landscape tablets and small laptops (1025–1439px): keep Explore / Learn / Engage
+       side by side, but size the columns 4:3:3 so Analyze is no longer cut off. ── */
+    @media (min-width: 1025px) and (max-width: 1439px) and (orientation: landscape){
+      .mega-strips{
+        grid-template-columns: 4fr 3fr 3fr !important;
+        width: min(98vw, 1534px);
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .explore-strip{ width: 100% !important; }
+      .explore-grid{
+        grid-auto-columns: minmax(0, 1fr) !important;
+        width: 100%;
+      }
+      .explore-item{ width: 100%; min-width: 0; }
+      .explore-item .desc{ max-width: 16ch; }
+    }
+
+    /* Short descriptions shown only on phones */
+    .desc-short{ display: none; }
+    @media (max-width: 640px){
+      .desc-long{ display: none; }
+      .desc-short{ display: inline; }
+    }
+
+    /* ── Compact mobile hero, no stats band (phones only) ── */
+    @media (max-width: 640px){
+      .hero-image{ height: 220px; }
+
+      .hero-content{ gap: 0.3rem; padding: 0.4rem 0.5rem; }
+      .hero-content::before{ height: 100px; }
+      .hero-tagline{ font-size: clamp(1.05rem, 5.2vw, 1.35rem); }
+      .blurb{ font-size: clamp(0.74rem, 2.5vw, 0.84rem); line-height: 1.1; }
+
+      .daily-question{ gap: 0.3rem; margin-top: 0; }
+      .dq-prompt{ font-size: 0.88rem; }
+      .dq-choices{ gap: 0.3rem; min-height: 2.4rem; }
+      .dq-choice{
+        min-width: 0;
+        padding: 0.28rem 0.8rem;
+        font-size: 0.8rem;
+        border-width: 1.5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+      }
+      .dq-more{ margin-top: 0.1rem; padding: 0.2rem 0.6rem; font-size: 0.75rem; }
+
+      .stats-band,
+      .stats-band[hidden]{ display: none !important; }
+      .mega-strips{ margin-top: 1vh !important; }
+
+      /* Compact "Explore freely" note: headline on one line */
+      .access-note{
+        width: 92vw;
+        margin-top: 0.6vmin;
+        padding: 0.35rem 0.6rem;
+        gap: 0.1rem 0.3rem;
+        font-size: 0.7rem;
+        line-height: 1.25;
+        border-radius: 10px;
+      }
+      .access-note-main{
+        font-size: 0.72rem;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .access-note-main::before,
+      .access-note-main::after{ font-size: 0.65rem; }
+
+      /* No copyright footer on phones */
+      .site-footer{ display: none; }
+
+      /* Fixed icon grid: Explore 4 across, Learn and Engage 3 across */
+      .mega-strips > section .explore-grid{
+        width: 100% !important;
+        align-items: start;
+      }
+      .mega-strips > section:nth-of-type(2) .explore-grid,
+      .mega-strips > section:nth-of-type(3) .explore-grid{
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        width: 100% !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -1400,7 +1566,7 @@
         <button class="explore-item" onclick="window.location.href='analyze.html'">
           <div class="icon">⚖️</div>
           <div class="label">Analyze</div>
-          <div class="desc">Filter sages by focus and background.</div>
+          <div class="desc">Filter sages by focus and era.</div>
         </button>
       </div>
     </section>
@@ -1414,7 +1580,7 @@
         <button class="explore-item" onclick="window.location.href='study_select.html'">
           <div class="icon">📖</div>
           <div class="label">Text</div>
-          <div class="desc">Explore the authors of classic texts.</div>
+          <div class="desc"><span class="desc-long">Explore the authors of classic texts.</span><span class="desc-short">Explore classic authors.</span></div>
         </button>
         <button class="explore-item new" onclick="window.location.href='tour_select.html'">
           <div class="icon">🏛️</div>
@@ -1424,7 +1590,7 @@
         <button class="explore-item" onclick="window.location.href='delve.html'">
           <div class="icon">⛏️</div>
           <div class="label">Delve</div>
-          <div class="desc">Dive into a historical discussion.</div>
+          <div class="desc">Join the debate.</div>
         </button>
       </div>
     </section>
@@ -1438,17 +1604,17 @@
         <button class="explore-item" onclick="window.location.href='watch.html'">
           <div class="icon">🔭</div>
           <div class="label">Visualize</div>
-          <div class="desc">See the geography of sages through time.</div>
+          <div class="desc">Watch our sages across time.</div>
         </button>
         <button class="explore-item" onclick="window.location.href='game_select.html'">
           <div class="icon">♟️</div>
           <div class="label">Play</div>
-          <div class="desc">Play interactive games about sages.</div>
+          <div class="desc"><span class="desc-long">Play interactive games about sages.</span><span class="desc-short">Play interactive games.</span></div>
         </button>
         <button class="explore-item" onclick="window.location.href='progress.html'">
           <div class="icon">🏅</div>
           <div class="label">My Stats</div>
-          <div class="desc">Track your progress and achievements.</div>
+          <div class="desc"><span class="desc-long">Track your progress and achievements.</span><span class="desc-short">Track your achievements.</span></div>
         </button>
       </div>
     </section>
@@ -1527,11 +1693,11 @@
     const year = rounded > answer.birth && rounded < answer.passing ? rounded : raw;
 
     // Wrong answers: sages NOT alive that year, preferring ones from nearby
-    // centuries (so the question isn't trivial) but at least 10 years clear
-    // of the year, since many dates are approximate
+    // centuries (so the question isn't trivial) but at least 50 years clear
+    // of the year, so the right answer is reasonably clear
     const gap = s => (year < s.birth ? s.birth - year : year - s.passing);
     const notAlive = sages.filter(s => s.person !== answer.person && (year < s.birth || year > s.passing));
-    let pool = notAlive.filter(s => gap(s) >= 10).sort((x, y) => gap(x) - gap(y)).slice(0, 15);
+    let pool = notAlive.filter(s => gap(s) >= 50).sort((x, y) => gap(x) - gap(y)).slice(0, 15);
     if (pool.length < 2) pool = notAlive;
     const wrong = [];
     while (wrong.length < 2 && pool.length){
@@ -1599,9 +1765,42 @@
         }
       });
 
-      promptEl.textContent = choices[chosenIndex] === answer
-        ? `Correct! ${answer.person} was alive in ${year}.`
-        : `Not quite — ${answer.person} was alive in ${year}.`;
+      const correct = choices[chosenIndex] === answer;
+      const streak = recordStreak(correct);
+
+      // The streak lives in this sentence (no extra element, so the hero never grows)
+      if (!correct){
+        promptEl.textContent = `Not quite — ${answer.person} was alive in ${year}.`;
+      } else if (streak >= 2){
+        promptEl.textContent = `Correct! ${streak} days in a row.`;
+      } else {
+        promptEl.textContent = "Correct! Come back tomorrow to start a streak.";
+      }
+    }
+
+    // ── Streak: days in a row answered correctly, kept in this browser ──
+    // Stored as { count, lastCorrect, lastAnswered } with dates as YYYYMMDD numbers.
+    // Counted once per day, so reloading after answering changes nothing.
+    function recordStreak(correct){
+      const streakKey = "sfta-daily-streak";
+      const y = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      const yesterdayKey = y.getFullYear() * 10000 + (y.getMonth() + 1) * 100 + y.getDate();
+      let s = {};
+      try { s = JSON.parse(localStorage.getItem(streakKey) || "null") || {}; } catch (_) {}
+
+      let count = Number(s.count) || 0;
+      if (s.lastAnswered === dateKey) return count;              // today already counted
+
+      if (correct){
+        count = s.lastCorrect === yesterdayKey ? count + 1 : 1;  // a missed day starts over
+        s.lastCorrect = dateKey;
+      } else {
+        count = 0;
+      }
+      s.count = count;
+      s.lastAnswered = dateKey;
+      try { localStorage.setItem(streakKey, JSON.stringify(s)); } catch (_) {}
+      return count;
     }
 
     // Remember today's answer so a reload shows the result, not a fresh question
@@ -1797,9 +1996,20 @@ async function updateTeacherToolsButton(session){
   homeButton.classList.add("hidden");
   homeButton.onclick = null;
 
-  if (!session?.user){
-    return;
-  }
+  // const showForTeachers = () => {
+  //   homeButtonText.textContent = "For Teachers";
+  //   homeButtonIcon.textContent = "🧑‍🏫";
+  //   homeButton.title = "For Teachers";
+  //   homeButton.onclick = () => {
+  //     window.location.href = "teachers.html";
+  //   };
+  //   homeButton.classList.remove("hidden");
+  // };
+
+  // if (!session?.user){
+  //   showForTeachers();
+  //   return;
+  // }
 
   const userId = session.user.id;
 
@@ -1833,7 +2043,10 @@ async function updateTeacherToolsButton(session){
       window.location.href = "student_home.html";
     };
     homeButton.classList.remove("hidden");
+    return;
   }
+
+  // showForTeachers();
 }
 
   async function handleSignin(){
@@ -2173,6 +2386,25 @@ switchAuthTab("Signin");
 
   isSignedIn = !!sessionData?.session;
   setOverlayVisible(false);
+
+  const authParams = new URLSearchParams(window.location.search);
+  const authLink = authParams.get("auth");
+
+  if (authLink === "teacher-signup" && !isSignedIn){
+    switchAuthTab("signup");
+    if (signupIsTeacherCheckbox){
+      signupIsTeacherCheckbox.checked = true;
+      signupIsTeacherCheckbox.dispatchEvent(new Event("change"));
+    }
+    setOverlayVisible(true);
+  } else if (authLink === "student" && !isSignedIn){
+    switchAuthTab("student");
+    const classCodeInput = document.getElementById("student-class-code");
+    const studentUsernameInput = document.getElementById("student-username");
+    if (classCodeInput && authParams.get("class")) classCodeInput.value = authParams.get("class");
+    if (studentUsernameInput && authParams.get("username")) studentUsernameInput.value = authParams.get("username");
+    setOverlayVisible(true);
+  }
 
   updateSigninButton(sessionData?.session);
 
