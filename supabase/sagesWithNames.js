@@ -1,7 +1,9 @@
 import { supabaseClient } from './supabaseClient.js';
+import { fetchAllRows } from './fetchAllRows.js';
 
 export async function loadAllSages() {
-  const { data, error } = await supabaseClient
+  // Supabase returns at most 1000 rows per request, so load in pages (sorted by the unique key).
+  const { data, error } = await fetchAllRows(() => supabaseClient
     .from('sage')
     .select(`
       person,
@@ -20,7 +22,8 @@ export async function loadAllSages() {
         latitude,
         longitude
       )
-    `);
+    `)
+    .order('person'));
 
   if (error) throw error;
   return data;
