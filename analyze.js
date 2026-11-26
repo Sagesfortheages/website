@@ -2,6 +2,9 @@ import { loadAllSagesNames } from './supabase/sagesWithDwellingsNames.js';
 import { trackPageView } from './supabase/supabaseFunctions.js';
 import { supabaseClient } from './supabase/supabaseClient.js';
 
+// global.js checks a play button that does not exist on this page.
+// Define a stub so displayMarkers never throws if a marker has a birthYear.
+window.playButton ??= { checked: false };
 
 let markers = []; // Will be loaded from API
 let visibleMarkers = [];
@@ -11,20 +14,110 @@ let expertises = [];
 let uniqueNames = [];
 let uniqueness = false;
 let birthPlace = false;
-let start = Date.now();
 const legendItems = ['sefarad', 'ashkenaz', 'provence', 'chassidic', 'litvish', 'gaon', 'italian'];
-const infoText = `This page provides geographic information about our sages through the years.<br><br>Search for a sage in the search bar to see where that sage lived.<br><br>As you type, the map will update to display only sages which match the typed text.<br><br>Alternatively, filter the sages by background, by clicking on one or more items in the background section. <br><br>You can also filter by the focus of a sage's work by clicking on one or more items in the focus section. <br><br>Lastly, you can filter by time using the slider at the bottom of the screen.<br><br>The background, focus and time filters all work together, while the search tab operates independently.<br><br>As the map updates, the Who You're Seeing list will update.<br><br> Hover over a marker to see which sage it is and when.<br><br>To learn more about a sage, click on him/her in the Who You're Seeing list, to see his/her biography page.`
+const expertiseItems = ['tanach', 'talmud', 'halacha', 'responsa', 'kabbalah', 'chassidus', 'mussar', 'philosophy',
+    'linguistics', 'poetry', 'history'];
+const infoText = `This page provides geographic information about our sages through the years.<br><br>Search for a sage in the search bar to see where that sage lived.<br><br>As you type, the map will update to display only sages which match the typed text. A search turns off the other filters.<br><br>Alternatively, filter the sages by background, by clicking on one or more items in the background section. <br><br>You can also filter by the focus of a sage's work by clicking on one or more items in the focus section. <br><br>Lastly, you can filter by time using the slider at the bottom of the screen.<br><br>The background, focus and time filters all work together, while the search operates independently.<br><br>The line at the top of the map shows which filters are on and how many sages match.<br><br>As the map updates, the Sages Found list will update.<br><br>Hover over a marker to see the sage's portrait and a link to their profile.<br><br>To learn more about a sage, click on him/her in the Sages Found list to open their biography page.`;
 
-// ... some code you want to measure ...
+// "Try This" questions. Each one sets the filters and shows how many sages match.
+const PRESETS = {
+    'provence-rishonim': {
+        label: 'Rishonim of Provence',
+        bgs: ['Provence'], exps: [], years: [1100, 1350]
+    },
+    'ashkenaz-talmudists': {
+        label: 'Talmudists of Ashkenaz',
+        bgs: ['Ashkenaz'], exps: ['Talmud'], years: [900, 2000]
+    },
+    'spain-poets': {
+        label: 'Poets of the Golden Age of Spain',
+        bgs: ['Sefarad'], exps: ['Poetry'], years: [900, 1100]
+    },
+    'kabbalists-16th': {
+        label: 'Kabbalists of the 16th Century',
+        bgs: [], exps: ['Kabbalah'], years: [1500, 1599]
+    }
+};
 
 window.popup = document.getElementById('popup');
 window.popupMessage = document.querySelector('.popup-message');
 
 document.getElementById('info-button').addEventListener('click', function () {
-    startTour()
-})
+    startTour();
+});
 
-// ========== ORIGINAL FUNCTIONS (UNCHANGED) ==========
+// ========== HELPERS ==========
+
+// "sefarad" -> "Sefarad", "reset" -> "Reset"
+function cap(word) {
+    return word.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
+}
+
+function esc(text) {
+    return String(text ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+}
+
+function yearRange() {
+    return document.getElementById('year-slider').noUiSlider.get().map(Number);
+}
+
+// Picture names live on the `sage` table (not the map view), keyed by person
+let pictureByPerson = new Map();
+async function loadPictureNames() {
+    const { data, error } = await supabaseClient.from('sage').select('person, picture');
+    if (error) {
+        console.error('Could not load picture names:', error);
+        return;
+    }
+    pictureByPerson = new Map((data || []).map(s => [s.person, s.picture]));
+}
+
+// Same lookup as discover.js: public_images/sages/<picture>.webp, with a generic portrait if none
+function portraitUrl(picture) {
+    const name = picture ? String(picture).replace(/\.webp$/i, '') : '';
+    const path = name ? `sages/${name}` : 'sages/sage';
+    const { data } = supabaseClient.storage.from('public_images').getPublicUrl(`${path}.webp`);
+    return data.publicUrl;
+}
+
+// Same profile link the rest of the site uses (discover.html?selected=...)
+function profileUrl(person) {
+    const name = typeof person === 'string' ? person : person.person;
+    let url = `discover.html?selected=${encodeURIComponent(JSON.stringify(name))}&courseModeActive=false`;
+    if (new URLSearchParams(window.location.search).get('preview') === '1') {
+        url += '&preview=1';
+    }
+    return url;
+}
+
+function openProfile(person) {
+    window.location.href = profileUrl(person);
+}
+
+// Clicking a name in "Sages Found" goes straight to the profile
+window.linkToProfile = function (person) {
+    openProfile(person);
+};
+
+// Hover popup content: portrait, place and years, and a link to the full profile
+function sageHoverHtml(person, sage) {
+    const place = sage ? [sage.city, sage.country].filter(Boolean).join(', ') : '';
+    const years = sage ? `${sage.from ?? '?'}–${sage.to ?? '?'}` : '';
+    const pictureName = pictureByPerson.get(person) ?? sage?.picture;
+    // No picture on file: say so, rather than showing a silhouette. A failed image load does the same.
+    const portrait = pictureName
+        ? `<img src="${esc(portraitUrl(pictureName))}" alt="Portrait of ${esc(person)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="hover-noportrait" style="display:none">No portrait available</span>`
+        : `<span class="hover-noportrait">No portrait available</span>`;
+    return `<div class="hover-sage">
+        ${portrait}
+        <div><strong>${esc(person)}</strong><br>${esc(place)}${place && years ? '<br>' : ''}${esc(years)}</div>
+    </div>
+    <a class="hover-profile" href="${esc(profileUrl(person))}">Open profile →</a>`;
+}
+
+// ========== SEARCH ==========
 
 // Function to handle search input or chart click
 function handleInput(event, markers, searchValue = null) {
@@ -34,9 +127,9 @@ function handleInput(event, markers, searchValue = null) {
         searchValue = searchValue.toLowerCase();
     }
 
-    const searchResults = markers.filter(marker => 
-        (marker.person || '').toLowerCase().includes(searchValue) || 
-        (marker.aka || '').toLowerCase().includes(searchValue) || 
+    const searchResults = markers.filter(marker =>
+        (marker.person || '').toLowerCase().includes(searchValue) ||
+        (marker.aka || '').toLowerCase().includes(searchValue) ||
         (marker.name || '').toLowerCase().includes(searchValue)
     );
 
@@ -55,12 +148,10 @@ function handleInput(event, markers, searchValue = null) {
     });
 
     if (uniqueSearchResults.length === 0) {
-        var closestMatch = findClosestMatch(searchValue, uniqueNames);
-        console.log(closestMatch)
-        console.log(uniqueNames)
+        const closestMatch = findClosestMatch(searchValue, uniqueNames);
         const closestResults = markers.filter(marker =>
-            (marker.person || '').toLowerCase().includes(closestMatch) || 
-            (marker.aka || '').toLowerCase().includes(closestMatch) || 
+            (marker.person || '').toLowerCase().includes(closestMatch) ||
+            (marker.aka || '').toLowerCase().includes(closestMatch) ||
             (marker.name || '').toLowerCase().includes(closestMatch)
         );
 
@@ -77,19 +168,25 @@ function handleInput(event, markers, searchValue = null) {
     }
 
     if (searchValue === '') {
-        filterMarkers(markers, visibleMarkers, backgrounds, expertises, uniqueness, birthPlace);
+        filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
     } else {
+        // A search replaces the filters, so turn them off rather than leave them looking active
+        clearFilterState();
+        document.getElementById('question-text').textContent = 'Pick a question to see the sages that match it.';
         const filteredMarkers = markers.filter(marker =>
             uniqueSearchResults.map(r => r.person).includes(marker.person)
         );
-        displayMarkers(filteredMarkers, visibleMarkers, visibleMarkersPeople = visibleMarkersPeople);
+        displayMarkers(filteredMarkers, visibleMarkers, visibleMarkersPeople);
+        updateFilterChip();
     }
 }
 
 function handleCityClick(person, markers) {
+    clearFilterState();
     document.getElementById('search-input').value = "";
     const filteredMarkers = markers.filter(marker => marker.person.toLowerCase() === person.toLowerCase());
     displayMarkers(filteredMarkers, visibleMarkers, visibleMarkersPeople, true);
+    updateFilterChip(person);
 
     const suggestionsList = document.getElementById('search-results');
     const suggestionItems = suggestionsList.getElementsByTagName('li');
@@ -102,6 +199,71 @@ function handleCityClick(person, markers) {
     }
 }
 
+// Rebuilds the full, sorted list of sages in the search panel
+function rebuildSearchList() {
+    const suggestionsList = document.getElementById('search-results');
+    suggestionsList.innerHTML = '';
+    const allPeople = [...new Map(markers.map(item => [item['person'], item])).values()];
+    allPeople.sort((a, b) => a.person.localeCompare(b.person));
+    allPeople.forEach(result => {
+        const li = document.createElement('li');
+        li.textContent = result.person;
+        li.addEventListener('click', () => handleCityClick(result.person, markers));
+        suggestionsList.appendChild(li);
+    });
+}
+
+// Picking a filter clears the search, so the map matches the chip
+function clearSearch() {
+    const input = document.getElementById('search-input');
+    if (input) input.value = '';
+    rebuildSearchList();
+}
+
+// Turns off every background, focus, one-per-person and year filter, and clears their highlights.
+// Does not redraw the map; the caller does that.
+function clearFilterState() {
+    backgrounds = [];
+    expertises = [];
+    uniqueness = false;
+    legendItems.forEach(item => document.getElementById(item + '-legend')?.classList.remove('filter-clicked'));
+    expertiseItems.forEach(item => document.getElementById(item + '-expertise')?.classList.remove('filter-clicked'));
+    document.getElementById('uniqueness-button').classList.remove('filter-clicked');
+    document.getElementById('year-slider').noUiSlider.set([900, 2000]);
+}
+
+// ========== FILTER CHIP ==========
+
+// Shows the active filters and how many sages are on the map
+function updateFilterChip(override = null) {
+    const chip = document.getElementById('filter-chip');
+    if (!chip) return;
+
+    const count = new Set([...document.querySelectorAll('#visible-list li')].map(li => li.textContent)).size;
+    const searchText = document.getElementById('search-input').value.trim();
+
+    let label;
+    if (override) {
+        label = override;
+    } else if (searchText) {
+        label = `Search: "${searchText}"`;
+    } else {
+        const parts = [];
+        if (backgrounds.length) parts.push(backgrounds.join(' + '));
+        if (expertises.length) parts.push(expertises.join(' + '));
+        if (uniqueness) parts.push('one per person');
+        const [from, to] = yearRange();
+        if (from !== 900 || to !== 2000) parts.push(`${from}–${to}`);
+        label = parts.length ? parts.join(' · ') : 'All sages';
+    }
+
+    const prefix = !override && searchText ? '' : 'Showing: ';
+    const empty = count === 0 ? ' · No sages match. Try removing a filter.' : '';
+    chip.textContent = `${prefix}${label} · ${count} sage${count === 1 ? '' : 's'}${empty}`;
+}
+
+// ========== FILTERS ==========
+
 function haveCommonElements(list1, list2) {
     for (let element of list1) {
         if (list2.includes(element)) {
@@ -112,36 +274,19 @@ function haveCommonElements(list1, list2) {
 }
 
 function filterMarkers(markers, visibleMarkers, visibleMarkersPeople = false, backgrounds, expertises = [], unique = false, birthPlace = true) {
-    const timeValueStart = document.getElementById('year-slider').noUiSlider.get()[0];
-    const timeValueEnd = document.getElementById('year-slider').noUiSlider.get()[1];
+    const [timeValueStart, timeValueEnd] = yearRange();
 
     if (backgrounds.length === 0) {
-        backgrounds = legendItems.map(element => capitalizeWords(element));
+        backgrounds = legendItems.map(cap);
     }
 
-    if (expertises.length === 0) {
-        var filteredMarkers = markers.filter(marker =>
-            backgrounds.includes(marker.background) &&
-            marker.from <= timeValueEnd &&
-            marker.to >= timeValueStart
-        );
-        if (unique) {
-            if (birthPlace) {
-                filteredMarkers = filteredMarkers.filter(marker => marker.from === marker.birth);
-            } else {
-                filteredMarkers = filteredMarkers.filter(marker => marker.to === marker.passing);
-            }
-        }
-        displayMarkers(filteredMarkers, visibleMarkers, visibleMarkersPeople);
-        return;
-    }
-
-    var filteredMarkers = markers.filter(marker =>
+    let filteredMarkers = markers.filter(marker =>
         backgrounds.includes(marker.background) &&
         marker.from <= timeValueEnd &&
         marker.to >= timeValueStart &&
-        haveCommonElements(expertises, (marker.expertise || '').split(', '))
+        (expertises.length === 0 || haveCommonElements(expertises, (marker.expertise || '').split(', ')))
     );
+
     if (unique) {
         if (birthPlace) {
             filteredMarkers = filteredMarkers.filter(marker => marker.from === marker.birth);
@@ -149,10 +294,15 @@ function filterMarkers(markers, visibleMarkers, visibleMarkersPeople = false, ba
             filteredMarkers = filteredMarkers.filter(marker => marker.to === marker.passing);
         }
     }
+
     displayMarkers(filteredMarkers, visibleMarkers, visibleMarkersPeople);
+    updateFilterChip();
+    // A manual filter change makes any earlier "Try This" result out of date
+    document.getElementById('question-text').textContent = 'Pick a question to see the sages that match it.';
 }
 
 function handleLegendClick(markers, visibleMarkers, visibleMarkersPeople = false, legendId, filterName) {
+    clearSearch();
     const legendClicked = document.getElementById(legendId);
     if (!legendClicked.classList.contains('filter-clicked')) {
         legendClicked.classList.add('filter-clicked');
@@ -165,6 +315,7 @@ function handleLegendClick(markers, visibleMarkers, visibleMarkersPeople = false
 }
 
 function handleExpertiseClick(markers, visibleMarkers, visibleMarkersPeople = false, expertiseId, filterName) {
+    clearSearch();
     const expertiseClicked = document.getElementById(expertiseId);
     if (!expertiseClicked.classList.contains('filter-clicked')) {
         expertiseClicked.classList.add('filter-clicked');
@@ -177,6 +328,7 @@ function handleExpertiseClick(markers, visibleMarkers, visibleMarkersPeople = fa
 }
 
 function handleUniquenessClick(markers, visibleMarkers, visibleMarkersPeople = false) {
+    clearSearch();
     const uniquenessClicked = document.getElementById('uniqueness-button');
     if (!uniquenessClicked.classList.contains('filter-clicked')) {
         uniquenessClicked.classList.add('filter-clicked');
@@ -188,97 +340,108 @@ function handleUniquenessClick(markers, visibleMarkers, visibleMarkersPeople = f
     filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
 }
 
-function resetAllFilters() {
-  // ----- 1) Reset state vars -----
-  backgrounds = [];
-  expertises = [];
-  uniqueness = false;
-  birthPlace = false; // set to whatever your "default" is; you currently start false
-  // NOTE: visibleMarkers / visibleMarkersPeople are managed by displayMarkers(), so we don't manually clear them here.
+// Sets every filter at once (used by "Try This" questions)
+function setFilters({ bgs = [], exps = [], years = [900, 2000] } = {}) {
+    backgrounds = [...bgs];
+    expertises = [...exps];
+    uniqueness = false;
 
-  // ----- 2) Reset UI: background legends -----
-  legendItems.forEach((item) => {
-    const el = document.getElementById(item + "-legend");
-    if (el) el.classList.remove("filter-clicked");
-  });
-
-  // ----- 3) Reset UI: expertise buttons -----
-  const expertiseItems = [
-    "tanach", "talmud", "halacha", "responsa", "kabbalah",
-    "chassidus", "mussar", "philosophy", "linguistics",
-    "poetry", "history"
-  ];
-  expertiseItems.forEach((item) => {
-    const el = document.getElementById(item + "-expertise");
-    if (el) el.classList.remove("filter-clicked");
-  });
-
-  // ----- 4) Reset UI: uniqueness button -----
-  const uniqBtn = document.getElementById("uniqueness-button");
-  if (uniqBtn) uniqBtn.classList.remove("filter-clicked");
-
-  // ----- 5) Reset UI: search input + suggestions highlight -----
-  const searchInput = document.getElementById("search-input");
-  if (searchInput) searchInput.value = "";
-
-  const suggestionsList = document.getElementById("search-results");
-  if (suggestionsList) {
-    // remove any "selected" highlight you add in handleCityClick
-    suggestionsList.querySelectorAll("li.selected").forEach(li => li.classList.remove("selected"));
-
-    // optional: if you want the list to look like initial load (full list),
-    // you can also clear and rebuild it. If you DON'T need that, delete this block.
-    // (Rebuild uses markers already loaded.)
-    suggestionsList.innerHTML = "";
-    const allPeople = [...new Map(markers.map(item => [item["person"], item])).values()];
-    allPeople.sort((a, b) => a.person.localeCompare(b.person));
-    allPeople.forEach(result => {
-      const li = document.createElement("li");
-      li.textContent = result.person;
-      li.addEventListener("click", () => handleCityClick(result.person, markers));
-      suggestionsList.appendChild(li);
+    legendItems.forEach(item => {
+        const el = document.getElementById(item + '-legend');
+        if (el) el.classList.toggle('filter-clicked', bgs.includes(cap(item)));
     });
-  }
+    expertiseItems.forEach(item => {
+        const el = document.getElementById(item + '-expertise');
+        if (el) el.classList.toggle('filter-clicked', exps.includes(cap(item)));
+    });
+    document.getElementById('uniqueness-button').classList.remove('filter-clicked');
 
-  // ----- 6) Reset UI: year slider -----
-  const yearSlider = document.getElementById("year-slider");
-  if (yearSlider && yearSlider.noUiSlider) {
-    // match your initial 'start: [900, 2000]'
-    yearSlider.noUiSlider.set([900, 2000]);
-  }
-
-  // ----- 7) Hide popup if visible -----
-  if (window.popup) window.popup.classList.remove("visible");
-
-  // ----- 8) Show ALL markers again -----
-  // This is the key: ensure everything is visible, regardless of filter state.
-  displayMarkers(markers, visibleMarkers, visibleMarkersPeople);
+    document.getElementById('year-slider').noUiSlider.set(years);
+    clearSearch();
+    filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
 }
 
+function resetAllFilters() {
+    setFilters({});
+}
 
-// ========== NEW: FETCH + INITIALIZE ==========
+// ========== TRY THIS ==========
 
-async function loadMarkers() {
-    try {
-        const { data, error } = await loadAllSagesNames()
+function applyPreset(key) {
+    const preset = PRESETS[key];
+    if (!preset) return;
+    setFilters({ bgs: preset.bgs, exps: preset.exps, years: preset.years });
+    const count = new Set([...document.querySelectorAll('#visible-list li')].map(li => li.textContent)).size;
+    document.getElementById('question-text').textContent =
+        `${preset.label}: ${count} sage${count === 1 ? '' : 's'} match. Check "Sages Found" to see who.`;
+}
 
-        if (error) throw error;
-        markers = data || [];
+// ========== URL FILTERS ==========
 
-        initializeUI();
-        await loadMusic(supabaseClient, "StockTune-Epic Voyage Through Time_1765329202.mp3");
-        filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
+function applyFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search);
 
-    } catch (error) {
-        console.error('Error loading markers:', error);
+    // supports:
+    // ?focus=Tanach
+    // ?focus=Tanach,Halacha
+    // ?focus=Tanach&focus=Halacha
+    const focusValues = params.getAll('focus')
+        .flatMap(value => value.split(','))
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    // supports:
+    // ?background=Litvish
+    // ?background=Litvish,Chassidic
+    // ?background=Litvish&background=Chassidic
+    const backgroundValues = params.getAll('background')
+        .flatMap(value => value.split(','))
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    // supports ?from=1300&to=1500
+    const hasYears = params.has('from') || params.has('to');
+    if (hasYears) {
+        const a = Number(params.get('from')) || 900;
+        const b = Number(params.get('to')) || 2000;
+        document.getElementById('year-slider').noUiSlider.set([Math.min(a, b), Math.max(a, b)]);
     }
 
-    const page = await trackPageView();
-    console.log(page)
-    // if(page.isFirstVisit) {
-    //     startTour()
-    // }
+    focusValues.forEach(focus => {
+        const matchedItem = expertiseItems.find(item => item.toLowerCase() === focus.toLowerCase());
+        if (!matchedItem) return;
+
+        const filterName = cap(matchedItem);
+        const button = document.getElementById(matchedItem + '-expertise');
+        if (!button) return;
+
+        button.classList.add('filter-clicked');
+        if (!expertises.includes(filterName)) {
+            expertises.push(filterName);
+        }
+    });
+
+    backgroundValues.forEach(background => {
+        const matchedItem = legendItems.find(item => item.toLowerCase() === background.toLowerCase());
+        if (!matchedItem) return;
+
+        const filterName = cap(matchedItem);
+        const button = document.getElementById(matchedItem + '-legend');
+        if (!button) return;
+
+        button.classList.add('filter-clicked');
+        if (!backgrounds.includes(filterName)) {
+            backgrounds.push(filterName);
+        }
+    });
+
+    // only run filtering if at least one URL filter was supplied
+    if (focusValues.length || backgroundValues.length || hasYears) {
+        filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
+    }
 }
+
+// ========== TOUR ==========
 
 function startTour() {
     const intro = introJs();
@@ -304,7 +467,14 @@ function startTour() {
                 intro: `
                 <h3>📍 The Map</h3>
                 This map shows where figures lived and moved throughout their lives.
-                You can pan and zoom freely. Hover a marker to see more information.
+                You can pan and zoom freely. Hover a marker to see the sage's portrait and a link to their profile.
+                `
+            },
+            {
+                element: '#filter-chip',
+                intro: `
+                <h3>🧭 What You're Seeing</h3>
+                This line lists the filters you have on and how many sages match them.
                 `
             },
             {
@@ -325,7 +495,7 @@ function startTour() {
                 element: '.search-container',
                 intro: `
                 <h3>🕵️ Search</h3>
-                Type a name to filter for a person/people with that name. As you type, the map will update. Alternatively, click on a person to filter for them.
+                Type a name to filter for a person/people with that name. A search turns off the other filters. Alternatively, click on a person to see them.
                 `
             },
             {
@@ -336,17 +506,24 @@ function startTour() {
                 `
             },
             {
+                element: '#question-card',
+                intro: `
+                <h3>💡 Try This</h3>
+                Pick a question to see the sages that match it.
+                `
+            },
+            {
                 element: '#visible-container',
                 intro: `
-                <h3>👁️ Currently Visible</h3>
+                <h3>👁️ Sages Found</h3>
                 These are the sages matching your filters.
-                Click on one to be taken to their profile page.
+                Click on one to open their profile page.
                 `
             },
             {
                 element: '#uniqueness-button',
                 intro: `
-                <h3>🥇 Uniqueness</h3>
+                <h3>🥇 One per person</h3>
                 Click here to see a single marker per person (the last known place of that person).
                 `
             },
@@ -369,118 +546,25 @@ function startTour() {
 
     intro.start();
 }
-function applyFiltersFromUrl() {
-    const params = new URLSearchParams(window.location.search);
 
-    // supports:
-    // ?focus=Tanach
-    // ?focus=Tanach,Halacha
-    // ?focus=Tanach&focus=Halacha
-    const rawFocusParams = params.getAll('focus');
-    const focusValues = rawFocusParams
-        .flatMap(value => value.split(','))
-        .map(value => value.trim())
-        .filter(Boolean);
-
-    // supports:
-    // ?background=Litvish
-    // ?background=Litvish,Chassidic
-    // ?background=Litvish&background=Chassidic
-    const rawBackgroundParams = params.getAll('background');
-    const backgroundValues = rawBackgroundParams
-        .flatMap(value => value.split(','))
-        .map(value => value.trim())
-        .filter(Boolean);
-
-    const expertiseItems = [
-        'tanach', 'talmud', 'halacha', 'responsa', 'kabbalah',
-        'chassidus', 'mussar', 'philosophy', 'linguistics',
-        'poetry', 'history'
-    ];
-
-    const backgroundItems = [
-        'sefarad', 'ashkenaz', 'provence', 'chassidic',
-        'litvish', 'gaon', 'italian'
-    ];
-
-    focusValues.forEach(focus => {
-        const normalizedFocus = focus.toLowerCase();
-
-        const matchedItem = expertiseItems.find(item => item.toLowerCase() === normalizedFocus);
-        if (!matchedItem) return;
-
-        const filterName = matchedItem.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
-        const expertiseId = matchedItem + '-expertise';
-        const button = document.getElementById(expertiseId);
-
-        if (!button) return;
-
-        button.classList.add('filter-clicked');
-
-        if (!expertises.includes(filterName)) {
-            expertises.push(filterName);
-        }
-    });
-
-    backgroundValues.forEach(background => {
-        const normalizedBackground = background.toLowerCase();
-
-        const matchedItem = backgroundItems.find(item => item.toLowerCase() === normalizedBackground);
-        if (!matchedItem) return;
-
-        const filterName = matchedItem.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
-        const legendId = matchedItem + '-legend';
-        const button = document.getElementById(legendId);
-
-        if (!button) return;
-
-        button.classList.add('filter-clicked');
-
-        if (!backgrounds.includes(filterName)) {
-            backgrounds.push(filterName);
-        }
-    });
-
-    // only run filtering if at least one URL filter was supplied
-    if (focusValues.length || backgroundValues.length) {
-        filterMarkers(
-            markers,
-            visibleMarkers,
-            visibleMarkersPeople,
-            backgrounds,
-            expertises,
-            uniqueness,
-            birthPlace
-        );
-    }
-}
+// ========== INITIALIZE ==========
 
 function initializeUI() {
     document.getElementById('search-input').addEventListener('input', function (event) {
         handleInput(event, markers);
     });
 
-    // const song = document.getElementById('song');
-    // if (song) {
-    //     song.play();
-    // }
-
-    
-
     legendItems.forEach(function (item) {
-    const legendId = item + '-legend';
-    const filterName = item.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
-    document.getElementById(legendId).addEventListener('click', function () {
-        handleLegendClick(markers, visibleMarkers, visibleMarkersPeople, legendId, filterName);
-        
-    });
+        const legendId = item + '-legend';
+        const filterName = cap(item);
+        document.getElementById(legendId).addEventListener('click', function () {
+            handleLegendClick(markers, visibleMarkers, visibleMarkersPeople, legendId, filterName);
+        });
     });
 
-    const expertiseItems = ['tanach', 'talmud', 'halacha', 'responsa', 'kabbalah', 'chassidus', 'mussar', 'philosophy',
-        'linguistics', 'poetry', 'history'];
     expertiseItems.forEach(function (item) {
         const expertiseId = item + '-expertise';
-        const filterName = item.replace('-', ' ').replace(/^\w/, c => c.toUpperCase());
+        const filterName = cap(item);
         document.getElementById(expertiseId).addEventListener('click', function () {
             handleExpertiseClick(markers, visibleMarkers, visibleMarkersPeople, expertiseId, filterName);
         });
@@ -490,12 +574,10 @@ function initializeUI() {
         handleUniquenessClick(markers, visibleMarkers, visibleMarkersPeople);
     });
 
-    
     document.getElementById('reset-filters-button').addEventListener('click', function () {
-        resetAllFilters()
+        resetAllFilters();
     });
 
-    const suggestionsList = document.getElementById('search-results');
     const allPeople = [...new Map(markers.map(item => [item['person'], item])).values()];
     allPeople.sort((a, b) => a.person.localeCompare(b.person));
     uniqueNames = allPeople.flatMap((p) => [
@@ -506,18 +588,10 @@ function initializeUI() {
             .map(s => s.trim())
             .filter(Boolean)
             .map(s => s.toLowerCase()))
-        ])
-    
-    allPeople.forEach(result => {
-        const li = document.createElement('li');
-        li.textContent = result.person;
-        li.addEventListener('click', () => {
-            handleCityClick(result.person, markers);
-        });
-        suggestionsList.appendChild(li);
-    });
+    ]);
+    rebuildSearchList();
 
-    var yearSlider = document.getElementById('year-slider');
+    const yearSlider = document.getElementById('year-slider');
     noUiSlider.create(yearSlider, {
         start: [900, 2000],
         connect: [false, true, false],
@@ -540,21 +614,70 @@ function initializeUI() {
         filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
     });
 
+    // Hover a marker: the popup shows the portrait, facts and a profile link.
+    // This capture listener runs before global.js's handler, so the popup is sized to the new content.
+    document.addEventListener('mouseover', (event) => {
+        const marker = event.target;
+        if (!marker.classList || !marker.classList.contains('popup-button')) return;
+        cancelPopupHide();
+        // Keep the original text once, so the years can be read after the popup has been rewritten
+        if (marker.dataset.plain === undefined) marker.dataset.plain = marker.dataset.message || '';
+        const plain = marker.dataset.plain;
+        const match = /<strong>(.*?)<\/strong>/.exec(plain);
+        if (!match) return;
+        // Use this dot's own city and years, not the first record for the person
+        const years = /<br>\s*(\d+)-(\d+)/.exec(plain);
+        marker.dataset.message = sageHoverHtml(match[1], {
+            city: marker.dataset.city,
+            country: marker.dataset.country,
+            from: years?.[1],
+            to: years?.[2]
+        });
+    }, true);
     document.addEventListener('mouseover', handleHoverPopup);
     document.addEventListener('mousemove', handleHoverPopup);
+
+    // The popup stays open while the pointer is on it, so the profile link can be clicked
+    let hideTimer = null;
+    function cancelPopupHide() { clearTimeout(hideTimer); }
+    function schedulePopupHide() { hideTimer = setTimeout(() => popup.classList.remove('visible'), 250); }
     document.addEventListener('mouseout', (event) => {
-        if (event.target.classList.contains('popup-button')) {
-            popup.classList.remove('visible');
-        }
+        if (event.target.classList && event.target.classList.contains('popup-button')) schedulePopupHide();
+    });
+    popup.addEventListener('mouseenter', cancelPopupHide);
+    popup.addEventListener('mouseleave', () => popup.classList.remove('visible'));
+
+    // "Try This" toggle and question buttons
+    const tryToggle = document.getElementById('try-toggle');
+    const tryCard = document.getElementById('question-card');
+    tryToggle.addEventListener('click', () => {
+        const open = tryCard.classList.toggle('open');
+        tryToggle.setAttribute('aria-expanded', String(open));
+    });
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+        btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
     });
 
     applyFiltersFromUrl();
 }
 
+// ========== FETCH + RUN ON LOAD ==========
 
+async function loadMarkers() {
+    try {
+        const { data, error } = await loadAllSagesNames();
+        if (error) throw error;
+        markers = data || [];
+        await loadPictureNames();
 
-// ========== RUN FETCH ON LOAD ==========
+        initializeUI();
+        filterMarkers(markers, visibleMarkers, visibleMarkersPeople, backgrounds, expertises, uniqueness, birthPlace);
+    } catch (error) {
+        console.error('Error loading markers:', error);
+        document.getElementById('filter-chip').textContent = 'Sages could not load. Please refresh the page.';
+    }
+
+    await trackPageView();
+}
+
 document.addEventListener('DOMContentLoaded', loadMarkers);
-let end = Date.now();
-console.log("Elapsed time: " + (end - start) + " ms");
-

@@ -390,6 +390,132 @@
 
 
 }
+/* ================================
+   ADDITIONS (existing tokens and components only)
+   ================================ */
+/* Captions on the 1 and feedback buttons show only while hovering */
+.btn-caption{
+  position: absolute;
+  top: 9.5vmin;
+  width: 8vmin;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 1.5vmin;
+  line-height: 1.1;
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.modern-button:hover + .btn-caption{ opacity: 1; }
+#uniqueness-caption{ left: 10vmin; }
+#feedback-caption{ right: 10vmin; }
+
+/* Shows the active filters and the number of sages over the map */
+.filter-chip{
+  position: absolute;
+  top: 1vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  max-width: 90%;
+  padding: 0.6vmin 2vmin;
+  border-radius: 999px;
+  background: var(--paper-strong);
+  border: 1px solid var(--rule-strong);
+  box-shadow: var(--shadow-tight);
+  font-family: var(--font-ui);
+  font-size: 2vmin;
+  color: var(--heading-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Try This" floats over the map so the side columns keep their size */
+.try-toggle{
+  position: absolute;
+  top: 1vmin;
+  left: 1vmin;
+  z-index: 950;
+  font-size: 1.9vmin;
+  padding: 0.8vmin 1.4vmin;
+}
+.try-card{
+  position: absolute;
+  top: 9vmin;
+  left: 1vmin;
+  width: 32vmin;
+  z-index: 950;
+  display: none;
+  padding: 1.5vmin;
+}
+.try-card.open{ display: block; }
+
+/* Sages Found: the list fills the panel and scrolls inside it (panel size unchanged) */
+#visible-container{
+  display: flex;
+  flex-direction: column;
+}
+#visible-container #visible-list{
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-x: hidden; /* the 3px hover shift must not create a sideways scrollbar */
+}
+.try-card p{
+  font-family: var(--font-body);
+  font-size: 2.3vmin;
+  color: var(--ink);
+  margin: 0.6vmin 0;
+}
+.btn-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vmin;
+  margin-top: 1vmin;
+}
+.btn-row .btn-parchment{ font-size: 1.8vmin; padding: 0.8vmin 1.4vmin; }
+
+/* Marker hover popup: portrait and facts, then a profile link */
+.hover-sage{
+  display: flex;
+  align-items: center;
+  gap: 1.2vmin;
+}
+.hover-sage img{
+  width: 9vmin;
+  height: 9vmin;
+  object-fit: cover;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid var(--rule-strong);
+}
+.hover-noportrait{
+  width: 9vmin;
+  height: 9vmin;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.4vmin;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  border: 1px dashed var(--rule-strong);
+  border-radius: 6px;
+  padding: 0.5vmin;
+}
+.hover-profile{
+  display: inline-block;
+  margin-top: 0.8vmin;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 2vmin;
+  color: var(--classy-blue-ink);
+  text-decoration: underline;
+}
+
 </style>
 
 
@@ -409,11 +535,15 @@
             <p class="subtitle"> Filter and analyze sages by era, background, focus and name.</p>
         </div>
         <button class="modern-button" id="home-button" onclick="window.location.href='index.html'">🏠</button>
-        <button class="modern-button second-left-button" id="uniqueness-button">1</button>
+        <button class="modern-button second-left-button" id="uniqueness-button"
+        title="Show one marker per person (last known place)" aria-label="Show one marker per person">1</button>
+        <span class="btn-caption" id="uniqueness-caption">One per person</span>
         <button class="modern-button third-left-button" id="reset-filters-button">🔁</button>
         <button class="modern-button" id="info-button">ℹ️</button>
         <button class="modern-button second-right-button" id="feedback-button" 
+        title="Send feedback" aria-label="Send feedback"
         onclick="window.location.href='feedback.html'">📩</button>
+        <span class="btn-caption" id="feedback-caption">Feedback</span>
     </div>
 
     <div class="container-grid">
@@ -464,13 +594,25 @@
         <div class="central-container">
 
             
-            <div id="map"></div>  
+            <div id="map">
+                <button class="btn-parchment try-toggle" id="try-toggle" aria-expanded="false" aria-controls="question-card">💡 Try This</button>
+                <div class="panel side-card try-card" id="question-card">
+                    <h3 class="panel-heading">Try This</h3>
+                    <p id="question-text">Pick a question to see the sages that match it.</p>
+                    <div class="btn-row">
+                        <button class="btn-parchment" data-preset="provence-rishonim">Rishonim of Provence</button>
+                        <button class="btn-parchment" data-preset="ashkenaz-talmudists">Talmudists of Ashkenaz</button>
+                        <button class="btn-parchment" data-preset="spain-poets">Poets of the Golden Age of Spain</button>
+                        <button class="btn-parchment" data-preset="kabbalists-16th">Kabbalists of the 16th Century</button>
+                    </div>
+                </div>
+                <div id="filter-chip" class="filter-chip" aria-live="polite">Loading sages…</div>
+            </div>  
 
             <div id="year-slider"></div>
 
     
 
-            <audio id="song" preload="auto"></audio>
 
             
         </div>  
