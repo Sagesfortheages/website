@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="../all_styles.css">
+    <title>📜 Study</title>
+    <style>
+
+        :root{
+        --sage-mishna: rgba(250, 0, 220, 0.38);
+        --sage-gemara: rgba(140, 70, 30, 0.38);         /* deep clay */
+        --sage-rashi: rgba(40, 80, 160, 0.38);          /* strong blue */
+        --sage-tosfos: rgba(40, 140, 60, 0.38);         /* clean green */
+        --sage-rabbeinu-chananel: rgba(120, 60, 220, 0.38); /* bold purple */
+        --sage-ein-mishpat: rgba(220, 200, 120, 0.45);  /* pale parchment */
+        --sage-masores: rgba(60, 160, 110, 0.38);       /* fresh green */
+        --sage-habach: rgba(200, 60, 160, 0.38);        /* pink-magenta */
+        }
+
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            text-align: center;
+        }
+        .container {
+            position: relative;
+            margin-left: 0;
+            margin-right: 0;
+            margin: auto;
+            /* never wider than 32vw, and never so wide that the picture (ratio 727:1091) is taller than the window */
+            max-width: min(32vw, calc((100vh - 200px) * 0.6663));
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        .image-container img {
+            display: block;   /* no baseline gap under the picture, so % highlights line up at every size */
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--rule);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+
+        button{
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            position: absolute;
+            width: 2.1vmin;
+            height: 2.1vmin;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            justify-items: center;
+            display:flex;
+        }
+
+        /* Image credit (required by the CC BY-SA 3.0 license) */
+        .credit {
+            direction: ltr;
+            font-family: var(--font-ui, sans-serif);
+            font-size: 1.6vmin;
+            color: var(--ink-soft, #555);
+            margin: 1vmin 0 3vmin;
+        }
+        .credit a { color: inherit; }
+
+
+        /* ===== Highlighted areas (left / top / width / height are % of the picture) ===== */
+        #mishna-one {
+            position: absolute;
+            left: 35.6%;
+            top: 11.5%;
+            width: 33.6%;
+            height: 22%;
+            cursor: default;
+            background: var(--sage-mishna);
+        }
+        #mishna-two {
+            position: absolute;
+            left: 64.6%;
+            top: 33.5%;
+            width: 4.6%;
+            height: 1.6%;
+            cursor: default;
+            background: var(--sage-mishna);
+        }
+        /* Gemara (the Mishna and Gemara text in the center column) */
+        #gemara-one {
+            position: absolute;
+            left: 35.6%;
+            top: 33.5%;
+            width: 29%;
+            height: 1.6%;
+            cursor: default;
+            background: var(--sage-gemara);
+        }
+        #gemara-two {
+            position: absolute;
+            left: 35.6%;
+            top: 35.1%;
+            width: 33.6%;
+            height: 14.1%;
+            cursor: default;
+            background: var(--sage-gemara);
+        }
+
+        /* Rashi (on the inner side of the page, the right side) */
+        #rashi-one {
+            position: absolute;
+            left: 53%;
+            top: 5.5%;
+            width: 38.4%;
+            height: 6%;
+            cursor: pointer;
+            background: var(--sage-rashi);
+        }
+        #rashi-two {
+            position: absolute;
+            left: 69.2%;
+            top: 11.5%;
+            width: 22.2%;
+            height: 37.7%;
+            cursor: pointer;
+            background: var(--sage-rashi);
+        }
+        #rashi-three {
+            position: absolute;
+            left: 53%;
+            top: 49.2%;
+            width: 38.4%;
+            height: 23.6%;
+            cursor: pointer;
+            background: var(--sage-rashi);
+        }
+
+
+        /* Tosfos (on the outer side of the page, the left side). Highlighted but NOT linked. */
+        #tosfos-one {
+            position: absolute;
+            left: 13.3%;
+            top: 5.5%;
+            width: 39.7%;
+            height: 6%;
+            cursor: default;
+            background: var(--sage-tosfos);
+        }
+        #tosfos-two {
+            position: absolute;
+            left: 13.3%;
+            top: 11.5%;
+            width: 22.3%;
+            height: 37.7%;
+            cursor: default;
+            background: var(--sage-tosfos);
+        }
+        #tosfos-three {
+            position: absolute;
+            left: 13.3%;
+            top: 49.2%;
+            width: 39.7%;
+            height: 23.6%;
+            cursor: default;
+            background: var(--sage-tosfos);
+        }
+        #tosfos-four {
+            position: absolute;
+            left: 13.3%;
+            top: 72.8%;
+            width: 78.1%;
+            height: 21%;
+            cursor: default;
+            background: var(--sage-tosfos);
+        }
+
+        /* Rabbeinu Chananel (outer margin, lower left). Highlighted but NOT linked. */
+        #rabbeinu-chananel {
+            position: absolute;
+            left: 2.3%;
+            top: 45.6%;
+            width: 11%;
+            height: 45.9%;
+            cursor: default;
+            background: var(--sage-rabbeinu-chananel);
+        }
+
+        /* Ein Mishpat / Ner Mitzvah (references to halacha, top outer margin). Highlighted but NOT linked. */
+        #ein-mishpat {
+            position: absolute;
+            left: 2.3%;
+            top: 2.6%;
+            width: 11%;
+            height: 29%;
+            cursor: default;
+            background: var(--sage-ein-mishpat);
+        }
+
+
+        /* Masores HaShas (cross-references in the far outer margin, top right). Highlighted but NOT linked. */
+        #masores-hashas {
+            position: absolute;
+            left: 91.4%;
+            top: 2.6%;
+            width: 7%;
+            height: 40.5%;
+            cursor: default;
+            background: var(--sage-masores);
+        }
+
+        /* Hagahos HaBach (margin note, lower right). Highlighted but NOT linked. */
+        #hagaos-habach-one {
+            position: absolute;
+            left: 91.4%;
+            top: 79%;
+            width: 7%;
+            height: 14.8%;
+            cursor: default;
+            background: var(--sage-habach);
+        }
+        #hagaos-habach-two {
+            position: absolute;
+            left: 2.3%;
+            top: 93.8%;
+            width: 96.1%;
+            height: 5.3%;
+            cursor: default;
+            background: var(--sage-habach);
+        }
+
+
+        .hotspot:hover {
+            filter: brightness(1.25) saturate(1.2);
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+
+        /* The tooltip itself (hidden by default) */
+        .hotspot::after {
+            content: attr(data-tooltip); /* Use the text from the data-tooltip attribute */
+            position: absolute;
+            bottom: 100%; /* Position it above the element */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal position */
+            background: var(--classy-blue-ink); /* Blue background */
+            color: var(--paper); /* White text */
+            padding: 5px 10px; /* Padding for the tooltip */
+            border-radius: 5px; /* Rounded corners */
+            opacity: 0; /* Initially hidden */
+            visibility: hidden; /* Initially hidden */
+            transition: opacity 0.2s ease, visibility 0.2s ease; /* Fade-in effect */
+            z-index: 10; /* Ensure the tooltip is above other content */
+            white-space: nowrap;
+        }
+
+        /* Tooltips for areas at the page edges: line them up with the edge so they never stick out of the picture
+           (a centered tooltip here made the phone page scroll sideways) */
+        #masores-hashas::after, #hagaos-habach-one::after { left: auto; right: 0; transform: none; }
+        #ein-mishpat::after, #rabbeinu-chananel::after { left: 0; transform: none; }
+
+        /* Make the tooltip visible when hovering */
+        .hotspot:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+@media (max-width: 600px) {
+    .container {
+            max-width: 90vw;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <div class="header">
+            <h1>
+                <span class="gradient-text">Gemara</span>
+            </h1>
+        </div>
+        <button class="modern-button" id="home-button" onclick="window.location.href='../index.html'">🏠</button>
+        <button class="modern-button" id="info-button">ℹ️</button>
+        <button class="modern-button second-right-button" id="feedback-button"
+        onclick="window.location.href='../feedback.html'">📩</button>
+    </div>
+
+    <div class="container">
+        <div class="image-container">
+            <img alt="Page 2a of Tractate Rosh Hashana in the Vilna Talmud, with the Gemara in the center and commentaries around it" id="gemara_img">
+
+            <a class="hotspot" id="mishna-one" data-tooltip="Mishna"></a>
+            <a class="hotspot" id="mishna-two" data-tooltip="Mishna"></a>
+            <a class="hotspot" id="gemara-one" data-tooltip="Gemara"></a>
+            <a class="hotspot" id="gemara-two" data-tooltip="Gemara"></a>
+   
+            <a class="hotspot" id="rashi-one" data-tooltip="Rashi"></a>
+            <a class="hotspot" id="rashi-two" data-tooltip="Rashi"></a>
+            <a class="hotspot" id="rashi-three" data-tooltip="Rashi"></a>
+            <a class="hotspot" id="tosfos-one" data-tooltip="Tosfos"></a>
+            <a class="hotspot" id="tosfos-two" data-tooltip="Tosfos"></a>
+            <a class="hotspot" id="tosfos-three" data-tooltip="Tosfos"></a>
+            <a class="hotspot" id="tosfos-four" data-tooltip="Tosfos"></a>
+            <a class="hotspot" id="rabbeinu-chananel" data-tooltip="Rabbeinu Chananel"></a>
+            <a class="hotspot" id="ein-mishpat" data-tooltip="Ein Mishpat / Ner Mitzvah"></a>
+            <a class="hotspot" id="masores-hashas" data-tooltip="Masores HaShas"></a>
+            <a class="hotspot" id="hagaos-habach-one" data-tooltip="Hagahos HaBach"></a>
+            <a class="hotspot" id="hagaos-habach-two" data-tooltip="Hagahos HaBach"></a>
+        </div>
+        <p class="credit">
+            Image: <a href="https://commons.wikimedia.org/wiki/File:Gemara-rosh-hashana-2a.jpg">Gemara-rosh-hashana-2a.jpg</a>
+            by Gylatshalit, Wikimedia Commons,
+            <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
+        </p>
+    </div>
+
+
+    <script type = "module">
+
+        import { trackPageView } from '../supabase/supabaseFunctions.js';
+        import {loadTextImage} from './texts.js'
+
+        trackPageView('Gemara');
+
+        loadTextImage("gemara.jpg").then((data) => {
+            console.log(data)
+            document.getElementById("gemara_img").src = data.publicUrl;
+        })
+
+        // Only Rashi is linked. Tosfos, Rabbeinu Chananel and the rest are highlighted but not linked.
+        document.getElementById('rashi-one').addEventListener('click', function() {
+            linkToProfile('Rashi', "../discover.html");
+        });
+        document.getElementById('rashi-two').addEventListener('click', function() {
+            linkToProfile('Rashi', "../discover.html");
+        });
+        document.getElementById('rashi-three').addEventListener('click', function() {
+            linkToProfile('Rashi', "../discover.html");
+        });
+        document.getElementById('rabbeinu-chananel').addEventListener('click', function() {
+            linkToProfile('Rabbeinu Chananel', "../discover.html");
+        });
+        document.getElementById('hagaos-habach-one').addEventListener('click', function() {
+            linkToProfile('Bach', "../discover.html");
+        });
+        document.getElementById('hagaos-habach-two').addEventListener('click', function() {
+            linkToProfile('Bach', "../discover.html");
+        });
+
+    </script>
+
+
+<script src="../global.js"></script>
+</body>
+</html>
